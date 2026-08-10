@@ -28,7 +28,7 @@ import {
   type PivotDimension,
 } from "@/data/logbook";
 
-export const Route = createFileRoute("/logbook")({
+export const Route = createFileRoute("/_authenticated/logbook")({
   head: () => ({
     meta: [
       { title: "Activity Logbook, Pivot Charts & Testing — T4P" },

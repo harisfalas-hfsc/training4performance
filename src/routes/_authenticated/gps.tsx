@@ -16,7 +16,7 @@ import { ACCEPTED_EXTENSIONS, detectProvider, isAcceptedFile } from "@/data/gps-
 import { T4P_TEMPLATE_COLUMNS, templateCsv } from "@/data/logbook";
 import { useRole } from "@/lib/roles";
 
-export const Route = createFileRoute("/gps")({
+export const Route = createFileRoute("/_authenticated/gps")({
   head: () => ({
     meta: [
       { title: "GPS Upload, Provider Detection & Matching — T4P" },

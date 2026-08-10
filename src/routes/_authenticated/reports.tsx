@@ -33,7 +33,7 @@ import {
 } from "@/data/reporting";
 import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
 
-export const Route = createFileRoute("/reports")({
+export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
     meta: [
       { title: "Report Templates & Scheduled Exports — T4P" },

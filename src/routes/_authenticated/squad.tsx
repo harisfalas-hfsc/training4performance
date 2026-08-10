@@ -18,7 +18,7 @@ import {
   type Position,
 } from "@/data/performance";
 
-export const Route = createFileRoute("/squad")({
+export const Route = createFileRoute("/_authenticated/squad")({
   head: () => ({
     meta: [
       { title: "Squad & Players — T4P" },

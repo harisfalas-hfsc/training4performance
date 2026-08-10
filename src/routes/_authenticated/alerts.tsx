@@ -12,7 +12,7 @@ import {
 } from "@/data/alerts-config";
 import { useRole, MEDICAL_REDACTED } from "@/lib/roles";
 
-export const Route = createFileRoute("/alerts")({
+export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({
     meta: [
       { title: "Automated Threshold Alerts — T4P" },
