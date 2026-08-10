@@ -506,7 +506,7 @@ function TrainingPage() {
                             className="w-full bg-transparent text-sm font-semibold outline-none"
                           />
                           <div className="flex shrink-0 items-center gap-2">
-                            {!gym ? (
+                            {!gym && !it.strength ? (
                               <button
                                 onClick={() => setDrawingIndex(i)}
                                 className="rounded-md border border-border px-2 py-0.5 text-[0.68rem] text-muted-foreground hover:text-primary"
