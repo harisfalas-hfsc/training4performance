@@ -8,6 +8,7 @@ import {
   ClipboardPen,
   BookOpen,
   FileText,
+  GitCompare,
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
