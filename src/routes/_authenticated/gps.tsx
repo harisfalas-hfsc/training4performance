@@ -59,9 +59,15 @@ function GpsPage() {
   const [fileError, setFileError] = useState<string | null>(null);
 
   const sessions = useMemo(() => [...sessionCalendar].sort((a, b) => b.date.localeCompare(a.date)), []);
+  const search = Route.useSearch();
   const [sessionId, setSessionId] = useState<string>(
-    () => sessionCalendar.find((s) => s.date === today)?.id ?? sessions[0]?.id ?? "",
+    () =>
+      (search.session && sessionCalendar.some((s) => s.id === search.session) ? search.session : undefined) ??
+      sessionCalendar.find((s) => s.date === today)?.id ??
+      sessions[0]?.id ??
+      "",
   );
+
   const [markCompleted, setMarkCompleted] = useState(true);
   const session = sessionCalendar.find((s) => s.id === sessionId);
 
