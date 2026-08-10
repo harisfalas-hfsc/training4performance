@@ -1,5 +1,5 @@
 /**
- * Central connected data model for the Football Performance OS.
+ * Central connected data model for T4P (Training 4 Performance).
  * One player record -> everything connected (training, GPS, wellness, testing, medical).
  * Deterministic mock data so every screen reads from the same source of truth.
  */

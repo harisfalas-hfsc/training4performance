@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
+import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/players/$id")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Player not found — Football Performance OS" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Player not found — T4P" }, { name: "robots", content: "noindex" }] };
     }
     const title = `${loaderData.name} — Performance Passport`;
     const description = `Fitness testing, GPS load, wellness, training participation and medical history for ${loaderData.name} (${loaderData.position}).`;
@@ -59,6 +60,8 @@ function PlayerProfile() {
   const wellness = playerWellness(id);
   const availability = availabilitySummary(id);
   const medical = playerMedical(id);
+  const { can } = useRole();
+  const canSeeMedical = can("viewMedicalDetail");
   const hsrSquad = squadStats((x) => x.hsr7).mean;
   const hsrPos = positionAverage(player.position, (x) => x.hsr7) || 1;
 
@@ -287,7 +290,12 @@ function PlayerProfile() {
           <section className="grid gap-4 xl:grid-cols-3">
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle title="Injury & illness history" />
-              {medical.length === 0 ? (
+              {!canSeeMedical ? (
+                <p className="flex items-center gap-2 rounded-md border border-border bg-surface-2 p-3 text-sm text-muted-foreground">
+                  <Lock className="size-4" /> {MEDICAL_REDACTED}. {medical.length} recorded episode(s); current training
+                  availability is {availability.availability}%.
+                </p>
+              ) : medical.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No recorded injuries or illness this season.</p>
               ) : (
                 <ul className="space-y-3">

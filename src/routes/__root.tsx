@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { RoleProvider } from "../lib/roles";
 
 function NotFoundComponent() {
   return (
@@ -77,17 +78,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Football Performance OS" },
+      { title: "T4P — Training 4 Performance" },
       {
         name: "description",
         content:
-          "Integrated football fitness, performance and training management platform for coaches and performance staff.",
+          "T4P: integrated football fitness, performance and training management platform for coaches, fitness and medical staff.",
       },
-      { name: "author", content: "Football Performance OS" },
-      { property: "og:title", content: "Football Performance OS" },
+      { name: "author", content: "Training 4 Performance" },
+      { property: "og:title", content: "T4P — Training 4 Performance" },
       {
         property: "og:description",
-        content: "Squad, training, GPS, workload, medical and AI insight in one connected system.",
+        content: "Squad, training, GPS, workload, alerts, medical and AI insight in one connected system.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -131,8 +132,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <RoleProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </RoleProvider>
     </QueryClientProvider>
   );
 }
