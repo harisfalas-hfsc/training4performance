@@ -13,11 +13,23 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Radar,
+  Shield,
   Users,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
-import { team, squadName, squadAvailability } from "@/data/performance";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  team,
+  squadName,
+  squadAvailability,
+  players,
+  sessionCalendar,
+  gpsHistory,
+  manualTests,
+  fullName,
+  useDataVersion,
+} from "@/data/performance";
 import { useAuth } from "@/lib/auth";
+import { syncUsageSnapshot } from "@/lib/usage";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -35,6 +47,8 @@ const nav = [
   { to: "/reports", label: "Reports", icon: FileText, color: "#ea580c" },
 ] as const;
 
+const adminItem = { to: "/admin", label: "Admin panel", icon: Shield, color: "#111827" } as const;
+
 export function AppShell({
   title,
   subtitle,
@@ -47,14 +61,37 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, subscription } = useAuth();
+  const { profile, subscription, isAdmin, user } = useAuth();
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
   const av = squadAvailability();
   const [open, setOpen] = useState(false);
+  const version = useDataVersion();
+
+  const navItems = useMemo(
+    () => (isAdmin ? [...nav, adminItem] : [...nav]),
+    [isAdmin],
+  );
 
   useEffect(() => {
     setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const t = window.setTimeout(() => {
+      void syncUsageSnapshot({
+        userId: user.id,
+        clubName: profile?.club_name ?? null,
+        teamName: subscription?.team_name ?? null,
+        players: players.length,
+        sessions: sessionCalendar.length,
+        gpsRows: gpsHistory.length,
+        tests: manualTests.length,
+        playerNames: players.map(fullName),
+      });
+    }, 2500);
+    return () => window.clearTimeout(t);
+  }, [user?.id, profile?.club_name, subscription?.team_name, version]);
 
   const toggle = () => {
     setOpen((v) => {
@@ -62,6 +99,7 @@ export function AppShell({
       return !v;
     });
   };
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
