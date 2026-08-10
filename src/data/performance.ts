@@ -37,7 +37,16 @@ export interface Team {
   gender: string;
   headCoach: string;
   fitnessCoach: string;
+  /** Set once the coach has completed team setup. */
+  configured?: boolean;
+  createdAt?: string;
 }
+
+/** One workspace = one team. A second team needs a second account/subscription. */
+export const MAX_TEAMS_PER_ACCOUNT = 1;
+/** Hard cap of players inside the single squad of a workspace. */
+export const MAX_PLAYERS_PER_SQUAD = 60;
+
 
 export interface Player {
   id: string;
