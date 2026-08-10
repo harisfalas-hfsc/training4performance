@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -54,7 +55,7 @@ export interface BoardToken {
   x: number;
   y: number;
   color: string;
-  label?: string;
+  label?: string | undefined;
 }
 
 export interface BoardShape {
@@ -137,7 +138,7 @@ function PitchMarkings({ orientation }: { orientation: Orientation }) {
   const spot = long * 0.1;
   const r = short * 0.16;
 
-  const el: JSX.Element[] = [
+  const el: React.ReactNode[] = [
     <rect key="outer" x={m} y={m} width={w - m * 2} height={h - m * 2} {...common} />,
   ];
 
