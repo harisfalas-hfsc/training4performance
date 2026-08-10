@@ -181,6 +181,100 @@ export const adminGetStats = createServerFn({ method: "POST" })
     }
   });
 
+export type AdminTeam = {
+  key: string;
+  ownerId: string;
+  ownerEmail: string;
+  ownerName: string;
+  club: string;
+  team: string;
+  active: boolean;
+  complimentary: boolean;
+  season_end: string | null;
+  players: number;
+  sessions: number;
+  gps_rows: number;
+  tests: number;
+  player_names: string[];
+  updated_at: string | null;
+};
+
+/** Every team and squad created by every customer. */
+export const adminListTeams = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { search?: string }) => data)
+  .handler(async ({ context, data }): Promise<{ teams: AdminTeam[] } | { error: string }> => {
+    try {
+      await assertAdmin(context as never);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      const [{ data: profiles }, { data: subs }, { data: usage }, { data: subTeams }] = await Promise.all([
+        supabaseAdmin.from("profiles").select("id, email, full_name, club_name").limit(5000),
+        supabaseAdmin
+          .from("subscriptions")
+          .select("user_id, team_name, status, season_end, complimentary")
+          .limit(5000),
+        supabaseAdmin.from("usage_snapshots").select("*").limit(5000),
+        supabaseAdmin.from("sub_teams").select("id, user_id, name").limit(5000),
+      ]);
+
+      const profBy = new Map((profiles ?? []).map((p) => [p.id, p]));
+      const usageBy = new Map((usage ?? []).map((u) => [u.user_id, u]));
+
+      const rows: AdminTeam[] = [];
+      const push = (userId: string, teamName: string, key: string, withUsage: boolean) => {
+        const p = profBy.get(userId);
+        const u = usageBy.get(userId);
+        const sub = (subs ?? []).find((s) => s.user_id === userId);
+        rows.push({
+          key,
+          ownerId: userId,
+          ownerEmail: p?.email ?? "",
+          ownerName: p?.full_name ?? "",
+          club: p?.club_name ?? u?.club_name ?? "",
+          team: teamName,
+          active: isActive(sub),
+          complimentary: Boolean(sub?.complimentary),
+          season_end: sub?.season_end ?? null,
+          players: withUsage ? (u?.players ?? 0) : 0,
+          sessions: withUsage ? (u?.sessions ?? 0) : 0,
+          gps_rows: withUsage ? (u?.gps_rows ?? 0) : 0,
+          tests: withUsage ? (u?.tests ?? 0) : 0,
+          player_names: withUsage ? (u?.player_names ?? []) : [],
+          updated_at: withUsage ? (u?.updated_at ?? null) : null,
+        });
+      };
+
+      const seenOwners = new Set<string>();
+      for (const s of subs ?? []) {
+        seenOwners.add(s.user_id);
+        push(s.user_id, s.team_name || "Unnamed team", `sub:${s.user_id}`, true);
+      }
+      for (const u of usage ?? []) {
+        if (seenOwners.has(u.user_id)) continue;
+        seenOwners.add(u.user_id);
+        push(u.user_id, u.team_name || "Unnamed team", `usage:${u.user_id}`, true);
+      }
+      for (const t of subTeams ?? []) {
+        push(t.user_id, t.name, `team:${t.id}`, false);
+      }
+
+      rows.sort((a, b) => (a.club + a.team).localeCompare(b.club + b.team));
+      const q = data.search?.trim().toLowerCase();
+      const filtered = q
+        ? rows.filter((r) =>
+            [r.club, r.team, r.ownerEmail, r.ownerName, ...r.player_names].some((v) =>
+              v.toLowerCase().includes(q),
+            ),
+          )
+        : rows;
+      return { teams: filtered };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Failed to load teams" };
+    }
+  });
+
+
 /** Grants (or extends) platform access for N months. */
 export const adminGrantAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

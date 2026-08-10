@@ -142,7 +142,7 @@ export function AppShell({
                   active && "bg-sidebar-accent text-primary",
                 )}
               >
-                <item.icon className="size-4" style={{ color: active ? item.color : undefined }} />
+                <item.icon className="size-4" style={{ color: item.color }} />
                 {item.label}
               </Link>
             );
@@ -204,7 +204,7 @@ export function AppShell({
                     active && "bg-secondary text-primary",
                   )}
                 >
-                  <item.icon className="size-3.5" style={{ color: active ? item.color : undefined }} />
+                  <item.icon className="size-3.5" style={{ color: item.color }} />
                   {item.label}
                 </Link>
               );

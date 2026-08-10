@@ -26,11 +26,13 @@ import {
   adminGrantAccess,
   adminImpersonate,
   adminListCustomers,
+  adminListTeams,
   adminRevokeAccess,
   adminSetRole,
   adminUpdateCustomer,
   type AdminCustomer,
   type AdminStats,
+  type AdminTeam,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -53,6 +55,7 @@ function AdminPage() {
   const navigate = useNavigate();
 
   const listCustomers = useServerFn(adminListCustomers);
+  const listTeams = useServerFn(adminListTeams);
   const getStats = useServerFn(adminGetStats);
   const grantAccess = useServerFn(adminGrantAccess);
   const revokeAccess = useServerFn(adminRevokeAccess);
@@ -61,23 +64,33 @@ function AdminPage() {
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
 
+  const [tab, setTab] = useState<"customers" | "teams">("customers");
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
+  const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState(true);
   const [months, setMonths] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [openTeam, setOpenTeam] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     setPending(true);
-    const [c, s] = await Promise.all([listCustomers({ data: { search: search.trim() } }), getStats({})]);
+    const [c, s, t] = await Promise.all([
+      listCustomers({ data: { search: search.trim() } }),
+      getStats({}),
+      listTeams({ data: { search: search.trim() } }),
+    ]);
     if ("error" in c) toast.error(c.error);
     else setCustomers(c.customers);
     if ("error" in s) toast.error(s.error);
     else setStats(s.stats);
+    if ("error" in t) toast.error(t.error);
+    else setTeams(t.teams);
     setPending(false);
-  }, [listCustomers, getStats, search]);
+  }, [listCustomers, getStats, listTeams, search]);
+
 
   useEffect(() => {
     if (isAdmin) void reload();
@@ -190,13 +203,104 @@ function AdminPage() {
         </button>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 flex gap-2">
+        {(["customers", "teams"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className={`rounded-md border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+              tab === t ? "border-primary text-primary" : "border-border text-muted-foreground"
+            }`}
+          >
+            {t === "customers" ? "Customers" : `All teams & squads (${teams.length})`}
+          </button>
+        ))}
+      </div>
+
+      {tab === "teams" && (
+        <div className="mt-4 space-y-3">
+          {pending ? (
+            <div className="grid place-items-center py-16">
+              <Loader2 className="size-6 animate-spin text-primary" />
+            </div>
+          ) : teams.length === 0 ? (
+            <p className="panel p-8 text-center text-sm text-muted-foreground">No teams created yet.</p>
+          ) : (
+            teams.map((t) => (
+              <article key={t.key} className="panel p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">
+                      {t.club || "No club"} · {t.team}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {t.ownerName || "Unnamed coach"} · {t.ownerEmail}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[0.65rem]">
+                    {t.active ? (
+                      <Tag tone="ok">{t.complimentary ? "Complimentary" : "Active"}</Tag>
+                    ) : (
+                      <Tag tone="off">No access</Tag>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                  <span>Players: {t.players}</span>
+                  <span>Sessions: {t.sessions}</span>
+                  <span>GPS rows: {t.gps_rows}</span>
+                  <span>Tests: {t.tests}</span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Action disabled={busy} onClick={() => setOpenTeam(openTeam === t.key ? null : t.key)}>
+                    {openTeam === t.key ? "Hide squad" : `View squad (${t.player_names.length})`}
+                  </Action>
+                  <Action
+                    disabled={busy}
+                    onClick={() => {
+                      const c = customers.find((x) => x.id === t.ownerId);
+                      if (c) void signInAs(c);
+                      else toast.error("Owner account not found");
+                    }}
+                  >
+                    <LogIn className="size-3.5" /> Open this team
+                  </Action>
+                </div>
+                {openTeam === t.key && (
+                  <div className="mt-3 rounded-md border border-border p-3">
+                    {t.player_names.length ? (
+                      <ol className="grid gap-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                        {t.player_names.map((n, i) => (
+                          <li key={`${t.key}-${i}`} className="truncate text-muted-foreground">
+                            {i + 1}. {n}
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        No squad synced yet — it appears once the coach opens their workspace.
+                      </p>
+                    )}
+                    <p className="mt-2 text-[0.65rem] text-muted-foreground">
+                      Updated: {t.updated_at ? new Date(t.updated_at).toLocaleString() : "never"}
+                    </p>
+                  </div>
+                )}
+              </article>
+            ))
+          )}
+        </div>
+      )}
+
+      <div className={tab === "customers" ? "mt-4 space-y-3" : "hidden"}>
         {pending ? (
           <div className="grid place-items-center py-16">
             <Loader2 className="size-6 animate-spin text-primary" />
           </div>
         ) : customers.length === 0 ? (
           <p className="panel p-8 text-center text-sm text-muted-foreground">No customers yet.</p>
+
         ) : (
           customers.map((c) => {
             const m = months[c.id] ?? 12;
