@@ -612,6 +612,15 @@ export function TacticsBoard({
         <ToolButton label="Export PNG" onClick={exportPng}>
           <Download className="size-4" />
         </ToolButton>
+        {onSave ? (
+          <button
+            type="button"
+            onClick={() => onSave({ tokens, shapes, orientation })}
+            className="ml-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+          >
+            {saveLabel}
+          </button>
+        ) : null}
 
         <span className="ml-auto flex items-center gap-1">
           {DRAW_COLORS.map((c) => (
