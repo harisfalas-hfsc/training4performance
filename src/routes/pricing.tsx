@@ -10,10 +10,10 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "T4P costs €999 per season (1 June – 31 May) for one team, plus €399 per year for each additional sub-team such as academies.",
+          "T4P costs €999 per season (1 June – 31 May) for one team, with unlimited staff users and every module included.",
       },
       { property: "og:title", content: "T4P Pricing — €999 per season" },
-      { property: "og:description", content: "One team per season, additional sub-teams at €399 per year." },
+      { property: "og:description", content: "One team, one season, every module included." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -30,7 +30,6 @@ const included = [
   "Configurable composite load model, ACWR, monotony, strain",
   "Automated workload, wellness and availability alerts",
   "Report templates and scheduled one-click exports",
-  "Role-based access for coach, fitness and medical staff",
   "Unlimited staff users within your team",
 ];
 
@@ -73,17 +72,15 @@ function Pricing() {
           </div>
 
           <div className="panel p-6">
-            <p className="eyebrow">Additional sub-team</p>
-            <p className="mt-2 font-display text-4xl font-semibold">€399</p>
-            <p className="text-sm text-muted-foreground">per year, per additional team</p>
-            <div className="mt-5 space-y-3 text-sm text-muted-foreground">
+            <p className="eyebrow">What you get</p>
+            <div className="mt-3 space-y-3 text-sm text-muted-foreground">
               <p>
-                For academies, youth squads, reserve teams or a women's team under the same club. Each sub-team gets
-                its own squad, training calendar, GPS data and reporting.
+                One subscription covers your team for the full season: every module, every staff member, no per-user
+                fees and no add-ons.
               </p>
               <p>
                 The subscriber is the <strong className="text-foreground">administrator</strong> of the account and
-                can create as many sub-teams as needed, each billed at €399 per year.
+                invites the rest of the staff.
               </p>
               <p>All prices are in euro and exclude VAT where applicable.</p>
             </div>
@@ -91,7 +88,7 @@ function Pricing() {
               to={session ? "/account" : "/auth"}
               className="mt-6 inline-flex w-full items-center justify-center rounded-md border border-border px-5 py-3 text-sm font-semibold"
             >
-              {session ? "Manage sub-teams" : "Sign in"}
+              {session ? "Go to my account" : "Sign in"}
             </Link>
           </div>
         </div>
@@ -101,8 +98,7 @@ function Pricing() {
           <p className="mt-2">
             A subscription covers one full season from 1 June to 31 May, regardless of when you join. Access to the
             platform — dashboard, squad, training, tactics board, GPS, logbook, alerts, analytics and reports — is
-            available while the subscription is active. Sub-teams are billed for twelve months from the day they are
-            added.
+            available while the subscription is active.
           </p>
         </div>
       </div>
