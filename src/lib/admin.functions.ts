@@ -91,7 +91,8 @@ export const adminListCustomers = createServerFn({ method: "POST" })
         supabaseAdmin.from("user_roles").select("user_id, role").eq("role", "admin").limit(200),
       ]);
 
-      const subBy = new Map<string, (typeof subs extends (infer T)[] ? T : never) | undefined>();
+      type SubRow = NonNullable<typeof subs>[number];
+      const subBy = new Map<string, SubRow>();
       for (const s of subs ?? []) if (!subBy.has(s.user_id)) subBy.set(s.user_id, s);
       const usageBy = new Map((usage ?? []).map((u) => [u.user_id, u]));
       const adminIds = new Set((roles ?? []).map((r) => r.user_id));
