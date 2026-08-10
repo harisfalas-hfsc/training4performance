@@ -139,9 +139,31 @@ function toCsv(rows: Array<Record<string, unknown>>) {
   return [headers.join(","), ...rows.map((r) => headers.map((h) => cell(r[h])).join(","))].join("\n");
 }
 
-/* ---------- the export ---------- */
+/* ---------- datasets ---------- */
 
-export function workspaceExportFiles() {
+type Row = Record<string, unknown>;
+
+export interface ExportSheet {
+  /** File-safe key, e.g. "players". */
+  key: string;
+  /** What the coach sees in the UI. */
+  label: string;
+  description: string;
+  rows: Row[];
+}
+
+const flat = (value: unknown) =>
+  value === null || value === undefined
+    ? ""
+    : typeof value === "object"
+      ? JSON.stringify(value)
+      : (value as string | number | boolean);
+
+const flatten = (rows: Row[]): Row[] =>
+  rows.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, flat(v)])));
+
+/** Every dataset a coach owns, one dataset = one Excel file. */
+export function workspaceSheets(): ExportSheet[] {
   const nameOf = (id: string) => {
     const p = players.find((x) => x.id === id);
     return p ? fullName(p) : id;
@@ -151,6 +173,147 @@ export function workspaceExportFiles() {
     const { extra, ...rest } = g as typeof g & { extra?: Record<string, number> };
     return { player: nameOf(g.playerId), ...rest, ...(extra ?? {}) };
   });
+
+  const calendarRows = sessionCalendar.map((s) => ({
+    date: s.date,
+    title: s.title,
+    type: s.type ?? "",
+    label: s.label,
+    group: s.group ?? "",
+    status: s.status ?? "",
+    durationMin: s.durationMin,
+    plannedRpe: s.plannedRpe,
+    actualRpe: s.actualRpe ?? "",
+    objective: s.objective,
+    blocks: (s.blockNames ?? []).join(" | "),
+    drills: (s.drills ?? []).join(" | "),
+  }));
+
+  const designRows = sessionCalendar.flatMap((s) =>
+    (s.plan ?? []).map((p, i) => ({
+      date: s.date,
+      session: s.title,
+      order: i + 1,
+      block: p.block ?? "",
+      drill: p.drill,
+      purpose: p.purpose,
+      location: p.location ?? "",
+      durationMin: p.durationMin,
+      plannedRpe: p.rpe,
+      actualRpe: p.actualRpe ?? "",
+      load: p.durationMin * p.rpe,
+      sets: p.strength?.sets ?? "",
+      reps: p.strength?.reps ?? "",
+      kg: p.strength?.kg ?? "",
+      restSec: p.strength?.restSec ?? "",
+      hasDrawing: p.drawing ? "yes" : "",
+      notes: p.notes ?? "",
+    })),
+  );
+
+  const libraryRows = [
+    ...customDrills().map((d) => ({ kind: "drill", name: d.name, purpose: d.purpose, rpe: d.rpe, minutes: d.minutes })),
+    ...customStrength().map((e) => ({ kind: "strength", name: e.name, purpose: (e as { pattern?: string }).pattern ?? "" })),
+  ];
+
+  return [
+    {
+      key: "team",
+      label: "Team",
+      description: "Club, team, season and staff details.",
+      rows: flatten([team as unknown as Row]),
+    },
+    {
+      key: "players",
+      label: "Squad",
+      description: "Every player with anthropometrics, position and availability.",
+      rows: flatten(players as unknown as Row[]),
+    },
+    {
+      key: "gps",
+      label: "GPS data",
+      description: "Every imported GPS row, including your own club KPIs.",
+      rows: flatten(gpsRows as unknown as Row[]),
+    },
+    {
+      key: "calendar",
+      label: "Training calendar",
+      description: "All planned and completed sessions, day by day.",
+      rows: flatten(calendarRows),
+    },
+    {
+      key: "training-designs",
+      label: "Training designs",
+      description: "Every block and drill you designed, with duration, RPE and gym prescriptions.",
+      rows: flatten(designRows),
+    },
+    {
+      key: "drill-library",
+      label: "My drill library",
+      description: "Drills and strength exercises you added yourself.",
+      rows: flatten(libraryRows),
+    },
+    {
+      key: "tests",
+      label: "Fitness tests",
+      description: "All athletic and fitness test results.",
+      rows: flatten(testRecords.map((t) => ({ player: nameOf(t.playerId), ...t })) as unknown as Row[]),
+    },
+    {
+      key: "manual-tests",
+      label: "Manual entries",
+      description: "Manual test / wellness entries.",
+      rows: flatten(manualTests as unknown as Row[]),
+    },
+    {
+      key: "medical",
+      label: "Medical",
+      description: "Injuries, illnesses and return-to-play records.",
+      rows: flatten(medicalEvents.map((m) => ({ player: nameOf(m.playerId), ...m })) as unknown as Row[]),
+    },
+  ];
+}
+
+/* ---------- Excel ---------- */
+
+function sheetToXlsx(sheet: ExportSheet): Uint8Array {
+  const ws = XLSX.utils.json_to_sheet(sheet.rows.length ? sheet.rows : [{ note: "No records yet" }]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheet.label.slice(0, 31));
+  return new Uint8Array(XLSX.write(wb, { bookType: "xlsx", type: "array" }) as ArrayBuffer);
+}
+
+function fileSlug() {
+  return (
+    (team.club || "t4p").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "t4p"
+  );
+}
+
+function saveBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/** Download one dataset as its own Excel file. */
+export function downloadSheetXlsx(key: string) {
+  const sheet = workspaceSheets().find((s) => s.key === key);
+  if (!sheet) return false;
+  const bytes = sheetToXlsx(sheet);
+  saveBlob(new Blob([bytes.buffer as ArrayBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${fileSlug()}-${sheet.key}.xlsx`);
+  return true;
+}
+
+/* ---------- the full export ---------- */
+
+export function workspaceExportFiles(): Array<{ name: string; content: string | Uint8Array }> {
+  const sheets = workspaceSheets();
+  const date = new Date().toISOString().slice(0, 10);
 
   return [
     {
@@ -171,32 +334,8 @@ export function workspaceExportFiles() {
         2,
       ),
     },
-    { name: "players.csv", content: toCsv(players as unknown as Array<Record<string, unknown>>) },
-    { name: "gps.csv", content: toCsv(gpsRows as unknown as Array<Record<string, unknown>>) },
-    {
-      name: "sessions.csv",
-      content: toCsv(
-        sessionCalendar.map((s) => ({ ...s, plan: JSON.stringify(s.plan ?? []) })) as unknown as Array<
-          Record<string, unknown>
-        >,
-      ),
-    },
-    {
-      name: "tests.csv",
-      content: toCsv(
-        testRecords.map((t) => ({ ...t, player: nameOf(t.playerId) })) as unknown as Array<Record<string, unknown>>,
-      ),
-    },
-    {
-      name: "manual-tests.csv",
-      content: toCsv(manualTests as unknown as Array<Record<string, unknown>>),
-    },
-    {
-      name: "medical.csv",
-      content: toCsv(
-        medicalEvents.map((m) => ({ ...m, player: nameOf(m.playerId) })) as unknown as Array<Record<string, unknown>>,
-      ),
-    },
+    ...sheets.map((s) => ({ name: `excel/${s.key}.xlsx`, content: sheetToXlsx(s) })),
+    ...sheets.map((s) => ({ name: `csv/${s.key}.csv`, content: toCsv(s.rows) })),
     {
       name: "README.txt",
       content: [
@@ -205,16 +344,14 @@ export function workspaceExportFiles() {
         `Club: ${team.club || "—"}`,
         `Team: ${team.name || "—"}`,
         `Season: ${team.season || "—"}`,
-        `Exported: ${new Date().toLocaleString()}`,
+        `Exported: ${date}`,
         "",
-        "workspace.json  — complete backup, can be re-imported into T4P.",
-        "players.csv     — squad list with anthropometrics and availability.",
-        "gps.csv         — every GPS row, including your own club KPIs.",
-        "sessions.csv    — planned and completed training sessions with blocks.",
-        "tests.csv       — all fitness / athletic test results.",
-        "manual-tests.csv, medical.csv — manual entries and medical events.",
+        "workspace.json — complete backup, can be re-imported into T4P.",
+        "excel/        — one Excel file per dataset:",
+        ...sheets.map((s) => `  ${s.key}.xlsx — ${s.description}`),
+        "csv/          — the same datasets as plain CSV.",
         "",
-        "This data belongs to you. Keep the ZIP safe.",
+        "This data belongs to you. Keep it safe.",
       ].join("\n"),
     },
   ];
@@ -222,13 +359,6 @@ export function workspaceExportFiles() {
 
 export function downloadWorkspaceZip() {
   const blob = createZip(workspaceExportFiles());
-  const slug = (team.club || "t4p").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${slug || "t4p"}-t4p-export-${new Date().toISOString().slice(0, 10)}.zip`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  saveBlob(blob, `${fileSlug()}-t4p-export-${new Date().toISOString().slice(0, 10)}.zip`);
 }
+
