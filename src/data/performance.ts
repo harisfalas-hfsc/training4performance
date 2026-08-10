@@ -855,3 +855,108 @@ export const PROVIDER_MAP: Array<{ provider: string; raw: string; internal: stri
 
 export const acwrStatus = (acwr: number) =>
   acwr === 0 ? "no-data" : acwr > 1.35 ? "high" : acwr < 0.8 ? "low" : "optimal";
+
+/* ------------------------------------------------------------------ */
+/* Block-level GPS association                                         */
+/* ------------------------------------------------------------------ */
+
+export interface BlockLoadRow {
+  block: string;
+  minutes: number;
+  rpe: number;
+  distance: number;
+  hsr: number;
+  sprint: number;
+  accel: number;
+  decel: number;
+  jumps: number;
+  load: number;
+  share: number;
+}
+
+/** Blocks of a session (explicit names, else derived from the plan). */
+export function sessionBlocks(s: Session): string[] {
+  const fromPlan = [...new Set((s.plan ?? []).map((i) => i.block ?? "BLOCK 1"))];
+  if (s.blockNames?.length) {
+    const extra = fromPlan.filter((b) => !s.blockNames!.includes(b));
+    return [...s.blockNames, ...extra];
+  }
+  return fromPlan;
+}
+
+/**
+ * Split the day's recorded GPS totals across the planned blocks.
+ *
+ * If the session is not cut into blocks the whole day is returned as one row —
+ * exactly the behaviour asked for: "if it's not, associate the whole training".
+ * Volume metrics follow duration; intensity metrics (HSR, sprint, power) are
+ * weighted by duration × intensity so a 12-minute SSG gets more sprint than a
+ * 12-minute warm-up.
+ */
+export function blockDistribution(session: Session, playerId?: string): BlockLoadRow[] {
+  const rows = gpsHistory.filter((g) => g.date === session.date && (!playerId || g.playerId === playerId));
+  const tot = {
+    minutes: playerId ? (rows[0]?.minutes ?? 0) : avg(rows.map((r) => r.minutes)),
+    distance: playerId ? (rows[0]?.distance ?? 0) : avg(rows.map((r) => r.distance)),
+    hsr: playerId ? (rows[0]?.hsr ?? 0) : avg(rows.map((r) => r.hsr)),
+    sprint: playerId ? (rows[0]?.sprint ?? 0) : avg(rows.map((r) => r.sprint)),
+    accel: playerId ? (rows[0]?.accel ?? 0) : avg(rows.map((r) => r.accel)),
+    decel: playerId ? (rows[0]?.decel ?? 0) : avg(rows.map((r) => r.decel)),
+    jumps: playerId ? (rows[0]?.jumps ?? 0) : avg(rows.map((r) => r.jumps ?? 0)),
+    rpe: playerId ? (rows[0]?.rpe ?? 0) : avg(rows.map((r) => r.rpe)),
+  };
+
+  const plan = (session.plan ?? []).filter((i) => (i.durationMin || 0) > 0);
+  const blocks = sessionBlocks(session).filter((b) => plan.some((i) => (i.block ?? "BLOCK 1") === b));
+
+  if (!plan.length || blocks.length < 2) {
+    return [
+      {
+        block: "WHOLE SESSION",
+        minutes: Math.round(tot.minutes),
+        rpe: +tot.rpe.toFixed(1),
+        distance: Math.round(tot.distance),
+        hsr: Math.round(tot.hsr),
+        sprint: Math.round(tot.sprint),
+        accel: Math.round(tot.accel),
+        decel: Math.round(tot.decel),
+        jumps: Math.round(tot.jumps),
+        load: Math.round(tot.rpe * tot.minutes),
+        share: 1,
+      },
+    ];
+  }
+
+  const per = blocks.map((b) => {
+    const items = plan.filter((i) => (i.block ?? "BLOCK 1") === b);
+    const minutes = items.reduce((a, i) => a + i.durationMin, 0);
+    const weighted = items.reduce((a, i) => a + i.durationMin * (i.rpe || 5), 0);
+    const rpe = minutes ? weighted / minutes : 0;
+    return { block: b, minutes, rpe, vol: minutes, int: minutes * Math.pow(rpe / 5, 2) };
+  });
+
+  const volSum = per.reduce((a, b) => a + b.vol, 0) || 1;
+  const intSum = per.reduce((a, b) => a + b.int, 0) || 1;
+  const planMinutes = per.reduce((a, b) => a + b.minutes, 0) || 1;
+
+  return per.map((p) => {
+    const v = p.vol / volSum;
+    const i = p.int / intSum;
+    return {
+      block: p.block,
+      minutes: Math.round(tot.minutes * (p.minutes / planMinutes)),
+      rpe: +p.rpe.toFixed(1),
+      distance: Math.round(tot.distance * v),
+      hsr: Math.round(tot.hsr * i),
+      sprint: Math.round(tot.sprint * i),
+      accel: Math.round(tot.accel * i),
+      decel: Math.round(tot.decel * i),
+      jumps: Math.round(tot.jumps * i),
+      load: Math.round(tot.rpe * tot.minutes * v),
+      share: +v.toFixed(3),
+    };
+  });
+}
+
+/** True when GPS rows exist for the session date. */
+export const sessionHasGps = (s: Session) => gpsHistory.some((g) => g.date === s.date);
