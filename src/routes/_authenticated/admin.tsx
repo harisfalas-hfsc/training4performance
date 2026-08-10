@@ -16,7 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { AppShell } from "@/components/app-shell";
+import { AdminShell } from "@/components/admin-shell";
 import { useAuth } from "@/lib/auth";
 import { ACCESS_MONTH_OPTIONS } from "@/lib/admin";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,23 +99,23 @@ function AdminPage() {
 
   if (loading) {
     return (
-      <AppShell title="Admin panel">
+      <AdminShell title="Admin panel">
         <div className="grid place-items-center py-20">
           <Loader2 className="size-6 animate-spin text-primary" />
         </div>
-      </AppShell>
+      </AdminShell>
     );
   }
 
   if (!isAdmin) {
     return (
-      <AppShell title="Admin panel">
+      <AdminShell title="Admin panel">
         <div className="panel mx-auto max-w-md p-6 text-center">
           <ShieldAlert className="mx-auto size-8 text-destructive" />
           <h2 className="mt-3 text-lg font-semibold">Administrators only</h2>
           <p className="mt-2 text-sm text-muted-foreground">This area is restricted to the T4P owner account.</p>
         </div>
-      </AppShell>
+      </AdminShell>
     );
   }
 
@@ -157,7 +157,7 @@ function AdminPage() {
   }
 
   return (
-    <AppShell
+    <AdminShell
       title="Admin panel"
       subtitle="Customers, access, revenue and workspace usage"
       actions={
@@ -451,7 +451,7 @@ function AdminPage() {
           })
         )}
       </div>
-    </AppShell>
+    </AdminShell>
   );
 }
 
