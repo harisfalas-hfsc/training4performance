@@ -59,9 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSubscription(null);
       return;
     }
-    const [{ data: prof }, { data: roles }, { data: sub }] = await Promise.all([
+    const [{ data: prof }, { data: sub }] = await Promise.all([
       supabase.from("profiles").select("id,email,full_name,club_name").eq("id", uid).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", uid),
       supabase
         .from("subscriptions")
         .select("id,user_id,team_name,status,season_start,season_end,price_eur")
@@ -69,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle(),
     ]);
     setProfile((prof as Profile) ?? null);
-    setIsAdmin(Boolean(roles?.some((r) => r.role === "admin")) || isAdminEmail(email));
+    setIsAdmin(isAdminEmail(email));
     setSubscription((sub as Subscription) ?? null);
   }, []);
 

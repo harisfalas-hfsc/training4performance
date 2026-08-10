@@ -9,7 +9,6 @@ import {
   LogIn,
   RefreshCw,
   Search,
-  Shield,
   ShieldAlert,
   Trash2,
   TrendingUp,
@@ -28,7 +27,6 @@ import {
   adminListCustomers,
   adminListTeams,
   adminRevokeAccess,
-  adminSetRole,
   adminUpdateCustomer,
   type AdminCustomer,
   type AdminStats,
@@ -59,7 +57,6 @@ function AdminPage() {
   const getStats = useServerFn(adminGetStats);
   const grantAccess = useServerFn(adminGrantAccess);
   const revokeAccess = useServerFn(adminRevokeAccess);
-  const setRole = useServerFn(adminSetRole);
   const updateCustomer = useServerFn(adminUpdateCustomer);
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
@@ -373,14 +370,6 @@ function AdminPage() {
                   </Action>
                   <Action disabled={busy} onClick={() => void signInAs(c)}>
                     <LogIn className="size-3.5" /> Sign in as user
-                  </Action>
-                  <Action
-                    disabled={busy}
-                    onClick={() =>
-                      act(() => setRole({ data: { userId: c.id, makeAdmin: !c.is_admin } }), "Role updated.")
-                    }
-                  >
-                    <Shield className="size-3.5" /> {c.is_admin ? "Remove admin" : "Make admin"}
                   </Action>
                   <Action disabled={busy} onClick={() => setExpanded(expanded === c.id ? null : c.id)}>
                     {expanded === c.id ? "Close" : "Edit / squad"}
