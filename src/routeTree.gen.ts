@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as GpsRouteImport } from './routes/gps'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SquadRouteImport } from './routes/squad'
 import { Route as TrainingRouteImport } from './routes/training'
 import { Route as PlayersIdRouteImport } from './routes/players.$id'
@@ -37,6 +38,11 @@ const GpsRoute = GpsRouteImport.update({
   path: '/gps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SquadRoute = SquadRouteImport.update({
   id: '/squad',
   path: '/squad',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/ai': typeof AiRoute
   '/analytics': typeof AnalyticsRoute
   '/gps': typeof GpsRoute
+  '/reports': typeof ReportsRoute
   '/squad': typeof SquadRoute
   '/training': typeof TrainingRoute
   '/players/$id': typeof PlayersIdRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/ai': typeof AiRoute
   '/analytics': typeof AnalyticsRoute
   '/gps': typeof GpsRoute
+  '/reports': typeof ReportsRoute
   '/squad': typeof SquadRoute
   '/training': typeof TrainingRoute
   '/players/$id': typeof PlayersIdRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/ai': typeof AiRoute
   '/analytics': typeof AnalyticsRoute
   '/gps': typeof GpsRoute
+  '/reports': typeof ReportsRoute
   '/squad': typeof SquadRoute
   '/training': typeof TrainingRoute
   '/players/$id': typeof PlayersIdRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/analytics'
     | '/gps'
+    | '/reports'
     | '/squad'
     | '/training'
     | '/players/$id'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/analytics'
     | '/gps'
+    | '/reports'
     | '/squad'
     | '/training'
     | '/players/$id'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/analytics'
     | '/gps'
+    | '/reports'
     | '/squad'
     | '/training'
     | '/players/$id'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   AiRoute: typeof AiRoute
   AnalyticsRoute: typeof AnalyticsRoute
   GpsRoute: typeof GpsRoute
+  ReportsRoute: typeof ReportsRoute
   SquadRoute: typeof SquadRoute
   TrainingRoute: typeof TrainingRoute
   PlayersIdRoute: typeof PlayersIdRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GpsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/squad': {
       id: '/squad'
       path: '/squad'
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiRoute: AiRoute,
   AnalyticsRoute: AnalyticsRoute,
   GpsRoute: GpsRoute,
+  ReportsRoute: ReportsRoute,
   SquadRoute: SquadRoute,
   TrainingRoute: TrainingRoute,
   PlayersIdRoute: PlayersIdRoute,
