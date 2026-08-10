@@ -24,6 +24,7 @@ import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBoardRouteImport } from './routes/_authenticated/board'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gps'
 import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
@@ -106,6 +107,11 @@ const AuthenticatedBoardRoute = AuthenticatedBoardRouteImport.update({
   path: '/board',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AuthenticatedAlertsRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/board': typeof AuthenticatedBoardRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
   '/logbook': typeof AuthenticatedLogbookRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AuthenticatedAlertsRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/board': typeof AuthenticatedBoardRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
   '/logbook': typeof AuthenticatedLogbookRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/board': typeof AuthenticatedBoardRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/gps': typeof AuthenticatedGpsRoute
   '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/analytics'
     | '/board'
+    | '/calendar'
     | '/dashboard'
     | '/gps'
     | '/logbook'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/analytics'
     | '/board'
+    | '/calendar'
     | '/dashboard'
     | '/gps'
     | '/logbook'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/_authenticated/alerts'
     | '/_authenticated/analytics'
     | '/_authenticated/board'
+    | '/_authenticated/calendar'
     | '/_authenticated/dashboard'
     | '/_authenticated/gps'
     | '/_authenticated/logbook'
@@ -407,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBoardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -464,6 +483,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedBoardRoute: typeof AuthenticatedBoardRoute
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGpsRoute: typeof AuthenticatedGpsRoute
   AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
@@ -478,6 +498,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedBoardRoute: AuthenticatedBoardRoute,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGpsRoute: AuthenticatedGpsRoute,
   AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,

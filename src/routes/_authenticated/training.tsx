@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_authenticated/training")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
-    date: typeof search.date === "string" ? search.date : undefined,
+    date: typeof search["date"] === "string" ? (search["date"] as string) : undefined,
   }),
   component: TrainingPage,
 });
