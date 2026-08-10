@@ -9,6 +9,7 @@ import {
   LogIn,
   RefreshCw,
   Search,
+  Shield,
   ShieldAlert,
   Trash2,
   TrendingUp,
