@@ -71,6 +71,8 @@ function Dashboard() {
           value={`${av.available}/${players.length}`}
           hint={`${av.partial} partial · ${av.individual} individual · ${av.rehab} rehab · ${av.injured + av.ill} unavailable`}
           tone="good"
+          icon={<Users className="size-4" />}
+          iconColor="#059669"
         />
         <MetricCard
           label="Squad 7-day load"
@@ -78,12 +80,15 @@ function Dashboard() {
           unit="AU"
           hint="Average session-RPE load per player"
           icon={<TrendingUp className="size-4" />}
+          iconColor="#2563eb"
         />
         <MetricCard
           label="Squad HSR (7 days)"
           value={hsrStats.mean}
           unit="m"
           hint={`median ${hsrStats.median} · min ${hsrStats.min} · max ${hsrStats.max} · sd ${hsrStats.sd}`}
+          icon={<Activity className="size-4" />}
+          iconColor="#d97706"
         />
         <MetricCard
           label="Wellness index"
@@ -91,6 +96,7 @@ function Dashboard() {
           hint="Sleep, fatigue, soreness, stress, mood"
           tone={wellnessAvg > 70 ? "good" : wellnessAvg > 60 ? "warn" : "bad"}
           icon={<HeartPulse className="size-4" />}
+          iconColor="#dc2626"
         />
       </section>
 

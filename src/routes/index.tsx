@@ -101,7 +101,9 @@ function Home() {
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
             <div key={f.title} className="panel p-4">
-              <f.icon className="size-5 text-primary" />
+              <span className="inline-flex rounded-lg bg-surface-2 p-2">
+                <f.icon className="size-5" style={{ color: f.color }} />
+              </span>
               <p className="mt-3 font-semibold">{f.title}</p>
               <p className="mt-1 text-xs text-muted-foreground">{f.text}</p>
             </div>
@@ -112,12 +114,14 @@ function Home() {
       <section className="border-y border-border bg-surface-2/40">
         <div className="mx-auto grid max-w-6xl gap-6 px-5 py-14 lg:grid-cols-3">
           {[
-            { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard." },
-            { icon: ShieldCheck, t: "One workspace", d: "Your whole staff works on the same squad, calendar and data — no per-user fees, no separate tiers." },
-            { icon: BarChart3, t: "Your own load model", d: "Choose the KPIs and weights that build training load, and drive ACWR, monotony and strain from your data." },
+            { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard.", color: "#059669" },
+            { icon: ShieldCheck, t: "One workspace", d: "Your whole staff works on the same squad, calendar and data — no per-user fees, no separate tiers.", color: "#2563eb" },
+            { icon: BarChart3, t: "Your own load model", d: "Choose the KPIs and weights that build training load, and drive ACWR, monotony and strain from your data.", color: "#d97706" },
           ].map((b) => (
             <div key={b.t}>
-              <b.icon className="size-5 text-primary" />
+              <span className="inline-flex rounded-lg bg-background p-2">
+                <b.icon className="size-5" style={{ color: b.color }} />
+              </span>
               <p className="mt-3 font-display text-lg font-semibold">{b.t}</p>
               <p className="mt-1 text-sm text-muted-foreground">{b.d}</p>
             </div>
