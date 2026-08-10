@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Trash2, UserPlus } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { HBar } from "@/components/charts";
 import {
+  addPlayer,
   age,
   bmi,
   fullName,
@@ -12,9 +13,13 @@ import {
   players,
   positionAverage,
   squadMetrics,
+  removePlayer,
   squadStats,
   team,
+  updatePlayer,
+  useDataVersion,
   squadName,
+  type Player,
   type Position,
 } from "@/data/performance";
 
@@ -35,8 +40,68 @@ export const Route = createFileRoute("/_authenticated/squad")({
 
 const positions: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
 
+const AVAILABILITY: Player["availability"][] = ["available", "partial", "individual", "rehab", "injured", "ill"];
+
+function AddPlayerForm({ onDone }: { onDone: () => void }) {
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    position: "CM" as Position,
+    number: "",
+    dob: "2000-01-01",
+    nationality: "CYP",
+    heightCm: "180",
+    weightKg: "75",
+  });
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  return (
+    <form
+      className="mb-3 grid gap-2 rounded-md border border-border bg-surface-2 p-3 sm:grid-cols-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!form.firstName.trim() || !form.lastName.trim()) return;
+        addPlayer({
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          position: form.position,
+          number: Number(form.number) || undefined,
+          dob: form.dob,
+          nationality: form.nationality,
+          heightCm: Number(form.heightCm) || 180,
+          weightKg: Number(form.weightKg) || 75,
+        });
+        onDone();
+      }}
+    >
+      <input className="control" placeholder="First name" value={form.firstName} onChange={set("firstName")} />
+      <input className="control" placeholder="Last name" value={form.lastName} onChange={set("lastName")} />
+      <select className="control" value={form.position} onChange={set("position")}>
+        {positions.map((p) => (
+          <option key={p} value={p}>
+            {p}
+          </option>
+        ))}
+      </select>
+      <input className="control" placeholder="Shirt number" value={form.number} onChange={set("number")} />
+      <input className="control" type="date" value={form.dob} onChange={set("dob")} />
+      <input className="control" placeholder="Nationality" value={form.nationality} onChange={set("nationality")} />
+      <input className="control" placeholder="Height (cm)" value={form.heightCm} onChange={set("heightCm")} />
+      <div className="flex gap-2">
+        <input className="control flex-1" placeholder="Weight (kg)" value={form.weightKg} onChange={set("weightKg")} />
+        <button type="submit" className="rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground">
+          Save
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function SquadPage() {
+  useDataVersion();
   const [query, setQuery] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
   const [pos, setPos] = useState<Position | "ALL">("ALL");
   const metrics = squadMetrics();
 
@@ -69,7 +134,21 @@ function SquadPage() {
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
         <div className="panel p-4 xl:col-span-2">
-          <SectionTitle title="Squad list" hint="Click a player to open the performance passport" />
+          <SectionTitle
+            title="Squad list"
+            hint="Click a player to open the passport · edit status inline · remove players who left"
+            right={
+              <button
+                type="button"
+                onClick={() => setShowAdd((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+              >
+                <UserPlus className="size-4" /> {showAdd ? "Close" : "Add player"}
+              </button>
+            }
+          />
+
+          {showAdd && <AddPlayerForm onDone={() => setShowAdd(false)} />}
 
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <div className="relative">
@@ -109,6 +188,7 @@ function SquadPage() {
                   <th className="px-2 text-right">Max spd</th>
                   <th className="px-2 text-right">ACWR</th>
                   <th className="px-2">Status</th>
+                  <th className="px-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -147,7 +227,30 @@ function SquadPage() {
                         <AcwrPill acwr={m.load.acwr} />
                       </td>
                       <td className="px-2">
-                        <AvailabilityPill status={p.availability} />
+                        <select
+                          value={p.availability}
+                          onChange={(e) => updatePlayer(p.id, { availability: e.target.value as Player["availability"] })}
+                          className="h-8 rounded-md border border-input bg-surface-2 px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                        >
+                          {AVAILABILITY.map((a) => (
+                            <option key={a} value={a}>
+                              {a}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 text-right">
+                        <button
+                          type="button"
+                          aria-label={`Remove ${fullName(p)}`}
+                          onClick={() => {
+                            if (window.confirm(`Remove ${fullName(p)} from the squad? All their records are deleted.`))
+                              removePlayer(p.id);
+                          }}
+                          className="text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
                       </td>
                     </tr>
                   );
