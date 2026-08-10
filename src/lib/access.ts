@@ -7,7 +7,7 @@ import { toast } from "sonner";
  * The flag is mirrored here (outside React) so the data layer can refuse writes
  * without every store importing auth context.
  */
-let writeAllowed = true;
+let writeAllowed = false;
 
 export function setWriteAccess(value: boolean) {
   writeAllowed = value;
