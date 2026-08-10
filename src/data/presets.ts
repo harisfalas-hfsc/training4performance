@@ -306,11 +306,12 @@ function load(userId: string | null, migrateLegacy: boolean) {
       raw = window.localStorage.getItem(KEY);
       if (raw) window.localStorage.setItem(key, raw);
     }
-    if (!raw) return;
-    const s = JSON.parse(raw) as Partial<LibraryState>;
-    state.strength = s.strength ?? [];
-    state.drills = s.drills ?? [];
-    state.blockNames = s.blockNames ?? [];
+    if (raw) {
+      const s = JSON.parse(raw) as Partial<LibraryState>;
+      state.strength = s.strength ?? [];
+      state.drills = s.drills ?? [];
+      state.blockNames = s.blockNames ?? [];
+    }
   } catch {
     /* ignore */
   }

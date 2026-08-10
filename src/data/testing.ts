@@ -187,13 +187,12 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
       const parsed = JSON.parse(raw) as TestRecord[];
       if (Array.isArray(parsed)) {
         testRecords.push(...parsed);
-        return;
       }
     }
   } catch {
     /* corrupt */
   }
-  if (migrateLegacy) testRecords.push(...seed());
+  if (!testRecords.length && migrateLegacy) testRecords.push(...seed());
   version++;
   listeners.forEach((listener) => listener());
 }
