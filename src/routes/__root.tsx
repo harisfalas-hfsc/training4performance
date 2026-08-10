@@ -81,21 +81,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "T4P — Training 4 Performance" },
+      { title: "T4P — Training 4 Performance | Football Performance System for S&C Coaches" },
       {
         name: "description",
         content:
-          "T4P is one connected football performance system: squad availability, block-based session design, GPS import, workload and ACWR, wellness, testing, medical status, alerts and reports.",
+          "T4P is the football performance system built for S&C coaches — squad availability, training design, GPS import, workload monitoring, wellness, testing, medical status, logbook, alerts and reports in one connected workspace.",
       },
       { name: "author", content: "Training 4 Performance" },
       { name: "theme-color", content: "#fafafa" },
       { name: "apple-mobile-web-app-title", content: "T4P" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { property: "og:title", content: "T4P — Training 4 Performance" },
+      { property: "og:title", content: "T4P — Training 4 Performance | Football Performance System for S&C Coaches" },
       {
         property: "og:description",
-        content: "Squad, training, GPS, workload, alerts, medical and AI insight in one connected system.",
+        content:
+          "The daily companion for football S&C coaches: squad availability, session design, GPS, workload, wellness, testing, medical status and one-click reports — all connected.",
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Training 4 Performance" },
@@ -142,13 +143,6 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("t4p.theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = saved ? saved === "dark" : prefersDark;
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
