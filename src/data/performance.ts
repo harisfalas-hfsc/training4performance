@@ -1,8 +1,15 @@
 /**
  * Central connected data model for T4P (Training 4 Performance).
- * One player record -> everything connected (training, GPS, wellness, testing, medical).
- * Deterministic mock data so every screen reads from the same source of truth.
+ *
+ * The squad, the GPS sessions and the physical tests are the REAL data exported
+ * from SALAMINA_FC_LOGBOOK_TRAINING_MONITOR.xlsx (see src/data/salamina.ts).
+ * Everything the staff adds afterwards (new players, transfers out, new training
+ * days, manual GPS/RPE entries, new test rounds) is layered on top and persisted
+ * in the browser, so the whole platform stays editable and connected.
  */
+
+import { SALAMINA_GPS, SALAMINA_PLAYERS, SALAMINA_TESTS } from "@/data/salamina";
+import { useSyncExternalStore } from "react";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
 
@@ -67,6 +74,12 @@ export interface GpsDay {
   decel: number;
   rpe: number;
   status: TrainingStatus;
+  /** Real workbook extras */
+  category?: string;
+  jumps?: number;
+  energy?: number;
+  avgSpeed?: number;
+  sprintEvents?: number;
 }
 
 export interface Drill {
@@ -104,95 +117,327 @@ export interface MedicalEvent {
 }
 
 export const team: Team = {
-  id: "team-apoel-1",
+  id: "team-salamina-1",
   name: "First Team",
-  club: "APOEL FC",
-  season: "2026/27",
-  competition: "Cyta Championship",
+  club: "Salamina FC",
+  season: "2025/26",
+  competition: "Cyprus League",
   ageGroup: "Senior",
   gender: "Male",
-  headCoach: "A. Georgiou",
-  fitnessCoach: "M. Papadopoulos",
+  headCoach: "—",
+  fitnessCoach: "Haris Falas",
 };
 
 export const squadName = "First Team Squad";
 
-const raw: Array<
-  [
-    string,
-    string,
-    string,
-    string,
-    Position,
-    "Right" | "Left",
-    string,
-    number,
-    number,
-    number,
-    number,
-    Availability,
-    string?,
-  ]
-> = [
-  ["p01", "Nikolas", "Andreou", "1997-03-11", "GK", "Right", "CYP", 1, 191, 86, 11.2, "available"],
-  ["p02", "Elias", "Konstantinou", "2001-07-02", "GK", "Right", "CYP", 22, 188, 83, 11.8, "available"],
-  ["p03", "Marco", "Ferreira", "1995-01-24", "CB", "Right", "POR", 4, 187, 82, 10.1, "available"],
-  ["p04", "Tomas", "Vrba", "1998-11-09", "CB", "Left", "CZE", 5, 185, 81, 10.4, "partial", "Managing calf tightness"],
-  ["p05", "Andreas", "Charalambous", "2000-05-18", "CB", "Right", "CYP", 15, 184, 79, 9.8, "available"],
-  ["p06", "Loukas", "Michael", "1999-09-30", "FB", "Right", "CYP", 2, 178, 72, 8.9, "available"],
-  ["p07", "Diego", "Ramos", "1996-02-14", "FB", "Left", "ARG", 3, 176, 71, 9.1, "available"],
-  ["p08", "Petros", "Ioannou", "2003-06-21", "FB", "Right", "CYP", 24, 175, 69, 8.6, "individual", "RTP week 2"],
-  ["p09", "Samuel", "Okoro", "1997-12-05", "CM", "Right", "NGA", 6, 181, 76, 9.4, "available"],
-  ["p10", "Georgios", "Stavrou", "1998-04-17", "CM", "Left", "GRE", 8, 179, 74, 9.0, "available"],
-  ["p11", "Ivan", "Petrovic", "2002-08-28", "CM", "Right", "SRB", 16, 180, 75, 9.3, "available"],
-  ["p12", "Kyriakos", "Demetriou", "2001-10-12", "AM", "Left", "CYP", 10, 174, 68, 8.2, "available"],
-  ["p13", "Luca", "Bianchi", "1999-01-08", "AM", "Right", "ITA", 20, 176, 70, 8.5, "available"],
-  ["p14", "Jean", "Mbaye", "2000-03-26", "W", "Right", "SEN", 7, 177, 73, 7.9, "available"],
-  ["p15", "Ricardo", "Alves", "1996-07-19", "W", "Left", "BRA", 11, 173, 69, 8.1, "available"],
-  ["p16", "Christos", "Panayi", "2004-02-03", "W", "Right", "CYP", 27, 172, 66, 8.4, "available"],
-  ["p17", "Viktor", "Larsen", "1995-05-22", "ST", "Right", "DEN", 9, 186, 83, 9.6, "injured", "Grade 2 hamstring"],
-  ["p18", "Omar", "Haddad", "1998-08-15", "ST", "Left", "MAR", 19, 182, 79, 9.2, "available"],
-  ["p19", "Stelios", "Kyprianou", "2002-12-01", "ST", "Right", "CYP", 29, 180, 77, 9.9, "available"],
-  ["p20", "Adam", "Kowalski", "1997-06-09", "CM", "Right", "POL", 14, 183, 78, 9.5, "ill", "Upper respiratory"],
-  ["p21", "Marios", "Elia", "2003-09-14", "CB", "Left", "CYP", 23, 186, 80, 10.6, "available"],
-  ["p22", "Yannis", "Papas", "2000-11-27", "W", "Left", "GRE", 17, 175, 71, 8.3, "rehab", "Ankle, week 4"],
-];
+/* ------------------------------------------------------------------ */
+/* Seed from the workbook                                              */
+/* ------------------------------------------------------------------ */
 
-export const players: Player[] = raw.map(
-  ([id, firstName, lastName, dob, position, dominantLeg, nationality, number, heightCm, weightKg, bodyFat, availability, note]) => ({
-    id,
-    firstName,
-    lastName,
-    dob,
-    position,
-    dominantLeg,
-    nationality,
-    number,
-    heightCm,
-    weightKg,
-    bodyFat,
-    availability,
-    note,
-  }),
-);
+const CATEGORY_RPE: Record<string, number> = {
+  "FULL TRAINING": 6,
+  "FRIENDLY MATCH": 8,
+  "RECOVERY - REGENERATION": 3,
+  "RETURN TO PLAY": 4,
+};
+
+const CATEGORY_STATUS: Record<string, TrainingStatus> = {
+  "FULL TRAINING": "Full Training",
+  "FRIENDLY MATCH": "Full Training",
+  "RECOVERY - REGENERATION": "Modified Training",
+  "RETURN TO PLAY": "Rehabilitation",
+};
+
+function seedPlayers(): Player[] {
+  return SALAMINA_PLAYERS.map((p) => ({
+    id: p.id,
+    firstName: p.firstName,
+    lastName: p.lastName,
+    dob: "",
+    position: p.position,
+    dominantLeg: "Right" as const,
+    nationality: "",
+    number: p.number,
+    heightCm: 0,
+    weightKg: p.weightKg ?? 0,
+    bodyFat: p.bodyFat ?? 0,
+    availability: "available" as Availability,
+    note: undefined,
+  }));
+}
+
+function seedGps(): GpsDay[] {
+  return SALAMINA_GPS.map(
+    ([date, playerId, category, minutes, distance, hsr, sprint, maxSpeed, accel, decel, jumps, energy, sprintEvents]) => ({
+      date,
+      playerId,
+      minutes,
+      distance,
+      hsr,
+      sprint,
+      maxSpeed,
+      accel,
+      decel,
+      rpe: CATEGORY_RPE[category] ?? 5,
+      status: CATEGORY_STATUS[category] ?? "Full Training",
+      category,
+      jumps,
+      energy,
+      sprintEvents,
+      avgSpeed: minutes ? +((distance / 1000 / (minutes / 60))).toFixed(2) : 0,
+    }),
+  );
+}
+
+const seedDates = [...new Set(SALAMINA_GPS.map((r) => r[0]))].sort();
+
+/** Last day with real data — the platform "today". */
+export const today = seedDates[seedDates.length - 1] ?? "2025-08-30";
+
+function dominantCategory(date: string) {
+  const counts: Record<string, number> = {};
+  SALAMINA_GPS.filter((r) => r[0] === date).forEach((r) => {
+    counts[r[2]] = (counts[r[2]] ?? 0) + 1;
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "FULL TRAINING";
+}
+
+function seedSessions(): Session[] {
+  return seedDates.map((date, i) => {
+    const cat = dominantCategory(date);
+    const rows = SALAMINA_GPS.filter((r) => r[0] === date);
+    const dur = Math.round(rows.reduce((a, r) => a + r[3], 0) / Math.max(1, rows.length));
+    return {
+      id: `s-${date}`,
+      date,
+      label: cat === "FRIENDLY MATCH" ? "MD" : `D${i + 1}`,
+      title: cat,
+      durationMin: dur,
+      objective: cat === "FRIENDLY MATCH" ? "Friendly match" : "Session recorded from GPS export",
+      plannedRpe: CATEGORY_RPE[cat] ?? 5,
+      actualRpe: CATEGORY_RPE[cat] ?? 5,
+      drills: [],
+    };
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Live, mutable, persisted store                                      */
+/* ------------------------------------------------------------------ */
+
+export interface ManualTest {
+  id: string;
+  playerId: string;
+  round: string;
+  date: string;
+  test: string;
+  value: number;
+}
+
+export const players: Player[] = seedPlayers();
+export const gpsHistory: GpsDay[] = seedGps();
+export const sessionCalendar: Session[] = seedSessions();
+export const manualTests: ManualTest[] = [];
+export const medicalEvents: MedicalEvent[] = [];
+
+const STORAGE_KEY = "t4p.data.v1";
+const listeners = new Set<() => void>();
+let version = 0;
+
+export function subscribeData(fn: () => void) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+function persist() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
+    );
+  } catch {
+    /* quota — ignore */
+  }
+}
+
+function emit() {
+  version++;
+  persist();
+  listeners.forEach((l) => l());
+}
+
+function replace<T>(target: T[], next: T[]) {
+  target.splice(0, target.length, ...next);
+}
+
+function hydrate() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw) as {
+      players?: Player[];
+      gpsHistory?: GpsDay[];
+      sessionCalendar?: Session[];
+      manualTests?: ManualTest[];
+      medicalEvents?: MedicalEvent[];
+    };
+    if (s.players?.length) replace(players, s.players);
+    if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
+    if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
+    if (s.manualTests) replace(manualTests, s.manualTests);
+    if (s.medicalEvents) replace(medicalEvents, s.medicalEvents);
+  } catch {
+    /* corrupt — ignore */
+  }
+}
+
+hydrate();
+
+export function useDataVersion() {
+  return useSyncExternalStore(
+    (cb) => subscribeData(cb),
+    () => version,
+    () => 0,
+  );
+}
+
+/* ---------- mutations ---------- */
+
+export function nextPlayerId() {
+  let n = players.length + 1;
+  while (players.some((p) => p.id === `p${String(n).padStart(2, "0")}`)) n++;
+  return `p${String(n).padStart(2, "0")}`;
+}
+
+export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
+  const p: Player = {
+    id: input.id ?? nextPlayerId(),
+    firstName: input.firstName,
+    lastName: input.lastName,
+    dob: input.dob ?? "",
+    position: input.position,
+    dominantLeg: input.dominantLeg ?? "Right",
+    nationality: input.nationality ?? "",
+    number: input.number ?? (players.reduce((a, x) => Math.max(a, x.number), 0) + 1),
+    heightCm: input.heightCm ?? 0,
+    weightKg: input.weightKg ?? 0,
+    bodyFat: input.bodyFat ?? 0,
+    availability: input.availability ?? "available",
+    note: input.note,
+  };
+  players.push(p);
+  emit();
+  return p;
+}
+
+export function updatePlayer(id: string, patch: Partial<Player>) {
+  const i = players.findIndex((p) => p.id === id);
+  if (i < 0) return;
+  players[i] = { ...players[i]!, ...patch };
+  emit();
+}
+
+/** Transfer out / release: removes the player and all of their records. */
+export function removePlayer(id: string) {
+  replace(players, players.filter((p) => p.id !== id));
+  replace(gpsHistory, gpsHistory.filter((g) => g.playerId !== id));
+  replace(manualTests, manualTests.filter((t) => t.playerId !== id));
+  replace(medicalEvents, medicalEvents.filter((m) => m.playerId !== id));
+  emit();
+}
+
+export function addSession(input: Omit<Session, "id"> & { id?: string }) {
+  const s: Session = { ...input, id: input.id ?? `s-${input.date}-${Math.random().toString(36).slice(2, 7)}` };
+  sessionCalendar.push(s);
+  sessionCalendar.sort((a, b) => a.date.localeCompare(b.date));
+  emit();
+  return s;
+}
+
+export function updateSession(id: string, patch: Partial<Session>) {
+  const i = sessionCalendar.findIndex((s) => s.id === id);
+  if (i < 0) return;
+  sessionCalendar[i] = { ...sessionCalendar[i]!, ...patch };
+  emit();
+}
+
+export function removeSession(id: string) {
+  const s = sessionCalendar.find((x) => x.id === id);
+  replace(sessionCalendar, sessionCalendar.filter((x) => x.id !== id));
+  if (s) replace(gpsHistory, gpsHistory.filter((g) => g.date !== s.date));
+  emit();
+}
+
+/** Add or replace one athlete row for one day. */
+export function upsertGps(entry: GpsDay) {
+  const i = gpsHistory.findIndex((g) => g.date === entry.date && g.playerId === entry.playerId);
+  if (i >= 0) gpsHistory[i] = { ...gpsHistory[i]!, ...entry };
+  else gpsHistory.push(entry);
+  emit();
+}
+
+export function removeGps(date: string, playerId: string) {
+  replace(gpsHistory, gpsHistory.filter((g) => !(g.date === date && g.playerId === playerId)));
+  emit();
+}
+
+export function setRpe(date: string, playerId: string, rpe: number) {
+  const g = gpsHistory.find((x) => x.date === date && x.playerId === playerId);
+  if (!g) return;
+  g.rpe = rpe;
+  emit();
+}
+
+export function addManualTest(t: Omit<ManualTest, "id">) {
+  const existing = manualTests.findIndex(
+    (x) => x.playerId === t.playerId && x.round === t.round && x.test === t.test,
+  );
+  if (existing >= 0) manualTests[existing] = { ...manualTests[existing]!, ...t };
+  else manualTests.push({ ...t, id: `mt-${Math.random().toString(36).slice(2, 9)}` });
+  emit();
+}
+
+export function addMedicalEvent(e: MedicalEvent) {
+  medicalEvents.push(e);
+  emit();
+}
+
+export function removeMedicalEvent(playerId: string, from: string) {
+  replace(medicalEvents, medicalEvents.filter((m) => !(m.playerId === playerId && m.from === from)));
+  emit();
+}
+
+/** Wipe every local change and go back to the imported workbook. */
+export function resetToWorkbook() {
+  replace(players, seedPlayers());
+  replace(gpsHistory, seedGps());
+  replace(sessionCalendar, seedSessions());
+  replace(manualTests, []);
+  replace(medicalEvents, []);
+  emit();
+}
 
 export const fullName = (p: Player) => `${p.firstName} ${p.lastName}`;
-export const initials = (p: Player) => `${p.firstName[0]}${p.lastName[0]}`;
+export const initials = (p: Player) => `${p.firstName[0] ?? "?"}${p.lastName[0] ?? ""}`;
 
 export const age = (dob: string) => {
+  if (!dob) return 0;
   const d = new Date(dob);
-  const now = new Date("2026-08-10");
+  const now = new Date(today);
   let a = now.getFullYear() - d.getFullYear();
   const m = now.getMonth() - d.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < d.getDate())) a--;
   return a;
 };
 
-export const bmi = (p: Player) => +(p.weightKg / Math.pow(p.heightCm / 100, 2)).toFixed(1);
+export const bmi = (p: Player) =>
+  p.heightCm > 0 ? +(p.weightKg / Math.pow(p.heightCm / 100, 2)).toFixed(1) : 0;
 
 export const getPlayer = (id: string) => players.find((p) => p.id === id);
 
-/* ---------- deterministic pseudo random ---------- */
+/* ---------- deterministic pseudo random (wellness only) ---------- */
 function seeded(seed: number) {
   let s = seed % 2147483647;
   if (s <= 0) s += 2147483646;
@@ -209,99 +454,24 @@ const positionProfile: Record<Position, { dist: number; hsr: number; sprint: num
   ST: { dist: 5800, hsr: 690, sprint: 180, speed: 32.9 },
 };
 
-const DAYS = 42;
-export const today = "2026-08-10";
-
-function dateNAgo(n: number) {
+export function dateNAgo(n: number) {
   const d = new Date(today);
   d.setDate(d.getDate() - n);
   return d.toISOString().slice(0, 10);
 }
 
-export const sessionCalendar: Session[] = [
-  { id: "s1", date: dateNAgo(3), label: "MD+1", title: "Recovery & Regeneration", durationMin: 55, objective: "Flush, mobility, low load", plannedRpe: 3, actualRpe: 3, drills: ["d1", "d7"] },
-  { id: "s2", date: dateNAgo(2), label: "MD-4", title: "Extensive Aerobic + Possession", durationMin: 85, objective: "Volume, ball circulation", plannedRpe: 6, actualRpe: 7, drills: ["d1", "d2", "d3"] },
-  { id: "s3", date: dateNAgo(1), label: "MD-3", title: "High Intensity + Conditioning", durationMin: 80, objective: "High intensity + aerobic conditioning", plannedRpe: 7, actualRpe: 8, drills: ["d1", "d4", "d3", "d7"] },
-  { id: "s4", date: today, label: "MD-2", title: "Speed & Finishing", durationMin: 70, objective: "Max velocity exposure, finishing patterns", plannedRpe: 6, drills: ["d1", "d5", "d6"] },
-  { id: "s5", date: dateNAgo(-1), label: "MD-1", title: "Activation & Set Pieces", durationMin: 55, objective: "Sharpness, tactical review", plannedRpe: 4, drills: ["d1", "d8"] },
-  { id: "s6", date: dateNAgo(-2), label: "MD", title: "Matchday — Omonia (H)", durationMin: 95, objective: "Match", plannedRpe: 9, drills: [] },
-];
-
 export const drills: Drill[] = [
-  { id: "d1", name: "Dynamic Warm-Up + Activation", categories: ["Mobility", "Coordination", "Injury Prevention"], intensity: "Low", rpe: 2, duration: "12 min", area: "20 × 20 m", players: 22 },
-  { id: "d2", name: "Rondo 6v2 — Two Touch", categories: ["Rondo", "Possession", "Technical"], intensity: "Moderate", rpe: 5, duration: "3 × 4 min", area: "12 × 12 m", players: 8 },
-  { id: "d3", name: "Positional Play 8v8+3", categories: ["Possession", "Tactical", "Aerobic"], intensity: "Moderate", rpe: 6, duration: "4 × 5 min", area: "50 × 40 m", players: 19 },
-  { id: "d4", name: "4v4 + 2 Neutral Players", categories: ["Aerobic", "Anaerobic", "Decision Making", "Small-Sided Game"], intensity: "High", rpe: 7, duration: "4 × 4 min", area: "30 × 25 m", players: 12 },
-  { id: "d5", name: "Max Velocity Runs — 5 × 25 m", categories: ["Speed", "Maximum Speed", "Acceleration"], intensity: "High", rpe: 7, duration: "5 reps / 2 min rec", area: "40 m lane", players: 22 },
-  { id: "d6", name: "Finishing Circuit — 3 Stations", categories: ["Finishing", "Technical", "Power"], intensity: "Moderate", rpe: 6, duration: "18 min", area: "Half pitch", players: 18 },
-  { id: "d7", name: "Nordic + Copenhagen Core Block", categories: ["Strength", "Core", "Injury Prevention"], intensity: "Moderate", rpe: 5, duration: "10 min", area: "Gym / touchline", players: 22 },
-  { id: "d8", name: "Attacking Set Pieces", categories: ["Tactical", "Attacking"], intensity: "Low", rpe: 3, duration: "15 min", area: "Half pitch", players: 22 },
+  { id: "d1", name: "ACTIVATION & WARM UP", categories: ["Mobility", "Coordination"], intensity: "Low", rpe: 3, duration: "12 min", area: "20 × 20 m", players: 22 },
+  { id: "d2", name: "RONDO > AT", categories: ["Rondo", "Possession"], intensity: "Moderate", rpe: 6, duration: "3 × 4 min", area: "12 × 12 m", players: 8 },
+  { id: "d3", name: "POSSESION > AT", categories: ["Possession", "Aerobic"], intensity: "Moderate", rpe: 7, duration: "4 × 5 min", area: "50 × 40 m", players: 19 },
+  { id: "d4", name: "SMALL SIDED GAME", categories: ["Aerobic", "Anaerobic"], intensity: "High", rpe: 8, duration: "4 × 4 min", area: "30 × 25 m", players: 12 },
+  { id: "d5", name: "SPEED & AGILITY", categories: ["Speed", "Acceleration"], intensity: "High", rpe: 7, duration: "5 reps", area: "40 m lane", players: 22 },
+  { id: "d6", name: "FINISHING", categories: ["Finishing", "Technical"], intensity: "Moderate", rpe: 6, duration: "18 min", area: "Half pitch", players: 18 },
+  { id: "d7", name: "MOBILITY & STABILITY", categories: ["Strength", "Core"], intensity: "Moderate", rpe: 4, duration: "10 min", area: "Gym", players: 22 },
+  { id: "d8", name: "MATCH GAME", categories: ["Tactical"], intensity: "High", rpe: 9, duration: "90 min", area: "Full pitch", players: 22 },
 ];
 
-export const getDrill = (id: string) => drills.find((d) => d.id === id)!;
-
-/* ---------- GPS history ---------- */
-const statusFor = (p: Player): TrainingStatus => {
-  switch (p.availability) {
-    case "injured":
-      return "Injured";
-    case "ill":
-      return "Ill";
-    case "rehab":
-      return "Rehabilitation";
-    case "individual":
-      return "Individual Training";
-    case "partial":
-      return "Partial Training";
-    default:
-      return "Full Training";
-  }
-};
-
-export const gpsHistory: GpsDay[] = [];
-
-players.forEach((p, pi) => {
-  const rnd = seeded(1000 + pi * 37);
-  const prof = positionProfile[p.position];
-  for (let i = DAYS - 1; i >= 0; i--) {
-    const date = dateNAgo(i);
-    const dow = new Date(date).getDay();
-    if (dow === 1) continue; // day off
-    const isMatch = dow === 0;
-    const recent = i <= 3;
-    const status: TrainingStatus = recent ? statusFor(p) : "Full Training";
-    const factor =
-      status === "Injured" || status === "Ill"
-        ? 0
-        : status === "Rehabilitation"
-          ? 0.25
-          : status === "Individual Training"
-            ? 0.45
-            : status === "Partial Training"
-              ? 0.6
-              : 1;
-    const matchBoost = isMatch ? 1.55 : 1;
-    const noise = 0.85 + rnd() * 0.3;
-    const minutes = Math.round((isMatch ? 90 : 72) * factor * (0.9 + rnd() * 0.2));
-    if (factor === 0) {
-      gpsHistory.push({ date, playerId: p.id, minutes: 0, distance: 0, hsr: 0, sprint: 0, maxSpeed: 0, accel: 0, decel: 0, rpe: 0, status });
-      continue;
-    }
-    gpsHistory.push({
-      date,
-      playerId: p.id,
-      minutes,
-      distance: Math.round(prof.dist * factor * matchBoost * noise),
-      hsr: Math.round(prof.hsr * factor * matchBoost * (0.8 + rnd() * 0.45)),
-      sprint: Math.round(prof.sprint * factor * matchBoost * (0.7 + rnd() * 0.6)),
-      maxSpeed: +(prof.speed * (0.9 + rnd() * 0.1)).toFixed(1),
-      accel: Math.round(28 * factor * matchBoost * (0.8 + rnd() * 0.4)),
-      decel: Math.round(31 * factor * matchBoost * (0.8 + rnd() * 0.4)),
-      rpe: Math.min(10, Math.max(1, Math.round((isMatch ? 8 : 6) * factor * (0.85 + rnd() * 0.35)))),
-      status,
-    });
-  }
-});
+export const getDrill = (id: string) => drills.find((d) => d.id === id) ?? drills[0]!;
 
 export const playerDays = (id: string) => gpsHistory.filter((g) => g.playerId === id);
 
@@ -340,7 +510,7 @@ export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28): Lo
     acwr: chronic ? +(acute / chronic).toFixed(2) : 0,
     monotony: +monotony.toFixed(2),
     strain: Math.round(acute * monotony),
-    chronicReliable: days.filter((d) => d.date >= dateNAgo(chronicWindow - 1)).length >= 16,
+    chronicReliable: days.filter((d) => d.date >= dateNAgo(chronicWindow - 1)).length >= 12,
   };
 }
 
@@ -390,7 +560,7 @@ export function positionAverage(pos: Position, metric: (m: PlayerMetrics) => num
   return Math.round(avg(vals));
 }
 
-/* ---------- wellness ---------- */
+/* ---------- wellness (staff entry — seeded until entered) ---------- */
 export interface Wellness {
   playerId: string;
   sleep: number;
@@ -407,51 +577,50 @@ export const wellnessToday: Wellness[] = players.map((p, i) => {
   return { playerId: p.id, sleep: r(), fatigue: r(), soreness: r(), stress: r(), mood: r() };
 });
 
-export const wellnessScore = (w: Wellness) => +(((w.sleep + w.fatigue + w.soreness + w.stress + w.mood) / 25) * 100).toFixed(0);
-export const playerWellness = (id: string) => wellnessToday.find((w) => w.playerId === id)!;
+export const wellnessScore = (w: Wellness) =>
+  +(((w.sleep + w.fatigue + w.soreness + w.stress + w.mood) / 25) * 100).toFixed(0);
 
-/* ---------- testing ---------- */
-export function testingHistory(id: string): TestResult[] {
-  const p = getPlayer(id)!;
-  const prof = positionProfile[p.position];
-  const rnd = seeded(900 + Number(id.slice(1)) * 11);
-  const dates = ["2026-02-10", "2026-04-14", "2026-06-16", "2026-07-28"];
-  let cmj = 36 + rnd() * 8;
-  let s10 = 1.78 - rnd() * 0.12;
-  let s30 = 4.25 - rnd() * 0.22;
-  let yoyo = 1800 + rnd() * 700;
-  return dates.map((date, i) => {
-    cmj += (rnd() - 0.4) * 2.2;
-    s10 -= (rnd() - 0.45) * 0.03;
-    s30 -= (rnd() - 0.45) * 0.06;
-    yoyo += (rnd() - 0.35) * 220;
-    return {
-      date,
-      cmj: +cmj.toFixed(1),
-      sprint10: +s10.toFixed(2),
-      sprint30: +s30.toFixed(2),
-      maxSpeed: +(prof.speed * (0.94 + i * 0.015)).toFixed(1),
-      yoyo: Math.round(yoyo),
-    };
-  });
+export const playerWellness = (id: string): Wellness =>
+  wellnessToday.find((w) => w.playerId === id) ?? { playerId: id, sleep: 3, fatigue: 3, soreness: 3, stress: 3, mood: 3 };
+
+/* ---------- testing (real 30/07/2025 battery) ---------- */
+const normName = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
+
+export function testPlayerId(first: string, last: string): string | null {
+  const l = normName(last);
+  const f = normName(first);
+  const hit = players.find((p) => normName(p.lastName) === l || normName(p.firstName + p.lastName).includes(l + f));
+  return hit?.id ?? players.find((p) => normName(p.lastName).startsWith(l.slice(0, 5)))?.id ?? null;
 }
 
-/* ---------- medical ---------- */
-export const medicalEvents: MedicalEvent[] = [
-  { playerId: "p17", type: "Injury", area: "Hamstring (biceps femoris)", from: "2026-07-30", to: "2026-09-05", daysLost: 37, notes: "Grade 2 strain during max velocity block.", stage: "Rehabilitation" },
-  { playerId: "p22", type: "Injury", area: "Ankle (lateral ligament)", from: "2026-07-13", to: "2026-08-24", daysLost: 42, notes: "Grade 1 sprain, progressing to individual training.", stage: "Individual Training" },
-  { playerId: "p08", type: "Injury", area: "Adductor", from: "2026-06-28", to: "2026-08-06", daysLost: 39, notes: "Returned to modified team training.", stage: "Partial Team Training" },
-  { playerId: "p20", type: "Illness", area: "Upper respiratory", from: "2026-08-08", to: "2026-08-12", daysLost: 4, notes: "Symptomatic, no training.", stage: "Rest" },
-  { playerId: "p04", type: "Injury", area: "Calf", from: "2026-05-02", to: "2026-05-16", daysLost: 14, notes: "Fully resolved, monitoring load.", stage: "Full Training" },
-];
+export function testingHistory(id: string): TestResult[] {
+  const p = getPlayer(id);
+  if (!p) return [];
+  const rows = SALAMINA_TESTS.filter((t) => testPlayerId(t.first, t.last) === id);
+  return rows.map((t) => ({
+    date: t.date,
+    cmj: t.cmj ?? 0,
+    sprint10: 0,
+    sprint30: 0,
+    maxSpeed: +Math.max(...playerDays(id).map((d) => d.maxSpeed), 0).toFixed(1),
+    yoyo: t.yoyoDistance ?? 0,
+  }));
+}
 
 export const playerMedical = (id: string) => medicalEvents.filter((m) => m.playerId === id);
 
-export const RTP_STAGES = ["Injury", "Rehabilitation", "Individual Training", "Partial Team Training", "Full Training", "Match Available"];
+export const RTP_STAGES = [
+  "Injury",
+  "Rehabilitation",
+  "Individual Training",
+  "Partial Team Training",
+  "Full Training",
+  "Match Available",
+];
 
 /* ---------- availability ---------- */
 export function availabilitySummary(id: string) {
-  const days = playerDays(id).filter((d) => new Date(d.date).getDay() !== 0);
+  const days = playerDays(id);
   const total = days.length;
   const counts = { full: 0, partial: 0, individual: 0, missed: 0 };
   days.forEach((d) => {
@@ -464,7 +633,6 @@ export function availabilitySummary(id: string) {
   return { total, ...counts, availability: +pct.toFixed(1) };
 }
 
-/* ---------- squad availability today ---------- */
 export function squadAvailability() {
   const c: Record<Availability, number> = { available: 0, partial: 0, individual: 0, rehab: 0, injured: 0, ill: 0 };
   players.forEach((p) => c[p.availability]++);
@@ -481,7 +649,7 @@ export interface Alert {
 
 export function alerts(): Alert[] {
   const out: Alert[] = [];
-  const hsrMean = squadStats((m) => m.hsr7).mean;
+  const hsrMean = squadStats((m) => m.hsr7).mean || 1;
   squadMetrics().forEach((m) => {
     const p = m.player;
     if (m.load.acwr > 1.35 && m.load.acute > 0)
@@ -531,7 +699,7 @@ export function playerTrend(id: string, days = 28) {
     }));
 }
 
-/* ---------- GPS import simulation ---------- */
+/* ---------- GPS import matching ---------- */
 export interface ImportRow {
   raw: string;
   matchedId: string | null;
@@ -560,8 +728,8 @@ export function matchName(rawName: string): { id: string | null; confidence: num
     const first = p.firstName.toLowerCase();
     const last = p.lastName.toLowerCase();
     let score = 0;
-    const hasLast = parts.some((t) => t === last);
-    const hasFirst = parts.some((t) => t === first);
+    const hasLast = parts.some((t) => last.split(/\s+/).includes(t));
+    const hasFirst = parts.some((t) => first.split(/\s+/).includes(t));
     const initialFirst = parts.some((t) => t.length <= 2 && t[0] === first[0]);
     if (hasLast && hasFirst) score = 1;
     else if (hasLast && initialFirst) score = 0.82;
@@ -572,25 +740,8 @@ export function matchName(rawName: string): { id: string | null; confidence: num
 }
 
 export const sampleImportNames = [
-  "Andreou, Nikolas",
-  "Marco Ferreira",
-  "Vrba, Tomas",
-  "A. Charalambous",
-  "Loukas Michael",
-  "Ramos, Diego",
-  "Samuel Okoro",
-  "G. Stavrou",
-  "Ivan Petrovic",
-  "Demetriou, Kyriakos",
-  "Luca Bianchi",
-  "Mbaye, Jean",
-  "Ricardo Alves",
-  "C. Panayi",
-  "Omar Haddad",
-  "Kyprianou, Stelios",
-  "Marios Elia",
-  "Petros Ioannou",
-  "R. Nunes",
+  ...SALAMINA_PLAYERS.slice(0, 14).map((p) => p.raw),
+  "PAPADOPOULOS ANTONIS",
 ];
 
 export function buildImportRows(): ImportRow[] {
