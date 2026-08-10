@@ -105,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refresh: () => load(session?.user?.id, session?.user?.email),
       signOut: async () => {
         setWorkspaceScope(null);
+        if (typeof window !== "undefined") window.sessionStorage.removeItem("t4p.adminSession");
         await supabase.auth.signOut();
       },
     };
