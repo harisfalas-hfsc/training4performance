@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "T4P is one connected football performance system: squad availability, block-based session design, GPS import, workload and ACWR, wellness, testing, medical status, alerts and reports.",
       },
       { name: "author", content: "Training 4 Performance" },
-      { name: "theme-color", content: "#0b1412" },
+      { name: "theme-color", content: "#fafafa" },
       { name: "apple-mobile-web-app-title", content: "T4P" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },

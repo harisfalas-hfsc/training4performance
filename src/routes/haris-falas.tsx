@@ -8,15 +8,18 @@ export const Route = createFileRoute("/haris-falas")({
       {
         name: "description",
         content:
-          "Profile of Haris Falas, sports scientist, fitness coach and strength & conditioning coach, creator of T4P — Training 4 Performance.",
+          "Haris Falas is a sports scientist and strength & conditioning coach who has worked with professional football teams in Cyprus, and the creator of T4P — Training 4 Performance.",
       },
       { property: "og:title", content: "Haris Falas — Creator of T4P" },
       {
         property: "og:description",
-        content: "Sports scientist, fitness coach and strength & conditioning coach in professional football.",
+        content:
+          "Sports scientist and strength & conditioning coach in professional football, creator of Training 4 Performance.",
       },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "https://training4performance.com/haris-falas.jpg" },
+      { name: "twitter:image", content: "https://training4performance.com/haris-falas.jpg" },
     ],
   }),
   component: ProfilePage,
@@ -25,55 +28,58 @@ export const Route = createFileRoute("/haris-falas")({
 function ProfilePage() {
   return (
     <MarketingPage>
-      <div className="mx-auto max-w-4xl px-5 py-14">
-        <div className="grid gap-8 sm:grid-cols-[220px_1fr]">
+      <div className="mx-auto max-w-4xl px-5 py-12">
+        <div className="grid gap-8 sm:grid-cols-[240px_1fr]">
           <div>
-            <div className="grid aspect-square place-items-center rounded-lg border border-border bg-surface-2 font-display text-5xl font-semibold uppercase tracking-widest text-primary">
-              HF
-            </div>
+            <img
+              src="/haris-falas.jpg"
+              alt="Haris Falas, sports scientist and strength & conditioning coach"
+              className="w-full rounded-2xl object-cover"
+              width={480}
+              height={480}
+              loading="lazy"
+            />
             <div className="mt-4 space-y-1 text-xs text-muted-foreground">
-              <p><strong className="text-foreground">Role:</strong> Sports scientist</p>
-              <p><strong className="text-foreground">Also:</strong> Fitness coach · S&amp;C coach</p>
-              <p><strong className="text-foreground">Field:</strong> Professional football</p>
+              <p><strong className="text-foreground">Sports scientist</strong></p>
+              <p><strong className="text-foreground">Strength &amp; conditioning coach</strong></p>
+              <p>Professional football · Cyprus</p>
             </div>
           </div>
 
           <div>
             <p className="eyebrow">Creator of T4P</p>
             <h1 className="mt-2 font-display text-3xl font-semibold uppercase tracking-wide">Haris Falas</h1>
+
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Haris Falas is a sports scientist, fitness coach and strength &amp; conditioning coach working in
-              professional football. His work sits where physical preparation, data and coaching meet: planning the
-              weekly microcycle around the match, prescribing and monitoring load, running the testing calendar,
-              managing return-to-play alongside the medical team, and translating all of it into decisions the head
-              coach can use on the pitch.
+              Haris Falas is a sports scientist and strength &amp; conditioning coach. He has worked with several
+              professional football teams in Cyprus, inside the daily reality of a club season: the weekly cycle
+              around the match, the physical preparation of the squad, and the constant flow of data that comes
+              with it.
             </p>
 
-            <h2 className="mt-8 font-display text-lg font-semibold">Areas of work</h2>
-            <ul className="mt-2 ml-5 list-disc space-y-1.5 text-sm text-muted-foreground">
-              <li>Periodisation and microcycle design around the match-day cycle.</li>
-              <li>GPS and external load monitoring: distance, high-speed running, sprints, accelerations, decelerations.</li>
-              <li>Internal load: session-RPE, wellness monitoring, acute:chronic workload ratio, monotony and strain.</li>
-              <li>Physical testing batteries: jumps, Yo-Yo, MAS, VO2, sprint and change-of-direction, FMS, strength.</li>
-              <li>Return-to-play progression and reconditioning in collaboration with the medical department.</li>
-              <li>Strength &amp; conditioning programming for team and individual needs.</li>
-              <li>Reporting for coaching, performance and medical staff.</li>
-            </ul>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Football today runs on data. Every session, every player, every day produces numbers — and someone
+              has to collect them, keep them clean, understand them and turn them into decisions. In most clubs
+              that someone is one person. In many teams the strength &amp; conditioning department is a single
+              scientist covering the whole squad, and the work of organising the data takes more time than the
+              work of coaching it.
+            </p>
+
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              That is where T4P comes from. Haris spent years managing that work by hand and looking for one
+              platform that could hold all of it together — planning and periodisation, the data of every
+              session, the reporting to the head coach and to the club, player development, return to play, GPS
+              and testing — instead of a folder of spreadsheets, exports and separate tools that never talk to
+              each other.
+            </p>
 
             <h2 className="mt-8 font-display text-lg font-semibold">Why T4P was built</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              T4P grew directly out of the training monitor logbook Haris built and used with his squad — daily
-              training records, drill-by-drill GPS splits, RPE, test rounds and player descriptions. The
-              spreadsheet worked, but it could not scale, could not protect medical data, and could not answer
-              questions fast enough on a match-day-minus-one morning. T4P is that logbook rebuilt as a connected,
-              role-aware platform for a whole performance department.
-            </p>
-
-            <h2 className="mt-8 font-display text-lg font-semibold">Other projects</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Haris is also behind <strong className="text-foreground">Smarty Workout</strong>, a training and
-              workout platform for individual athletes and coaches, where his full professional profile and
-              background are presented in detail.
+              T4P grew directly out of the training monitor logbook Haris built and used with his own squad —
+              daily training records, session data, RPE, tests and player notes. The spreadsheet worked, but it
+              could not scale, could not protect sensitive data, and could not answer a question fast enough on a
+              match-day-minus-one morning. T4P is that logbook rebuilt as one connected platform, so the work is
+              done faster and the answers are there when the coach asks for them.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">

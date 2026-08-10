@@ -51,17 +51,17 @@ const features = [
 function Home() {
   return (
     <MarketingPage>
-      <section className="border-b border-border bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--color-primary)_18%,transparent),transparent_60%)]">
-        <div className="mx-auto max-w-6xl px-5 py-20 text-center">
+      <section className="border-b border-border bg-surface-2/60">
+        <div className="mx-auto max-w-6xl px-5 py-14 text-center sm:py-20">
           <img
             src="/logo-t4p.png"
             alt="Training 4 Performance logo"
-            className="mx-auto mb-6 size-16 rounded-xl bg-white object-contain p-1.5"
+            className="mx-auto mb-6 size-16 object-contain"
             width={64}
             height={64}
           />
           <p className="eyebrow">Training 4 Performance</p>
-          <h1 className="mx-auto mt-3 max-w-3xl font-display text-4xl font-semibold uppercase leading-tight tracking-wide sm:text-5xl">
+          <h1 className="mx-auto mt-3 max-w-3xl font-display text-3xl font-semibold uppercase leading-tight tracking-wide sm:text-5xl">
             The football performance system that connects everything
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground">

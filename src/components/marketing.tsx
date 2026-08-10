@@ -17,13 +17,11 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="grid size-9 place-items-center overflow-hidden rounded-md bg-white">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-8 object-contain" />
-          </span>
-          <span className="leading-tight">
+        <Link to="/" className="flex min-w-0 items-center gap-2">
+          <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-8 shrink-0 object-contain" />
+          <span className="min-w-0 leading-tight">
             <span className="block font-display text-base font-semibold uppercase tracking-widest">T4P</span>
-            <span className="block text-[0.62rem] uppercase tracking-widest text-muted-foreground">
+            <span className="block truncate text-[0.6rem] uppercase tracking-wider text-muted-foreground">
               Training 4 Performance
             </span>
           </span>
@@ -43,11 +41,11 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {session ? (
             <Link
               to={hasAccess ? "/dashboard" : "/account"}
-              className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+              className="whitespace-nowrap rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
             >
               {hasAccess ? "Open platform" : "My account"}
             </Link>
@@ -59,7 +57,7 @@ export function SiteHeader() {
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+                className="whitespace-nowrap rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
               >
                 Get started
               </Link>
