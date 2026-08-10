@@ -60,11 +60,11 @@ function Account() {
     if (!user) return;
     setBusy(true);
     setError(null);
+    // Requests are always saved as "pending" by the database — only the owner can activate them.
     const { error: err } = await supabase.from("subscriptions").upsert(
       {
         user_id: user.id,
         team_name: clubName || profile?.club_name || "First team",
-        status: "active",
         season_start: season.start,
         season_end: season.end,
         price_eur: 999,
