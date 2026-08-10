@@ -32,7 +32,7 @@ import {
   useDataVersion,
 } from "@/data/performance";
 import { testRecords, useTestVersion } from "@/data/testing";
-import { downloadWorkspaceZip } from "@/lib/workspace-export";
+import { downloadSheetXlsx, downloadWorkspaceZip, workspaceSheets } from "@/lib/workspace-export";
 import { clearRemoteWorkspace } from "@/lib/usage";
 import { useAuth } from "@/lib/auth";
 
