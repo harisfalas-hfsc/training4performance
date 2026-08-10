@@ -78,6 +78,8 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          admin_note: string | null
+          complimentary: boolean
           created_at: string
           id: string
           price_eur: number
@@ -89,6 +91,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_note?: string | null
+          complimentary?: boolean
           created_at?: string
           id?: string
           price_eur?: number
@@ -100,6 +104,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_note?: string | null
+          complimentary?: boolean
           created_at?: string
           id?: string
           price_eur?: number
@@ -107,6 +113,42 @@ export type Database = {
           season_start?: string
           status?: string
           team_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_snapshots: {
+        Row: {
+          club_name: string | null
+          gps_rows: number
+          player_names: string[]
+          players: number
+          sessions: number
+          team_name: string | null
+          tests: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          club_name?: string | null
+          gps_rows?: number
+          player_names?: string[]
+          players?: number
+          sessions?: number
+          team_name?: string | null
+          tests?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          club_name?: string | null
+          gps_rows?: number
+          player_names?: string[]
+          players?: number
+          sessions?: number
+          team_name?: string | null
+          tests?: number
           updated_at?: string
           user_id?: string
         }
