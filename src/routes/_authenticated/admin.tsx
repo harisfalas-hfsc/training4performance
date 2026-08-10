@@ -55,6 +55,7 @@ function AdminPage() {
   const navigate = useNavigate();
 
   const listCustomers = useServerFn(adminListCustomers);
+  const listTeams = useServerFn(adminListTeams);
   const getStats = useServerFn(adminGetStats);
   const grantAccess = useServerFn(adminGrantAccess);
   const revokeAccess = useServerFn(adminRevokeAccess);
@@ -63,23 +64,33 @@ function AdminPage() {
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
 
+  const [tab, setTab] = useState<"customers" | "teams">("customers");
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
+  const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState(true);
   const [months, setMonths] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [openTeam, setOpenTeam] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     setPending(true);
-    const [c, s] = await Promise.all([listCustomers({ data: { search: search.trim() } }), getStats({})]);
+    const [c, s, t] = await Promise.all([
+      listCustomers({ data: { search: search.trim() } }),
+      getStats({}),
+      listTeams({ data: { search: search.trim() } }),
+    ]);
     if ("error" in c) toast.error(c.error);
     else setCustomers(c.customers);
     if ("error" in s) toast.error(s.error);
     else setStats(s.stats);
+    if ("error" in t) toast.error(t.error);
+    else setTeams(t.teams);
     setPending(false);
-  }, [listCustomers, getStats, search]);
+  }, [listCustomers, getStats, listTeams, search]);
+
 
   useEffect(() => {
     if (isAdmin) void reload();
