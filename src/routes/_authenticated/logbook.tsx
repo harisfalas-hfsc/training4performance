@@ -189,9 +189,10 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
         <MetricCard label="Composite load" value={num(totals.load)} unit="AU" hint="from your load model" />
       </div>
 
-      <div className="panel overflow-x-auto p-0">
+      <div className="panel scroll-pane max-h-[70vh] overflow-auto p-0">
         <table className="w-full min-w-[1100px] text-sm">
-          <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className="sticky top-0 z-10 border-b border-border bg-surface-1 text-left text-xs uppercase tracking-wide text-muted-foreground">
+
             <tr>
               {["Date", "Category", "MD", "Drill", "Athlete", "Role", "Min", "Dist (m)", "HSR (m)", "Sprint (m)", "Spr", "Acc", "Dec", "Jumps", "Max spd", "RPE", "sRPE", "Load AU", ""].map(
                 (h) => (
@@ -448,9 +449,10 @@ function ActivityChart({ weights }: { weights: LoadWeights }) {
         <TrendBars data={data} dataKey="value" height={360} />
       </div>
 
-      <div className="panel overflow-x-auto p-0">
+      <div className="panel scroll-pane max-h-[70vh] overflow-auto p-0">
         <table className="w-full text-sm">
-          <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className="sticky top-0 z-10 border-b border-border bg-surface-1 text-left text-xs uppercase tracking-wide text-muted-foreground">
+
             <tr>
               <th className="px-3 py-2 font-medium">Row labels</th>
               <th className="px-3 py-2 text-right font-medium">{metric.label}</th>
@@ -588,9 +590,10 @@ function TestsTab() {
         <TrendBars data={chart} dataKey="value" height={340} />
       </div>
 
-      <div className="panel overflow-x-auto p-0">
+      <div className="panel scroll-pane max-h-[70vh] overflow-auto p-0">
         <table className="w-full min-w-[1000px] text-sm">
-          <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className="sticky top-0 z-10 border-b border-border bg-surface-1 text-left text-xs uppercase tracking-wide text-muted-foreground">
+
             <tr>
               <th className="px-3 py-2 font-medium">Athlete</th>
               {TEST_BATTERY.map((t) => (

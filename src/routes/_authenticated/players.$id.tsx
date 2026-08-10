@@ -1,7 +1,6 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Lock } from "lucide-react";
-import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
@@ -18,11 +17,39 @@ import {
   playerTrend,
   playerWellness,
   positionAverage,
+  removePlayer,
   RTP_STAGES,
   squadStats,
-  testingHistory,
+  updatePlayer,
+  useDataVersion,
   wellnessScore,
+  type Availability,
+  type Player,
+  type Position,
 } from "@/data/performance";
+import {
+  addTestRecord,
+  asymmetry,
+  autoFindings,
+  bestRecord,
+  getTestDef,
+  latestRecord,
+  oneRepMax,
+  playerRecords,
+  playerTestIds,
+  removeTestRecord,
+  squadTestAverage,
+  strengthPrescription,
+  STRENGTH_GOALS,
+  TEST_CATALOG,
+  TEST_GROUPS,
+  testLabel,
+  testSeries,
+  testUnit,
+  useTestVersion,
+  type StrengthGoal,
+  type TestGroup,
+} from "@/data/testing";
 
 export const Route = createFileRoute("/_authenticated/players/$id")({
   loader: ({ params }) => {
@@ -48,20 +75,33 @@ export const Route = createFileRoute("/_authenticated/players/$id")({
   component: PlayerProfile,
 });
 
-const TABS = ["Profile", "Fitness", "GPS", "Wellness", "Training", "Medical", "Analytics"] as const;
+const TABS = ["Profile", "Fitness", "Strength", "GPS", "Wellness", "Training", "Medical", "Analytics"] as const;
+const POSITIONS: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
+const AVAILABILITY: Availability[] = ["available", "partial", "individual", "rehab", "injured", "ill"];
 
 function PlayerProfile() {
+  useDataVersion();
+  useTestVersion();
   const { id } = Route.useParams();
-  const player = getPlayer(id)!;
+  const navigate = useNavigate();
+  const player = getPlayer(id);
   const [tab, setTab] = useState<(typeof TABS)[number]>("Profile");
+
+  if (!player) {
+    return (
+      <AppShell title="Player not found" subtitle="This player is no longer in the squad">
+        <Link to="/squad" className="text-sm text-primary hover:underline">
+          Back to squad
+        </Link>
+      </AppShell>
+    );
+  }
+
   const m = playerMetrics(player);
   const trend = playerTrend(id, 28);
-  const tests = testingHistory(id);
   const wellness = playerWellness(id);
   const availability = availabilitySummary(id);
   const medical = playerMedical(id);
-  const { can } = useRole();
-  const canSeeMedical = can("viewMedicalDetail");
   const hsrSquad = squadStats((x) => x.hsr7).mean;
   const hsrPos = positionAverage(player.position, (x) => x.hsr7) || 1;
 
@@ -70,9 +110,23 @@ function PlayerProfile() {
       title={fullName(player)}
       subtitle={`#${player.number} · ${player.position} · ${age(player.dob)} yrs · ${player.dominantLeg} footed`}
       actions={
-        <Link to="/squad" className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
-          <ArrowLeft className="size-4" /> Squad
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm(`Remove ${fullName(player)} and every record attached to him?`)) {
+                removePlayer(player.id);
+                void navigate({ to: "/squad" });
+              }
+            }}
+            className="inline-flex items-center gap-2 rounded-md border border-destructive/40 px-3 py-2 text-sm text-destructive"
+          >
+            <Trash2 className="size-4" /> Delete
+          </button>
+          <Link to="/squad" className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
+            <ArrowLeft className="size-4" /> Squad
+          </Link>
+        </div>
       }
     >
       <div className="panel flex flex-wrap items-center gap-4 p-4">
@@ -103,73 +157,9 @@ function PlayerProfile() {
       </div>
 
       <div className="mt-4">
-        {tab === "Profile" && (
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <MetricCard label="Height" value={player.heightCm} unit="cm" />
-            <MetricCard label="Weight" value={player.weightKg} unit="kg" hint={`BMI ${bmi(player)}`} />
-            <MetricCard label="Body fat" value={player.bodyFat} unit="%" />
-            <MetricCard label="Age group" value={age(player.dob) < 21 ? "U21" : "Senior"} hint={`DOB ${player.dob}`} />
-            <div className="panel p-4 sm:col-span-2 xl:col-span-4">
-              <SectionTitle title="Internal identity" hint="One record connects every module" />
-              <div className="grid gap-2 text-sm sm:grid-cols-3">
-                <Info label="Player ID" value={player.id.toUpperCase()} />
-                <Info label="Dominant leg" value={player.dominantLeg} />
-                <Info label="Position" value={player.position} />
-              </div>
-            </div>
-          </section>
-        )}
-
-        {tab === "Fitness" && (
-          <section className="grid gap-4 xl:grid-cols-2">
-            <div className="panel p-4">
-              <SectionTitle title="CMJ trend" hint="Baseline, personal best and drop-off detected automatically" />
-              <TrendArea data={tests.map((t) => ({ date: t.date.slice(5), cmj: t.cmj }))} dataKey="cmj" />
-              <p className="mt-2 text-xs text-muted-foreground">
-                Baseline {tests[0]?.cmj} cm · Personal best {Math.max(...tests.map((t) => t.cmj))} cm · Latest{" "}
-                {tests[tests.length - 1]?.cmj} cm
-              </p>
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="Speed & endurance" />
-              <MultiLine
-                data={tests.map((t) => ({ date: t.date.slice(5), sprint10: t.sprint10 * 10, sprint30: t.sprint30, maxSpeed: t.maxSpeed }))}
-                series={[
-                  { key: "sprint10", color: "var(--color-chart-2)", name: "10 m (×10 s)" },
-                  { key: "sprint30", color: "var(--color-chart-3)", name: "30 m (s)" },
-                  { key: "maxSpeed", color: "var(--color-chart-1)", name: "Max speed (km/h)" },
-                ]}
-              />
-            </div>
-            <div className="panel p-4 xl:col-span-2">
-              <SectionTitle title="Testing history" hint="Every battery is added to the same record" />
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
-                    <th className="py-2">Date</th>
-                    <th>CMJ (cm)</th>
-                    <th>10 m (s)</th>
-                    <th>30 m (s)</th>
-                    <th>Max speed (km/h)</th>
-                    <th>Yo-Yo (m)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tests.map((t) => (
-                    <tr key={t.date} className="border-b border-border/60">
-                      <td className="py-2">{t.date}</td>
-                      <td className="tabular-nums">{t.cmj}</td>
-                      <td className="tabular-nums">{t.sprint10}</td>
-                      <td className="tabular-nums">{t.sprint30}</td>
-                      <td className="tabular-nums">{t.maxSpeed}</td>
-                      <td className="tabular-nums">{t.yoyo}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
+        {tab === "Profile" && <ProfileTab player={player} />}
+        {tab === "Fitness" && <FitnessTab playerId={id} />}
+        {tab === "Strength" && <StrengthTab playerId={id} />}
 
         {tab === "GPS" && (
           <section className="grid gap-4">
@@ -290,12 +280,7 @@ function PlayerProfile() {
           <section className="grid gap-4 xl:grid-cols-3">
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle title="Injury & illness history" />
-              {!canSeeMedical ? (
-                <p className="flex items-center gap-2 rounded-md border border-border bg-surface-2 p-3 text-sm text-muted-foreground">
-                  <Lock className="size-4" /> {MEDICAL_REDACTED}. {medical.length} recorded episode(s); current training
-                  availability is {availability.availability}%.
-                </p>
-              ) : medical.length === 0 ? (
+              {medical.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No recorded injuries or illness this season.</p>
               ) : (
                 <ul className="space-y-3">
@@ -356,10 +341,474 @@ function PlayerProfile() {
               <SectionTitle title="Load trend" hint="Session-RPE load, 28 days" />
               <TrendBars data={trend} dataKey="load" height={240} />
             </div>
+            <div className="panel p-4 xl:col-span-2">
+              <SectionTitle
+                title="Automatic detections"
+                hint="Every time training beats a recorded test, T4P writes a new dated result"
+              />
+              <PlayerFindings playerId={id} />
+            </div>
           </section>
         )}
       </div>
     </AppShell>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Profile — editable                                                  */
+/* ------------------------------------------------------------------ */
+
+function ProfileTab({ player }: { player: Player }) {
+  const [edit, setEdit] = useState(false);
+  const [form, setForm] = useState(() => ({ ...player }));
+
+  const field = (k: keyof Player) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const save = () => {
+    updatePlayer(player.id, {
+      firstName: form.firstName.trim() || player.firstName,
+      lastName: form.lastName.trim() || player.lastName,
+      position: form.position,
+      number: Number(form.number) || 0,
+      dob: form.dob,
+      nationality: form.nationality,
+      dominantLeg: form.dominantLeg,
+      heightCm: Number(form.heightCm) || 0,
+      weightKg: Number(form.weightKg) || 0,
+      bodyFat: Number(form.bodyFat) || 0,
+      availability: form.availability,
+      note: form.note ?? "",
+    });
+    setEdit(false);
+  };
+
+  if (edit) {
+    return (
+      <section className="panel p-4">
+        <SectionTitle
+          title="Edit player"
+          hint="Anthropometry entered here is also written into the test history"
+          right={
+            <div className="flex gap-2">
+              <button onClick={save} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+                <Save className="size-3.5" /> Save
+              </button>
+              <button
+                onClick={() => {
+                  setForm({ ...player });
+                  setEdit(false);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs"
+              >
+                <X className="size-3.5" /> Cancel
+              </button>
+            </div>
+          }
+        />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Labeled label="First name">
+            <input className="control" value={form.firstName} onChange={field("firstName")} />
+          </Labeled>
+          <Labeled label="Last name">
+            <input className="control" value={form.lastName} onChange={field("lastName")} />
+          </Labeled>
+          <Labeled label="Shirt number">
+            <input className="control" value={form.number} onChange={field("number")} />
+          </Labeled>
+          <Labeled label="Position">
+            <select className="control" value={form.position} onChange={field("position")}>
+              {POSITIONS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </Labeled>
+          <Labeled label="Date of birth">
+            <input className="control" type="date" value={form.dob} onChange={field("dob")} />
+          </Labeled>
+          <Labeled label="Nationality">
+            <input className="control" value={form.nationality} onChange={field("nationality")} />
+          </Labeled>
+          <Labeled label="Dominant leg">
+            <select className="control" value={form.dominantLeg} onChange={field("dominantLeg")}>
+              <option value="Right">Right</option>
+              <option value="Left">Left</option>
+            </select>
+          </Labeled>
+          <Labeled label="Availability">
+            <select className="control" value={form.availability} onChange={field("availability")}>
+              {AVAILABILITY.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          </Labeled>
+          <Labeled label="Height (cm)">
+            <input className="control" value={form.heightCm} onChange={field("heightCm")} />
+          </Labeled>
+          <Labeled label="Weight (kg)">
+            <input className="control" value={form.weightKg} onChange={field("weightKg")} />
+          </Labeled>
+          <Labeled label="Body fat (%)">
+            <input className="control" value={form.bodyFat} onChange={field("bodyFat")} />
+          </Labeled>
+          <Labeled label="Note">
+            <input className="control" value={form.note ?? ""} onChange={field("note")} />
+          </Labeled>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <MetricCard label="Height" value={player.heightCm} unit="cm" />
+      <MetricCard label="Weight" value={player.weightKg} unit="kg" hint={`BMI ${bmi(player)}`} />
+      <MetricCard label="Body fat" value={player.bodyFat} unit="%" />
+      <MetricCard label="Age group" value={age(player.dob) < 21 ? "U21" : "Senior"} hint={`DOB ${player.dob}`} />
+      <div className="panel p-4 sm:col-span-2 xl:col-span-4">
+        <SectionTitle
+          title="Internal identity"
+          hint="One record connects every module"
+          right={
+            <button
+              onClick={() => setEdit(true)}
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+            >
+              Edit player
+            </button>
+          }
+        />
+        <div className="grid gap-2 text-sm sm:grid-cols-3">
+          <Info label="Player ID" value={player.id.toUpperCase()} />
+          <Info label="Dominant leg" value={player.dominantLeg} />
+          <Info label="Position" value={player.position} />
+          <Info label="Nationality" value={player.nationality} />
+          <Info label="Availability" value={player.availability} />
+          <Info label="Note" value={player.note || "—"} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Fitness — full KPI battery                                          */
+/* ------------------------------------------------------------------ */
+
+function AddTestForm({ playerId, only }: { playerId: string; only?: TestGroup[] }) {
+  const catalog = only ? TEST_CATALOG.filter((t) => only.includes(t.group)) : TEST_CATALOG;
+  const [testId, setTestId] = useState(catalog[0]!.id);
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [value, setValue] = useState("");
+  const [reps, setReps] = useState("1");
+  const [saved, setSaved] = useState(false);
+  const def = getTestDef(testId)!;
+
+  return (
+    <form
+      className="mb-3 grid gap-2 rounded-md border border-border bg-surface-2 p-3 sm:grid-cols-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const v = Number(value);
+        if (!Number.isFinite(v) || value === "") return;
+        addTestRecord({
+          playerId,
+          testId,
+          date,
+          value: v,
+          ...(def.strength ? { reps: Number(reps) || 1 } : {}),
+          source: "manual",
+        });
+        setValue("");
+        setSaved(true);
+        window.setTimeout(() => setSaved(false), 1500);
+      }}
+    >
+      <select className="control sm:col-span-2" value={testId} onChange={(e) => setTestId(e.target.value)}>
+        {TEST_GROUPS.filter((g) => catalog.some((c) => c.group === g)).map((g) => (
+          <optgroup key={g} label={g}>
+            {catalog
+              .filter((c) => c.group === g)
+              .map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+          </optgroup>
+        ))}
+      </select>
+      <input className="control" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      <input
+        className="control"
+        placeholder={def.strength ? "Load (kg)" : `Value (${def.unit})`}
+        value={value}
+        inputMode="decimal"
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <div className="flex gap-2">
+        {def.strength ? (
+          <input className="control w-20" placeholder="Reps" value={reps} onChange={(e) => setReps(e.target.value)} />
+        ) : null}
+        <button type="submit" className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground">
+          {saved ? <Check className="size-4" /> : <Plus className="size-4" />} Add
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function FitnessTab({ playerId }: { playerId: string }) {
+  const available = playerTestIds(playerId);
+  const [kpi, setKpi] = useState(() => available.find((t) => t === "cmj") ?? available[0] ?? "cmj");
+  const [compare, setCompare] = useState<string>("sj");
+
+  const series = useMemo(
+    () =>
+      testSeries(playerId, kpi).map((r, i, arr) => ({
+        date: r.date.slice(5),
+        value: r.value,
+        compare: testSeries(playerId, compare)[i]?.value ?? arr[i]?.value ?? 0,
+      })),
+    [playerId, kpi, compare],
+  );
+
+  const rows = playerRecords(playerId).slice().reverse();
+  const best = bestRecord(playerId, kpi);
+  const latest = latestRecord(playerId, kpi);
+  const squadAvg = squadTestAverage(kpi);
+  const asym = asymmetry(playerId, kpi);
+
+  return (
+    <section className="grid gap-4 xl:grid-cols-2">
+      <div className="panel p-4 xl:col-span-2">
+        <SectionTitle title="Record a test" hint="Type the number only — 1RM, asymmetry, personal bests and alerts are derived automatically" />
+        <AddTestForm playerId={playerId} />
+      </div>
+
+      <div className="panel p-4">
+        <SectionTitle
+          title="KPI trend"
+          hint="Pick any KPI in the battery"
+          right={
+            <select className="control h-8 w-56 text-xs" value={kpi} onChange={(e) => setKpi(e.target.value)}>
+              {TEST_GROUPS.map((g) => (
+                <optgroup key={g} label={g}>
+                  {TEST_CATALOG.filter((t) => t.group === g).map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          }
+        />
+        {series.length ? (
+          <TrendArea data={series} dataKey="value" />
+        ) : (
+          <p className="py-8 text-center text-sm text-muted-foreground">No {testLabel(kpi)} results recorded yet.</p>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          Latest {latest?.value ?? "—"} {testUnit(kpi)} · Best {best?.value ?? "—"} {testUnit(kpi)} · Squad average{" "}
+          {squadAvg || "—"} {testUnit(kpi)}
+          {asym !== null ? ` · Left/right asymmetry ${asym}%` : ""}
+        </p>
+      </div>
+
+      <div className="panel p-4">
+        <SectionTitle
+          title="Compare two KPIs"
+          hint="Overlay any second metric"
+          right={
+            <select className="control h-8 w-56 text-xs" value={compare} onChange={(e) => setCompare(e.target.value)}>
+              {TEST_CATALOG.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          }
+        />
+        <MultiLine
+          data={series}
+          series={[
+            { key: "value", color: "var(--color-chart-1)", name: testLabel(kpi) },
+            { key: "compare", color: "var(--color-chart-2)", name: testLabel(compare) },
+          ]}
+          height={220}
+        />
+      </div>
+
+      <div className="panel p-4 xl:col-span-2">
+        <SectionTitle title="Test history" hint="Every dated result, manual or auto-detected" />
+        <div className="max-h-96 overflow-y-auto">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 bg-surface-1">
+              <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+                <th className="py-2">Date</th>
+                <th>Test</th>
+                <th className="text-right">Value</th>
+                <th className="text-right">Reps</th>
+                <th className="text-right">Est. 1RM</th>
+                <th>Source</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-6 text-center text-sm text-muted-foreground">
+                    No test results yet — add the first one above.
+                  </td>
+                </tr>
+              ) : null}
+              {rows.map((r) => {
+                const def = getTestDef(r.testId);
+                return (
+                  <tr key={r.id} className="border-b border-border/60">
+                    <td className="py-1.5">{r.date}</td>
+                    <td>{testLabel(r.testId)}</td>
+                    <td className="text-right tabular-nums">
+                      {r.value} {testUnit(r.testId)}
+                    </td>
+                    <td className="text-right tabular-nums">{r.reps ?? "—"}</td>
+                    <td className="text-right tabular-nums">{def?.strength ? `${oneRepMax(r.value, r.reps ?? 1)} kg` : "—"}</td>
+                    <td className="text-xs text-muted-foreground">{r.source === "manual" ? "Coach" : "Auto"}</td>
+                    <td className="text-right">
+                      <button
+                        onClick={() => removeTestRecord(r.id)}
+                        aria-label="Delete result"
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Strength — 1RM + AI prescription                                    */
+/* ------------------------------------------------------------------ */
+
+function StrengthTab({ playerId }: { playerId: string }) {
+  const lifts = TEST_CATALOG.filter((t) => t.strength);
+  const [goal, setGoal] = useState<StrengthGoal>("Strength");
+  const done = lifts.filter((l) => playerRecords(playerId, l.id).length > 0);
+
+  return (
+    <section className="grid gap-4">
+      <div className="panel p-4">
+        <SectionTitle title="Log a lift" hint="Load and reps — the estimated 1RM is calculated for you (Epley)" />
+        <AddTestForm playerId={playerId} only={["Strength"]} />
+      </div>
+
+      <div className="panel p-4">
+        <SectionTitle
+          title="Strength profile & prescription"
+          hint="Loads are rounded to the nearest 2.5 kg"
+          right={
+            <select className="control h-8 w-44 text-xs" value={goal} onChange={(e) => setGoal(e.target.value as StrengthGoal)}>
+              {STRENGTH_GOALS.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          }
+        />
+        {done.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No lifts recorded yet for this player.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[780px] text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+                  <th className="py-2">Exercise</th>
+                  <th className="text-right">Best set</th>
+                  <th className="text-right">Est. 1RM</th>
+                  <th className="text-right">Asymmetry</th>
+                  <th className="text-right">Working load</th>
+                  <th>Prescription</th>
+                </tr>
+              </thead>
+              <tbody>
+                {done.map((l) => {
+                  const b = bestRecord(playerId, l.id)!;
+                  const rm = oneRepMax(b.value, b.reps ?? 1);
+                  const rx = strengthPrescription(rm, goal);
+                  const asym = asymmetry(playerId, l.id);
+                  return (
+                    <tr key={l.id} className="border-b border-border/60">
+                      <td className="py-2 font-medium">{l.name}</td>
+                      <td className="text-right tabular-nums">
+                        {b.value} kg × {b.reps ?? 1}
+                      </td>
+                      <td className="text-right font-semibold tabular-nums text-primary">{rm} kg</td>
+                      <td className={`text-right tabular-nums ${asym !== null && asym > 10 ? "text-destructive" : "text-muted-foreground"}`}>
+                        {asym !== null ? `${asym}%` : "—"}
+                      </td>
+                      <td className="text-right tabular-nums">
+                        {rx.loadFrom}–{rx.loadTo} kg
+                      </td>
+                      <td className="text-xs text-muted-foreground">
+                        {rx.sets} × {rx.reps} @ {rx.percent} · rest {rx.rest}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="mt-3 flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
+          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>
+            <strong className="text-foreground">{goal} block:</strong> {strengthPrescription(100, goal).cue} Any
+            left/right gap above 10% should be trained unilaterally before adding bilateral load.
+          </span>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function PlayerFindings({ playerId }: { playerId: string }) {
+  const rows = autoFindings().filter((f) => f.playerId === playerId);
+  if (!rows.length) return <p className="text-sm text-muted-foreground">Nothing exceeded a recorded test yet.</p>;
+  return (
+    <ul className="space-y-2">
+      {rows.slice(0, 12).map((f, i) => (
+        <li key={i} className="flex items-start gap-2 rounded-md border border-border bg-surface-2 p-2.5 text-sm">
+          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>
+            <span className="text-xs text-muted-foreground">{f.date}</span>
+            <span className="block">{f.text}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="eyebrow">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
   );
 }
 

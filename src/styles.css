@@ -192,3 +192,20 @@
       oklch(0.315 0.068 152) 40px 80px
     );
 }
+
+/* Always-visible, themed scrollbars for wide data tables */
+.scroll-pane {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-secondary);
+}
+.scroll-pane::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scroll-pane::-webkit-scrollbar-track {
+  background: var(--color-secondary);
+}
+.scroll-pane::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 999px;
+}

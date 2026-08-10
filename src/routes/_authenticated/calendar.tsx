@@ -1,9 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Star, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import {
+  addSession,
+  removeSession,
   sessionCalendar,
   sessionStatus,
   setSessionStatus,
@@ -12,6 +14,8 @@ import {
   useDataVersion,
   type SessionStatus,
 } from "@/data/performance";
+import { DAY_DESCRIPTIONS, SESSION_TYPES, sessionTypeOf } from "@/data/presets";
+
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
@@ -51,6 +55,9 @@ function CalendarPage() {
   const base = sessionCalendar[sessionCalendar.length - 1]?.date ?? today;
   const [cursor, setCursor] = useState(() => new Date(`${base.slice(0, 7)}-01T00:00:00`));
   const [filter, setFilter] = useState<"all" | SessionStatus | "favorite">("all");
+  const [creating, setCreating] = useState<string | null>(null);
+  const navigate = useNavigate();
+
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
@@ -160,7 +167,15 @@ function CalendarPage() {
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setCreating(date)}
+                  className="mt-1 flex w-full items-center justify-center gap-1 rounded border border-dashed border-border py-1 text-[0.62rem] text-muted-foreground hover:border-primary hover:text-primary"
+                >
+                  <Plus className="size-3" /> Session
+                </button>
               </div>
+
             ),
           )}
         </div>
@@ -208,12 +223,122 @@ function CalendarPage() {
                   >
                     Open
                   </Link>
+                  <button
+                    type="button"
+                    aria-label="Delete session"
+                    onClick={() => {
+                      if (window.confirm(`Delete ${s.title} on ${s.date}?`)) removeSession(s.id);
+                    }}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
       </section>
+
+      {creating ? (
+        <CreateSession
+          date={creating}
+          onClose={() => setCreating(null)}
+          onCreated={(date) => {
+            setCreating(null);
+            void navigate({ to: "/training", search: { date } });
+          }}
+        />
+      ) : null}
     </AppShell>
   );
 }
+
+function CreateSession({
+  date,
+  onClose,
+  onCreated,
+}: {
+  date: string;
+  onClose: () => void;
+  onCreated: (date: string) => void;
+}) {
+  const [typeName, setTypeName] = useState(SESSION_TYPES[0]!.name);
+  const [label, setLabel] = useState("MD -2");
+  const [title, setTitle] = useState("");
+  const [objective, setObjective] = useState("");
+  const preset = sessionTypeOf(typeName);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4" role="dialog">
+      <div className="panel w-full max-w-lg p-4">
+        <SectionTitle title={`New session · ${date}`} hint="Blocks are pre-filled from the preset and can be renamed in the designer" />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="eyebrow">Session type</span>
+            <select className="control mt-1" value={typeName} onChange={(e) => setTypeName(e.target.value)}>
+              {SESSION_TYPES.map((t) => (
+                <option key={t.name} value={t.name}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="eyebrow">Day description</span>
+            <select className="control mt-1" value={label} onChange={(e) => setLabel(e.target.value)}>
+              {DAY_DESCRIPTIONS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block sm:col-span-2">
+            <span className="eyebrow">Title</span>
+            <input
+              className="control mt-1"
+              placeholder={preset.name}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
+          <label className="block sm:col-span-2">
+            <span className="eyebrow">Objective</span>
+            <input className="control mt-1" value={objective} onChange={(e) => setObjective(e.target.value)} />
+          </label>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Blocks: {preset.blocks.join(" · ")} — {preset.defaultMinutes} min, planned RPE {preset.defaultRpe}
+        </p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onClose} className="rounded-md border border-border px-3 py-2 text-sm">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              addSession({
+                date,
+                label,
+                title: title.trim() || preset.name,
+                type: preset.name,
+                blockNames: [...preset.blocks],
+                durationMin: preset.defaultMinutes,
+                plannedRpe: preset.defaultRpe,
+                objective: objective.trim() || "Session objective to be defined",
+                drills: [],
+                plan: [],
+                status: "scheduled",
+              });
+              onCreated(date);
+            }}
+            className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+          >
+            Create & open designer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
