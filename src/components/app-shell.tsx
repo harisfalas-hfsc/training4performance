@@ -21,18 +21,18 @@ import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/squad", label: "Squad", icon: Users },
-  { to: "/calendar", label: "Calendar", icon: CalendarDays },
-  { to: "/training", label: "Training Designer", icon: ClipboardPen },
-  { to: "/board", label: "Tactics Board", icon: Activity },
-  { to: "/logbook", label: "Logbook", icon: BookOpen },
-  { to: "/gps", label: "GPS Import", icon: Radar },
-  { to: "/alerts", label: "Alerts", icon: BellRing },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/compare", label: "Compare & Graphs", icon: GitCompare },
-  { to: "/ai", label: "AI Assistant", icon: BrainCircuit },
-  { to: "/reports", label: "Reports", icon: FileText },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "#2563eb" },
+  { to: "/squad", label: "Squad", icon: Users, color: "#059669" },
+  { to: "/calendar", label: "Calendar", icon: CalendarDays, color: "#0891b2" },
+  { to: "/training", label: "Training Designer", icon: ClipboardPen, color: "#7c3aed" },
+  { to: "/board", label: "Tactics Board", icon: Activity, color: "#16a34a" },
+  { to: "/logbook", label: "Logbook", icon: BookOpen, color: "#d97706" },
+  { to: "/gps", label: "GPS Import", icon: Radar, color: "#06b6d4" },
+  { to: "/alerts", label: "Alerts", icon: BellRing, color: "#dc2626" },
+  { to: "/analytics", label: "Analytics", icon: BarChart3, color: "#4f46e5" },
+  { to: "/compare", label: "Compare & Graphs", icon: GitCompare, color: "#9333ea" },
+  { to: "/ai", label: "AI Assistant", icon: BrainCircuit, color: "#9333ea" },
+  { to: "/reports", label: "Reports", icon: FileText, color: "#ea580c" },
 ] as const;
 
 export function AppShell({
