@@ -8,6 +8,7 @@ import {
   avg,
   fullName,
   getPlayer,
+  isTeamConfigured,
   players,
   playerWellness,
   sessionCalendar,
