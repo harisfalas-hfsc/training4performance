@@ -204,8 +204,8 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} className="border-b border-border/50 last:border-0">
+            {rows.map((r, i) => (
+              <tr key={`${r.id}-${i}`} className="border-b border-border/50 last:border-0">
                 <td className="px-3 py-1.5 tabular-nums">{r.date}</td>
                 <td className="px-3 py-1.5 text-xs text-muted-foreground">{r.category}</td>
                 <td className="px-3 py-1.5 text-xs text-muted-foreground">{r.dayDescription}</td>
