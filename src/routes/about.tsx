@@ -8,17 +8,18 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "T4P is an integrated football fitness, performance and training management platform created by sports scientist and strength & conditioning coach Haris Falas.",
+          "T4P is one connected football performance system: squad availability and player passports, block-based session design, tactics board, GPS import, composite load and ACWR, wellness, testing, medical status, alerts and reports — created by Haris Falas.",
       },
       { property: "og:title", content: "About T4P — Training 4 Performance" },
       {
         property: "og:description",
-        content: "Why T4P exists, what it solves and who built it.",
+        content: "Why T4P exists, what it connects and who built it.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+
   component: About,
 });
 
