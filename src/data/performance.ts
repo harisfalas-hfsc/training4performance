@@ -761,6 +761,10 @@ export function squadTrend(days = 28) {
       distance: Math.round(avg(rows.map((r) => r.distance))),
       hsr: Math.round(avg(rows.map((r) => r.hsr))),
       sprint: Math.round(avg(rows.map((r) => r.sprint))),
+      maxSpeed: +avg(rows.map((r) => r.maxSpeed)).toFixed(1),
+      accel: Math.round(avg(rows.map((r) => r.accel))),
+      decel: Math.round(avg(rows.map((r) => r.decel))),
+      minutes: Math.round(avg(rows.map((r) => r.minutes))),
       rpe: +avg(rows.map((r) => r.rpe)).toFixed(1),
       load: Math.round(avg(rows.map((r) => r.rpe * r.minutes))),
     };
@@ -776,10 +780,14 @@ export function playerTrend(id: string, days = 28) {
       hsr: d.hsr,
       sprint: d.sprint,
       maxSpeed: d.maxSpeed,
+      accel: d.accel,
+      decel: d.decel,
+      minutes: d.minutes,
       rpe: d.rpe,
       load: d.rpe * d.minutes,
     }));
 }
+
 
 /* ---------- GPS import matching ---------- */
 export interface ImportRow {

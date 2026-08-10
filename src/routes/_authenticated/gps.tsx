@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CheckCircle2, Download, FileWarning, HelpCircle, Radar, Upload, XCircle } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
@@ -9,12 +9,19 @@ import {
   getPlayer,
   players,
   PROVIDER_MAP,
+  sessionCalendar,
+  sessionStatus,
   today,
+  updateSession,
+  upsertGps,
+  useDataVersion,
   type ImportRow,
 } from "@/data/performance";
+import { applyAutoFindings, autoFindings, detectSpeedPbs, findingPlayerName } from "@/data/testing";
 import { ACCEPTED_EXTENSIONS, detectProvider, isAcceptedFile } from "@/data/gps-upload";
 import { T4P_TEMPLATE_COLUMNS, templateCsv } from "@/data/logbook";
 import { useRole } from "@/lib/roles";
+
 
 export const Route = createFileRoute("/_authenticated/gps")({
   head: () => ({
@@ -37,15 +44,24 @@ export const Route = createFileRoute("/_authenticated/gps")({
 type Detection = ReturnType<typeof detectProvider>;
 
 function GpsPage() {
+  useDataVersion();
   const { can } = useRole();
   const inputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ImportRow[]>(() => buildImportRows());
-  const [imported, setImported] = useState(false);
+  const [imported, setImported] = useState<{ count: number; date: string; pbs: string[] } | null>(null);
   const [fileName, setFileName] = useState("catapult_export_md2.csv");
   const [detection, setDetection] = useState<Detection>(() => detectProvider("catapult_export_md2.csv"));
   const [progress, setProgress] = useState(100);
   const [uploading, setUploading] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
+
+  const sessions = useMemo(() => [...sessionCalendar].sort((a, b) => b.date.localeCompare(a.date)), []);
+  const [sessionId, setSessionId] = useState<string>(
+    () => sessionCalendar.find((s) => s.date === today)?.id ?? sessions[0]?.id ?? "",
+  );
+  const [markCompleted, setMarkCompleted] = useState(true);
+  const session = sessionCalendar.find((s) => s.id === sessionId);
+
 
   const matched = rows.filter((r) => r.matchedId && r.confidence >= 0.95).length;
   const needsConfirm = rows.filter((r) => r.matchedId && r.confidence < 0.95).length;
@@ -58,7 +74,7 @@ function GpsPage() {
     }
     setFileError(null);
     setFileName(name);
-    setImported(false);
+    setImported(null);
     setUploading(true);
     setProgress(0);
     setRows(buildImportRows());
@@ -87,20 +103,94 @@ function GpsPage() {
     .map((r, i) => ({ ...r, index: i }))
     .filter((r) => !r.matchedId || r.confidence < 0.95);
 
+  const runImport = () => {
+    if (!session) return;
+    const ok = rows.filter((r) => r.matchedId && r.confidence >= 0.95);
+    for (const r of ok) {
+      upsertGps({
+        date: session.date,
+        playerId: r.matchedId!,
+        minutes: session.durationMin,
+        distance: r.distance,
+        hsr: r.hsr,
+        sprint: r.sprint,
+        maxSpeed: r.maxSpeed,
+        accel: Math.round(r.hsr / 12),
+        decel: Math.round(r.hsr / 14),
+        rpe: session.actualRpe ?? session.plannedRpe,
+        status: "Full Training",
+        category: session.type ?? "TRAINING",
+      });
+    }
+    const pbs = detectSpeedPbs().filter((f) => f.date === session.date);
+    applyAutoFindings(pbs);
+    if (markCompleted) {
+      updateSession(session.id, { status: "completed", actualRpe: session.actualRpe ?? session.plannedRpe });
+    }
+    setImported({
+      count: ok.length,
+      date: session.date,
+      pbs: pbs.map((f) => `${findingPlayerName(f.playerId)} — ${f.text}`),
+    });
+  };
+
   return (
     <AppShell
       title="GPS Import"
-      subtitle={`Session ${today} · MD-2 · file: ${fileName}`}
+      subtitle={
+        session
+          ? `${session.date} · ${session.label} — ${session.title} · file: ${fileName}`
+          : `No session selected · file: ${fileName}`
+      }
       actions={
         <button
-          onClick={() => setImported(true)}
-          disabled={needsConfirm > 0 || uploading || !can("importGps")}
+          onClick={runImport}
+          disabled={needsConfirm > 0 || uploading || !session || !can("importGps")}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           <Upload className="size-4" /> Import {matched} rows
         </button>
       }
     >
+      <section className="panel mb-4 p-4">
+        <SectionTitle
+          title="Associate this file with a training"
+          hint="GPS data is always written into a specific session — that is what drives load, alerts, reports and the logbook"
+        />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className="block sm:col-span-2">
+            <span className="eyebrow">Training session</span>
+            <select className="control mt-1" value={sessionId} onChange={(e) => setSessionId(e.target.value)}>
+              {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
+              {sessions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.date} · {s.label} — {s.title} ({sessionStatus(s)})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-end gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={markCompleted}
+              onChange={(e) => setMarkCompleted(e.target.checked)}
+              className="size-4 accent-[var(--color-primary)]"
+            />
+            <span>Mark the session completed after import</span>
+          </label>
+        </div>
+        {session?.plan?.length ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            This session has {session.plan.length} planned block(s) — totals are split across them automatically. Sessions
+            with no blocks are stored as one whole-session record.
+          </p>
+        ) : (
+          <p className="mt-3 text-xs text-muted-foreground">
+            This session has no planned blocks — the file will be stored as one whole-session record.
+          </p>
+        )}
+      </section>
+
       <section className="panel p-4">
         <SectionTitle title="Upload GPS file" hint="Excel or CSV export from your provider — the provider is detected automatically" />
         <div
@@ -224,9 +314,20 @@ function GpsPage() {
 
       {imported && (
         <div className="mt-4 rounded-md border border-success/40 bg-success/10 p-3 text-sm text-success">
-          Import complete. Player load, weekly load, acute/chronic load, alerts and squad analytics were updated automatically.
+          <p>
+            Imported {imported.count} athlete row(s) into the session on {imported.date}. Load, ACWR, alerts, logbook and
+            reports were updated automatically.
+          </p>
+          {imported.pbs.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs">
+              {imported.pbs.map((t, i) => (
+                <li key={i}>· {t}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
+
 
       {mappingIssues.length > 0 && (
         <section className="mt-6 panel border-warning/40 p-4">

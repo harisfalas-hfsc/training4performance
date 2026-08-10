@@ -31,7 +31,16 @@ import {
   type ScheduledExport,
   type SectionId,
 } from "@/data/reporting";
+import {
+  DEFAULT_WEIGHTS,
+  LOAD_KPIS,
+  PIVOT_METRICS,
+  compositeAcwr,
+  logbookRows,
+  type LoadWeights,
+} from "@/data/logbook";
 import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
+
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
@@ -84,6 +93,36 @@ function ReportsPage() {
 
   const canSeeMedical = can("viewMedicalDetail");
   const has = (s: SectionId) => active.sections.includes(s);
+
+  /* --- report KPI columns + load model configuration --- */
+  const [kpiCols, setKpiCols] = useState<string[]>(["distance", "hsr", "sprintDistance", "accel", "srpe"]);
+  const [weights, setWeights] = useState<LoadWeights>(DEFAULT_WEIGHTS);
+  const [acuteWindow, setAcuteWindow] = useState(7);
+  const [chronicWindow, setChronicWindow] = useState(28);
+
+  const toggleKpi = (key: string) =>
+    setKpiCols((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+
+  const reportRows = useMemo(
+    () =>
+      players.map((p) => {
+        const rows = logbookRows.filter((r) => r.playerId === p.id && r.date >= from && r.date <= to);
+        const values: Record<string, number> = {};
+        for (const key of kpiCols) {
+          const metric = PIVOT_METRICS.find((m) => m.key === key);
+          if (!metric) continue;
+          const vals = rows.map((r) => metric.value(r, weights));
+          values[key] =
+            key === "maxSpeed"
+              ? +(vals.length ? Math.max(...vals) : 0).toFixed(1)
+              : Math.round(vals.reduce((a, b) => a + b, 0));
+        }
+        const load = compositeAcwr(p.id, weights, acuteWindow, chronicWindow, to);
+        return { player: p, values, load };
+      }),
+    [kpiCols, weights, acuteWindow, chronicWindow, from, to],
+  );
+
 
   const update = (patch: Partial<ReportTemplate>) =>
     setTemplates((prev) => prev.map((t) => (t.id === active.id ? { ...t, ...patch } : t)));
@@ -264,6 +303,107 @@ function ReportsPage() {
           </div>
         </div>
       </section>
+
+      <section className="mt-6 grid gap-4 xl:grid-cols-2">
+        <div className="panel p-4">
+          <SectionTitle
+            title="Report KPIs"
+            hint="Every column of the player summary comes from the imported GPS and session data"
+            right={
+              <button
+                onClick={() => setKpiCols(["distance", "hsr", "sprintDistance", "accel", "srpe"])}
+                className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
+              >
+                Reset
+              </button>
+            }
+          />
+          <div className="flex flex-wrap gap-1">
+            {PIVOT_METRICS.map((m) => (
+              <button
+                key={m.key}
+                onClick={() => toggleKpi(m.key)}
+                className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold ${
+                  kpiCols.includes(m.key) ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="panel p-4">
+          <SectionTitle
+            title="Training load model"
+            hint="Choose exactly which components build the load and the acute:chronic ratio"
+            right={
+              <button
+                onClick={() => {
+                  setWeights(DEFAULT_WEIGHTS);
+                  setAcuteWindow(7);
+                  setChronicWindow(28);
+                }}
+                className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
+              >
+                Reset model
+              </button>
+            }
+          />
+          <div className="grid gap-2 sm:grid-cols-2">
+            {LOAD_KPIS.map((k) => (
+              <div key={k.key} className="rounded-md border border-border p-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {k.label} <span className="opacity-60">· {k.group}</span>
+                  </span>
+                  <span className="metric-value text-primary">{(weights[k.key] ?? 0).toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={3}
+                  step={0.25}
+                  value={weights[k.key] ?? 0}
+                  onChange={(e) => setWeights((prev) => ({ ...prev, [k.key]: Number(e.target.value) }))}
+                  className="mt-1 w-full accent-[var(--color-primary)]"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs text-muted-foreground">
+              Acute window: <span className="text-primary">{acuteWindow} days</span>
+              <input
+                type="range"
+                min={3}
+                max={14}
+                step={1}
+                value={acuteWindow}
+                onChange={(e) => setAcuteWindow(Number(e.target.value))}
+                className="mt-1 w-full accent-[var(--color-primary)]"
+              />
+            </label>
+            <label className="block text-xs text-muted-foreground">
+              Chronic window: <span className="text-primary">{chronicWindow} days</span>
+              <input
+                type="range"
+                min={14}
+                max={56}
+                step={7}
+                value={chronicWindow}
+                onChange={(e) => setChronicWindow(Number(e.target.value))}
+                className="mt-1 w-full accent-[var(--color-primary)]"
+              />
+            </label>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Load = weighted mean of the selected components, each normalised against the squad reference and scaled to
+            100 AU for a typical full session. ACWR = acute sum ÷ chronic sum scaled to the same window length.
+          </p>
+        </div>
+      </section>
+
 
       <section className="mt-6 panel p-4">
         <SectionTitle title="One-click export & scheduling" hint="Pick a date range, a cadence and the staff recipients" />
@@ -453,30 +593,36 @@ function ReportsPage() {
 
             {has("playerTable") && (
               <div>
-                <p className="eyebrow mb-2">Player summary</p>
+                <p className="eyebrow mb-2">
+                  Player summary · {from} → {to} · {kpiCols.length} selected KPI(s)
+                </p>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full min-w-[40rem] text-sm">
                     <thead>
                       <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                         <th className="py-2">Player</th>
-                        <th className="text-right">Distance 7d</th>
-                        <th className="text-right">HSR 7d</th>
-                        <th className="text-right">Sprint 7d</th>
+                        {kpiCols.map((k) => (
+                          <th key={k} className="text-right">
+                            {PIVOT_METRICS.find((m) => m.key === k)?.label ?? k}
+                          </th>
+                        ))}
                         <th className="text-right">Acute load</th>
                         <th className="text-right">ACWR</th>
                         <th className="text-right">Availability</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {metrics.map((m) => (
-                        <tr key={m.player.id} className="border-b border-border/60">
-                          <td className="py-1.5">{fullName(m.player)}</td>
-                          <td className="text-right tabular-nums">{m.distance7.toLocaleString()}</td>
-                          <td className="text-right tabular-nums">{m.hsr7}</td>
-                          <td className="text-right tabular-nums">{m.sprint7}</td>
-                          <td className="text-right tabular-nums">{m.load.acute}</td>
-                          <td className="text-right tabular-nums">{m.load.acwr || "—"}</td>
-                          <td className="text-right tabular-nums">{availabilitySummary(m.player.id).availability}%</td>
+                      {reportRows.map((r) => (
+                        <tr key={r.player.id} className="border-b border-border/60">
+                          <td className="py-1.5">{fullName(r.player)}</td>
+                          {kpiCols.map((k) => (
+                            <td key={k} className="text-right tabular-nums">
+                              {(r.values[k] ?? 0).toLocaleString()}
+                            </td>
+                          ))}
+                          <td className="text-right tabular-nums">{r.load.acute}</td>
+                          <td className="text-right tabular-nums">{r.load.acwr || "—"}</td>
+                          <td className="text-right tabular-nums">{availabilitySummary(r.player.id).availability}%</td>
                         </tr>
                       ))}
                     </tbody>
@@ -484,6 +630,7 @@ function ReportsPage() {
                 </div>
               </div>
             )}
+
 
             <div>
               <p className="eyebrow mb-2">Medical & availability</p>

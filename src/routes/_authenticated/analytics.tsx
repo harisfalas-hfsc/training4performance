@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
-import { HBar, MultiLine, TrendBars } from "@/components/charts";
+import { CHART_KINDS, HBar, MultiChart, MultiLine, type ChartKind } from "@/components/charts";
 import {
   fullName,
   players,
@@ -11,6 +11,7 @@ import {
   squadMetrics,
   squadStats,
   squadTrend,
+  useDataVersion,
   type Position,
 } from "@/data/performance";
 
@@ -31,18 +32,36 @@ export const Route = createFileRoute("/_authenticated/analytics")({
 });
 
 const WINDOWS = [7, 14, 28, 42] as const;
+
+/** Every KPI available from the imported GPS / session data. */
 const METRICS = [
   { key: "distance", label: "Distance (m)" },
   { key: "hsr", label: "HSR (m)" },
   { key: "sprint", label: "Sprint (m)" },
+  { key: "maxSpeed", label: "Max speed (km/h)" },
+  { key: "accel", label: "Accelerations" },
+  { key: "decel", label: "Decelerations" },
+  { key: "minutes", label: "Minutes" },
+  { key: "rpe", label: "RPE" },
   { key: "load", label: "s-RPE load (AU)" },
+] as const;
+
+type MetricKey = (typeof METRICS)[number]["key"];
+
+const DEVIATION_METRICS = [
+  { key: "hsr7", label: "HSR 7d" },
+  { key: "distance7", label: "Distance 7d" },
+  { key: "sprint7", label: "Sprint 7d" },
 ] as const;
 
 const positions: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
 
 function AnalyticsPage() {
+  useDataVersion();
   const [window, setWindow] = useState<(typeof WINDOWS)[number]>(28);
-  const [metric, setMetric] = useState<(typeof METRICS)[number]["key"]>("hsr");
+  const [kpis, setKpis] = useState<MetricKey[]>(["hsr", "distance"]);
+  const [kind, setKind] = useState<ChartKind>("line");
+  const [devKey, setDevKey] = useState<(typeof DEVIATION_METRICS)[number]["key"]>("hsr7");
   const [selected, setSelected] = useState<string[]>(["p14", "p09", "p03"]);
 
   const trend = squadTrend(window);
@@ -52,52 +71,77 @@ function AnalyticsPage() {
   const half = Math.floor(trend.length / 2);
   const periodA = trend.slice(0, half);
   const periodB = trend.slice(half);
-  const mean = (rows: typeof trend, key: (typeof METRICS)[number]["key"]) =>
+  const mean = (rows: typeof trend, key: MetricKey) =>
     Math.round(rows.reduce((a, r) => a + Number(r[key]), 0) / (rows.length || 1));
 
   const deviations = useMemo(
     () =>
       [...metrics]
-        .filter((m) => m.hsr7 > 0)
-        .map((m) => ({
-          name: m.player.lastName,
-          deviation: Math.round(((m.hsr7 - (positionAverage(m.player.position, (x) => x.hsr7) || 1)) / (positionAverage(m.player.position, (x) => x.hsr7) || 1)) * 100),
-        }))
+        .map((m) => {
+          const norm = positionAverage(m.player.position, (x) => Number(x[devKey])) || 1;
+          return {
+            name: m.player.lastName,
+            deviation: Math.round(((Number(m[devKey]) - norm) / norm) * 100),
+          };
+        })
         .sort((a, b) => b.deviation - a.deviation)
         .slice(0, 12),
-    [metrics],
+    [metrics, devKey],
   );
+
+  const toggleKpi = (key: MetricKey) =>
+    setKpis((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));
 
   const toggle = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : prev.length < 4 ? [...prev, id] : prev));
 
   return (
-    <AppShell title="Analytics" subtitle="Squad trends, position norms, period and player comparison">
-      <div className="mb-4 flex flex-wrap gap-2">
-        {WINDOWS.map((w) => (
-          <button
-            key={w}
-            onClick={() => setWindow(w)}
-            className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-              window === w ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
-            }`}
-          >
-            {w} days
-          </button>
-        ))}
-        <span className="mx-2 h-8 w-px bg-border" />
-        {METRICS.map((m) => (
-          <button
-            key={m.key}
-            onClick={() => setMetric(m.key)}
-            className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-              metric === m.key ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
+    <AppShell title="Analytics" subtitle="Choose your KPIs, your window and your chart style">
+      <section className="panel mb-4 p-4">
+        <SectionTitle title="Analysis setup" hint="Pick any combination of KPIs and how you want them drawn" />
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="eyebrow w-full sm:w-auto">Window</span>
+          {WINDOWS.map((w) => (
+            <button
+              key={w}
+              onClick={() => setWindow(w)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                window === w ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+              }`}
+            >
+              {w} days
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="eyebrow w-full sm:w-auto">KPIs</span>
+          {METRICS.map((m) => (
+            <button
+              key={m.key}
+              onClick={() => toggleKpi(m.key)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                kpis.includes(m.key) ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="eyebrow w-full sm:w-auto">Chart</span>
+          {CHART_KINDS.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setKind(c.id)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                kind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Squad mean HSR 7d" value={hsr.mean} unit="m" />
@@ -108,14 +152,38 @@ function AnalyticsPage() {
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
         <div className="panel p-4 xl:col-span-2">
-          <SectionTitle title={`Squad trend — ${METRICS.find((m) => m.key === metric)!.label}`} hint={`Last ${window} days`} />
-          <TrendBars data={trend} dataKey={metric} height={260} />
+          <SectionTitle
+            title="Squad trend"
+            hint={`${kpis.length} KPI(s) · last ${window} days${kind === "pie" ? " · pie uses the first selected KPI" : ""}`}
+          />
+          <MultiChart
+            data={trend}
+            kind={kind}
+            height={280}
+            series={kpis.map((k) => ({ key: k, name: METRICS.find((m) => m.key === k)!.label }))}
+          />
         </div>
         <div className="panel p-4">
-          <SectionTitle title="Deviation from position average" hint="HSR, last 7 days" />
+          <SectionTitle
+            title="Deviation from position average"
+            right={
+              <select
+                className="control h-8 py-0 text-xs"
+                value={devKey}
+                onChange={(e) => setDevKey(e.target.value as typeof devKey)}
+              >
+                {DEVIATION_METRICS.map((d) => (
+                  <option key={d.key} value={d.key}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            }
+          />
           <HBar data={deviations} dataKey="deviation" labelKey="name" height={340} color="var(--color-chart-3)" />
         </div>
       </section>
+
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
         <div className="panel p-4">

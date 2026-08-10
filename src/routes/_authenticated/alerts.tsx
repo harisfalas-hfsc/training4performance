@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertTriangle, Bell, HeartPulse, Lock, ShieldAlert, SlidersHorizontal } from "lucide-react";
+import { AlertTriangle, Bell, HeartPulse, ShieldAlert, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
-import { fullName } from "@/data/performance";
+import { fullName, useDataVersion } from "@/data/performance";
 import {
+  DEFAULT_ENABLED,
   DEFAULT_THRESHOLDS,
+  RULES,
   evaluateAlerts,
   type AlertCategory,
+  type RuleId,
   type Thresholds,
 } from "@/data/alerts-config";
-import { useRole, MEDICAL_REDACTED } from "@/lib/roles";
+import { useRole } from "@/lib/roles";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({
@@ -33,27 +36,17 @@ export const Route = createFileRoute("/_authenticated/alerts")({
   component: AlertsPage,
 });
 
-const CATEGORIES: Array<AlertCategory | "All"> = ["All", "Workload", "Wellness", "Availability"];
-
-const sliders: Array<{ key: keyof Thresholds; label: string; min: number; max: number; step: number; unit: string }> = [
-  { key: "acwrHigh", label: "ACWR upper limit", min: 1.05, max: 1.8, step: 0.05, unit: "" },
-  { key: "acwrLow", label: "ACWR lower limit", min: 0.4, max: 1, step: 0.05, unit: "" },
-  { key: "weeklyLoadJumpPct", label: "Weekly load jump", min: 10, max: 60, step: 5, unit: "%" },
-  { key: "wellnessLow", label: "Wellness floor", min: 30, max: 80, step: 5, unit: "%" },
-  { key: "sleepLow", label: "Sleep quality floor", min: 1, max: 4, step: 1, unit: "/5" },
-  { key: "sorenessHigh", label: "Soreness ceiling", min: 2, max: 5, step: 1, unit: "/5" },
-  { key: "availabilityLow", label: "Availability floor", min: 50, max: 95, step: 5, unit: "%" },
-];
+const CATEGORIES: Array<AlertCategory | "All"> = ["All", "Workload", "Wellness", "Availability", "Performance"];
 
 function AlertsPage() {
+  useDataVersion();
   const { can, def } = useRole();
   const [thresholds, setThresholds] = useState<Thresholds>(DEFAULT_THRESHOLDS);
+  const [enabled, setEnabled] = useState<RuleId[]>(DEFAULT_ENABLED);
   const [category, setCategory] = useState<AlertCategory | "All">("All");
   const [acknowledged, setAcknowledged] = useState<string[]>([]);
 
-  const all = useMemo(() => evaluateAlerts(thresholds), [thresholds]);
-  const visible = all.filter((a) => (a.medical ? can("viewMedicalDetail") || !a.medical : true));
-  const hiddenMedical = all.length - all.filter((a) => !a.medical || can("viewMedicalDetail")).length;
+  const visible = useMemo(() => evaluateAlerts(thresholds, enabled), [thresholds, enabled]);
 
   const shown = visible
     .filter((a) => category === "All" || a.category === category)
@@ -61,6 +54,10 @@ function AlertsPage() {
 
   const critical = visible.filter((a) => a.severity === "critical").length;
   const warning = visible.filter((a) => a.severity === "warning").length;
+
+  const toggle = (id: RuleId) =>
+    setEnabled((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
 
   return (
     <AppShell
@@ -86,11 +83,8 @@ function AlertsPage() {
         />
       </section>
 
-      {hiddenMedical > 0 && (
-        <p className="mt-4 flex items-center gap-2 rounded-md border border-border bg-surface-2 p-3 text-sm text-muted-foreground">
-          <Lock className="size-4" /> {hiddenMedical} alert(s) hidden — {MEDICAL_REDACTED}.
-        </p>
-      )}
+
+
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
         <div className="panel p-4 xl:col-span-2">
@@ -164,35 +158,86 @@ function AlertsPage() {
         </div>
 
         <div className="panel h-fit p-4">
-          <SectionTitle title="Alert thresholds" hint={can("manageAlertThresholds") ? "Changes apply instantly" : "Read-only for your role"} />
-          <div className="space-y-4">
-            {sliders.map((s) => (
-              <div key={s.key}>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{s.label}</span>
-                  <span className="metric-value text-primary">
-                    {thresholds[s.key]}
-                    {s.unit}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={s.min}
-                  max={s.max}
-                  step={s.step}
-                  value={thresholds[s.key]}
-                  disabled={!can("manageAlertThresholds")}
-                  onChange={(e) => setThresholds((prev) => ({ ...prev, [s.key]: Number(e.target.value) }))}
-                  className="mt-1 w-full accent-[var(--color-primary)] disabled:opacity-40"
-                />
+          <SectionTitle
+            title="Alert library"
+            hint={`${enabled.length} of ${RULES.length} rules active — switch any rule on or off and tune its threshold`}
+            right={
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setEnabled(RULES.map((r) => r.id))}
+                  className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
+                >
+                  All on
+                </button>
+                <button
+                  onClick={() => setEnabled([])}
+                  className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
+                >
+                  All off
+                </button>
               </div>
-            ))}
+            }
+          />
+          <div className="space-y-3">
+            {RULES.map((r) => {
+              const active = enabled.includes(r.id);
+              const count = visible.filter((a) => a.ruleId === r.id).length;
+              return (
+                <div
+                  key={r.id}
+                  className={`rounded-md border p-3 ${active ? "border-primary/40 bg-primary/5" : "border-border"}`}
+                >
+                  <label className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={active}
+                      disabled={!can("manageAlertThresholds")}
+                      onChange={() => toggle(r.id)}
+                      className="mt-0.5 size-4 accent-[var(--color-primary)]"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between gap-2 text-sm font-semibold">
+                        {r.label}
+                        <span className="eyebrow shrink-0">
+                          {r.category} · {count}
+                        </span>
+                      </span>
+                      <span className="block text-xs text-muted-foreground">{r.description}</span>
+                    </span>
+                  </label>
+                  {active && (
+                    <div className="mt-2 pl-6">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Threshold</span>
+                        <span className="metric-value text-primary">
+                          {thresholds[r.key]}
+                          {r.unit}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={r.min}
+                        max={r.max}
+                        step={r.step}
+                        value={thresholds[r.key]}
+                        disabled={!can("manageAlertThresholds")}
+                        onChange={(e) =>
+                          setThresholds((prev) => ({ ...prev, [r.key]: Number(e.target.value) }))
+                        }
+                        className="mt-1 w-full accent-[var(--color-primary)] disabled:opacity-40"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
           <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
             <HeartPulse className="mt-0.5 size-3.5 shrink-0" />
-            Alerts recalculate from GPS, wellness and availability records every time new data is imported.
+            Alerts recalculate from GPS, wellness, testing and availability records every time new data is imported.
           </p>
         </div>
+
       </section>
     </AppShell>
   );

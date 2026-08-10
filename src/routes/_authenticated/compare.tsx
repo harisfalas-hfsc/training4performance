@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Download, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
-import { HBar, MultiLine, TrendBars } from "@/components/charts";
+import { CHART_KINDS, HBar, MultiChart, type ChartKind } from "@/components/charts";
 import {
   fullName,
   gpsHistory,
@@ -74,11 +74,16 @@ function ComparePage() {
   useDataVersion();
   const allDates = dates();
   const [metric, setMetric] = useState<MetricKey>("distance");
+  const [extraMetrics, setExtraMetrics] = useState<MetricKey[]>(["hsr", "sprint"]);
+  const [kind, setKind] = useState<ChartKind>("line");
+  const [dayKind, setDayKind] = useState<ChartKind>("bar");
   const [dayA, setDayA] = useState(allDates[allDates.length - 1] ?? "");
   const [dayB, setDayB] = useState(allDates[allDates.length - 2] ?? "");
   const [selected, setSelected] = useState<string[]>(() => players.slice(0, 3).map((p) => p.id));
 
   const label = METRICS.find((m) => m.key === metric)!.label;
+  const tableMetrics = [metric, ...extraMetrics.filter((m) => m !== metric)];
+
 
   /* squad ranking on day A */
   const ranking = useMemo(() => {
@@ -209,6 +214,60 @@ function ComparePage() {
             })}
           </div>
         </div>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <p className="eyebrow mb-1">Extra KPIs for the comparison table</p>
+            <div className="flex flex-wrap gap-1">
+              {METRICS.filter((m) => m.key !== metric).map((m) => {
+                const on = extraMetrics.includes(m.key);
+                return (
+                  <button
+                    key={m.key}
+                    onClick={() =>
+                      setExtraMetrics((prev) => (on ? prev.filter((x) => x !== m.key) : [...prev, m.key]))
+                    }
+                    className={`rounded-md border px-2 py-1 text-xs ${
+                      on ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <p className="eyebrow mb-1">Graph style</p>
+            <div className="flex flex-wrap gap-1">
+              {CHART_KINDS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setKind(c.id)}
+                  className={`rounded-md border px-2 py-1 text-xs ${
+                    kind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            <p className="eyebrow mb-1 mt-2">Day vs day style</p>
+            <div className="flex flex-wrap gap-1">
+              {CHART_KINDS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setDayKind(c.id)}
+                  className={`rounded-md border px-2 py-1 text-xs ${
+                    dayKind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="mt-4 grid gap-4 xl:grid-cols-2">
@@ -227,7 +286,13 @@ function ComparePage() {
               title="Day vs day"
               hint={`${sessionB?.type ?? sessionB?.title ?? "Day B"} → ${sessionA?.type ?? sessionA?.title ?? "Day A"}`}
             />
-            <TrendBars data={dayVsDay} dataKey="value" xKey="name" height={200} />
+            <MultiChart
+              data={dayVsDay}
+              kind={dayKind}
+              xKey="name"
+              height={200}
+              series={[{ key: "value", name: label }]}
+            />
             <p className="mt-1 text-xs text-muted-foreground">
               Squad average {label.toLowerCase()} — difference{" "}
               <span className="text-foreground">
@@ -239,32 +304,47 @@ function ComparePage() {
 
           <div className="panel p-4">
             <SectionTitle title="Players vs team average" hint="Last 14 recorded days" />
-            <MultiLine data={trend} series={series} height={240} dualAxis={false} />
+            <MultiChart data={trend} series={series} kind={kind} height={240} />
           </div>
         </div>
+
       </section>
 
       <section className="panel mt-4 p-4">
-        <SectionTitle title="Comparison table" hint={`${label} on ${dayA} against the squad average`} />
+        <SectionTitle
+          title="Comparison table"
+          hint={`${tableMetrics.length} KPI(s) on ${dayA} — primary metric compared with the squad average`}
+        />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[32rem] text-sm">
             <thead className="text-left text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="py-2">#</th>
                 <th>Player</th>
-                <th>{label}</th>
-                <th>vs team</th>
+                {tableMetrics.map((k) => (
+                  <th key={k} className="text-right">
+                    {METRICS.find((m) => m.key === k)!.label}
+                  </th>
+                ))}
+                <th className="text-right">vs team</th>
               </tr>
             </thead>
             <tbody>
               {ranking.map((r, i) => {
                 const diff = Math.round(r.value - teamAvgA);
+                const row = gpsHistory.find(
+                  (g) => g.date === dayA && fullName(players.find((p) => p.id === g.playerId) ?? players[0]!) === r.name,
+                );
                 return (
                   <tr key={r.name} className="border-t border-border">
                     <td className="py-1.5 text-muted-foreground">{i + 1}</td>
                     <td>{r.name}</td>
-                    <td className="tabular-nums">{r.value.toLocaleString()}</td>
-                    <td className={`tabular-nums ${diff >= 0 ? "text-success" : "text-warning"}`}>
+                    {tableMetrics.map((k) => (
+                      <td key={k} className="text-right tabular-nums">
+                        {row ? Math.round(metricOf(row, k)).toLocaleString() : "—"}
+                      </td>
+                    ))}
+                    <td className={`text-right tabular-nums ${diff >= 0 ? "text-success" : "text-warning"}`}>
                       {diff >= 0 ? "+" : ""}
                       {diff.toLocaleString()}
                     </td>
@@ -275,6 +355,7 @@ function ComparePage() {
           </table>
         </div>
       </section>
+
     </AppShell>
   );
 }
