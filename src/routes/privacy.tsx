@@ -34,7 +34,7 @@ export const Route = createFileRoute("/privacy")({
         <h2>2. Data we process</h2>
         <ul>
           <li><strong>Account data:</strong> name, email address, club name, role, authentication identifiers.</li>
-          <li><strong>Subscription data:</strong> plan, season, sub-teams, status.</li>
+          <li><strong>Subscription data:</strong> plan, season, status.</li>
           <li><strong>Player data (club-controlled):</strong> identity, position, contract, training records, GPS and physical output, RPE, wellness, testing results, availability.</li>
           <li><strong>Health data (special category, Article 9):</strong> injury, diagnosis, rehabilitation and return-to-play information, only where a club chooses to record it.</li>
           <li><strong>Technical data:</strong> log data necessary for security and service operation.</li>
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/privacy")({
 
         <h2>4. Access control</h2>
         <p>
-          T4P applies role-based permissions. Head coach and fitness staff see availability, workload and
+          Health-related data is visible to the staff users the Customer invites into its workspace: availability, workload and
           performance data; clinical detail such as diagnosis and rehabilitation notes is restricted to users the
           club designates as medical staff, and is redacted elsewhere in the interface and in exported reports.
         </p>
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/privacy")({
         <h2>8. Security</h2>
         <p>
           Measures include encrypted transport, encrypted storage at rest, row-level access rules, authenticated
-          access, role-based restriction of health data and least-privilege administrative access. Personal data
+          access, restriction of health data to the customer workspace and least-privilege administrative access. Personal data
           breaches are notified to the competent supervisory authority within 72 hours where required, and to
           affected controllers without undue delay.
         </p>

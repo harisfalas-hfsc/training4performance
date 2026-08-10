@@ -29,9 +29,8 @@ export const Route = createFileRoute("/terms")({
         <ul>
           <li>A team subscription costs €999 per season and covers one team.</li>
           <li>A season runs from 1 June to 31 May, irrespective of the join date.</li>
-          <li>Each additional sub-team (academy, youth, reserve or other squad) costs €399 per year.</li>
           <li>Prices are in euro and exclude VAT, which is added where legally applicable.</li>
-          <li>The subscriber acts as account administrator and may create sub-teams and invite staff users.</li>
+          <li>The subscriber acts as account administrator and may invite staff users.</li>
         </ul>
 
         <h2>3. Right of withdrawal (EU consumers)</h2>
@@ -55,8 +54,8 @@ export const Route = createFileRoute("/terms")({
         <p>
           The Customer remains the controller of all player, staff and performance data entered into the Service.
           T4P acts as a processor on the Customer's behalf under Article 28 GDPR. Health-related data (injury,
-          diagnosis, rehabilitation) is restricted by the Service's role-based permissions and may only be accessed
-          by users the Customer designates as medical staff.
+          diagnosis, rehabilitation) is accessible to the staff users the Customer invites to its workspace; the
+          Customer is responsible for limiting those invitations to authorised personnel.
         </p>
 
         <h2>6. Availability</h2>

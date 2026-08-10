@@ -65,7 +65,7 @@ function About() {
             <li>Training monitor logbook with pivot charts, drill-level splits, RPE entry and the full evaluation test battery.</li>
             <li>A configurable composite load model driving acute:chronic workload ratio, monotony and strain.</li>
             <li>Automated threshold alerts and configurable report templates with scheduled one-click exports.</li>
-            <li>Role-based permissions for head coach, fitness staff and medical staff.</li>
+            <li>A single shared workspace for the whole performance staff.</li>
           </ul>
 
           <h2 className="mt-10 font-display text-lg font-semibold text-foreground">Who created it</h2>
