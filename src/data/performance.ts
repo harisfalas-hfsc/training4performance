@@ -106,12 +106,23 @@ export const TRAINING_BLOCKS = [
   "Set pieces",
   "Cool-down / Recovery",
 ] as const;
-export type TrainingBlock = (typeof TRAINING_BLOCKS)[number];
+/** A block name is free text — the presets are only defaults. */
+export type TrainingBlock = string;
 
 export const TRAINING_LOCATIONS = ["Pitch", "Gym", "Pool", "Indoor", "Classroom"] as const;
 export type TrainingLocation = (typeof TRAINING_LOCATIONS)[number];
 
 export type SessionStatus = "scheduled" | "pending" | "completed";
+
+/** Strength prescription attached to a gym exercise. */
+export interface StrengthSet {
+  sets: number;
+  reps: number;
+  weightKg?: number;
+  intensityPct?: number;
+  restSec: number;
+  tempo?: string;
+}
 
 export interface SessionPlanItem {
   drill: string;
@@ -121,6 +132,10 @@ export interface SessionPlanItem {
   block?: TrainingBlock;
   location?: TrainingLocation;
   notes?: string;
+  /** Gym prescription (strength blocks). */
+  strength?: StrengthSet;
+  /** Serialized tactics-board drawing for this drill. */
+  drawing?: string;
 }
 
 export interface Session {
@@ -138,7 +153,12 @@ export interface Session {
   group?: string;
   status?: SessionStatus;
   favorite?: boolean;
+  /** Session type preset name, e.g. "FULL TRAINING", "STRENGTH TRAINING". */
+  type?: string;
+  /** Ordered, renamable blocks of the day. */
+  blockNames?: string[];
 }
+
 
 
 export interface MedicalEvent {
