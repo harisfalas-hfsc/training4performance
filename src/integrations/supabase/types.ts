@@ -175,6 +175,42 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_data: {
+        Row: {
+          created_at: string
+          gps_history: Json
+          manual_tests: Json
+          medical_events: Json
+          players: Json
+          sessions: Json
+          team: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gps_history?: Json
+          manual_tests?: Json
+          medical_events?: Json
+          players?: Json
+          sessions?: Json
+          team?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gps_history?: Json
+          manual_tests?: Json
+          medical_events?: Json
+          players?: Json
+          sessions?: Json
+          team?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
