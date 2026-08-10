@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { CheckCircle2, FileWarning, HelpCircle, Radar, Upload, XCircle } from "lucide-react";
+import { CheckCircle2, Download, FileWarning, HelpCircle, Radar, Upload, XCircle } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import {
@@ -13,6 +13,7 @@ import {
   type ImportRow,
 } from "@/data/performance";
 import { ACCEPTED_EXTENSIONS, detectProvider, isAcceptedFile } from "@/data/gps-upload";
+import { T4P_TEMPLATE_COLUMNS, templateCsv } from "@/data/logbook";
 import { useRole } from "@/lib/roles";
 
 export const Route = createFileRoute("/gps")({
@@ -164,6 +165,53 @@ function GpsPage() {
               </p>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="mt-6 panel p-4">
+        <SectionTitle
+          title="T4P import template"
+          hint="Start here: download the template, arrange your GPS export to match it, then upload. Any other layout is still accepted — unknown columns go to the mapping report below."
+          right={
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+              onClick={() => {
+                const url = URL.createObjectURL(new Blob([templateCsv()], { type: "text/csv;charset=utf-8" }));
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "T4P_GPS_IMPORT_TEMPLATE.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              <Download className="size-4" /> Download template
+            </button>
+          }
+        />
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-sm">
+            <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="px-2 py-2 font-medium">Column</th>
+                <th className="px-2 py-2 font-medium">Required</th>
+                <th className="px-2 py-2 font-medium">Example</th>
+                <th className="px-2 py-2 font-medium">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {T4P_TEMPLATE_COLUMNS.map((c) => (
+                <tr key={c.key} className="border-b border-border/50 last:border-0">
+                  <td className="px-2 py-1.5 font-medium">{c.header}</td>
+                  <td className="px-2 py-1.5 text-xs">
+                    {c.required ? <span className="text-primary">required</span> : <span className="text-muted-foreground">optional</span>}
+                  </td>
+                  <td className="px-2 py-1.5 text-xs tabular-nums text-muted-foreground">{c.example || "—"}</td>
+                  <td className="px-2 py-1.5 text-xs text-muted-foreground">{c.note || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
