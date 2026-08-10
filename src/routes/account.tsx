@@ -95,6 +95,41 @@ function Account() {
           {user?.email}
           {isAdmin ? <span className="ml-2 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary">Administrator</span> : null}
         </p>
+        {clubName ? (
+          <p className="mt-1 text-sm">
+            Team: <span className="font-semibold">{clubName}</span>
+          </p>
+        ) : null}
+
+        <div className="panel mt-8 p-5">
+          <p className="eyebrow">Profile &amp; team</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="field">
+              <span className="field-label">Full name</span>
+              <input className="control" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            </label>
+            <label className="field">
+              <span className="field-label">Team / club</span>
+              <input
+                className="control"
+                value={clubName}
+                onChange={(e) => setClubName(e.target.value)}
+                placeholder="e.g. Salamina FC — first team"
+              />
+            </label>
+          </div>
+          <div className="mt-3 flex items-center gap-3">
+            <button
+              onClick={saveProfile}
+              disabled={saving}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+            >
+              {saving ? "Saving…" : "Save"}
+            </button>
+            {saved ? <span className="text-xs text-success">Saved — the team now shows across the platform.</span> : null}
+          </div>
+        </div>
+
 
         <div className="panel mt-8 p-5">
           <p className="eyebrow">Subscription</p>
