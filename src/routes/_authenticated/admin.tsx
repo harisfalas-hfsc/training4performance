@@ -147,7 +147,7 @@ function AdminPage() {
     }
     const { data: current } = await supabase.auth.getSession();
     if (current.session) {
-      window.localStorage.setItem(
+      window.sessionStorage.setItem(
         "t4p.adminSession",
         JSON.stringify({
           access_token: current.session.access_token,
@@ -158,6 +158,7 @@ function AdminPage() {
     const { error } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: r.tokenHash });
     setBusy(false);
     if (error) {
+      window.sessionStorage.removeItem("t4p.adminSession");
       toast.error(error.message);
       return;
     }

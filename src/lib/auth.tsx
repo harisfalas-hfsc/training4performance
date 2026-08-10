@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminEmail } from "@/lib/admin";
 import { setWriteAccess } from "@/lib/access";
+import { setWorkspaceScope } from "@/lib/workspace-scope";
 
 export interface Profile {
   id: string;
@@ -55,11 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async (uid: string | undefined, email?: string | null) => {
     if (!uid) {
+      setWorkspaceScope(null);
       setProfile(null);
       setIsAdmin(false);
       setSubscription(null);
       return;
     }
+    setWorkspaceScope(uid, isAdminEmail(email));
     const [{ data: prof }, { data: sub }] = await Promise.all([
       supabase.from("profiles").select("id,email,full_name,club_name").eq("id", uid).maybeSingle(),
       supabase
@@ -101,6 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasAccess: Boolean(session) && (isAdmin || active),
       refresh: () => load(session?.user?.id, session?.user?.email),
       signOut: async () => {
+        setWorkspaceScope(null);
+        if (typeof window !== "undefined") window.sessionStorage.removeItem("t4p.adminSession");
         await supabase.auth.signOut();
       },
     };

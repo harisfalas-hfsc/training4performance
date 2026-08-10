@@ -79,17 +79,17 @@ export function AppShell({
 
   useEffect(() => {
     setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
-    setSupportMode(Boolean(window.localStorage.getItem("t4p.adminSession")));
+    setSupportMode(Boolean(window.sessionStorage.getItem("t4p.adminSession")));
   }, []);
 
   const returnToAdmin = async () => {
-    const raw = window.localStorage.getItem("t4p.adminSession");
+    const raw = window.sessionStorage.getItem("t4p.adminSession");
     if (!raw) return;
     const saved = JSON.parse(raw) as { access_token?: string; refresh_token?: string };
     if (!saved.access_token || !saved.refresh_token) return;
     const { error } = await supabase.auth.setSession({ access_token: saved.access_token, refresh_token: saved.refresh_token });
     if (!error) {
-      window.localStorage.removeItem("t4p.adminSession");
+      window.sessionStorage.removeItem("t4p.adminSession");
       window.location.assign("/admin");
     }
   };
