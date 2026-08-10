@@ -787,7 +787,7 @@ export function TacticsBoard({
                 key={t.id}
                 transform={`translate(${t.x} ${t.y})`}
                 onPointerDown={(e) => onTokenDown(e, t.id)}
-                style={{ cursor: tool === "erase" ? "pointer" : "grab" }}
+                style={{ cursor: tool === "erase" ? "pointer" : "grab", touchAction: "none" }}
               >
                 <TokenShape token={t} />
               </g>
