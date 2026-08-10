@@ -6,9 +6,9 @@ import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    mode: search["mode"] === "signup" ? ("signup" as const) : ("signin" as const),
-  }),
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" } =>
+    search["mode"] === "signup" ? { mode: "signup" } : {},
+
   head: () => ({
     meta: [
       { title: "Sign in — T4P Training 4 Performance" },

@@ -1,10 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Download, SlidersHorizontal } from "lucide-react";
+import { Download, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendBars } from "@/components/charts";
-import { players, fullName, today } from "@/data/performance";
+import {
+  addManualTest,
+  fullName,
+  players,
+  removeGps,
+  setRpe,
+  today,
+  upsertGps,
+  useDataVersion,
+} from "@/data/performance";
 import {
   DEFAULT_WEIGHTS,
   LOAD_KPIS,
@@ -70,6 +79,7 @@ function toCsv(rows: Array<Record<string, string | number | boolean>>) {
 }
 
 function LogbookPage() {
+  useDataVersion();
   const [tab, setTab] = useState<Tab>("Activity logbook");
   const [weights, setWeights] = useState<LoadWeights>({ ...DEFAULT_WEIGHTS });
 
@@ -108,6 +118,7 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
   const [to, setTo] = useState(today);
   const [split, setSplit] = useState(false);
   const [rpeEdits, setRpeEdits] = useState<Record<string, number>>({});
+  const [showAdd, setShowAdd] = useState(false);
 
   const rows = useMemo(() => {
     const base = logbookRows
@@ -160,7 +171,16 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
         >
           <Download className="size-4" /> Export logbook
         </button>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+          onClick={() => setShowAdd((v) => !v)}
+        >
+          <Plus className="size-4" /> {showAdd ? "Close" : "Add activity"}
+        </button>
       </div>
+
+      {showAdd && <AddActivityForm onDone={() => setShowAdd(false)} />}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard label="Rows" value={rows.length} hint={split ? "drill parts" : "session rows"} />
@@ -173,7 +193,7 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
         <table className="w-full min-w-[1100px] text-sm">
           <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              {["Date", "Category", "MD", "Drill", "Athlete", "Role", "Min", "Dist (m)", "HSR (m)", "Sprint (m)", "Spr", "Acc", "Dec", "Jumps", "Max spd", "RPE", "sRPE", "Load AU"].map(
+              {["Date", "Category", "MD", "Drill", "Athlete", "Role", "Min", "Dist (m)", "HSR (m)", "Sprint (m)", "Spr", "Acc", "Dec", "Jumps", "Max spd", "RPE", "sRPE", "Load AU", ""].map(
                 (h) => (
                   <th key={h} className="px-3 py-2 font-medium">
                     {h}
@@ -206,12 +226,28 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
                     min={0}
                     max={10}
                     value={r.rpe}
-                    onChange={(e) => setRpeEdits((prev) => ({ ...prev, [r.id]: Number(e.target.value) }))}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      setRpeEdits((prev) => ({ ...prev, [r.id]: v }));
+                      if (!split) setRpe(r.date, r.playerId, v);
+                    }}
                     className="w-14 rounded border border-border bg-surface-2 px-1 py-0.5 text-right tabular-nums"
                   />
                 </td>
                 <td className="px-3 py-1.5 tabular-nums">{r.rpe * r.minutes}</td>
                 <td className="px-3 py-1.5 tabular-nums text-primary">{compositeLoad(r, weights)}</td>
+                <td className="px-3 py-1.5 text-right">
+                  {!split && (
+                    <button
+                      type="button"
+                      aria-label="Delete activity row"
+                      onClick={() => removeGps(r.date, r.playerId)}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -221,6 +257,105 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
         RPE can be typed per row — per session or per drill part. Session RPE load = RPE × minutes; composite load comes from the KPI weights in the Load model tab.
       </p>
     </div>
+  );
+}
+
+function AddActivityForm({ onDone }: { onDone: () => void }) {
+  const [f, setF] = useState({
+    date: today,
+    playerId: players[0]?.id ?? "",
+    category: "TRAINING",
+    minutes: "80",
+    distance: "5500",
+    hsr: "350",
+    sprint: "60",
+    maxSpeed: "28",
+    accel: "20",
+    decel: "22",
+    jumps: "6",
+    rpe: "7",
+  });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setF((p) => ({ ...p, [k]: e.target.value }));
+
+  return (
+    <form
+      className="panel grid gap-2 p-4 sm:grid-cols-4 xl:grid-cols-6"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!f.playerId) return;
+        upsertGps({
+          date: f.date,
+          playerId: f.playerId,
+          category: f.category,
+          status: f.category === "REHABILITATION" ? "Rehabilitation" : f.category === "INDIVIDUAL" ? "Individual Training" : "Full Training",
+          minutes: Number(f.minutes) || 0,
+          distance: Number(f.distance) || 0,
+          hsr: Number(f.hsr) || 0,
+          sprint: Number(f.sprint) || 0,
+          maxSpeed: Number(f.maxSpeed) || 0,
+          accel: Number(f.accel) || 0,
+          decel: Number(f.decel) || 0,
+          jumps: Number(f.jumps) || 0,
+          rpe: Number(f.rpe) || 0,
+        });
+        onDone();
+      }}
+    >
+      <Field label="Date">
+        <input className="control" type="date" value={f.date} onChange={set("date")} />
+      </Field>
+      <Field label="Player">
+        <select className="control" value={f.playerId} onChange={set("playerId")}>
+          {players.map((p) => (
+            <option key={p.id} value={p.id}>
+              {fullName(p)}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Category">
+        <select className="control" value={f.category} onChange={set("category")}>
+          {["TRAINING", "MATCH", "RECOVERY", "REHABILITATION", "INDIVIDUAL"].map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Minutes">
+        <input className="control" value={f.minutes} onChange={set("minutes")} />
+      </Field>
+      <Field label="Distance (m)">
+        <input className="control" value={f.distance} onChange={set("distance")} />
+      </Field>
+      <Field label="HSR (m)">
+        <input className="control" value={f.hsr} onChange={set("hsr")} />
+      </Field>
+      <Field label="Sprint (m)">
+        <input className="control" value={f.sprint} onChange={set("sprint")} />
+      </Field>
+      <Field label="Max speed (km/h)">
+        <input className="control" value={f.maxSpeed} onChange={set("maxSpeed")} />
+      </Field>
+      <Field label="Accels">
+        <input className="control" value={f.accel} onChange={set("accel")} />
+      </Field>
+      <Field label="Decels">
+        <input className="control" value={f.decel} onChange={set("decel")} />
+      </Field>
+      <Field label="Jumps">
+        <input className="control" value={f.jumps} onChange={set("jumps")} />
+      </Field>
+      <Field label="RPE">
+        <div className="flex gap-2">
+          <input className="control flex-1" value={f.rpe} onChange={set("rpe")} />
+          <button type="submit" className="rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground">
+            Save
+          </button>
+        </div>
+      </Field>
+    </form>
   );
 }
 
@@ -389,8 +524,9 @@ function TrainingLogbookTab() {
 /* ---------------- Tests ---------------- */
 
 function TestsTab() {
-  const [round, setRound] = useState(TEST_ROUNDS[TEST_ROUNDS.length - 1]!.label);
+  const [round, setRound] = useState(TEST_ROUNDS[TEST_ROUNDS.length - 1]?.label ?? `Testing ${today}`);
   const [test, setTest] = useState(TEST_BATTERY[2]!.name as string);
+  const [showAdd, setShowAdd] = useState(false);
   const battery = TEST_BATTERY.find((t) => t.name === test)!;
 
   const chart = players
@@ -436,7 +572,16 @@ function TestsTab() {
         >
           <Download className="size-4" /> Export test battery
         </button>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+          onClick={() => setShowAdd((v) => !v)}
+        >
+          <Plus className="size-4" /> {showAdd ? "Close" : "Record test"}
+        </button>
       </div>
+
+      {showAdd && <RecordTestForm defaultRound={round} defaultTest={test} onDone={() => setShowAdd(false)} />}
 
       <div className="panel p-4">
         <SectionTitle title={`${battery.name}`} hint={`${round} · ${battery.higherIsBetter ? "higher is better" : "lower is better"} · ${battery.unit}`} />
@@ -470,6 +615,68 @@ function TestsTab() {
         </table>
       </div>
     </div>
+  );
+}
+
+function RecordTestForm({
+  defaultRound,
+  defaultTest,
+  onDone,
+}: {
+  defaultRound: string;
+  defaultTest: string;
+  onDone: () => void;
+}) {
+  const [f, setF] = useState({
+    playerId: players[0]?.id ?? "",
+    round: defaultRound,
+    test: defaultTest,
+    value: "",
+  });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setF((p) => ({ ...p, [k]: e.target.value }));
+
+  return (
+    <form
+      className="panel grid gap-2 p-4 sm:grid-cols-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const value = Number(f.value);
+        if (!f.playerId || Number.isNaN(value)) return;
+        addManualTest({ playerId: f.playerId, round: f.round, test: f.test, value, date: today });
+        onDone();
+      }}
+    >
+      <Field label="Player">
+        <select className="control" value={f.playerId} onChange={set("playerId")}>
+          {players.map((p) => (
+            <option key={p.id} value={p.id}>
+              {fullName(p)}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Round">
+        <input className="control" value={f.round} onChange={set("round")} />
+      </Field>
+      <Field label="Test">
+        <select className="control" value={f.test} onChange={set("test")}>
+          {TEST_BATTERY.map((t) => (
+            <option key={t.name} value={t.name}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Result">
+        <div className="flex gap-2">
+          <input className="control flex-1" value={f.value} onChange={set("value")} placeholder="e.g. 38.4" />
+          <button type="submit" className="rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground">
+            Save
+          </button>
+        </div>
+      </Field>
+    </form>
   );
 }
 
