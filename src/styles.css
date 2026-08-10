@@ -167,6 +167,16 @@
   color: var(--color-muted-foreground);
 }
 
+@utility control {
+  background-color: var(--color-surface-2, var(--color-secondary));
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  min-width: 9rem;
+}
+
 @utility metric-value {
   font-family: var(--font-display);
   font-weight: 600;
