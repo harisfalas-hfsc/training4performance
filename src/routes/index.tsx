@@ -17,21 +17,23 @@ import { MarketingPage } from "@/components/marketing";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "T4P — Training 4 Performance | Football Performance OS" },
+      { title: "T4P — Training 4 Performance | Football Performance System" },
       {
         name: "description",
         content:
-          "T4P connects squad management, training planning, GPS, workload, wellness, alerts and reporting in one football performance platform built by a sports scientist.",
+          "T4P is one connected football performance system: squad availability and player passports, block-based session design, tactics board, GPS import, composite load and ACWR, wellness, testing, medical status, automated alerts and one-click reports.",
       },
       { property: "og:title", content: "T4P — Training 4 Performance" },
       {
         property: "og:description",
-        content: "One connected system for football fitness, performance and training management.",
+        content:
+          "Squad availability, session design, GPS, workload and ACWR, testing, medical status, alerts and reports — in one football performance system.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+
   component: Home,
 });
 
