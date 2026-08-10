@@ -339,7 +339,7 @@ function persist() {
   try {
     window.localStorage.setItem(
       key,
-      JSON.stringify({ players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
+      JSON.stringify({ team, players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
     );
   } catch {
     /* quota — ignore */
