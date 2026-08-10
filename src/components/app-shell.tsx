@@ -30,8 +30,10 @@ import {
   useDataVersion,
 } from "@/data/performance";
 import { useAuth } from "@/lib/auth";
-import { syncUsageSnapshot } from "@/lib/usage";
+import { hydrateWorkspace, syncUsageSnapshot } from "@/lib/usage";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "#2563eb" },
@@ -67,6 +69,7 @@ export function AppShell({
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
   const av = squadAvailability();
   const [open, setOpen] = useState(false);
+  const [supportMode, setSupportMode] = useState(false);
   const version = useDataVersion();
 
   const navItems = useMemo(
@@ -76,7 +79,25 @@ export function AppShell({
 
   useEffect(() => {
     setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
+    setSupportMode(Boolean(window.localStorage.getItem("t4p.adminSession")));
   }, []);
+
+  const returnToAdmin = async () => {
+    const raw = window.localStorage.getItem("t4p.adminSession");
+    if (!raw) return;
+    const saved = JSON.parse(raw) as { access_token?: string; refresh_token?: string };
+    if (!saved.access_token || !saved.refresh_token) return;
+    const { error } = await supabase.auth.setSession({ access_token: saved.access_token, refresh_token: saved.refresh_token });
+    if (!error) {
+      window.localStorage.removeItem("t4p.adminSession");
+      window.location.assign("/admin");
+    }
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+    void hydrateWorkspace(user.id);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -182,6 +203,11 @@ export function AppShell({
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              {supportMode ? (
+                <Button size="sm" onClick={() => void returnToAdmin()}>
+                  <Shield className="size-3.5" /> Return to admin
+                </Button>
+              ) : null}
               <Link to="/" className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
                 Website
               </Link>

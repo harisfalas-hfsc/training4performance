@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isAdminEmail } from "@/lib/admin";
+import type { Json } from "@/integrations/supabase/types";
 
 async function assertAdmin(ctx: { supabase: unknown; userId: string; claims: Record<string, unknown> }) {
   const email = ctx.claims?.["email"] as string | undefined;
@@ -43,6 +44,17 @@ export type AdminStats = {
   players: number;
   sessions: number;
   gpsRows: number;
+};
+
+export type AdminWorkspace = {
+  userId: string;
+  team: Json;
+  players: Json;
+  sessions: Json;
+  gpsHistory: Json;
+  manualTests: Json;
+  medicalEvents: Json;
+  updatedAt: string | null;
 };
 
 const isActive = (sub: { status?: string | null; season_end?: string | null } | undefined) =>
@@ -262,6 +274,64 @@ export const adminListTeams = createServerFn({ method: "POST" })
       return { teams: filtered };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Failed to load teams" };
+    }
+  });
+
+export const adminGetCustomerWorkspace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { userId: string }) => data)
+  .handler(async ({ context, data }): Promise<{ workspace: AdminWorkspace } | { error: string }> => {
+    try {
+      await assertAdmin(context as never);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: row, error } = await supabaseAdmin
+        .from("workspace_data")
+        .select("user_id,team,players,sessions,gps_history,manual_tests,medical_events,updated_at")
+        .eq("user_id", data.userId)
+        .maybeSingle();
+      if (error) return { error: error.message };
+      return {
+        workspace: {
+          userId: data.userId,
+          team: row?.team ?? {},
+          players: row?.players ?? [],
+          sessions: row?.sessions ?? [],
+          gpsHistory: row?.gps_history ?? [],
+          manualTests: row?.manual_tests ?? [],
+          medicalEvents: row?.medical_events ?? [],
+          updatedAt: row?.updated_at ?? null,
+        },
+      };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Failed to load customer workspace" };
+    }
+  });
+
+export const adminSaveCustomerWorkspace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { userId: string; team: Json; players: Json }) => data)
+  .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
+    try {
+      await assertAdmin(context as never);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error } = await supabaseAdmin.from("workspace_data").upsert(
+        { user_id: data.userId, team: data.team, players: data.players, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      );
+      if (error) return { error: error.message };
+      const playerRows = Array.isArray(data.players) ? data.players : [];
+      const teamRow = data.team && !Array.isArray(data.team) && typeof data.team === "object" ? data.team : {};
+      const names = playerRows.map((player) => {
+        const row = player && !Array.isArray(player) && typeof player === "object" ? player : {};
+        return `${String(row["firstName"] ?? "")} ${String(row["lastName"] ?? "")}`.trim();
+      });
+      await supabaseAdmin.from("usage_snapshots").upsert(
+        { user_id: data.userId, club_name: String(teamRow["club"] ?? ""), team_name: String(teamRow["name"] ?? ""), players: playerRows.length, player_names: names, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      );
+      return { ok: true };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Failed to save customer workspace" };
     }
   });
 

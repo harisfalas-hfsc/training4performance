@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
+  ArrowLeft,
   Ban,
   CheckCircle2,
   Gift,
@@ -17,21 +18,27 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
+import { AdminCustomerDetail } from "@/components/admin-customer-detail";
+import { Button } from "@/components/ui/button";
+import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
 import { ACCESS_MONTH_OPTIONS } from "@/lib/admin";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminDeleteCustomer,
   adminGetStats,
+  adminGetCustomerWorkspace,
   adminGrantAccess,
   adminImpersonate,
   adminListCustomers,
   adminListTeams,
   adminRevokeAccess,
   adminUpdateCustomer,
+  adminSaveCustomerWorkspace,
   type AdminCustomer,
   type AdminStats,
   type AdminTeam,
+  type AdminWorkspace,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -56,6 +63,8 @@ function AdminPage() {
   const listCustomers = useServerFn(adminListCustomers);
   const listTeams = useServerFn(adminListTeams);
   const getStats = useServerFn(adminGetStats);
+  const getWorkspace = useServerFn(adminGetCustomerWorkspace);
+  const saveWorkspace = useServerFn(adminSaveCustomerWorkspace);
   const grantAccess = useServerFn(adminGrantAccess);
   const revokeAccess = useServerFn(adminRevokeAccess);
   const updateCustomer = useServerFn(adminUpdateCustomer);
@@ -72,6 +81,8 @@ function AdminPage() {
   const [months, setMonths] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openTeam, setOpenTeam] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
+  const [workspace, setWorkspace] = useState<AdminWorkspace | null>(null);
 
   const reload = useCallback(async () => {
     setPending(true);
@@ -154,19 +165,58 @@ function AdminPage() {
     void navigate({ to: "/dashboard" });
   }
 
+  async function openCustomer(customer: AdminCustomer) {
+    setPending(true);
+    const result = await getWorkspace({ data: { userId: customer.id } });
+    setPending(false);
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+    setSelectedCustomer(customer);
+    setWorkspace(result.workspace);
+  }
+
+  async function saveCustomerWorkspace(teamData: Json, playerData: Json) {
+    if (!selectedCustomer) return;
+    setBusy(true);
+    const result = await saveWorkspace({ data: { userId: selectedCustomer.id, team: teamData, players: playerData } });
+    setBusy(false);
+    if ("error" in result) toast.error(result.error);
+    else {
+      toast.success("Customer workspace saved.");
+      await reload();
+    }
+  }
+
+  if (selectedCustomer && workspace) {
+    return (
+      <AdminShell title="Customer workspace" subtitle={`${selectedCustomer.full_name || selectedCustomer.email} · owner support view`}>
+        <AdminCustomerDetail
+          customer={selectedCustomer}
+          workspace={workspace}
+          busy={busy}
+          onBack={() => { setSelectedCustomer(null); setWorkspace(null); }}
+          onSave={saveCustomerWorkspace}
+          onSignIn={() => void signInAs(selectedCustomer)}
+        />
+      </AdminShell>
+    );
+  }
+
   return (
     <AdminShell
       title="Admin panel"
       subtitle="Customers, access, revenue and workspace usage"
       actions={
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => void reload()}
           disabled={pending}
-          className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-xs font-medium"
         >
           <RefreshCw className={pending ? "size-3.5 animate-spin" : "size-3.5"} /> Refresh
-        </button>
+        </Button>
       }
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -192,27 +242,24 @@ function AdminPage() {
             className="h-10 w-full rounded-md border border-border bg-background pl-9 pr-3 text-sm"
           />
         </div>
-        <button
-          type="button"
+        <Button
+          variant="outline"
           onClick={() => void reload()}
-          className="rounded-md border border-border px-4 text-sm font-medium"
         >
           Search
-        </button>
+        </Button>
       </div>
 
       <div className="mt-4 flex gap-2">
         {(["customers", "teams"] as const).map((t) => (
-          <button
+          <Button
             key={t}
-            type="button"
+            variant={tab === t ? "default" : "outline"}
+            size="sm"
             onClick={() => setTab(t)}
-            className={`rounded-md border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-              tab === t ? "border-primary text-primary" : "border-border text-muted-foreground"
-            }`}
           >
             {t === "customers" ? "Customers" : `All teams & squads (${teams.length})`}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -253,6 +300,16 @@ function AdminPage() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Action disabled={busy} onClick={() => setOpenTeam(openTeam === t.key ? null : t.key)}>
                     {openTeam === t.key ? "Hide squad" : `View squad (${t.player_names.length})`}
+                  </Action>
+                  <Action
+                    disabled={busy}
+                    onClick={() => {
+                      const customer = customers.find((x) => x.id === t.ownerId);
+                      if (customer) void openCustomer(customer);
+                      else toast.error("Owner account not found");
+                    }}
+                  >
+                    Manage team & players
                   </Action>
                   <Action
                     disabled={busy}
@@ -303,7 +360,20 @@ function AdminPage() {
           customers.map((c) => {
             const m = months[c.id] ?? 12;
             return (
-              <article key={c.id} className="panel p-4">
+              <article key={c.id} className="panel overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => void openCustomer(c)}
+                  className="flex w-full items-start justify-between gap-3 border-b border-border bg-secondary/40 p-4 text-left transition-colors hover:bg-secondary"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold">{c.full_name || c.email || "Unnamed coach"}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{c.email}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{c.club_name || "No club"} · {c.team_name || "No team"}</span>
+                  </span>
+                  <span className="shrink-0 text-xs font-semibold text-primary">Open customer →</span>
+                </button>
+                <div className="p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-semibold">{c.full_name || c.email || "Unnamed coach"}</p>
@@ -372,6 +442,9 @@ function AdminPage() {
                   <Action disabled={busy} onClick={() => void signInAs(c)}>
                     <LogIn className="size-3.5" /> Sign in as user
                   </Action>
+                  <Action disabled={busy} onClick={() => void openCustomer(c)}>
+                    View full workspace
+                  </Action>
                   <Action disabled={busy} onClick={() => setExpanded(expanded === c.id ? null : c.id)}>
                     {expanded === c.id ? "Close" : "Edit / squad"}
                   </Action>
@@ -436,6 +509,7 @@ function AdminPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </article>
             );
           })
