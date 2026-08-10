@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { isAdminEmail } from "@/lib/admin";
 
 export interface Profile {
   id: string;
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
 
-  const load = useCallback(async (uid: string | undefined) => {
+  const load = useCallback(async (uid: string | undefined, email?: string | null) => {
     if (!uid) {
       setProfile(null);
       setIsAdmin(false);
@@ -68,25 +69,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle(),
     ]);
     setProfile((prof as Profile) ?? null);
-    setIsAdmin(Boolean(roles?.some((r) => r.role === "admin")));
+    setIsAdmin(Boolean(roles?.some((r) => r.role === "admin")) || isAdminEmail(email));
     setSubscription((sub as Subscription) ?? null);
   }, []);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
-      void load(s?.user?.id);
+      void load(s?.user?.id, s?.user?.email);
     });
     void supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
-      await load(data.session?.user?.id);
+      await load(data.session?.user?.id, data.session?.user?.email);
       setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
   }, [load]);
 
   const value = useMemo<AuthValue>(() => {
-    const active = subscription?.status === "active" || subscription?.status === "trial";
+    const notExpired =
+      !subscription?.season_end || new Date(`${subscription.season_end}T23:59:59Z`).getTime() > Date.now();
+    const active =
+      (subscription?.status === "active" || subscription?.status === "trial") && notExpired;
     return {
       loading,
       session,
@@ -95,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       subscription,
       hasAccess: Boolean(session) && (isAdmin || active),
-      refresh: () => load(session?.user?.id),
+      refresh: () => load(session?.user?.id, session?.user?.email),
       signOut: async () => {
         await supabase.auth.signOut();
       },
