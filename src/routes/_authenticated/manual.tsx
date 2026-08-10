@@ -477,7 +477,7 @@ function ManualPage() {
         <section id="troubleshooting" className="scroll-mt-28 space-y-3">
           <SectionTitle
             title="Troubleshooting — common problems and how to solve them"
-            subtitle="Every scenario coaches hit in the first weeks, with the fix"
+            hint="Every scenario coaches hit in the first weeks, with the fix"
           />
           <div className="grid gap-3 md:grid-cols-2">
             {problems.map((p) => (
