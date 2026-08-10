@@ -10,6 +10,7 @@ import {
   FileText,
   GitCompare,
   LayoutDashboard,
+  Building2,
   LifeBuoy,
   PanelLeftClose,
   PanelLeftOpen,
@@ -37,6 +38,7 @@ import { Button } from "@/components/ui/button";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "#2563eb" },
+  { to: "/team", label: "Team & data", icon: Building2, color: "#0f766e" },
   { to: "/squad", label: "Squad", icon: Users, color: "#059669" },
   { to: "/calendar", label: "Calendar", icon: CalendarDays, color: "#0891b2" },
   { to: "/training", label: "Training Designer", icon: ClipboardPen, color: "#7c3aed" },
