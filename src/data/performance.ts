@@ -639,6 +639,58 @@ export function resetToWorkbook() {
   emit();
 }
 
+/* ---------- team lifecycle ---------- */
+
+/** True once the coach has completed team setup for this workspace. */
+export function isTeamConfigured() {
+  return Boolean(team.configured && team.club.trim() && team.name.trim());
+}
+
+/** Create or update the single team of this workspace. */
+export function saveTeam(patch: Partial<Team>) {
+  if (!guardWrite()) return false;
+  Object.assign(team, patch, {
+    configured: true,
+    createdAt: team.createdAt ?? new Date().toISOString(),
+  });
+  emit();
+  return true;
+}
+
+/** Delete every record (players, GPS, sessions, tests, medical) but keep the team. */
+export function clearWorkspaceRecords() {
+  if (!guardWrite()) return false;
+  replace(players, []);
+  replace(gpsHistory, []);
+  replace(sessionCalendar, []);
+  replace(manualTests, []);
+  replace(medicalEvents, []);
+  emit();
+  return true;
+}
+
+/** Delete the team and everything attached to it, so a new team can be created. */
+export function deleteTeamAndData() {
+  if (!guardWrite()) return false;
+  clearWorkspaceRecords();
+  Object.assign(team, {
+    name: "",
+    club: "",
+    season: "",
+    competition: "",
+    ageGroup: "Senior",
+    gender: "Male",
+    headCoach: "",
+    fitnessCoach: "",
+    configured: false,
+    createdAt: undefined,
+  });
+  emit();
+  return true;
+}
+
+
+
 export const fullName = (p: Player) => `${p.firstName} ${p.lastName}`;
 export const initials = (p: Player) => `${p.firstName[0] ?? "?"}${p.lastName[0] ?? ""}`;
 
