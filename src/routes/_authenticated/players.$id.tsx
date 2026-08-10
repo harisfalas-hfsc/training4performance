@@ -24,7 +24,7 @@ import {
   wellnessScore,
 } from "@/data/performance";
 
-export const Route = createFileRoute("/players/$id")({
+export const Route = createFileRoute("/_authenticated/players/$id")({
   loader: ({ params }) => {
     const player = getPlayer(params.id);
     if (!player) throw notFound();

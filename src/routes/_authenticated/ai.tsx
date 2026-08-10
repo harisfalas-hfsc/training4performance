@@ -19,7 +19,7 @@ import {
   wellnessScore,
 } from "@/data/performance";
 
-export const Route = createFileRoute("/ai")({
+export const Route = createFileRoute("/_authenticated/ai")({
   head: () => ({
     meta: [
       { title: "AI Performance Assistant — T4P" },

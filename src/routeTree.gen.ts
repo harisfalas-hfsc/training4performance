@@ -10,121 +10,227 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AiRouteImport } from './routes/ai'
-import { Route as AlertsRouteImport } from './routes/alerts'
-import { Route as AnalyticsRouteImport } from './routes/analytics'
-import { Route as BoardRouteImport } from './routes/board'
-import { Route as GpsRouteImport } from './routes/gps'
-import { Route as LogbookRouteImport } from './routes/logbook'
-import { Route as ReportsRouteImport } from './routes/reports'
-import { Route as SquadRouteImport } from './routes/squad'
-import { Route as TrainingRouteImport } from './routes/training'
-import { Route as PlayersIdRouteImport } from './routes/players.$id'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as HarisFalasRouteImport } from './routes/haris-falas'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
+import { Route as AuthenticatedBoardRouteImport } from './routes/_authenticated/board'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gps'
+import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
+import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AiRoute = AiRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HarisFalasRoute = HarisFalasRouteImport.update({
+  id: '/haris-falas',
+  path: '/haris-falas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAiRoute = AuthenticatedAiRouteImport.update({
   id: '/ai',
   path: '/ai',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AlertsRoute = AlertsRouteImport.update({
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AnalyticsRoute = AnalyticsRouteImport.update({
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const BoardRoute = BoardRouteImport.update({
+const AuthenticatedBoardRoute = AuthenticatedBoardRouteImport.update({
   id: '/board',
   path: '/board',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const GpsRoute = GpsRouteImport.update({
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGpsRoute = AuthenticatedGpsRouteImport.update({
   id: '/gps',
   path: '/gps',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const LogbookRoute = LogbookRouteImport.update({
+const AuthenticatedLogbookRoute = AuthenticatedLogbookRouteImport.update({
   id: '/logbook',
   path: '/logbook',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ReportsRoute = ReportsRouteImport.update({
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const SquadRoute = SquadRouteImport.update({
+const AuthenticatedSquadRoute = AuthenticatedSquadRouteImport.update({
   id: '/squad',
   path: '/squad',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const TrainingRoute = TrainingRouteImport.update({
+const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   id: '/training',
   path: '/training',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const PlayersIdRoute = PlayersIdRouteImport.update({
+const AuthenticatedPlayersIdRoute = AuthenticatedPlayersIdRouteImport.update({
   id: '/players/$id',
   path: '/players/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
-  '/alerts': typeof AlertsRoute
-  '/analytics': typeof AnalyticsRoute
-  '/board': typeof BoardRoute
-  '/gps': typeof GpsRoute
-  '/logbook': typeof LogbookRoute
-  '/reports': typeof ReportsRoute
-  '/squad': typeof SquadRoute
-  '/training': typeof TrainingRoute
-  '/players/$id': typeof PlayersIdRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/auth': typeof AuthRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/haris-falas': typeof HarisFalasRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/ai': typeof AuthenticatedAiRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/board': typeof AuthenticatedBoardRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/gps': typeof AuthenticatedGpsRoute
+  '/logbook': typeof AuthenticatedLogbookRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/squad': typeof AuthenticatedSquadRoute
+  '/training': typeof AuthenticatedTrainingRoute
+  '/players/$id': typeof AuthenticatedPlayersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
-  '/alerts': typeof AlertsRoute
-  '/analytics': typeof AnalyticsRoute
-  '/board': typeof BoardRoute
-  '/gps': typeof GpsRoute
-  '/logbook': typeof LogbookRoute
-  '/reports': typeof ReportsRoute
-  '/squad': typeof SquadRoute
-  '/training': typeof TrainingRoute
-  '/players/$id': typeof PlayersIdRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/auth': typeof AuthRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/haris-falas': typeof HarisFalasRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/ai': typeof AuthenticatedAiRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/board': typeof AuthenticatedBoardRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/gps': typeof AuthenticatedGpsRoute
+  '/logbook': typeof AuthenticatedLogbookRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/squad': typeof AuthenticatedSquadRoute
+  '/training': typeof AuthenticatedTrainingRoute
+  '/players/$id': typeof AuthenticatedPlayersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
-  '/alerts': typeof AlertsRoute
-  '/analytics': typeof AnalyticsRoute
-  '/board': typeof BoardRoute
-  '/gps': typeof GpsRoute
-  '/logbook': typeof LogbookRoute
-  '/reports': typeof ReportsRoute
-  '/squad': typeof SquadRoute
-  '/training': typeof TrainingRoute
-  '/players/$id': typeof PlayersIdRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/auth': typeof AuthRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/haris-falas': typeof HarisFalasRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/_authenticated/ai': typeof AuthenticatedAiRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
+  '/_authenticated/board': typeof AuthenticatedBoardRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/gps': typeof AuthenticatedGpsRoute
+  '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/squad': typeof AuthenticatedSquadRoute
+  '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
+    | '/account'
+    | '/auth'
+    | '/disclaimer'
+    | '/haris-falas'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
     | '/ai'
     | '/alerts'
     | '/analytics'
     | '/board'
+    | '/dashboard'
     | '/gps'
     | '/logbook'
     | '/reports'
@@ -134,10 +240,20 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/account'
+    | '/auth'
+    | '/disclaimer'
+    | '/haris-falas'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
     | '/ai'
     | '/alerts'
     | '/analytics'
     | '/board'
+    | '/dashboard'
     | '/gps'
     | '/logbook'
     | '/reports'
@@ -147,30 +263,41 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/ai'
-    | '/alerts'
-    | '/analytics'
-    | '/board'
-    | '/gps'
-    | '/logbook'
-    | '/reports'
-    | '/squad'
-    | '/training'
-    | '/players/$id'
+    | '/_authenticated'
+    | '/about'
+    | '/account'
+    | '/auth'
+    | '/disclaimer'
+    | '/haris-falas'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/_authenticated/ai'
+    | '/_authenticated/alerts'
+    | '/_authenticated/analytics'
+    | '/_authenticated/board'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/gps'
+    | '/_authenticated/logbook'
+    | '/_authenticated/reports'
+    | '/_authenticated/squad'
+    | '/_authenticated/training'
+    | '/_authenticated/players/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AiRoute: typeof AiRoute
-  AlertsRoute: typeof AlertsRoute
-  AnalyticsRoute: typeof AnalyticsRoute
-  BoardRoute: typeof BoardRoute
-  GpsRoute: typeof GpsRoute
-  LogbookRoute: typeof LogbookRoute
-  ReportsRoute: typeof ReportsRoute
-  SquadRoute: typeof SquadRoute
-  TrainingRoute: typeof TrainingRoute
-  PlayersIdRoute: typeof PlayersIdRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
+  AuthRoute: typeof AuthRoute
+  DisclaimerRoute: typeof DisclaimerRoute
+  HarisFalasRoute: typeof HarisFalasRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -182,92 +309,210 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ai': {
-      id: '/ai'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/haris-falas': {
+      id: '/haris-falas'
+      path: '/haris-falas'
+      fullPath: '/haris-falas'
+      preLoaderRoute: typeof HarisFalasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/ai': {
+      id: '/_authenticated/ai'
       path: '/ai'
       fullPath: '/ai'
-      preLoaderRoute: typeof AiRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/alerts': {
-      id: '/alerts'
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
       path: '/alerts'
       fullPath: '/alerts'
-      preLoaderRoute: typeof AlertsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/analytics': {
-      id: '/analytics'
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
       path: '/analytics'
       fullPath: '/analytics'
-      preLoaderRoute: typeof AnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/board': {
-      id: '/board'
+    '/_authenticated/board': {
+      id: '/_authenticated/board'
       path: '/board'
       fullPath: '/board'
-      preLoaderRoute: typeof BoardRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedBoardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/gps': {
-      id: '/gps'
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/gps': {
+      id: '/_authenticated/gps'
       path: '/gps'
       fullPath: '/gps'
-      preLoaderRoute: typeof GpsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedGpsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/logbook': {
-      id: '/logbook'
+    '/_authenticated/logbook': {
+      id: '/_authenticated/logbook'
       path: '/logbook'
       fullPath: '/logbook'
-      preLoaderRoute: typeof LogbookRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLogbookRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/reports': {
-      id: '/reports'
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
       path: '/reports'
       fullPath: '/reports'
-      preLoaderRoute: typeof ReportsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/squad': {
-      id: '/squad'
+    '/_authenticated/squad': {
+      id: '/_authenticated/squad'
       path: '/squad'
       fullPath: '/squad'
-      preLoaderRoute: typeof SquadRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedSquadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/training': {
-      id: '/training'
+    '/_authenticated/training': {
+      id: '/_authenticated/training'
       path: '/training'
       fullPath: '/training'
-      preLoaderRoute: typeof TrainingRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTrainingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/players/$id': {
-      id: '/players/$id'
+    '/_authenticated/players/$id': {
+      id: '/_authenticated/players/$id'
       path: '/players/$id'
       fullPath: '/players/$id'
-      preLoaderRoute: typeof PlayersIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedPlayersIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAiRoute: typeof AuthenticatedAiRoute
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
+  AuthenticatedBoardRoute: typeof AuthenticatedBoardRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGpsRoute: typeof AuthenticatedGpsRoute
+  AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
+  AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
+  AuthenticatedPlayersIdRoute: typeof AuthenticatedPlayersIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAiRoute: AuthenticatedAiRoute,
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
+  AuthenticatedBoardRoute: AuthenticatedBoardRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGpsRoute: AuthenticatedGpsRoute,
+  AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedSquadRoute: AuthenticatedSquadRoute,
+  AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
+  AuthenticatedPlayersIdRoute: AuthenticatedPlayersIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AiRoute: AiRoute,
-  AlertsRoute: AlertsRoute,
-  AnalyticsRoute: AnalyticsRoute,
-  BoardRoute: BoardRoute,
-  GpsRoute: GpsRoute,
-  LogbookRoute: LogbookRoute,
-  ReportsRoute: ReportsRoute,
-  SquadRoute: SquadRoute,
-  TrainingRoute: TrainingRoute,
-  PlayersIdRoute: PlayersIdRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
+  AuthRoute: AuthRoute,
+  DisclaimerRoute: DisclaimerRoute,
+  HarisFalasRoute: HarisFalasRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

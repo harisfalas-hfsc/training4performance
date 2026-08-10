@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import { TacticsBoard } from "@/components/tactics-board";
 
-export const Route = createFileRoute("/board")({
+export const Route = createFileRoute("/_authenticated/board")({
   head: () => ({
     meta: [
       { title: "Tactics Board & Session Designer — T4P" },

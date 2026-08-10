@@ -14,7 +14,7 @@ import {
   type TrainingStatus,
 } from "@/data/performance";
 
-export const Route = createFileRoute("/training")({
+export const Route = createFileRoute("/_authenticated/training")({
   head: () => ({
     meta: [
       { title: "Training Calendar & Session Designer — T4P" },
