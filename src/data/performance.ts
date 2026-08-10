@@ -11,6 +11,7 @@
 import { SALAMINA_GPS, SALAMINA_PLAYERS, SALAMINA_TESTS } from "@/data/salamina";
 import { useSyncExternalStore } from "react";
 import { guardWrite } from "@/lib/access";
+import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
 
@@ -298,9 +299,9 @@ export interface ManualTest {
   value: number;
 }
 
-export const players: Player[] = seedPlayers();
-export const gpsHistory: GpsDay[] = seedGps();
-export const sessionCalendar: Session[] = seedSessions();
+export const players: Player[] = [];
+export const gpsHistory: GpsDay[] = [];
+export const sessionCalendar: Session[] = [];
 export const manualTests: ManualTest[] = [];
 export const medicalEvents: MedicalEvent[] = [];
 
@@ -324,9 +325,11 @@ export function subscribeData(fn: () => void) {
 
 function persist() {
   if (typeof window === "undefined") return;
+  const key = scopedStorageKey(STORAGE_KEY);
+  if (!key) return;
   try {
     window.localStorage.setItem(
-      STORAGE_KEY,
+      key,
       JSON.stringify({ players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
     );
   } catch {
@@ -365,11 +368,42 @@ function replace<T>(target: T[], next: T[]) {
   target.splice(0, target.length, ...next);
 }
 
-function hydrate() {
+function hydrate(userId: string | null, migrateLegacy: boolean) {
   if (typeof window === "undefined") return;
+  replace(players, []);
+  replace(gpsHistory, []);
+  replace(sessionCalendar, []);
+  replace(manualTests, []);
+  replace(medicalEvents, []);
+  Object.assign(team, {
+    id: userId ? `team-${userId}` : "team-unassigned",
+    name: "First Team",
+    club: "Your club",
+    season: "2025/26",
+    competition: "",
+    ageGroup: "Senior",
+    gender: "Male",
+    headCoach: "",
+    fitnessCoach: "",
+  });
+  if (!userId) {
+    version++;
+    listeners.forEach((listener) => listener());
+    return;
+  }
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    const key = scopedStorageKey(STORAGE_KEY, userId);
+    if (!key) return;
+    let raw = window.localStorage.getItem(key);
+    if (!raw && migrateLegacy) {
+      raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) window.localStorage.setItem(key, raw);
+    }
+    if (!raw && migrateLegacy) {
+      replace(players, seedPlayers());
+      replace(gpsHistory, seedGps());
+      replace(sessionCalendar, seedSessions());
+    } else if (raw) {
     const s = JSON.parse(raw) as {
       players?: Player[];
       gpsHistory?: GpsDay[];
@@ -382,12 +416,17 @@ function hydrate() {
     if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
     if (s.manualTests) replace(manualTests, s.manualTests);
     if (s.medicalEvents) replace(medicalEvents, s.medicalEvents);
+    }
   } catch {
     /* corrupt — ignore */
   }
+  version++;
+  listeners.forEach((listener) => listener());
 }
 
-hydrate();
+subscribeWorkspaceScope(hydrate);
+const initialScope = getWorkspaceScope();
+hydrate(initialScope.userId, initialScope.migrateLegacy);
 
 export function useDataVersion() {
   return useSyncExternalStore(

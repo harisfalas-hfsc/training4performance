@@ -23,6 +23,14 @@ export async function hydrateWorkspace(userId: string) {
     .maybeSingle();
   if (error) return;
   if (!data) {
+    applyWorkspaceData({
+      team: { id: `team-${userId}`, name: "First Team", club: "Your club", season: "2025/26", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "" },
+      players: [],
+      sessions: [],
+      gpsHistory: [],
+      manualTests: [],
+      medicalEvents: [],
+    });
     await syncWorkspace(userId);
     return;
   }

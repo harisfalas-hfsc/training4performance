@@ -9,6 +9,7 @@
  */
 
 import { guardWrite } from "@/lib/access";
+import { scopedStorageKey } from "@/lib/workspace-scope";
 
 export type CoreField =
   | "name"
@@ -163,7 +164,8 @@ const signature = (headers: string[]) => headers.map((h) => norm(h)).sort().join
 export function loadTemplates(): SavedTemplate[] {
   if (typeof window === "undefined") return [];
   try {
-    return JSON.parse(window.localStorage.getItem(TEMPLATE_KEY) ?? "[]") as SavedTemplate[];
+    const key = scopedStorageKey(TEMPLATE_KEY);
+    return key ? JSON.parse(window.localStorage.getItem(key) ?? "[]") as SavedTemplate[] : [];
   } catch {
     return [];
   }
@@ -172,16 +174,20 @@ export function loadTemplates(): SavedTemplate[] {
 export function saveTemplate(name: string, headers: string[], mapping: ColumnMapping[]) {
   if (!guardWrite()) return;
   if (typeof window === "undefined") return;
+  const key = scopedStorageKey(TEMPLATE_KEY);
+  if (!key) return;
   const id = signature(headers);
   const next = loadTemplates().filter((t) => t.id !== id);
   next.push({ id, name, headers, mapping, savedAt: new Date().toISOString() });
-  window.localStorage.setItem(TEMPLATE_KEY, JSON.stringify(next));
+  window.localStorage.setItem(key, JSON.stringify(next));
 }
 
 export function removeTemplate(id: string) {
   if (!guardWrite()) return;
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(TEMPLATE_KEY, JSON.stringify(loadTemplates().filter((t) => t.id !== id)));
+  const key = scopedStorageKey(TEMPLATE_KEY);
+  if (!key) return;
+  window.localStorage.setItem(key, JSON.stringify(loadTemplates().filter((t) => t.id !== id)));
 }
 
 /** A previously saved mapping for the exact same column set, if any. */

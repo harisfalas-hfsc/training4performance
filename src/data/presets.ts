@@ -8,6 +8,7 @@
 
 import { useSyncExternalStore } from "react";
 import { guardWrite } from "@/lib/access";
+import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 /* ------------------------------------------------------------------ */
 /* Session types (PLAYER TRAINING DESCRIPTION)                         */
@@ -292,10 +293,19 @@ const state: LibraryState = { strength: [], drills: [], blockNames: [] };
 const listeners = new Set<() => void>();
 let version = 0;
 
-function load() {
-  if (typeof window === "undefined") return;
+function load(userId: string | null, migrateLegacy: boolean) {
+  state.strength = [];
+  state.drills = [];
+  state.blockNames = [];
+  if (typeof window === "undefined" || !userId) return;
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const key = scopedStorageKey(KEY, userId);
+    if (!key) return;
+    let raw = window.localStorage.getItem(key);
+    if (!raw && migrateLegacy) {
+      raw = window.localStorage.getItem(KEY);
+      if (raw) window.localStorage.setItem(key, raw);
+    }
     if (!raw) return;
     const s = JSON.parse(raw) as Partial<LibraryState>;
     state.strength = s.strength ?? [];
@@ -304,14 +314,19 @@ function load() {
   } catch {
     /* ignore */
   }
+  version++;
+  listeners.forEach((listener) => listener());
 }
-load();
+subscribeWorkspaceScope(load);
+const initialScope = getWorkspaceScope();
+load(initialScope.userId, initialScope.migrateLegacy);
 
 function emit() {
   version++;
   if (typeof window !== "undefined") {
+    const key = scopedStorageKey(KEY);
     try {
-      window.localStorage.setItem(KEY, JSON.stringify(state));
+      if (key) window.localStorage.setItem(key, JSON.stringify(state));
     } catch {
       /* ignore */
     }

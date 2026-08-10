@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { SALAMINA_TESTS } from "@/data/salamina";
 import { getPlayer, gpsHistory, players, testPlayerId } from "@/data/performance";
 import { guardWrite } from "@/lib/access";
+import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 /* ------------------------------------------------------------------ */
 /* Test catalogue — every KPI the fitness coach can record             */
@@ -124,8 +125,9 @@ export function subscribeTests(fn: () => void) {
 function emit() {
   version++;
   if (typeof window !== "undefined") {
+    const key = scopedStorageKey(STORAGE_KEY);
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(testRecords));
+      if (key) window.localStorage.setItem(key, JSON.stringify(testRecords));
     } catch {
       /* quota */
     }
@@ -170,13 +172,17 @@ function seed(): TestRecord[] {
   return out;
 }
 
-function hydrate() {
-  if (typeof window === "undefined") {
-    testRecords.push(...seed());
-    return;
-  }
+function hydrate(userId: string | null, migrateLegacy: boolean) {
+  testRecords.splice(0, testRecords.length);
+  if (typeof window === "undefined" || !userId) return;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const key = scopedStorageKey(STORAGE_KEY, userId);
+    if (!key) return;
+    let raw = window.localStorage.getItem(key);
+    if (!raw && migrateLegacy) {
+      raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) window.localStorage.setItem(key, raw);
+    }
     if (raw) {
       const parsed = JSON.parse(raw) as TestRecord[];
       if (Array.isArray(parsed)) {
@@ -187,10 +193,14 @@ function hydrate() {
   } catch {
     /* corrupt */
   }
-  testRecords.push(...seed());
+  if (migrateLegacy) testRecords.push(...seed());
+  version++;
+  listeners.forEach((listener) => listener());
 }
 
-hydrate();
+subscribeWorkspaceScope(hydrate);
+const initialScope = getWorkspaceScope();
+hydrate(initialScope.userId, initialScope.migrateLegacy);
 
 export function addTestRecord(input: Omit<TestRecord, "id"> & { id?: string }) {
   if (!guardWrite()) return;
