@@ -584,7 +584,7 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
                 ))}
               </div>
             )}
-            <div className="grid grid-cols-4 gap-1.5 lg:grid-cols-2">
+            <div className="flex gap-1.5 overflow-x-auto pb-1 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0">
               {paletteItems.map((item, i) => {
                 const color = panel === "players" && item.kind !== "ball" ? (i === 0 ? teamColor : item.color!) : item.color!;
                 const active = pending?.kind === item.kind && pending.color === color;
@@ -597,7 +597,7 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
                       setTool("select");
                     }}
                     className={cn(
-                      "flex aspect-square items-center justify-center rounded-md border bg-pitch/40",
+                      "flex size-14 shrink-0 items-center justify-center rounded-md border bg-pitch/40 lg:aspect-square lg:size-auto",
                       active ? "border-primary ring-1 ring-primary" : "border-border",
                     )}
                   >
