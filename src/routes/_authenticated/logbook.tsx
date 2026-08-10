@@ -288,6 +288,7 @@ function AddActivityForm({ onDone }: { onDone: () => void }) {
           date: f.date,
           playerId: f.playerId,
           category: f.category,
+          status: f.category === "MATCH" ? "Full Training" : "Full Training",
           minutes: Number(f.minutes) || 0,
           distance: Number(f.distance) || 0,
           hsr: Number(f.hsr) || 0,
