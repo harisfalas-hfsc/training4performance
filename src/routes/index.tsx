@@ -38,14 +38,14 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  { icon: Users, title: "Squad management", text: "Availability, positions, status and player passports in one place." },
-  { icon: CalendarDays, title: "Training calendar", text: "MD-cycle planning, drills, durations, planned vs actual RPE." },
-  { icon: ClipboardPen, title: "Tactics board", text: "Draw sessions on a real pitch: players, equipment, runs and zones." },
-  { icon: Radar, title: "GPS import", text: "Catapult, STATSports, GPEXE, Polar or the T4P template — with mapping reports." },
-  { icon: BookOpen, title: "Training monitor logbook", text: "Every session row, drill splits, RPE, pivot charts and test batteries." },
-  { icon: BellRing, title: "Automated alerts", text: "ACWR spikes, load jumps, wellness drops and availability risks." },
-  { icon: BarChart3, title: "Analytics", text: "Composite load, acute:chronic, monotony, strain and squad benchmarks." },
-  { icon: BrainCircuit, title: "AI assistant", text: "Daily observations and suggested adjustments for tomorrow's plan." },
+  { icon: Users, title: "Squad management", text: "Availability, positions, status and player passports in one place.", color: "#2563eb" },
+  { icon: CalendarDays, title: "Training calendar", text: "MD-cycle planning, drills, durations, planned vs actual RPE.", color: "#059669" },
+  { icon: ClipboardPen, title: "Tactics board", text: "Draw sessions on a real pitch: players, equipment, runs and zones.", color: "#7c3aed" },
+  { icon: Radar, title: "GPS import", text: "Catapult, STATSports, GPEXE, Polar or the T4P template — with mapping reports.", color: "#0891b2" },
+  { icon: BookOpen, title: "Training monitor logbook", text: "Every session row, drill splits, RPE, pivot charts and test batteries.", color: "#d97706" },
+  { icon: BellRing, title: "Automated alerts", text: "ACWR spikes, load jumps, wellness drops and availability risks.", color: "#dc2626" },
+  { icon: BarChart3, title: "Analytics", text: "Composite load, acute:chronic, monotony, strain and squad benchmarks.", color: "#4f46e5" },
+  { icon: BrainCircuit, title: "AI assistant", text: "Daily observations and suggested adjustments for tomorrow's plan.", color: "#9333ea" },
 ];
 
 function Home() {
