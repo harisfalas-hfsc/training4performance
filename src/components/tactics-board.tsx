@@ -3,6 +3,10 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Circle as CircleIcon,
+  Spline,
+  Waves,
+  RefreshCw,
+  PenLine,
   Download,
   Eraser,
   MousePointer2,
@@ -110,9 +114,13 @@ const EQUIPMENT_ITEMS: { kind: TokenKind; label: string; color?: string }[] = [
 const TOOLS: { id: Tool; label: string; icon: typeof MousePointer2 }[] = [
   { id: "select", label: "Move", icon: MousePointer2 },
   { id: "arrow", label: "Run / pass arrow", icon: ArrowUpRight },
-  { id: "dashed", label: "Dashed arrow", icon: ArrowUpRight },
+  { id: "dashed", label: "Dashed arrow (pass)", icon: ArrowUpRight },
+  { id: "zigzag", label: "Zigzag run (dribble)", icon: Waves },
+  { id: "curve", label: "Curved run", icon: Spline },
+  { id: "loop", label: "Loop / circle run", icon: RefreshCw },
   { id: "line", label: "Line", icon: Minus },
   { id: "pen", label: "Freehand", icon: Pencil },
+  { id: "penArrow", label: "Freehand run with arrow", icon: PenLine },
   { id: "zone", label: "Zone", icon: Square },
   { id: "circle", label: "Circle", icon: CircleIcon },
   { id: "text", label: "Text", icon: TypeIcon },
@@ -301,11 +309,56 @@ function TokenShape({ token }: { token: BoardToken }) {
 function shapePath(s: BoardShape) {
   const p = s.points;
   if (p.length < 2) return "";
-  if (s.tool === "pen") return p.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ");
+  if (s.tool === "pen" || s.tool === "penArrow")
+    return p.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ");
   const a = p[0]!;
   const b = p[p.length - 1]!;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  const nx = -uy;
+  const ny = ux;
+
+  if (s.tool === "zigzag") {
+    const amp = 16;
+    const step = 34;
+    const n = Math.max(2, Math.round(len / step));
+    let d = `M ${a.x} ${a.y}`;
+    for (let i = 1; i <= n; i++) {
+      const t = i / n;
+      const side = i % 2 === 0 ? -1 : 1;
+      const isLast = i === n;
+      const off = isLast ? 0 : side * amp;
+      d += ` L ${a.x + dx * t + nx * off} ${a.y + dy * t + ny * off}`;
+    }
+    return d;
+  }
+
+  if (s.tool === "curve") {
+    const bow = Math.min(len * 0.35, 160);
+    const cx = a.x + dx / 2 + nx * bow;
+    const cy = a.y + dy / 2 + ny * bow;
+    return `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`;
+  }
+
+  if (s.tool === "loop") {
+    const r = Math.max(24, len / 2);
+    const mx = a.x + dx / 2;
+    const my = a.y + dy / 2;
+    // a full loop drawn back onto the end point, like a curl / turn
+    return [
+      `M ${a.x} ${a.y}`,
+      `C ${a.x + nx * r} ${a.y + ny * r} ${mx + nx * r} ${my + ny * r} ${mx} ${my}`,
+      `C ${mx - nx * r} ${my - ny * r} ${b.x - nx * r} ${b.y - ny * r} ${b.x} ${b.y}`,
+    ].join(" ");
+  }
+
   return `M ${a.x} ${a.y} L ${b.x} ${b.y}`;
 }
+
+const ARROW_TOOLS: Tool[] = ["arrow", "dashed", "zigzag", "curve", "loop", "penArrow"];
 
 /* ------------------------------------------------------------------ */
 /* board                                                               */
@@ -407,7 +460,7 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
     if (!drawing.current) return;
     const p = toPoint(e);
     const d = drawing.current;
-    if (d.tool === "pen") d.points.push(p);
+    if (d.tool === "pen" || d.tool === "penArrow") d.points.push(p);
     else d.points[1] = p;
     force((n) => n + 1);
   };
@@ -651,7 +704,7 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
                 strokeWidth={5}
                 strokeLinecap="round"
                 strokeDasharray={s.tool === "dashed" ? "16 12" : undefined}
-                markerEnd={s.tool === "arrow" || s.tool === "dashed" ? "url(#t4p-arrow)" : undefined}
+                markerEnd={ARROW_TOOLS.includes(s.tool) ? "url(#t4p-arrow)" : undefined}
                 onPointerDown={(e) => eraseShape(e, s.id)}
                 style={{ cursor: tool === "erase" ? "pointer" : "default" }}
               />
