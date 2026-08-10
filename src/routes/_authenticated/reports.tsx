@@ -31,7 +31,16 @@ import {
   type ScheduledExport,
   type SectionId,
 } from "@/data/reporting";
+import {
+  DEFAULT_WEIGHTS,
+  LOAD_KPIS,
+  PIVOT_METRICS,
+  compositeAcwr,
+  logbookRows,
+  type LoadWeights,
+} from "@/data/logbook";
 import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
+
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
