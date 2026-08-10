@@ -80,8 +80,8 @@ function Pricing() {
                 fees and no add-ons.
               </p>
               <p>
-                The subscriber is the <strong className="text-foreground">administrator</strong> of the account and
-                invites the rest of the staff.
+                One subscription = one account = one team. The coach who subscribes owns the workspace and all the data
+                in it, and can export or delete it at any time.
               </p>
               <p>All prices are in euro and exclude VAT where applicable.</p>
             </div>
