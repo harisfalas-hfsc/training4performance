@@ -38,8 +38,11 @@ export const Route = createFileRoute("/_authenticated/gps")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { session?: string } =>
+    typeof search["session"] === "string" ? { session: search["session"] as string } : {},
   component: GpsPage,
 });
+
 
 type Detection = ReturnType<typeof detectProvider>;
 
