@@ -1,3 +1,4 @@
+import { useRef, type ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -315,5 +316,116 @@ export function MultiChart({
         ))}
       </LineChart>
     </ResponsiveContainer>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Chart frame — export any chart as PNG or PDF                        */
+/* ------------------------------------------------------------------ */
+
+function inlineStyles(source: SVGSVGElement, clone: SVGSVGElement) {
+  const src = source.querySelectorAll<SVGElement>("*");
+  const dst = clone.querySelectorAll<SVGElement>("*");
+  const props = ["fill", "stroke", "stroke-width", "opacity", "fill-opacity", "stroke-opacity", "font-size", "font-family", "font-weight"];
+  for (let i = 0; i < src.length; i++) {
+    const s = src[i];
+    const d = dst[i];
+    if (!s || !d) continue;
+    const cs = window.getComputedStyle(s);
+    for (const p of props) {
+      const v = cs.getPropertyValue(p);
+      if (v && v !== "none" && v !== "normal") d.setAttribute(p, v);
+    }
+  }
+}
+
+async function chartToPng(container: HTMLElement, scale = 2): Promise<string | null> {
+  const svg = container.querySelector("svg");
+  if (!svg) return null;
+  const source = svg as SVGSVGElement;
+  const rect = source.getBoundingClientRect();
+  const width = Math.max(1, Math.round(rect.width));
+  const height = Math.max(1, Math.round(rect.height));
+  const clone = source.cloneNode(true) as SVGSVGElement;
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.setAttribute("width", String(width));
+  clone.setAttribute("height", String(height));
+  inlineStyles(source, clone);
+
+  const xml = new XMLSerializer().serializeToString(clone);
+  const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("render failed"));
+    img.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/png");
+}
+
+/** Wraps a chart and adds PNG / PDF export buttons. */
+export function ChartFrame({
+  title,
+  children,
+  className,
+}: {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const file = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "chart";
+
+  async function exportPng() {
+    if (!ref.current) return;
+    const data = await chartToPng(ref.current);
+    if (!data) return;
+    const a = document.createElement("a");
+    a.href = data;
+    a.download = `${file}.png`;
+    a.click();
+  }
+
+  async function exportPdf() {
+    if (!ref.current) return;
+    const data = await chartToPng(ref.current, 2);
+    if (!data) return;
+    const w = window.open("", "_blank", "width=1000,height=700");
+    if (!w) return;
+    w.document.write(
+      `<!doctype html><title>${title}</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:system-ui,sans-serif;margin:0}h1{font-size:16px;margin:0 0 8px}img{width:100%}</style><h1>${title}</h1><img src="${data}" onload="window.focus();window.print()">`,
+    );
+    w.document.close();
+  }
+
+  return (
+    <div className={className}>
+      <div ref={ref}>{children}</div>
+      <div className="mt-2 flex flex-wrap justify-end gap-1.5">
+        <button
+          type="button"
+          onClick={exportPng}
+          className="rounded-md border border-border px-2.5 py-1 text-[0.7rem] font-semibold text-muted-foreground hover:text-foreground"
+        >
+          Export PNG
+        </button>
+        <button
+          type="button"
+          onClick={exportPdf}
+          className="rounded-md border border-border px-2.5 py-1 text-[0.7rem] font-semibold text-muted-foreground hover:text-foreground"
+        >
+          Export PDF
+        </button>
+      </div>
+    </div>
   );
 }

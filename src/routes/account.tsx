@@ -23,11 +23,38 @@ function Account() {
   const navigate = useNavigate();
   const season = currentSeason();
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fullName, setFullName] = useState("");
+  const [clubName, setClubName] = useState("");
 
   useEffect(() => {
     if (!loading && !session) void navigate({ to: "/auth", replace: true });
   }, [loading, session, navigate]);
+
+  useEffect(() => {
+    setFullName(profile?.full_name ?? "");
+    setClubName(profile?.club_name ?? subscription?.team_name ?? "");
+  }, [profile?.full_name, profile?.club_name, subscription?.team_name]);
+
+  async function saveProfile() {
+    if (!user) return;
+    setSaving(true);
+    setSaved(false);
+    setError(null);
+    const { error: err } = await supabase
+      .from("profiles")
+      .update({ full_name: fullName || null, club_name: clubName || null })
+      .eq("id", user.id);
+    if (err) setError(err.message);
+    if (!err && subscription && clubName) {
+      await supabase.from("subscriptions").update({ team_name: clubName }).eq("user_id", user.id);
+    }
+    await refresh();
+    setSaving(false);
+    setSaved(!err);
+  }
 
   async function activate() {
     if (!user) return;
@@ -36,7 +63,7 @@ function Account() {
     const { error: err } = await supabase.from("subscriptions").upsert(
       {
         user_id: user.id,
-        team_name: profile?.club_name ? `${profile.club_name} — first team` : "First team",
+        team_name: clubName || profile?.club_name || "First team",
         status: "active",
         season_start: season.start,
         season_end: season.end,

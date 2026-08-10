@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { team, squadName, squadAvailability } from "@/data/performance";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -46,6 +47,8 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { profile, subscription } = useAuth();
+  const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
   const av = squadAvailability();
   const [open, setOpen] = useState(false);
 
@@ -78,15 +81,13 @@ export function AppShell({
         )}
       >
         <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-4">
-          <span className="grid size-7 shrink-0 place-items-center overflow-hidden rounded-md bg-white">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-6 object-contain" />
-          </span>
+          <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-7 shrink-0 object-contain" />
 
-          <div className="leading-tight">
+          <div className="min-w-0 leading-tight">
             <p className="font-display text-sm font-semibold uppercase tracking-widest text-sidebar-foreground">
               T4P
             </p>
-            <p className="text-[0.68rem] text-muted-foreground">Training 4 Performance</p>
+            <p className="truncate text-[0.65rem] text-muted-foreground">Training 4 Performance</p>
           </div>
         </div>
 
@@ -133,8 +134,8 @@ export function AppShell({
                 {open ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
               </button>
               <div className="min-w-0">
-              <p className="eyebrow">
-                {team.club} · {team.name} · {squadName} · {team.season}
+              <p className="eyebrow truncate">
+                {clubLabel} · {squadName} · {team.season}
               </p>
               <h1 className="truncate text-2xl font-semibold uppercase tracking-wide">{title}</h1>
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}

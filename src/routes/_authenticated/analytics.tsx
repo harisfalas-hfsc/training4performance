@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
-import { CHART_KINDS, HBar, MultiChart, MultiLine, type ChartKind } from "@/components/charts";
+import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, type ChartKind } from "@/components/charts";
 import {
   fullName,
   players,
@@ -156,12 +156,14 @@ function AnalyticsPage() {
             title="Squad trend"
             hint={`${kpis.length} KPI(s) · last ${window} days${kind === "pie" ? " · pie uses the first selected KPI" : ""}`}
           />
-          <MultiChart
-            data={trend}
-            kind={kind}
-            height={280}
-            series={kpis.map((k) => ({ key: k, name: METRICS.find((m) => m.key === k)!.label }))}
-          />
+          <ChartFrame title="Squad trend">
+            <MultiChart
+              data={trend}
+              kind={kind}
+              height={280}
+              series={kpis.map((k) => ({ key: k, name: METRICS.find((m) => m.key === k)!.label }))}
+            />
+          </ChartFrame>
         </div>
         <div className="panel p-4">
           <SectionTitle
@@ -180,7 +182,9 @@ function AnalyticsPage() {
               </select>
             }
           />
-          <HBar data={deviations} dataKey="deviation" labelKey="name" height={340} color="var(--color-chart-3)" />
+          <ChartFrame title="Deviation from position average">
+            <HBar data={deviations} dataKey="deviation" labelKey="name" height={340} color="var(--color-chart-3)" />
+          </ChartFrame>
         </div>
       </section>
 

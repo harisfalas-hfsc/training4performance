@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Download, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
-import { CHART_KINDS, HBar, MultiChart, type ChartKind } from "@/components/charts";
+import { CHART_KINDS, ChartFrame, HBar, MultiChart, type ChartKind } from "@/components/charts";
 import {
   fullName,
   gpsHistory,
@@ -274,7 +274,9 @@ function ComparePage() {
         <div className="panel p-4">
           <SectionTitle title={`Squad ranking — ${dayA}`} hint={`${label} · team average ${Math.round(teamAvgA).toLocaleString()}`} />
           {ranking.length ? (
-            <HBar data={ranking} dataKey="value" labelKey="name" height={Math.max(260, ranking.length * 18)} />
+            <ChartFrame title={`Squad ranking ${dayA}`}>
+              <HBar data={ranking} dataKey="value" labelKey="name" height={Math.max(260, ranking.length * 18)} />
+            </ChartFrame>
           ) : (
             <p className="text-sm text-muted-foreground">No GPS data recorded for {dayA}.</p>
           )}
@@ -286,13 +288,15 @@ function ComparePage() {
               title="Day vs day"
               hint={`${sessionB?.type ?? sessionB?.title ?? "Day B"} → ${sessionA?.type ?? sessionA?.title ?? "Day A"}`}
             />
-            <MultiChart
-              data={dayVsDay}
-              kind={dayKind}
-              xKey="name"
-              height={200}
-              series={[{ key: "value", name: label }]}
-            />
+            <ChartFrame title="Day vs day">
+              <MultiChart
+                data={dayVsDay}
+                kind={dayKind}
+                xKey="name"
+                height={200}
+                series={[{ key: "value", name: label }]}
+              />
+            </ChartFrame>
             <p className="mt-1 text-xs text-muted-foreground">
               Squad average {label.toLowerCase()} — difference{" "}
               <span className="text-foreground">
@@ -304,7 +308,9 @@ function ComparePage() {
 
           <div className="panel p-4">
             <SectionTitle title="Players vs team average" hint="Last 14 recorded days" />
-            <MultiChart data={trend} series={series} kind={kind} height={240} />
+            <ChartFrame title="Players vs team average">
+              <MultiChart data={trend} series={series} kind={kind} height={240} />
+            </ChartFrame>
           </div>
         </div>
 
