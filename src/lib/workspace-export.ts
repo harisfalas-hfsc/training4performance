@@ -213,9 +213,17 @@ export function workspaceSheets(): ExportSheet[] {
     })),
   );
 
-  const libraryRows = [
+  const libraryRows: Row[] = [
     ...customDrills().map((d) => ({ kind: "drill", name: d.name, purpose: d.purpose, rpe: d.rpe, minutes: d.minutes })),
-    ...customStrength().map((e) => ({ kind: "strength", name: e.name, purpose: (e as { pattern?: string }).pattern ?? "" })),
+    ...customStrength().map((e) => ({
+      kind: "strength",
+      name: e.name,
+      purpose: e.pattern,
+      sets: e.sets,
+      reps: e.reps,
+      intensityPct: e.intensity,
+      restSec: e.restSec,
+    })),
   ];
 
   return [
