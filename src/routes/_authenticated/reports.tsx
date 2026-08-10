@@ -34,7 +34,7 @@ import {
 import {
   DEFAULT_WEIGHTS,
   LOAD_KPIS,
-  PIVOT_METRICS,
+  pivotMetrics,
   compositeAcwr,
   logbookRows,
   type LoadWeights,
@@ -109,7 +109,7 @@ function ReportsPage() {
         const rows = logbookRows.filter((r) => r.playerId === p.id && r.date >= from && r.date <= to);
         const values: Record<string, number> = {};
         for (const key of kpiCols) {
-          const metric = PIVOT_METRICS.find((m) => m.key === key);
+          const metric = pivotMetrics().find((m) => m.key === key);
           if (!metric) continue;
           const vals = rows.map((r) => metric.value(r, weights));
           values[key] =
@@ -319,7 +319,7 @@ function ReportsPage() {
             }
           />
           <div className="flex flex-wrap gap-1">
-            {PIVOT_METRICS.map((m) => (
+            {pivotMetrics().map((m) => (
               <button
                 key={m.key}
                 onClick={() => toggleKpi(m.key)}
@@ -603,7 +603,7 @@ function ReportsPage() {
                         <th className="py-2">Player</th>
                         {kpiCols.map((k) => (
                           <th key={k} className="text-right">
-                            {PIVOT_METRICS.find((m) => m.key === k)?.label ?? k}
+                            {pivotMetrics().find((m) => m.key === k)?.label ?? k}
                           </th>
                         ))}
                         <th className="text-right">Acute load</th>

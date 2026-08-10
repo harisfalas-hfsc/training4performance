@@ -80,6 +80,10 @@ export interface GpsDay {
   energy?: number;
   avgSpeed?: number;
   sprintEvents?: number;
+  /** Club-specific KPIs kept exactly as they came out of the coach's own export. */
+  extra?: Record<string, number>;
+  /** Original column labels for the custom KPIs above. */
+  extraLabels?: Record<string, string>;
 }
 
 export interface Drill {
@@ -458,9 +462,34 @@ export function removeSession(id: string) {
 /** Add or replace one athlete row for one day. */
 export function upsertGps(entry: GpsDay) {
   const i = gpsHistory.findIndex((g) => g.date === entry.date && g.playerId === entry.playerId);
-  if (i >= 0) gpsHistory[i] = { ...gpsHistory[i]!, ...entry };
-  else gpsHistory.push(entry);
+  if (i >= 0) {
+    const prev = gpsHistory[i]!;
+    gpsHistory[i] = {
+      ...prev,
+      ...entry,
+      extra: { ...(prev.extra ?? {}), ...(entry.extra ?? {}) },
+      extraLabels: { ...(prev.extraLabels ?? {}), ...(entry.extraLabels ?? {}) },
+    };
+  } else gpsHistory.push(entry);
   emit();
+}
+
+/** Every club-specific KPI that has actually been imported, with its original label. */
+export function customKpis(): Array<{ key: string; label: string }> {
+  const found = new Map<string, string>();
+  for (const g of gpsHistory) {
+    for (const k of Object.keys(g.extra ?? {})) {
+      if (!found.has(k)) found.set(k, g.extraLabels?.[k] ?? k);
+    }
+  }
+  return [...found].map(([key, label]) => ({ key, label }));
+}
+
+/** Read any metric — core or club-specific — off a GPS day. */
+export function gpsValue(g: GpsDay, key: string): number {
+  const core = (g as unknown as Record<string, unknown>)[key];
+  if (typeof core === "number") return core;
+  return g.extra?.[key] ?? 0;
 }
 
 export function removeGps(date: string, playerId: string) {
@@ -757,9 +786,15 @@ export function squadTrend(days = 28) {
   const dates = Array.from(new Set(gpsHistory.map((g) => g.date)))
     .sort()
     .filter((d) => d >= dateNAgo(days - 1) && d <= today);
+  const extras = customKpis();
   return dates.map((date) => {
     const rows = gpsHistory.filter((g) => g.date === date && g.minutes > 0);
-    return {
+    const custom: Record<string, number> = {};
+    for (const k of extras) {
+      const vals = rows.map((r) => r.extra?.[k.key]).filter((v): v is number => typeof v === "number");
+      custom[k.key] = vals.length ? +avg(vals).toFixed(1) : 0;
+    }
+    const base = {
       date: date.slice(5),
       distance: Math.round(avg(rows.map((r) => r.distance))),
       hsr: Math.round(avg(rows.map((r) => r.hsr))),
@@ -771,6 +806,8 @@ export function squadTrend(days = 28) {
       rpe: +avg(rows.map((r) => r.rpe)).toFixed(1),
       load: Math.round(avg(rows.map((r) => r.rpe * r.minutes))),
     };
+    // club-specific KPIs ride along without widening the typed core shape
+    return Object.assign(base, custom);
   });
 }
 
@@ -788,6 +825,7 @@ export function playerTrend(id: string, days = 28) {
       minutes: d.minutes,
       rpe: d.rpe,
       load: d.rpe * d.minutes,
+      ...(d.extra ?? {}),
     }));
 }
 

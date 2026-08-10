@@ -18,7 +18,7 @@ import {
   DEFAULT_WEIGHTS,
   LOAD_KPIS,
   PIVOT_DIMENSIONS,
-  PIVOT_METRICS,
+  pivotMetrics,
   SESSION_SPLIT,
   TEST_BATTERY,
   TEST_ROUNDS,
@@ -204,8 +204,8 @@ function ActivityLogbook({ weights }: { weights: LoadWeights }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} className="border-b border-border/50 last:border-0">
+            {rows.map((r, i) => (
+              <tr key={`${r.id}-${i}`} className="border-b border-border/50 last:border-0">
                 <td className="px-3 py-1.5 tabular-nums">{r.date}</td>
                 <td className="px-3 py-1.5 text-xs text-muted-foreground">{r.category}</td>
                 <td className="px-3 py-1.5 text-xs text-muted-foreground">{r.dayDescription}</td>
@@ -363,7 +363,7 @@ function AddActivityForm({ onDone }: { onDone: () => void }) {
 /* ---------------- Activity chart (pivot) ---------------- */
 
 function ActivityChart({ weights }: { weights: LoadWeights }) {
-  const [metricKey, setMetricKey] = useState(PIVOT_METRICS[0]!.key);
+  const [metricKey, setMetricKey] = useState(pivotMetrics()[0]!.key);
   const [dimension, setDimension] = useState<PivotDimension>("athlete");
   const [agg, setAgg] = useState<PivotAgg>("sum");
   const [category, setCategory] = useState("all");
@@ -371,7 +371,7 @@ function ActivityChart({ weights }: { weights: LoadWeights }) {
   const [from, setFrom] = useState(logbookRows[0]?.date ?? today);
   const [to, setTo] = useState(today);
 
-  const metric = PIVOT_METRICS.find((m) => m.key === metricKey)!;
+  const metric = pivotMetrics().find((m) => m.key === metricKey)!;
   const categories = useMemo(() => [...new Set(logbookRows.map((r) => r.category))], []);
 
   const rows: LogbookRow[] = useMemo(() => {
@@ -391,7 +391,7 @@ function ActivityChart({ weights }: { weights: LoadWeights }) {
       <div className="panel flex flex-wrap items-end gap-3 p-4">
         <Field label="Metric">
           <select className="control" value={metricKey} onChange={(e) => setMetricKey(e.target.value)}>
-            {PIVOT_METRICS.map((m) => (
+            {pivotMetrics().map((m) => (
               <option key={m.key} value={m.key}>
                 {m.label}
               </option>
