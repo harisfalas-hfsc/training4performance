@@ -769,7 +769,23 @@ function TrainingPage() {
               </StepActions>
             </div>
 
-            <Library gym={gymMode} activeBlock={activeBlock} onAdd={(item) => addItem({ ...item, block: activeBlock })} />
+            <Library
+              gym={gymMode}
+              activeBlock={activeBlock}
+              blockCount={items.filter((i) => (i.block ?? "") === activeBlock).length}
+              onAdd={(item) => {
+                addItem({ ...item, block: activeBlock });
+                toast.success(`${item.drill} added to ${activeBlock}`, {
+                  description: `${item.durationMin} min · tap "See block" to edit it`,
+                  action: {
+                    label: "See block",
+                    onClick: () =>
+                      document.getElementById("plan-blocks")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                  },
+                });
+              }}
+            />
+
           </section>
         </>
       )}
