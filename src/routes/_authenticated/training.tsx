@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+
 import {
   ArrowLeft,
   ArrowRight,
@@ -600,7 +602,7 @@ function TrainingPage() {
                 })}
               </div>
 
-              <div className="space-y-3">
+              <div id="plan-blocks" className="scroll-mt-24 space-y-3">
                 {blocks.map((b) => {
                   const blockItems = items.map((it, i) => ({ it, i })).filter(({ it }) => (it.block ?? "") === b);
                   if (!blockItems.length) return null;
@@ -769,7 +771,23 @@ function TrainingPage() {
               </StepActions>
             </div>
 
-            <Library gym={gymMode} activeBlock={activeBlock} onAdd={(item) => addItem({ ...item, block: activeBlock })} />
+            <Library
+              gym={gymMode}
+              activeBlock={activeBlock}
+              blockCount={items.filter((i) => (i.block ?? "") === activeBlock).length}
+              onAdd={(item) => {
+                addItem({ ...item, block: activeBlock });
+                toast.success(`${item.drill} added to ${activeBlock}`, {
+                  description: `${item.durationMin} min · tap "See block" to edit it`,
+                  action: {
+                    label: "See block",
+                    onClick: () =>
+                      document.getElementById("plan-blocks")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                  },
+                });
+              }}
+            />
+
           </section>
         </>
       )}
@@ -1250,10 +1268,12 @@ function NumField({ label, value, onChange }: { label: string; value: number; on
 function Library({
   gym,
   activeBlock,
+  blockCount,
   onAdd,
 }: {
   gym: boolean;
   activeBlock: string;
+  blockCount: number;
   onAdd: (item: SessionPlanItem) => void;
 }) {
   useLibraryVersion();
@@ -1268,7 +1288,22 @@ function Library({
 
   return (
     <div className="panel p-5">
-      <SectionTitle title={`Library → ${activeBlock}`} hint="Defaults from the club logbook — add your own any time" />
+      <SectionTitle
+        title={`Library → ${activeBlock}`}
+        hint="Tap + to drop a drill into the selected block"
+        right={
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById("plan-blocks")?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-semibold text-muted-foreground hover:text-primary"
+          >
+            {blockCount} in this block · See block
+          </button>
+        }
+      />
+
       <div className="mb-3 flex gap-1.5">
         {(["field", "gym"] as const).map((t) => (
           <button

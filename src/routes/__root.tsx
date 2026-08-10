@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RoleProvider } from "../lib/roles";
 import { AuthProvider } from "../lib/auth";
+import { Toaster } from "../components/ui/sonner";
+
 
 function NotFoundComponent() {
   return (
@@ -130,9 +132,11 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster position="bottom-center" richColors closeButton />
         <Scripts />
       </body>
     </html>
+
   );
 }
 
