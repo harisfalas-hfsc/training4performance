@@ -126,6 +126,17 @@ function AuthPage() {
           <Field label="Email" type="email" value={email} onChange={setEmail} required />
           <Field label="Password" type="password" value={password} onChange={setPassword} required />
 
+          {!isSignup ? (
+            <button
+              type="button"
+              onClick={forgotPassword}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Forgot your password?
+            </button>
+          ) : null}
+
+
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {notice ? <p className="text-sm text-success">{notice}</p> : null}
 
