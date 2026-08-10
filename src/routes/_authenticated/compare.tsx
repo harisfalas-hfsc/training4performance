@@ -214,6 +214,60 @@ function ComparePage() {
             })}
           </div>
         </div>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <p className="eyebrow mb-1">Extra KPIs for the comparison table</p>
+            <div className="flex flex-wrap gap-1">
+              {METRICS.filter((m) => m.key !== metric).map((m) => {
+                const on = extraMetrics.includes(m.key);
+                return (
+                  <button
+                    key={m.key}
+                    onClick={() =>
+                      setExtraMetrics((prev) => (on ? prev.filter((x) => x !== m.key) : [...prev, m.key]))
+                    }
+                    className={`rounded-md border px-2 py-1 text-xs ${
+                      on ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <p className="eyebrow mb-1">Graph style</p>
+            <div className="flex flex-wrap gap-1">
+              {CHART_KINDS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setKind(c.id)}
+                  className={`rounded-md border px-2 py-1 text-xs ${
+                    kind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            <p className="eyebrow mb-1 mt-2">Day vs day style</p>
+            <div className="flex flex-wrap gap-1">
+              {CHART_KINDS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setDayKind(c.id)}
+                  className={`rounded-md border px-2 py-1 text-xs ${
+                    dayKind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="mt-4 grid gap-4 xl:grid-cols-2">
@@ -232,7 +286,13 @@ function ComparePage() {
               title="Day vs day"
               hint={`${sessionB?.type ?? sessionB?.title ?? "Day B"} → ${sessionA?.type ?? sessionA?.title ?? "Day A"}`}
             />
-            <TrendBars data={dayVsDay} dataKey="value" xKey="name" height={200} />
+            <MultiChart
+              data={dayVsDay}
+              kind={dayKind}
+              xKey="name"
+              height={200}
+              series={[{ key: "value", name: label }]}
+            />
             <p className="mt-1 text-xs text-muted-foreground">
               Squad average {label.toLowerCase()} — difference{" "}
               <span className="text-foreground">
@@ -244,9 +304,10 @@ function ComparePage() {
 
           <div className="panel p-4">
             <SectionTitle title="Players vs team average" hint="Last 14 recorded days" />
-            <MultiLine data={trend} series={series} height={240} dualAxis={false} />
+            <MultiChart data={trend} series={series} kind={kind} height={240} />
           </div>
         </div>
+
       </section>
 
       <section className="panel mt-4 p-4">
