@@ -50,9 +50,9 @@ export const Route = createFileRoute("/privacy")({
 
         <h2>4. Access control</h2>
         <p>
-          Health-related data is visible to the staff users the Customer invites into its workspace: availability, workload and
-          performance data; clinical detail such as diagnosis and rehabilitation notes is restricted to users the
-          club designates as medical staff, and is redacted elsewhere in the interface and in exported reports.
+          Availability, workload, performance and clinical notes are visible to the staff users the club invites
+          into its workspace. The club is responsible for limiting those invitations to personnel authorised to see
+          health-related data, and for removing access when a staff member leaves.
         </p>
 
         <h2>5. Sub-processors and hosting</h2>
