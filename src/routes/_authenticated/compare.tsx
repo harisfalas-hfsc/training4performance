@@ -74,11 +74,16 @@ function ComparePage() {
   useDataVersion();
   const allDates = dates();
   const [metric, setMetric] = useState<MetricKey>("distance");
+  const [extraMetrics, setExtraMetrics] = useState<MetricKey[]>(["hsr", "sprint"]);
+  const [kind, setKind] = useState<ChartKind>("line");
+  const [dayKind, setDayKind] = useState<ChartKind>("bar");
   const [dayA, setDayA] = useState(allDates[allDates.length - 1] ?? "");
   const [dayB, setDayB] = useState(allDates[allDates.length - 2] ?? "");
   const [selected, setSelected] = useState<string[]>(() => players.slice(0, 3).map((p) => p.id));
 
   const label = METRICS.find((m) => m.key === metric)!.label;
+  const tableMetrics = [metric, ...extraMetrics.filter((m) => m !== metric)];
+
 
   /* squad ranking on day A */
   const ranking = useMemo(() => {
