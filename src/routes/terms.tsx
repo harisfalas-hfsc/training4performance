@@ -30,7 +30,7 @@ export const Route = createFileRoute("/terms")({
           <li>A team subscription costs €999 per season and covers one team.</li>
           <li>A season runs from 1 June to 31 May, irrespective of the join date.</li>
           <li>Prices are in euro and exclude VAT, which is added where legally applicable.</li>
-          <li>The subscriber acts as account administrator and may invite staff users.</li>
+          <li>The subscriber owns the account and the data inside it, and can export or delete it at any time.</li>
         </ul>
 
         <h2>3. Right of withdrawal (EU consumers)</h2>
@@ -83,7 +83,7 @@ export const Route = createFileRoute("/terms")({
 
         <h2>9. Changes</h2>
         <p>
-          These terms may be updated. Material changes are notified to account administrators at least 30 days in
+          These terms may be updated. Material changes are notified to subscribers at least 30 days in
           advance. Continued use after the effective date constitutes acceptance.
         </p>
 

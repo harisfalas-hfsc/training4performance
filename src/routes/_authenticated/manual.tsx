@@ -343,7 +343,7 @@ const PROBLEMS: Problem[] = [
   },
   {
     q: "Something still does not work",
-    a: "Note the page you were on and what you pressed, then contact support from the Account page. An administrator can open your workspace and look at exactly what you see.",
+    a: "Note the page you were on and what you pressed, then contact support from the Account page. T4P support can open your workspace and look at exactly what you see.",
   },
 ];
 

@@ -7,6 +7,7 @@ import {
   ClipboardPen,
   Circle,
   Download,
+  FileSpreadsheet,
   Radar,
   Save,
   Shield,
@@ -31,7 +32,7 @@ import {
   useDataVersion,
 } from "@/data/performance";
 import { testRecords, useTestVersion } from "@/data/testing";
-import { downloadWorkspaceZip } from "@/lib/workspace-export";
+import { downloadSheetXlsx, downloadWorkspaceZip, workspaceSheets } from "@/lib/workspace-export";
 import { clearRemoteWorkspace } from "@/lib/usage";
 import { useAuth } from "@/lib/auth";
 
@@ -220,9 +221,30 @@ function TeamPage() {
           <div className="rounded-xl border border-border bg-surface p-4">
             <SectionTitle title="Export your data" hint="Your records are your property — download them anytime" />
             <p className="mt-2 text-sm text-muted-foreground">
-              A ZIP with <strong>workspace.json</strong> (complete backup) plus CSVs for players, GPS, sessions, tests
-              and medical events. Works even if you stop your subscription.
+              Download any dataset as its own Excel file, or take everything at once: a ZIP with{" "}
+              <strong>workspace.json</strong> (complete backup), one Excel per dataset and the same data as CSV. Works
+              even if you stop your subscription.
             </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {workspaceSheets().map((sheet) => (
+                <button
+                  key={sheet.key}
+                  type="button"
+                  onClick={() => {
+                    downloadSheetXlsx(sheet.key);
+                    toast.success(`${sheet.label} exported`, { description: `${sheet.rows.length} rows — Excel file downloading.` });
+                  }}
+                  className="flex items-start gap-2 rounded-lg border border-border bg-background p-3 text-left transition hover:border-primary/50"
+                >
+                  <FileSpreadsheet className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                  <span>
+                    <span className="block text-sm font-semibold">{sheet.label}</span>
+                    <span className="block text-xs text-muted-foreground">{sheet.description}</span>
+                    <span className="mt-1 block text-[11px] text-muted-foreground">{sheet.rows.length} rows · .xlsx</span>
+                  </span>
+                </button>
+              ))}
+            </div>
             <Button
               className="mt-3 gap-2"
               onClick={() => {
@@ -230,9 +252,10 @@ function TeamPage() {
                 toast.success("Export ready", { description: "Your ZIP is downloading." });
               }}
             >
-              <Download className="size-4" /> Download all my data (.zip)
+              <Download className="size-4" /> Download everything (.zip)
             </Button>
           </div>
+
         </section>
 
         <section className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
