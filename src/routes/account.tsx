@@ -93,7 +93,7 @@ function Account() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {user?.email}
-          {isAdmin ? <span className="ml-2 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary">Administrator</span> : null}
+          {isAdmin ? <span className="ml-2 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary">T4P owner</span> : null}
         </p>
         {clubName ? (
           <p className="mt-1 text-sm">
