@@ -1,6 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 
-export type Role = "head_coach" | "fitness_staff" | "medical_staff";
+/**
+ * T4P is a fitness-coach platform: one staff role with full access.
+ * The provider is kept so pages can read permissions without prop drilling.
+ */
+export type Role = "fitness_staff";
 
 export interface RoleDefinition {
   id: Role;
@@ -17,93 +21,45 @@ export interface RoleDefinition {
   };
 }
 
-export const ROLES: RoleDefinition[] = [
-  {
-    id: "head_coach",
-    label: "Head coach",
-    short: "HC",
-    description: "Squad availability, workload and training decisions. Medical detail is withheld.",
-    permissions: {
-      viewMedicalDetail: false,
-      viewMedicalSummary: true,
-      editTrainingPlan: true,
-      importGps: false,
-      manageAlertThresholds: false,
-      scheduleExports: true,
-    },
+export const FITNESS_COACH: RoleDefinition = {
+  id: "fitness_staff",
+  label: "Fitness coach",
+  short: "FC",
+  description: "Full access: squad, training, load management, GPS, testing, alerts and reporting.",
+  permissions: {
+    viewMedicalDetail: true,
+    viewMedicalSummary: true,
+    editTrainingPlan: true,
+    importGps: true,
+    manageAlertThresholds: true,
+    scheduleExports: true,
   },
-  {
-    id: "fitness_staff",
-    label: "Fitness staff",
-    short: "FS",
-    description: "Load management, GPS import, thresholds and performance reporting.",
-    permissions: {
-      viewMedicalDetail: false,
-      viewMedicalSummary: true,
-      editTrainingPlan: true,
-      importGps: true,
-      manageAlertThresholds: true,
-      scheduleExports: true,
-    },
-  },
-  {
-    id: "medical_staff",
-    label: "Medical staff",
-    short: "MS",
-    description: "Full clinical record, diagnoses, return-to-play staging and availability.",
-    permissions: {
-      viewMedicalDetail: true,
-      viewMedicalSummary: true,
-      editTrainingPlan: false,
-      importGps: true,
-      manageAlertThresholds: true,
-      scheduleExports: true,
-    },
-  },
-];
+};
 
-export const getRoleDef = (role: Role) => ROLES.find((r) => r.id === role)!;
+export const ROLES: RoleDefinition[] = [FITNESS_COACH];
+
+export const getRoleDef = (_role?: Role) => FITNESS_COACH;
 
 interface RoleContextValue {
   role: Role;
-  setRole: (r: Role) => void;
   def: RoleDefinition;
   can: (key: keyof RoleDefinition["permissions"]) => boolean;
 }
 
 const RoleContext = createContext<RoleContextValue | null>(null);
 
-const STORAGE_KEY = "t4p.role";
-
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<Role>("head_coach");
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY) as Role | null;
-    if (saved && ROLES.some((r) => r.id === saved)) setRole(saved);
-  }, []);
-
-  const value = useMemo<RoleContextValue>(() => {
-    const def = getRoleDef(role);
-    return {
-      role,
-      def,
-      setRole: (r: Role) => {
-        setRole(r);
-        window.localStorage.setItem(STORAGE_KEY, r);
-      },
-      can: (key) => def.permissions[key],
-    };
-  }, [role]);
-
+  const value = useMemo<RoleContextValue>(
+    () => ({ role: FITNESS_COACH.id, def: FITNESS_COACH, can: (key) => FITNESS_COACH.permissions[key] }),
+    [],
+  );
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }
 
 export function useRole(): RoleContextValue {
   const ctx = useContext(RoleContext);
-  if (!ctx) throw new Error("useRole must be used inside RoleProvider");
-  return ctx;
+  return ctx ?? { role: FITNESS_COACH.id, def: FITNESS_COACH, can: (key) => FITNESS_COACH.permissions[key] };
 }
 
-/** Redacted medical text shown to roles without clinical access. */
-export const MEDICAL_REDACTED = "Restricted — clinical detail visible to medical staff only";
+/** Kept for compatibility — nothing is redacted for a single-role platform. */
+export const MEDICAL_REDACTED = "Restricted";
