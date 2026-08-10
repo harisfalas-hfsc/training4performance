@@ -708,7 +708,13 @@ export function TacticsBoard({
           <svg
             ref={svgRef}
             viewBox={`0 0 ${w} ${h}`}
-            className="block max-h-[75vh] w-full touch-none select-none"
+            className="block max-h-[75vh] w-full select-none"
+            style={{
+              // Drawing tools need the gesture; otherwise let the page scroll
+              // vertically even when the finger starts on the pitch.
+              touchAction:
+                tool === "select" || tool === "erase" || tool === "text" || pending ? "pan-y" : "none",
+            }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={endInteraction}
