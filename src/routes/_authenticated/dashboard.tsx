@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowUpRight, HeartPulse, Timer, TrendingUp } from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, HeartPulse, Timer, TrendingUp, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendBars } from "@/components/charts";
