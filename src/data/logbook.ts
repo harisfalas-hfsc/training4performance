@@ -548,25 +548,32 @@ export interface TrainingDay {
   drills: TrainingDayDrill[];
 }
 
-const uniqueDates = [...new Set(logbookRows.map((r) => r.date))].sort().slice(-14);
+function buildTrainingLogbook(): TrainingDay[] {
+  return [...sessionCalendar]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((session) => {
+      const base = session.durationMin || 78;
+      const isMatch = /MATCH|GAME/i.test(session.title);
+      return {
+        date: session.date,
+        dayDescription: session.label || dayLabel(session.date),
+        group: session.group ?? "ALL TEAM ATHLETES",
+        drills:
+          session.plan && session.plan.length
+            ? session.plan
+            : isMatch
+              ? [{ drill: "MATCH GAME", purpose: "TACTICS", durationMin: base || 90, rpe: 9 }]
+              : SESSION_SPLIT.map((p) => ({
+                  drill: p.drill,
+                  purpose: p.purpose,
+                  durationMin: Math.round(base * p.share),
+                  rpe: p.rpe,
+                })),
+      };
+    });
+}
 
-export const trainingLogbook: TrainingDay[] = uniqueDates.map((date) => {
-  const isMatch = new Date(date).getDay() === 0;
-  const base = isMatch ? 95 : 78;
-  return {
-    date,
-    dayDescription: dayLabel(date),
-    group: isMatch ? "ALL TEAM ATHLETES" : hash(date) > 0.7 ? "ATHLETES WHO PLAYED LESS THAN 60'" : "ALL TEAM ATHLETES",
-    drills: isMatch
-      ? [{ drill: "MATCH GAME", purpose: "TACTICS", durationMin: 90, rpe: 9 }]
-      : SESSION_SPLIT.map((p) => ({
-          drill: p.drill,
-          purpose: p.purpose,
-          durationMin: Math.round(base * p.share),
-          rpe: p.rpe,
-        })),
-  };
-});
+export const trainingLogbook: TrainingDay[] = buildTrainingLogbook();
 
 export const sessionLoadOf = (d: TrainingDay) => d.drills.reduce((a, b) => a + b.durationMin * b.rpe, 0);
 
@@ -614,16 +621,63 @@ export interface TestCell {
   value: number;
 }
 
-export const testResults: TestCell[] = players.flatMap((p) =>
-  TEST_ROUNDS.flatMap((round) =>
-    TEST_BATTERY.map((t) => {
-      const r = hash(p.id + t.name + round.id);
-      const drift = round.id === "r2" ? (t.higherIsBetter ? 0.06 : -0.04) : 0;
-      const raw = t.min + (t.max - t.min) * Math.min(1, Math.max(0, r + drift));
-      return { playerId: p.id, athlete: fullName(p).toUpperCase(), round: round.label, test: t.name, value: +raw.toFixed(t.decimals) };
-    }),
-  ),
-);
+const TEST_FIELD_MAP: Array<{ field: keyof (typeof SALAMINA_TESTS)[number]; test: string }> = [
+  { field: "weight", test: "BODY WEIGHT (kg)" },
+  { field: "bf", test: "BODY FAT (%)" },
+  { field: "cmj", test: "C.M.J. (2 Legs)" },
+  { field: "sj", test: "S.J. (2 Legs)" },
+  { field: "sjR", test: "S.J. (Right Leg)" },
+  { field: "sjL", test: "S.J. (Left Leg)" },
+  { field: "yoyoDistance", test: "YO-YO TEST (Distance)" },
+  { field: "yoyoMas", test: "M.A.S. (Velocity)" },
+  { field: "ohs", test: "FMS (O.H.S.)" },
+  { field: "aslR", test: "FMS (A.S.L.)" },
+];
+
+function buildTestResults(): TestCell[] {
+  const out: TestCell[] = [];
+  SALAMINA_TESTS.forEach((row) => {
+    const pid = testPlayerId(row.first, row.last);
+    if (!pid) return;
+    const p = players.find((x) => x.id === pid);
+    if (!p) return;
+    TEST_FIELD_MAP.forEach(({ field, test }) => {
+      const v = row[field];
+      if (typeof v !== "number") return;
+      out.push({ playerId: pid, athlete: fullName(p).toUpperCase(), round: `Testing ${row.date}`, test: test as EvaluationTestName, value: v });
+    });
+  });
+  manualTests.forEach((m) => {
+    const p = players.find((x) => x.id === m.playerId);
+    if (!p) return;
+    const i = out.findIndex((c) => c.playerId === m.playerId && c.round === m.round && c.test === m.test);
+    const cell: TestCell = { playerId: m.playerId, athlete: fullName(p).toUpperCase(), round: m.round, test: m.test as EvaluationTestName, value: m.value };
+    if (i >= 0) out[i] = cell;
+    else out.push(cell);
+  });
+  return out;
+}
+
+export const testResults: TestCell[] = buildTestResults();
+
+/** Test rounds actually present in the data. */
+export const TEST_ROUNDS_LIVE: string[] = [];
+
+function rebuildRounds() {
+  const rounds = [...new Set(testResults.map((t) => t.round))].sort();
+  TEST_ROUNDS_LIVE.splice(0, TEST_ROUNDS_LIVE.length, ...rounds);
+}
+rebuildRounds();
+
+/** Recompute every derived collection after a squad/session/test change. */
+export function rebuildDerived() {
+  logbookRows.splice(0, logbookRows.length, ...buildLogbookRows());
+  trainingLogbook.splice(0, trainingLogbook.length, ...buildTrainingLogbook());
+  testResults.splice(0, testResults.length, ...buildTestResults());
+  rebuildRounds();
+}
+
+subscribeData(rebuildDerived);
 
 export const testValue = (playerId: string, test: string, round: string) =>
   testResults.find((t) => t.playerId === playerId && t.test === test && t.round === round)?.value ?? null;

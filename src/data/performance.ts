@@ -93,6 +93,13 @@ export interface Drill {
   players: number;
 }
 
+export interface SessionPlanItem {
+  drill: string;
+  purpose: string;
+  durationMin: number;
+  rpe: number;
+}
+
 export interface Session {
   id: string;
   date: string;
@@ -103,6 +110,9 @@ export interface Session {
   plannedRpe: number;
   actualRpe?: number;
   drills: string[];
+  /** Drill-by-drill plan of the day (parts of training). */
+  plan?: SessionPlanItem[];
+  group?: string;
 }
 
 export interface MedicalEvent {
