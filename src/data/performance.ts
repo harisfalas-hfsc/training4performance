@@ -93,11 +93,34 @@ export interface Drill {
   players: number;
 }
 
+/** Ordered parts of a training day. */
+export const TRAINING_BLOCKS = [
+  "Warm-up",
+  "Activation / Prehab",
+  "Strength room",
+  "Technical",
+  "Tactical",
+  "Conditioning",
+  "Speed & power",
+  "Small-sided games",
+  "Set pieces",
+  "Cool-down / Recovery",
+] as const;
+export type TrainingBlock = (typeof TRAINING_BLOCKS)[number];
+
+export const TRAINING_LOCATIONS = ["Pitch", "Gym", "Pool", "Indoor", "Classroom"] as const;
+export type TrainingLocation = (typeof TRAINING_LOCATIONS)[number];
+
+export type SessionStatus = "scheduled" | "pending" | "completed";
+
 export interface SessionPlanItem {
   drill: string;
   purpose: string;
   durationMin: number;
   rpe: number;
+  block?: TrainingBlock;
+  location?: TrainingLocation;
+  notes?: string;
 }
 
 export interface Session {
@@ -113,7 +136,10 @@ export interface Session {
   /** Drill-by-drill plan of the day (parts of training). */
   plan?: SessionPlanItem[];
   group?: string;
+  status?: SessionStatus;
+  favorite?: boolean;
 }
+
 
 export interface MedicalEvent {
   playerId: string;
