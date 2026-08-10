@@ -91,22 +91,34 @@ export function MultiLine({
   series,
   xKey = "date",
   height = 220,
+  dualAxis = true,
 }: {
   data: Row[];
   series: Array<{ key: string; color: string; name: string }>;
   xKey?: string;
   height?: number;
+  dualAxis?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey={xKey} {...axis} />
-        <YAxis {...axis} width={46} />
+        <YAxis yAxisId="left" {...axis} width={46} />
+        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={46} /> : null}
         <Tooltip {...tooltipStyle} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
-        {series.map((s) => (
-          <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={2} dot={false} />
+        {series.map((s, i) => (
+          <Line
+            key={s.key}
+            yAxisId={dualAxis && i > 0 ? "right" : "left"}
+            type="monotone"
+            dataKey={s.key}
+            name={s.name}
+            stroke={s.color}
+            strokeWidth={2}
+            dot={false}
+          />
         ))}
       </LineChart>
     </ResponsiveContainer>
