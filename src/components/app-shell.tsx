@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { team, squadName, squadAvailability } from "@/data/performance";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -147,7 +146,6 @@ export function AppShell({
                 Website
               </Link>
               {actions}
-              <ThemeToggle />
               <Link
                 to="/account"
                 className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"

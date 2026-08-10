@@ -143,13 +143,6 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem("t4p.theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = saved ? saved === "dark" : prefersDark;
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
