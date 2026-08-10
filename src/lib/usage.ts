@@ -10,18 +10,19 @@ import {
   type Team,
 } from "@/data/performance";
 import type { Json } from "@/integrations/supabase/types";
+import { canWrite } from "@/lib/access";
+import { getWorkspaceScope } from "@/lib/workspace-scope";
 
 let activeWorkspaceUser: string | null = null;
 
 export async function hydrateWorkspace(userId: string) {
-  if (activeWorkspaceUser === userId) return;
   activeWorkspaceUser = userId;
   const { data, error } = await supabase
     .from("workspace_data")
     .select("team,players,sessions,gps_history,manual_tests,medical_events")
     .eq("user_id", userId)
     .maybeSingle();
-  if (error) return;
+  if (error || activeWorkspaceUser !== userId) return;
   if (!data) {
     applyWorkspaceData({
       team: { id: `team-${userId}`, name: "First Team", club: "Your club", season: "2025/26", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "" },
@@ -31,7 +32,6 @@ export async function hydrateWorkspace(userId: string) {
       manualTests: [],
       medicalEvents: [],
     });
-    await syncWorkspace(userId);
     return;
   }
   applyWorkspaceData({
@@ -45,6 +45,8 @@ export async function hydrateWorkspace(userId: string) {
 }
 
 export async function syncWorkspace(userId: string) {
+  const scope = getWorkspaceScope();
+  if (!canWrite() || scope.userId !== userId) return;
   const data = workspaceSnapshot();
   const toJson = (value: unknown) => JSON.parse(JSON.stringify(value)) as Json;
   await supabase.from("workspace_data").upsert(
