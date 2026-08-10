@@ -41,8 +41,23 @@ function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (session) void navigate({ to: hasAccess ? "/dashboard" : "/account", replace: true });
-  }, [session, hasAccess, navigate]);
+    if (session) void navigate({ to: "/dashboard", replace: true });
+  }, [session, navigate]);
+
+  async function forgotPassword() {
+    setError(null);
+    setNotice(null);
+    if (!email) {
+      setError("Enter your email above first, then press “Forgot password”.");
+      return;
+    }
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (err) setError(err.message);
+    else setNotice("Reset link sent — check your inbox.");
+  }
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
