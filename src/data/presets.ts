@@ -7,6 +7,7 @@
  */
 
 import { useSyncExternalStore } from "react";
+import { guardWrite } from "@/lib/access";
 
 /* ------------------------------------------------------------------ */
 /* Session types (PLAYER TRAINING DESCRIPTION)                         */
@@ -341,23 +342,27 @@ export function allDrills() {
 }
 
 export function addStrengthExercise(e: StrengthExercise) {
+  if (!guardWrite()) return;
   if (allStrengthExercises().some((x) => x.name.toLowerCase() === e.name.toLowerCase())) return;
   state.strength.push({ ...e, custom: true });
   emit();
 }
 
 export function removeStrengthExercise(name: string) {
+  if (!guardWrite()) return;
   state.strength = state.strength.filter((x) => x.name !== name);
   emit();
 }
 
 export function addCustomDrill(d: { name: string; purpose: string; rpe: number; minutes: number }) {
+  if (!guardWrite()) return;
   if (allDrills().some((x) => x.name.toLowerCase() === d.name.toLowerCase())) return;
   state.drills.push(d);
   emit();
 }
 
 export function removeCustomDrill(name: string) {
+  if (!guardWrite()) return;
   state.drills = state.drills.filter((x) => x.name !== name);
   emit();
 }
