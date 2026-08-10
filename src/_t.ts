@@ -1,0 +1,10 @@
+import { logbookRows, trainingLogbook, testResults, TEST_ROUNDS, rebuildDerived } from "./data/logbook";
+import { addPlayer, players, removePlayer, addSession, upsertGps, addManualTest, today } from "./data/performance";
+console.log({rows: logbookRows.length, days: trainingLogbook.length, tests: testResults.length, rounds: TEST_ROUNDS, sample: logbookRows[0]});
+const p = addPlayer({firstName:"Test",lastName:"Player",position:"CM"});
+upsertGps({date: today, playerId: p.id, category:"TRAINING", status:"Full Training", minutes:80, distance:5000, hsr:300, sprint:50, maxSpeed:28, accel:20, decel:20, jumps:5, rpe:7});
+addSession({date: today, label:"MD-1", title:"Activation", objective:"x", durationMin:70, plannedRpe:6, drills:[]});
+addManualTest({playerId:p.id, round:"Testing 2025-07-30", test:"C.M.J. (2 Legs)", value:40, date: today});
+console.log({rows: logbookRows.length, days: trainingLogbook.length, tests: testResults.length, rounds: TEST_ROUNDS.length});
+removePlayer(p.id);
+console.log({after: logbookRows.length});
