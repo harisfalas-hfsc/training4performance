@@ -10,6 +10,7 @@
 
 import { SALAMINA_GPS, SALAMINA_PLAYERS, SALAMINA_TESTS } from "@/data/salamina";
 import { useSyncExternalStore } from "react";
+import { guardWrite } from "@/lib/access";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
 
@@ -405,6 +406,7 @@ export function nextPlayerId() {
 }
 
 export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
+  if (!guardWrite()) return;
   const p: Player = {
     id: input.id ?? nextPlayerId(),
     firstName: input.firstName,
@@ -426,6 +428,7 @@ export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "l
 }
 
 export function updatePlayer(id: string, patch: Partial<Player>) {
+  if (!guardWrite()) return;
   const i = players.findIndex((p) => p.id === id);
   if (i < 0) return;
   players[i] = { ...players[i]!, ...patch };
@@ -434,6 +437,7 @@ export function updatePlayer(id: string, patch: Partial<Player>) {
 
 /** Transfer out / release: removes the player and all of their records. */
 export function removePlayer(id: string) {
+  if (!guardWrite()) return;
   replace(players, players.filter((p) => p.id !== id));
   replace(gpsHistory, gpsHistory.filter((g) => g.playerId !== id));
   replace(manualTests, manualTests.filter((t) => t.playerId !== id));
@@ -442,6 +446,7 @@ export function removePlayer(id: string) {
 }
 
 export function addSession(input: Omit<Session, "id"> & { id?: string }) {
+  if (!guardWrite()) return;
   const s: Session = { ...input, id: input.id ?? `s-${input.date}-${Math.random().toString(36).slice(2, 7)}` };
   sessionCalendar.push(s);
   sessionCalendar.sort((a, b) => a.date.localeCompare(b.date));
@@ -450,6 +455,7 @@ export function addSession(input: Omit<Session, "id"> & { id?: string }) {
 }
 
 export function updateSession(id: string, patch: Partial<Session>) {
+  if (!guardWrite()) return;
   const i = sessionCalendar.findIndex((s) => s.id === id);
   if (i < 0) return;
   sessionCalendar[i] = { ...sessionCalendar[i]!, ...patch };
@@ -465,16 +471,19 @@ export function sessionStatus(s: Session): SessionStatus {
 }
 
 export function setSessionStatus(id: string, status: SessionStatus) {
+  if (!guardWrite()) return;
   updateSession(id, { status });
 }
 
 export function toggleSessionFavorite(id: string) {
+  if (!guardWrite()) return;
   const s = sessionCalendar.find((x) => x.id === id);
   if (s) updateSession(id, { favorite: !s.favorite });
 }
 
 /** Duplicate a saved session (e.g. a favourite template) onto another date. */
 export function duplicateSession(id: string, date: string) {
+  if (!guardWrite()) return;
   const s = sessionCalendar.find((x) => x.id === id);
   if (!s) return;
   const { id: _id, actualRpe: _rpe, ...rest } = s;
@@ -483,6 +492,7 @@ export function duplicateSession(id: string, date: string) {
 
 
 export function removeSession(id: string) {
+  if (!guardWrite()) return;
   const s = sessionCalendar.find((x) => x.id === id);
   replace(sessionCalendar, sessionCalendar.filter((x) => x.id !== id));
   if (s) replace(gpsHistory, gpsHistory.filter((g) => g.date !== s.date));
@@ -491,6 +501,7 @@ export function removeSession(id: string) {
 
 /** Add or replace one athlete row for one day. */
 export function upsertGps(entry: GpsDay) {
+  if (!guardWrite()) return;
   const i = gpsHistory.findIndex((g) => g.date === entry.date && g.playerId === entry.playerId);
   if (i >= 0) {
     const prev = gpsHistory[i]!;
@@ -523,11 +534,13 @@ export function gpsValue(g: GpsDay, key: string): number {
 }
 
 export function removeGps(date: string, playerId: string) {
+  if (!guardWrite()) return;
   replace(gpsHistory, gpsHistory.filter((g) => !(g.date === date && g.playerId === playerId)));
   emit();
 }
 
 export function setRpe(date: string, playerId: string, rpe: number) {
+  if (!guardWrite()) return;
   const g = gpsHistory.find((x) => x.date === date && x.playerId === playerId);
   if (!g) return;
   g.rpe = rpe;
@@ -535,6 +548,7 @@ export function setRpe(date: string, playerId: string, rpe: number) {
 }
 
 export function addManualTest(t: Omit<ManualTest, "id">) {
+  if (!guardWrite()) return;
   const existing = manualTests.findIndex(
     (x) => x.playerId === t.playerId && x.round === t.round && x.test === t.test,
   );
@@ -544,17 +558,20 @@ export function addManualTest(t: Omit<ManualTest, "id">) {
 }
 
 export function addMedicalEvent(e: MedicalEvent) {
+  if (!guardWrite()) return;
   medicalEvents.push(e);
   emit();
 }
 
 export function removeMedicalEvent(playerId: string, from: string) {
+  if (!guardWrite()) return;
   replace(medicalEvents, medicalEvents.filter((m) => !(m.playerId === playerId && m.from === from)));
   emit();
 }
 
 /** Wipe every local change and go back to the imported workbook. */
 export function resetToWorkbook() {
+  if (!guardWrite()) return;
   replace(players, seedPlayers());
   replace(gpsHistory, seedGps());
   replace(sessionCalendar, seedSessions());

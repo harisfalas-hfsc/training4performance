@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminEmail } from "@/lib/admin";
+import { setWriteAccess } from "@/lib/access";
 
 export interface Profile {
   id: string;
@@ -104,6 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     };
   }, [loading, session, profile, isAdmin, subscription, load]);
+
+  useEffect(() => {
+    // Browsing is always allowed; writing needs an active subscription.
+    setWriteAccess(value.hasAccess);
+  }, [value.hasAccess]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

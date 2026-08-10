@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { Eye } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -19,30 +20,27 @@ function AuthenticatedLayout() {
     return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
   }
 
-  if (!hasAccess) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-background px-5">
-        <div className="panel max-w-md p-6 text-center">
-          <p className="eyebrow">Subscription required</p>
-          <h1 className="mt-2 font-display text-2xl font-semibold uppercase tracking-wide">
-            The platform is for subscribers
-          </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Dashboard, squad, training, tactics board, GPS, logbook, alerts, analytics and reports unlock with an
-            active team subscription — €999 per season.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Link to="/account" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-              Request access
-            </Link>
-            <Link to="/pricing" className="rounded-md border border-border px-4 py-2 text-sm font-semibold">
-              See pricing
+  return (
+    <>
+      {!hasAccess ? (
+        <div className="sticky top-0 z-50 border-b border-border bg-primary/10 px-4 py-2 text-xs sm:text-sm">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+            <span className="inline-flex items-center gap-1.5 font-semibold">
+              <Eye className="size-4" aria-hidden /> View-only mode
+            </span>
+            <span className="text-muted-foreground">
+              Browse every page freely. Adding or editing data unlocks with a team subscription — €999 / season.
+            </span>
+            <Link
+              to="/pricing"
+              className="rounded-md bg-primary px-3 py-1 font-semibold text-primary-foreground"
+            >
+              Subscribe
             </Link>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return <Outlet />;
+      ) : null}
+      <Outlet />
+    </>
+  );
 }

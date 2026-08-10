@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { SALAMINA_TESTS } from "@/data/salamina";
 import { getPlayer, gpsHistory, players, testPlayerId } from "@/data/performance";
+import { guardWrite } from "@/lib/access";
 
 /* ------------------------------------------------------------------ */
 /* Test catalogue — every KPI the fitness coach can record             */
@@ -192,6 +193,7 @@ function hydrate() {
 hydrate();
 
 export function addTestRecord(input: Omit<TestRecord, "id"> & { id?: string }) {
+  if (!guardWrite()) return;
   const rec: TestRecord = { ...input, id: input.id ?? rid() };
   const i = testRecords.findIndex(
     (r) => r.playerId === rec.playerId && r.testId === rec.testId && r.date === rec.date && r.source === rec.source,
@@ -203,12 +205,14 @@ export function addTestRecord(input: Omit<TestRecord, "id"> & { id?: string }) {
 }
 
 export function removeTestRecord(id: string) {
+  if (!guardWrite()) return;
   const i = testRecords.findIndex((r) => r.id === id);
   if (i >= 0) testRecords.splice(i, 1);
   emit();
 }
 
 export function resetTestRecords() {
+  if (!guardWrite()) return;
   testRecords.splice(0, testRecords.length, ...seed());
   emit();
 }
@@ -366,6 +370,7 @@ export function detectSpeedPbs(): AutoFinding[] {
 
 /** Persist detected personal bests into the test history. */
 export function applyAutoFindings(findings: AutoFinding[]) {
+  if (!guardWrite()) return;
   for (const f of findings) {
     addTestRecord({
       playerId: f.playerId,

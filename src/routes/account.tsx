@@ -155,19 +155,19 @@ function Account() {
             <>
               <p className="mt-2 text-sm text-muted-foreground">
                 {subscription?.status === "pending"
-                  ? `Your request for ${subscription.team_name} is pending approval. Access opens as soon as it is confirmed.`
-                  : `No active subscription. A team subscription costs €999 for the ${season.label} season (1 June – 31 May) and unlocks the full platform.`}
+                  ? `Your subscription for ${subscription.team_name} is being set up. You can browse the whole platform in view-only mode meanwhile — editing unlocks once it is confirmed.`
+                  : `You can browse the whole platform in view-only mode. A team subscription costs €999 for the ${season.label} season (1 June – 31 May) and unlocks adding and editing squads, training, GPS, testing and reports.`}
               </p>
               <button
                 onClick={activate}
                 disabled={busy || subscription?.status === "pending"}
                 className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {busy ? "Sending…" : subscription?.status === "pending" ? "Request sent" : "Request access — €999 / season"}
+                {busy ? "Sending…" : subscription?.status === "pending" ? "Checkout pending" : "Subscribe — €999 / season"}
               </button>
               <p className="mt-2 text-xs text-muted-foreground">
-                Requests are reviewed and activated manually after invoicing. Contact info@training4performance.com for
-                anything urgent.
+                Online payments are coming soon — for now subscriptions are activated after invoicing. Contact
+                info@training4performance.com to get started.
               </p>
             </>
           )}
