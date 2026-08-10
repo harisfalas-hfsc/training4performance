@@ -6,6 +6,7 @@ import {
   SALAMINA_TESTS,
 } from "@/data/salamina";
 import {
+  customKpis,
   fullName,
   gpsHistory,
   manualTests,
@@ -289,6 +290,8 @@ export interface LogbookRow {
   energy: number;
   rpe: number;
   status: string;
+  /** Club-specific KPIs kept exactly as they came out of the coach's own GPS export. */
+  extra?: Record<string, number>;
 }
 
 const hash = (s: string) => {
@@ -354,6 +357,7 @@ function rowFromGps(g: GpsDay, p: Player): LogbookRow {
     energy: g.energy ?? Math.round(g.distance * 4.2),
     rpe: g.rpe,
     status: g.status,
+    extra: g.extra,
   };
 }
 
@@ -493,6 +497,18 @@ export const PIVOT_METRICS: PivotMetric[] = [
   { key: "srpe", label: "Session RPE load (AU)", value: (r) => r.rpe * r.minutes },
   { key: "composite", label: "Composite training load (AU)", value: (r, w) => compositeLoad(r, w) },
 ];
+
+/** Core pivot metrics plus any club-specific KPIs discovered in imported GPS files. */
+export function pivotMetrics(): PivotMetric[] {
+  return [
+    ...PIVOT_METRICS,
+    ...customKpis().map((k) => ({
+      key: k.key,
+      label: k.label,
+      value: (r: LogbookRow) => r.extra?.[k.key] ?? 0,
+    })),
+  ];
+}
 
 export type PivotDimension = "athlete" | "role" | "date" | "category" | "dayDescription" | "drill";
 

@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, type ChartKind } from "@/components/charts";
 import {
+  customKpis,
   fullName,
   players,
   playerMetrics,
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/analytics")({
 
 const WINDOWS = [7, 14, 28, 42] as const;
 
-/** Every KPI available from the imported GPS / session data. */
+/** Core KPIs modelled by T4P — club-specific KPIs from your own GPS export are appended at runtime. */
 const METRICS = [
   { key: "distance", label: "Distance (m)" },
   { key: "hsr", label: "HSR (m)" },
@@ -46,7 +47,7 @@ const METRICS = [
   { key: "load", label: "s-RPE load (AU)" },
 ] as const;
 
-type MetricKey = (typeof METRICS)[number]["key"];
+type MetricKey = string;
 
 const DEVIATION_METRICS = [
   { key: "hsr7", label: "HSR 7d" },
@@ -68,11 +69,18 @@ function AnalyticsPage() {
   const metrics = squadMetrics();
   const hsr = squadStats((m) => m.hsr7);
 
+  /** Core KPIs plus whatever club-specific KPIs the coach's own GPS export brought in. */
+  const allMetrics = useMemo(
+    () => [...METRICS.map((m) => ({ key: m.key as string, label: m.label })), ...customKpis()],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [trend],
+  );
+
   const half = Math.floor(trend.length / 2);
   const periodA = trend.slice(0, half);
   const periodB = trend.slice(half);
   const mean = (rows: typeof trend, key: MetricKey) =>
-    Math.round(rows.reduce((a, r) => a + Number(r[key]), 0) / (rows.length || 1));
+    Math.round(rows.reduce((a, r) => a + Number((r as Record<string, unknown>)[key] ?? 0), 0) / (rows.length || 1));
 
   const deviations = useMemo(
     () =>
@@ -115,7 +123,7 @@ function AnalyticsPage() {
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="eyebrow w-full sm:w-auto">KPIs</span>
-          {METRICS.map((m) => (
+          {allMetrics.map((m) => (
             <button
               key={m.key}
               onClick={() => toggleKpi(m.key)}
@@ -161,7 +169,7 @@ function AnalyticsPage() {
               data={trend}
               kind={kind}
               height={280}
-              series={kpis.map((k) => ({ key: k, name: METRICS.find((m) => m.key === k)!.label }))}
+              series={kpis.map((k) => ({ key: k, name: allMetrics.find((m) => m.key === k)?.label ?? k }))}
             />
           </ChartFrame>
         </div>
@@ -202,7 +210,7 @@ function AnalyticsPage() {
               </tr>
             </thead>
             <tbody>
-              {METRICS.map((m) => {
+              {allMetrics.map((m) => {
                 const a = mean(periodA, m.key);
                 const b = mean(periodB, m.key);
                 const d = a ? Math.round(((b - a) / a) * 100) : 0;
