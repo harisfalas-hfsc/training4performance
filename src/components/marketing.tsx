@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Activity, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
