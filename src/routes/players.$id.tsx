@@ -60,6 +60,8 @@ function PlayerProfile() {
   const wellness = playerWellness(id);
   const availability = availabilitySummary(id);
   const medical = playerMedical(id);
+  const { can } = useRole();
+  const canSeeMedical = can("viewMedicalDetail");
   const hsrSquad = squadStats((x) => x.hsr7).mean;
   const hsrPos = positionAverage(player.position, (x) => x.hsr7) || 1;
 
