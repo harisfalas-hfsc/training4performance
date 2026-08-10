@@ -136,7 +136,7 @@ function Account() {
           {hasAccess ? (
             <>
               <p className="mt-2 text-lg font-semibold text-success">
-                {isAdmin && !subscription ? "Administrator access" : "Active"}
+                {isAdmin && !subscription ? "Owner access" : "Active"}
               </p>
               {subscription ? (
                 <p className="text-sm text-muted-foreground">
