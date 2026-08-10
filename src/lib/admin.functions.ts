@@ -5,14 +5,7 @@ import { isAdminEmail } from "@/lib/admin";
 async function assertAdmin(ctx: { supabase: unknown; userId: string; claims: Record<string, unknown> }) {
   const email = ctx.claims?.["email"] as string | undefined;
   if (isAdminEmail(email)) return;
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: role } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", ctx.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (!role) throw new Error("Forbidden: admin access required");
+  throw new Error("Forbidden: owner access required");
 }
 
 export type AdminCustomer = {
@@ -81,21 +74,19 @@ export const adminListCustomers = createServerFn({ method: "POST" })
         if (list.users.length < 200) break;
       }
 
-      const [{ data: profiles }, { data: subs }, { data: usage }, { data: roles }] = await Promise.all([
+      const [{ data: profiles }, { data: subs }, { data: usage }] = await Promise.all([
         supabaseAdmin.from("profiles").select("id, email, full_name, club_name, created_at").limit(1000),
         supabaseAdmin
           .from("subscriptions")
           .select("user_id, status, season_start, season_end, price_eur, team_name, complimentary, admin_note")
           .limit(2000),
         supabaseAdmin.from("usage_snapshots").select("*").limit(2000),
-        supabaseAdmin.from("user_roles").select("user_id, role").eq("role", "admin").limit(200),
       ]);
 
       type SubRow = NonNullable<typeof subs>[number];
       const subBy = new Map<string, SubRow>();
       for (const s of subs ?? []) if (!subBy.has(s.user_id)) subBy.set(s.user_id, s);
       const usageBy = new Map((usage ?? []).map((u) => [u.user_id, u]));
-      const adminIds = new Set((roles ?? []).map((r) => r.user_id));
 
       const ids = new Set<string>([...authMap.keys(), ...(profiles ?? []).map((p) => p.id)]);
       const rows: AdminCustomer[] = [...ids].map((id) => {
@@ -111,7 +102,7 @@ export const adminListCustomers = createServerFn({ method: "POST" })
           club_name: p?.club_name ?? "",
           created_at: auth?.created_at ?? p?.created_at ?? new Date().toISOString(),
           last_sign_in_at: auth?.last_sign_in_at ?? null,
-          is_admin: isAdminEmail(email) || adminIds.has(id),
+          is_admin: isAdminEmail(email),
           active: isActive(sub),
           status: sub?.status ?? null,
           complimentary: Boolean(sub?.complimentary),
@@ -377,32 +368,6 @@ export const adminUpdateCustomer = createServerFn({ method: "POST" })
       return { ok: true };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Failed to update customer" };
-    }
-  });
-
-export const adminSetRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: { userId: string; makeAdmin: boolean }) => data)
-  .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
-    try {
-      await assertAdmin(context as never);
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      if (data.makeAdmin) {
-        const { error } = await supabaseAdmin
-          .from("user_roles")
-          .upsert({ user_id: data.userId, role: "admin" }, { onConflict: "user_id,role" });
-        if (error) return { error: error.message };
-      } else {
-        const { error } = await supabaseAdmin
-          .from("user_roles")
-          .delete()
-          .eq("user_id", data.userId)
-          .eq("role", "admin");
-        if (error) return { error: error.message };
-      }
-      return { ok: true };
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : "Failed to change role" };
     }
   });
 
