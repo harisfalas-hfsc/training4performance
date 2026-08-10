@@ -83,15 +83,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "T4P: integrated football fitness, performance and training management platform for coaches, fitness and medical staff.",
+          "T4P is one connected football performance system: squad availability, block-based session design, GPS import, workload and ACWR, wellness, testing, medical status, alerts and reports.",
       },
       { name: "author", content: "Training 4 Performance" },
+      { name: "theme-color", content: "#0b1412" },
+      { name: "apple-mobile-web-app-title", content: "T4P" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { property: "og:title", content: "T4P — Training 4 Performance" },
       {
         property: "og:description",
         content: "Squad, training, GPS, workload, alerts, medical and AI insight in one connected system.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Training 4 Performance" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -105,9 +110,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

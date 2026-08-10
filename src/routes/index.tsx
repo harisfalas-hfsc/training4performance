@@ -17,21 +17,23 @@ import { MarketingPage } from "@/components/marketing";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "T4P — Training 4 Performance | Football Performance OS" },
+      { title: "T4P — Training 4 Performance | Football Performance System" },
       {
         name: "description",
         content:
-          "T4P connects squad management, training planning, GPS, workload, wellness, alerts and reporting in one football performance platform built by a sports scientist.",
+          "T4P is one connected football performance system: squad availability and player passports, block-based session design, tactics board, GPS import, composite load and ACWR, wellness, testing, medical status, automated alerts and one-click reports.",
       },
       { property: "og:title", content: "T4P — Training 4 Performance" },
       {
         property: "og:description",
-        content: "One connected system for football fitness, performance and training management.",
+        content:
+          "Squad availability, session design, GPS, workload and ACWR, testing, medical status, alerts and reports — in one football performance system.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+
   component: Home,
 });
 
@@ -51,15 +53,28 @@ function Home() {
     <MarketingPage>
       <section className="border-b border-border bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--color-primary)_18%,transparent),transparent_60%)]">
         <div className="mx-auto max-w-6xl px-5 py-20 text-center">
+          <img
+            src="/logo-t4p.png"
+            alt="Training 4 Performance logo"
+            className="mx-auto mb-6 size-16 rounded-xl bg-white object-contain p-1.5"
+            width={64}
+            height={64}
+          />
           <p className="eyebrow">Training 4 Performance</p>
           <h1 className="mx-auto mt-3 max-w-3xl font-display text-4xl font-semibold uppercase leading-tight tracking-wide sm:text-5xl">
             The football performance system that connects everything
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground">
-            T4P brings squad availability, training design, GPS data, workload monitoring, wellness, testing,
-            medical status and reporting into one connected platform — so you know who you have, what you did,
-            how they responded, and what to do tomorrow.
+            T4P keeps one player record at the centre and connects everything to it: squad availability and
+            player passports, the match-day-cycle calendar, block-based session design with an interactive
+            tactics board, GPS import from Catapult, STATSports, GPEXE and Polar, your own composite load model
+            with ACWR, monotony and strain, RPE, wellness, the full testing battery, medical status, automated
+            threshold alerts and one-click reports.
           </p>
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground">
+            So you always know who you have, what you did, how they responded, and what to do tomorrow.
+          </p>
+
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               to="/auth"
