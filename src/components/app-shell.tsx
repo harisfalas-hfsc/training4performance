@@ -104,7 +104,7 @@ export function AppShell({
                   active && "bg-sidebar-accent text-primary",
                 )}
               >
-                <item.icon className="size-4" />
+                <item.icon className="size-4" style={{ color: active ? item.color : undefined }} />
                 {item.label}
               </Link>
             );
@@ -162,10 +162,11 @@ export function AppShell({
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground",
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground",
                     active && "bg-secondary text-primary",
                   )}
                 >
+                  <item.icon className="size-3.5" style={{ color: active ? item.color : undefined }} />
                   {item.label}
                 </Link>
               );
