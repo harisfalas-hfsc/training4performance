@@ -2,7 +2,21 @@
  * T4P Logbook model — mirrors the club logbook workbook
  * (Activity logbook / Activity chart / Training logbook / Tests / Data).
  */
-import { fullName, gpsHistory, players, today, type GpsDay, type Player } from "@/data/performance";
+import {
+  SALAMINA_TESTS,
+} from "@/data/salamina";
+import {
+  fullName,
+  gpsHistory,
+  manualTests,
+  players,
+  sessionCalendar,
+  subscribeData,
+  testPlayerId,
+  today,
+  type GpsDay,
+  type Player,
+} from "@/data/performance";
 
 /* ------------------------------------------------------------------ */
 /* DATA tab taxonomies                                                 */
@@ -314,14 +328,12 @@ const categoryFor = (g: GpsDay): string => {
   }
 };
 
-const byId = new Map(players.map((p) => [p.id, p]));
-
 function rowFromGps(g: GpsDay, p: Player): LogbookRow {
   const r = hash(g.playerId + g.date);
   return {
     id: `${g.playerId}-${g.date}`,
     date: g.date,
-    category: categoryFor(g),
+    category: g.category ?? categoryFor(g),
     dayDescription: dayLabel(g.date),
     drill: "",
     playerId: g.playerId,
@@ -331,26 +343,32 @@ function rowFromGps(g: GpsDay, p: Player): LogbookRow {
     minutes: g.minutes,
     distance: g.distance,
     hsr: g.hsr,
-    sprintDistance: Math.round(g.sprint * 12),
-    maxSprintDistance: Math.round(g.sprint * 3),
-    sprints: g.sprint,
+    sprintDistance: Math.round(g.sprint),
+    maxSprintDistance: Math.round(g.sprint * 0.35),
+    sprints: g.sprintEvents ?? 0,
     accel: g.accel,
     decel: g.decel,
-    jumps: Math.round(2 + r * 10 * (g.minutes ? 1 : 0)),
+    jumps: g.jumps ?? 0,
     maxSpeed: g.maxSpeed,
-    avgSpeed: g.minutes ? +(g.distance / g.minutes / 16.67).toFixed(2) : 0,
-    energy: Math.round(g.distance * 4.2),
+    avgSpeed: g.avgSpeed ?? (g.minutes ? +(g.distance / 1000 / (g.minutes / 60)).toFixed(2) : 0),
+    energy: g.energy ?? Math.round(g.distance * 4.2),
     rpe: g.rpe,
     status: g.status,
   };
 }
 
-export const logbookRows: LogbookRow[] = gpsHistory
-  .map((g) => {
-    const p = byId.get(g.playerId);
-    return p ? rowFromGps(g, p) : null;
-  })
-  .filter((r): r is LogbookRow => r !== null);
+function buildLogbookRows(): LogbookRow[] {
+  const byId = new Map(players.map((p) => [p.id, p]));
+  return gpsHistory
+    .map((g) => {
+      const p = byId.get(g.playerId);
+      return p ? rowFromGps(g, p) : null;
+    })
+    .filter((r): r is LogbookRow => r !== null)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.athlete.localeCompare(b.athlete));
+}
+
+export const logbookRows: LogbookRow[] = buildLogbookRows();
 
 /** Drill split of a session for one player — the "parts of training" view. */
 export const SESSION_SPLIT: Array<{ drill: string; share: number; purpose: string; rpe: number }> = [
