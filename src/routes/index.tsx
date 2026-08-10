@@ -17,17 +17,17 @@ import { MarketingPage } from "@/components/marketing";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "T4P — Training 4 Performance | Football Performance System" },
+      { title: "T4P — Training 4 Performance | Football Performance System for S&C Coaches" },
       {
         name: "description",
         content:
-          "T4P is one connected football performance system: squad availability and player passports, block-based session design, tactics board, GPS import, composite load and ACWR, wellness, testing, medical status, automated alerts and one-click reports.",
+          "T4P is the football performance system built for S&C coaches — the daily companion that brings squad availability, training design, GPS import, workload monitoring, wellness, testing, medical status, logbook, alerts and reports into one connected workspace.",
       },
-      { property: "og:title", content: "T4P — Training 4 Performance" },
+      { property: "og:title", content: "T4P — Training 4 Performance | Football Performance System for S&C Coaches" },
       {
         property: "og:description",
         content:
-          "Squad availability, session design, GPS, workload and ACWR, testing, medical status, alerts and reports — in one football performance system.",
+          "The daily companion for football S&C coaches: squad availability, session design, GPS, workload, wellness, testing, medical status and one-click reports — all connected.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -62,17 +62,17 @@ function Home() {
           />
           <p className="eyebrow">Training 4 Performance</p>
           <h1 className="mx-auto mt-3 max-w-3xl font-display text-3xl font-semibold uppercase leading-tight tracking-wide sm:text-5xl">
-            The football performance system that connects everything
+            The football performance system for S&C coaches that connects everything
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground">
-            T4P keeps one player record at the centre and connects everything to it: squad availability and
-            player passports, the match-day-cycle calendar, block-based session design with an interactive
-            tactics board, GPS import from Catapult, STATSports, GPEXE and Polar, your own composite load model
-            with ACWR, monotony and strain, RPE, wellness, the full testing battery, medical status, automated
-            threshold alerts and one-click reports.
+            T4P is the daily companion for strength & conditioning coaches in football. It brings every player
+            record, training session, GPS report, wellness entry, test result and medical note into one
+            connected workspace — so you spend less time switching files and more time coaching.
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground">
-            So you always know who you have, what you did, how they responded, and what to do tomorrow.
+            Squad availability, block-based session design, the tactics board, GPS import from Catapult,
+            STATSports, GPEXE and Polar, your own composite load model with ACWR, monotony and strain, RPE,
+            the full testing battery, automated alerts and one-click reports — all in one place.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">

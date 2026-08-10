@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +42,6 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
-          <ThemeToggle />
           {session ? (
             <Link
               to={hasAccess ? "/dashboard" : "/account"}
