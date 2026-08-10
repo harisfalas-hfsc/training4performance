@@ -1,9 +1,10 @@
 /**
  * Full data export. Everything a coach creates in T4P is his own property, so
- * he can download the whole workspace as a ZIP (JSON + CSV) at any time —
- * subscription or not.
+ * he can download his whole workspace at any time — subscription or not —
+ * either as separate Excel files or as one ZIP with all of them.
  */
 
+import * as XLSX from "xlsx";
 import {
   gpsHistory,
   manualTests,
@@ -14,6 +15,8 @@ import {
   fullName,
 } from "@/data/performance";
 import { testRecords } from "@/data/testing";
+import { customDrills, customStrength } from "@/data/presets";
+
 
 /* ---------- minimal store-only ZIP writer (no dependency) ---------- */
 
