@@ -94,6 +94,36 @@ function ReportsPage() {
   const canSeeMedical = can("viewMedicalDetail");
   const has = (s: SectionId) => active.sections.includes(s);
 
+  /* --- report KPI columns + load model configuration --- */
+  const [kpiCols, setKpiCols] = useState<string[]>(["distance", "hsr", "sprintDistance", "accel", "srpe"]);
+  const [weights, setWeights] = useState<LoadWeights>(DEFAULT_WEIGHTS);
+  const [acuteWindow, setAcuteWindow] = useState(7);
+  const [chronicWindow, setChronicWindow] = useState(28);
+
+  const toggleKpi = (key: string) =>
+    setKpiCols((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+
+  const reportRows = useMemo(
+    () =>
+      players.map((p) => {
+        const rows = logbookRows.filter((r) => r.playerId === p.id && r.date >= from && r.date <= to);
+        const values: Record<string, number> = {};
+        for (const key of kpiCols) {
+          const metric = PIVOT_METRICS.find((m) => m.key === key);
+          if (!metric) continue;
+          const vals = rows.map((r) => metric.value(r, weights));
+          values[key] =
+            key === "maxSpeed"
+              ? +(vals.length ? Math.max(...vals) : 0).toFixed(1)
+              : Math.round(vals.reduce((a, b) => a + b, 0));
+        }
+        const load = compositeAcwr(p.id, weights, acuteWindow, chronicWindow, to);
+        return { player: p, values, load };
+      }),
+    [kpiCols, weights, acuteWindow, chronicWindow, from, to],
+  );
+
+
   const update = (patch: Partial<ReportTemplate>) =>
     setTemplates((prev) => prev.map((t) => (t.id === active.id ? { ...t, ...patch } : t)));
 
