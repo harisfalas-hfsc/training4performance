@@ -66,7 +66,7 @@ function AddPlayerForm({ onDone }: { onDone: () => void }) {
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
           position: form.position,
-          number: Number(form.number) || undefined,
+          number: Number(form.number) || 0,
           dob: form.dob,
           nationality: form.nationality,
           heightCm: Number(form.heightCm) || 180,

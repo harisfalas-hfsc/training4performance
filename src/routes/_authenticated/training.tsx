@@ -82,7 +82,7 @@ function TrainingPage() {
     const per = list.length ? Math.round(session.durationMin / list.length) : 0;
     updateSession(session.id, {
       drills: sessionDrills,
-      actualRpe: actualRpe || undefined,
+      ...(actualRpe ? { actualRpe } : {}),
       plan: list.map((d) => ({
         drill: d.name,
         purpose: d.categories[0] ?? "TRAINING",
