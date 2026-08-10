@@ -72,9 +72,8 @@ export const Route = createFileRoute("/_authenticated/training")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    date: typeof search["date"] === "string" ? (search["date"] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { date?: string } =>
+    typeof search["date"] === "string" ? { date: search["date"] as string } : {},
   component: TrainingPage,
 });
 
