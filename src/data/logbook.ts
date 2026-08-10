@@ -357,7 +357,7 @@ function rowFromGps(g: GpsDay, p: Player): LogbookRow {
     energy: g.energy ?? Math.round(g.distance * 4.2),
     rpe: g.rpe,
     status: g.status,
-    extra: g.extra,
+    ...(g.extra ? { extra: g.extra } : {}),
   };
 }
 
