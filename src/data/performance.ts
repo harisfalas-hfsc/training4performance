@@ -394,6 +394,8 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
     gender: "Male",
     headCoach: "",
     fitnessCoach: "",
+    configured: false,
+    createdAt: undefined,
   });
   if (!userId) {
     version++;
