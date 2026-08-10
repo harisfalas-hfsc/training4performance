@@ -177,16 +177,31 @@ function Field({
   type?: string;
   required?: boolean;
 }) {
+  const isPassword = type === "password";
+  const [show, setShow] = useState(false);
   return (
     <label className="block">
       <span className="eyebrow">{label}</span>
-      <input
-        type={type}
-        value={value}
-        required={required}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 h-10 w-full rounded-md border border-input bg-surface-2 px-3 text-sm"
-      />
+      <div className="relative mt-1">
+        <input
+          type={isPassword && show ? "text" : type}
+          value={value}
+          required={required}
+          onChange={(e) => onChange(e.target.value)}
+          className={`h-10 w-full rounded-md border border-input bg-surface-2 px-3 text-sm ${isPassword ? "pr-10" : ""}`}
+        />
+        {isPassword ? (
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            aria-label={show ? "Hide password" : "Show password"}
+            className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
+          >
+            {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        ) : null}
+      </div>
     </label>
   );
 }
+
