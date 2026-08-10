@@ -602,7 +602,7 @@ function TrainingPage() {
                 })}
               </div>
 
-              <div className="space-y-3">
+              <div id="plan-blocks" className="scroll-mt-24 space-y-3">
                 {blocks.map((b) => {
                   const blockItems = items.map((it, i) => ({ it, i })).filter(({ it }) => (it.block ?? "") === b);
                   if (!blockItems.length) return null;
