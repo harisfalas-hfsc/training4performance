@@ -83,7 +83,7 @@ export const Route = createFileRoute("/terms")({
 
         <h2>9. Changes</h2>
         <p>
-          These terms may be updated. Material changes are notified to account administrators at least 30 days in
+          These terms may be updated. Material changes are notified to subscribers at least 30 days in
           advance. Continued use after the effective date constitutes acceptance.
         </p>
 
