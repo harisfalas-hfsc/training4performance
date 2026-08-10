@@ -67,17 +67,19 @@ export function TrendBars({
   dataKey,
   color = "var(--color-chart-2)",
   height = 200,
+  xKey = "date",
 }: {
   data: Row[];
   dataKey: string;
   color?: string;
   height?: number;
+  xKey?: string;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
-        <XAxis dataKey="date" {...axis} />
+        <XAxis dataKey={xKey} {...axis} />
         <YAxis {...axis} width={46} />
         <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />
         <Bar dataKey={dataKey} fill={color} radius={[3, 3, 0, 0]} />
@@ -85,6 +87,7 @@ export function TrendBars({
     </ResponsiveContainer>
   );
 }
+
 
 export function MultiLine({
   data,

@@ -8,6 +8,7 @@ import {
   ClipboardPen,
   BookOpen,
   FileText,
+  GitCompare,
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
@@ -28,6 +29,7 @@ const nav = [
   { to: "/gps", label: "GPS Import", icon: Radar },
   { to: "/alerts", label: "Alerts", icon: BellRing },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/compare", label: "Compare & Graphs", icon: GitCompare },
   { to: "/ai", label: "AI Assistant", icon: BrainCircuit },
   { to: "/reports", label: "Reports", icon: FileText },
 ] as const;
