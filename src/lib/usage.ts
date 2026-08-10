@@ -9,6 +9,7 @@ import {
   type Session,
   type Team,
 } from "@/data/performance";
+import type { Json } from "@/integrations/supabase/types";
 
 let activeWorkspaceUser: string | null = null;
 
@@ -37,15 +38,16 @@ export async function hydrateWorkspace(userId: string) {
 
 export async function syncWorkspace(userId: string) {
   const data = workspaceSnapshot();
+  const toJson = (value: unknown) => JSON.parse(JSON.stringify(value)) as Json;
   await supabase.from("workspace_data").upsert(
     {
       user_id: userId,
-      team: data.team,
-      players: data.players,
-      sessions: data.sessions,
-      gps_history: data.gpsHistory,
-      manual_tests: data.manualTests,
-      medical_events: data.medicalEvents,
+      team: toJson(data.team),
+      players: toJson(data.players),
+      sessions: toJson(data.sessions),
+      gps_history: toJson(data.gpsHistory),
+      manual_tests: toJson(data.manualTests),
+      medical_events: toJson(data.medicalEvents),
     },
     { onConflict: "user_id" },
   );
