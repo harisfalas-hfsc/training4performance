@@ -64,11 +64,12 @@ function Pricing() {
             </ul>
             <Link
               to={session ? "/account" : "/auth"}
-              search={session ? undefined : ({ mode: "signup" } as never)}
+              {...(session ? {} : { search: { mode: "signup" } as never })}
               className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
             >
               {session ? "Activate my subscription" : "Get started"}
             </Link>
+
           </div>
 
           <div className="panel p-6">
