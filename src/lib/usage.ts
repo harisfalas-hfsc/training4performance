@@ -99,3 +99,18 @@ export async function syncUsageSnapshot(input: {
     /* usage reporting is best-effort */
   }
 }
+
+/** Removes the coach's synced workspace + usage snapshot from the cloud. */
+export async function clearRemoteWorkspace(userId: string) {
+  try {
+    await Promise.all([
+      supabase.from("workspace_data").delete().eq("user_id", userId),
+      supabase
+        .from("usage_snapshots")
+        .update({ players: 0, sessions: 0, gps_rows: 0, tests: 0, player_names: [], updated_at: new Date().toISOString() })
+        .eq("user_id", userId),
+    ]);
+  } catch {
+    /* best effort */
+  }
+}

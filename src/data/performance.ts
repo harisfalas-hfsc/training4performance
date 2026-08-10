@@ -10,6 +10,7 @@
 
 import { SALAMINA_GPS, SALAMINA_PLAYERS, SALAMINA_TESTS } from "@/data/salamina";
 import { useSyncExternalStore } from "react";
+import { toast } from "sonner";
 import { guardWrite } from "@/lib/access";
 import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
@@ -37,7 +38,16 @@ export interface Team {
   gender: string;
   headCoach: string;
   fitnessCoach: string;
+  /** Set once the coach has completed team setup. */
+  configured?: boolean;
+  createdAt?: string;
 }
+
+/** One workspace = one team. A second team needs a second account/subscription. */
+export const MAX_TEAMS_PER_ACCOUNT = 1;
+/** Hard cap of players inside the single squad of a workspace. */
+export const MAX_PLAYERS_PER_SQUAD = 60;
+
 
 export interface Player {
   id: string;
@@ -330,7 +340,7 @@ function persist() {
   try {
     window.localStorage.setItem(
       key,
-      JSON.stringify({ players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
+      JSON.stringify({ team, players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
     );
   } catch {
     /* quota — ignore */
@@ -385,6 +395,8 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
     gender: "Male",
     headCoach: "",
     fitnessCoach: "",
+    configured: false,
+    createdAt: undefined,
   });
   if (!userId) {
     version++;
@@ -405,12 +417,14 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
       replace(sessionCalendar, seedSessions());
     } else if (raw) {
     const s = JSON.parse(raw) as {
+      team?: Team;
       players?: Player[];
       gpsHistory?: GpsDay[];
       sessionCalendar?: Session[];
       manualTests?: ManualTest[];
       medicalEvents?: MedicalEvent[];
     };
+    if (s.team) Object.assign(team, s.team);
     if (s.players?.length) replace(players, s.players);
     if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
     if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
@@ -446,6 +460,12 @@ export function nextPlayerId() {
 
 export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
   if (!guardWrite()) return;
+  if (players.length >= MAX_PLAYERS_PER_SQUAD) {
+    toast.error("Squad is full", {
+      description: `A squad holds up to ${MAX_PLAYERS_PER_SQUAD} players. Remove a player before adding another.`,
+    });
+    return;
+  }
   const p: Player = {
     id: input.id ?? nextPlayerId(),
     firstName: input.firstName,
@@ -618,6 +638,58 @@ export function resetToWorkbook() {
   replace(medicalEvents, []);
   emit();
 }
+
+/* ---------- team lifecycle ---------- */
+
+/** True once the coach has completed team setup for this workspace. */
+export function isTeamConfigured() {
+  return Boolean(team.configured && team.club.trim() && team.name.trim());
+}
+
+/** Create or update the single team of this workspace. */
+export function saveTeam(patch: Partial<Team>) {
+  if (!guardWrite()) return false;
+  Object.assign(team, patch, {
+    configured: true,
+    createdAt: team.createdAt ?? new Date().toISOString(),
+  });
+  emit();
+  return true;
+}
+
+/** Delete every record (players, GPS, sessions, tests, medical) but keep the team. */
+export function clearWorkspaceRecords() {
+  if (!guardWrite()) return false;
+  replace(players, []);
+  replace(gpsHistory, []);
+  replace(sessionCalendar, []);
+  replace(manualTests, []);
+  replace(medicalEvents, []);
+  emit();
+  return true;
+}
+
+/** Delete the team and everything attached to it, so a new team can be created. */
+export function deleteTeamAndData() {
+  if (!guardWrite()) return false;
+  clearWorkspaceRecords();
+  Object.assign(team, {
+    name: "",
+    club: "",
+    season: "",
+    competition: "",
+    ageGroup: "Senior",
+    gender: "Male",
+    headCoach: "",
+    fitnessCoach: "",
+    configured: false,
+    createdAt: undefined,
+  });
+  emit();
+  return true;
+}
+
+
 
 export const fullName = (p: Player) => `${p.firstName} ${p.lastName}`;
 export const initials = (p: Player) => `${p.firstName[0] ?? "?"}${p.lastName[0] ?? ""}`;
