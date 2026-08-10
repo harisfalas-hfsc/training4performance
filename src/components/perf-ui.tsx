@@ -9,6 +9,7 @@ export function MetricCard({
   hint,
   tone = "default",
   icon,
+  iconColor,
 }: {
   label: string;
   value: string | number;
@@ -16,6 +17,7 @@ export function MetricCard({
   hint?: string;
   tone?: "default" | "good" | "warn" | "bad";
   icon?: ReactNode;
+  iconColor?: string;
 }) {
   const toneClass =
     tone === "good"
@@ -29,7 +31,7 @@ export function MetricCard({
     <div className="panel p-4">
       <div className="flex items-center justify-between">
         <p className="eyebrow">{label}</p>
-        {icon ? <span className="text-muted-foreground">{icon}</span> : null}
+        {icon ? <span style={{ color: iconColor }} className="text-muted-foreground">{icon}</span> : null}
       </div>
       <p className={cn("metric-value mt-2 text-3xl", toneClass)}>
         {value}

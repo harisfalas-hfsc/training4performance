@@ -38,14 +38,14 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  { icon: Users, title: "Squad management", text: "Availability, positions, status and player passports in one place." },
-  { icon: CalendarDays, title: "Training calendar", text: "MD-cycle planning, drills, durations, planned vs actual RPE." },
-  { icon: ClipboardPen, title: "Tactics board", text: "Draw sessions on a real pitch: players, equipment, runs and zones." },
-  { icon: Radar, title: "GPS import", text: "Catapult, STATSports, GPEXE, Polar or the T4P template — with mapping reports." },
-  { icon: BookOpen, title: "Training monitor logbook", text: "Every session row, drill splits, RPE, pivot charts and test batteries." },
-  { icon: BellRing, title: "Automated alerts", text: "ACWR spikes, load jumps, wellness drops and availability risks." },
-  { icon: BarChart3, title: "Analytics", text: "Composite load, acute:chronic, monotony, strain and squad benchmarks." },
-  { icon: BrainCircuit, title: "AI assistant", text: "Daily observations and suggested adjustments for tomorrow's plan." },
+  { icon: Users, title: "Squad management", text: "Availability, positions, status and player passports in one place.", color: "#2563eb" },
+  { icon: CalendarDays, title: "Training calendar", text: "MD-cycle planning, drills, durations, planned vs actual RPE.", color: "#059669" },
+  { icon: ClipboardPen, title: "Tactics board", text: "Draw sessions on a real pitch: players, equipment, runs and zones.", color: "#7c3aed" },
+  { icon: Radar, title: "GPS import", text: "Catapult, STATSports, GPEXE, Polar or the T4P template — with mapping reports.", color: "#0891b2" },
+  { icon: BookOpen, title: "Training monitor logbook", text: "Every session row, drill splits, RPE, pivot charts and test batteries.", color: "#d97706" },
+  { icon: BellRing, title: "Automated alerts", text: "ACWR spikes, load jumps, wellness drops and availability risks.", color: "#dc2626" },
+  { icon: BarChart3, title: "Analytics", text: "Composite load, acute:chronic, monotony, strain and squad benchmarks.", color: "#4f46e5" },
+  { icon: BrainCircuit, title: "AI assistant", text: "Daily observations and suggested adjustments for tomorrow's plan.", color: "#9333ea" },
 ];
 
 function Home() {
@@ -101,7 +101,9 @@ function Home() {
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
             <div key={f.title} className="panel p-4">
-              <f.icon className="size-5 text-primary" />
+              <span className="inline-flex rounded-lg bg-surface-2 p-2">
+                <f.icon className="size-5" style={{ color: f.color }} />
+              </span>
               <p className="mt-3 font-semibold">{f.title}</p>
               <p className="mt-1 text-xs text-muted-foreground">{f.text}</p>
             </div>
@@ -112,12 +114,14 @@ function Home() {
       <section className="border-y border-border bg-surface-2/40">
         <div className="mx-auto grid max-w-6xl gap-6 px-5 py-14 lg:grid-cols-3">
           {[
-            { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard." },
-            { icon: ShieldCheck, t: "One workspace", d: "Your whole staff works on the same squad, calendar and data — no per-user fees, no separate tiers." },
-            { icon: BarChart3, t: "Your own load model", d: "Choose the KPIs and weights that build training load, and drive ACWR, monotony and strain from your data." },
+            { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard.", color: "#059669" },
+            { icon: ShieldCheck, t: "One workspace", d: "Your whole staff works on the same squad, calendar and data — no per-user fees, no separate tiers.", color: "#2563eb" },
+            { icon: BarChart3, t: "Your own load model", d: "Choose the KPIs and weights that build training load, and drive ACWR, monotony and strain from your data.", color: "#d97706" },
           ].map((b) => (
             <div key={b.t}>
-              <b.icon className="size-5 text-primary" />
+              <span className="inline-flex rounded-lg bg-background p-2">
+                <b.icon className="size-5" style={{ color: b.color }} />
+              </span>
               <p className="mt-3 font-display text-lg font-semibold">{b.t}</p>
               <p className="mt-1 text-sm text-muted-foreground">{b.d}</p>
             </div>
