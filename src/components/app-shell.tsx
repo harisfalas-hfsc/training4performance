@@ -18,7 +18,7 @@ import { ROLES, useRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/squad", label: "Squad", icon: Users },
   { to: "/training", label: "Training", icon: CalendarDays },
   { to: "/board", label: "Tactics Board", icon: ClipboardPen },
@@ -60,7 +60,7 @@ export function AppShell({
 
         <nav className="flex flex-1 flex-col gap-0.5 p-3">
           {nav.map((item) => {
-            const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+            const active = pathname.startsWith(item.to);
             return (
               <Link
                 key={item.to}
@@ -114,11 +114,17 @@ export function AppShell({
                 </select>
               </label>
               {actions}
+              <Link
+                to="/account"
+                className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+              >
+                Account
+              </Link>
             </div>
           </div>
           <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2 lg:hidden">
             {nav.map((item) => {
-              const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+              const active = pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}
