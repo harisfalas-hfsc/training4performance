@@ -130,9 +130,11 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster position="bottom-center" richColors closeButton />
         <Scripts />
       </body>
     </html>
+
   );
 }
 
