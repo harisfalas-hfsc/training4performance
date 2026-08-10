@@ -71,7 +71,7 @@ function AdminPage() {
 
   const reload = useCallback(async () => {
     setPending(true);
-    const [c, s] = await Promise.all([listCustomers({ data: { search: search.trim() || undefined } }), getStats({})]);
+    const [c, s] = await Promise.all([listCustomers({ data: { search: search.trim() } }), getStats({})]);
     if ("error" in c) toast.error(c.error);
     else setCustomers(c.customers);
     if ("error" in s) toast.error(s.error);
