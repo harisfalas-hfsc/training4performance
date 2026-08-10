@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isAdminEmail } from "@/lib/admin";
+import type { Json } from "@/integrations/supabase/types";
 
 async function assertAdmin(ctx: { supabase: unknown; userId: string; claims: Record<string, unknown> }) {
   const email = ctx.claims?.["email"] as string | undefined;
@@ -47,12 +48,12 @@ export type AdminStats = {
 
 export type AdminWorkspace = {
   userId: string;
-  team: Record<string, unknown>;
-  players: Array<Record<string, unknown>>;
-  sessions: Array<Record<string, unknown>>;
-  gpsHistory: Array<Record<string, unknown>>;
-  manualTests: Array<Record<string, unknown>>;
-  medicalEvents: Array<Record<string, unknown>>;
+  team: Json;
+  players: Json;
+  sessions: Json;
+  gpsHistory: Json;
+  manualTests: Json;
+  medicalEvents: Json;
   updatedAt: string | null;
 };
 
@@ -292,12 +293,12 @@ export const adminGetCustomerWorkspace = createServerFn({ method: "POST" })
       return {
         workspace: {
           userId: data.userId,
-          team: (row?.team as Record<string, unknown>) ?? {},
-          players: (row?.players as Array<Record<string, unknown>>) ?? [],
-          sessions: (row?.sessions as Array<Record<string, unknown>>) ?? [],
-          gpsHistory: (row?.gps_history as Array<Record<string, unknown>>) ?? [],
-          manualTests: (row?.manual_tests as Array<Record<string, unknown>>) ?? [],
-          medicalEvents: (row?.medical_events as Array<Record<string, unknown>>) ?? [],
+          team: row?.team ?? {},
+          players: row?.players ?? [],
+          sessions: row?.sessions ?? [],
+          gpsHistory: row?.gps_history ?? [],
+          manualTests: row?.manual_tests ?? [],
+          medicalEvents: row?.medical_events ?? [],
           updatedAt: row?.updated_at ?? null,
         },
       };
@@ -308,7 +309,7 @@ export const adminGetCustomerWorkspace = createServerFn({ method: "POST" })
 
 export const adminSaveCustomerWorkspace = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { userId: string; team: Record<string, unknown>; players: Array<Record<string, unknown>> }) => data)
+  .inputValidator((data: { userId: string; team: Json; players: Json }) => data)
   .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
     try {
       await assertAdmin(context as never);
@@ -318,9 +319,14 @@ export const adminSaveCustomerWorkspace = createServerFn({ method: "POST" })
         { onConflict: "user_id" },
       );
       if (error) return { error: error.message };
-      const names = data.players.map((player) => `${String(player.firstName ?? "")} ${String(player.lastName ?? "")}`.trim());
+      const playerRows = Array.isArray(data.players) ? data.players : [];
+      const teamRow = data.team && !Array.isArray(data.team) && typeof data.team === "object" ? data.team : {};
+      const names = playerRows.map((player) => {
+        const row = player && !Array.isArray(player) && typeof player === "object" ? player : {};
+        return `${String(row["firstName"] ?? "")} ${String(row["lastName"] ?? "")}`.trim();
+      });
       await supabaseAdmin.from("usage_snapshots").upsert(
-        { user_id: data.userId, club_name: String(data.team.club ?? ""), team_name: String(data.team.name ?? ""), players: data.players.length, player_names: names, updated_at: new Date().toISOString() },
+        { user_id: data.userId, club_name: String(teamRow["club"] ?? ""), team_name: String(teamRow["name"] ?? ""), players: playerRows.length, player_names: names, updated_at: new Date().toISOString() },
         { onConflict: "user_id" },
       );
       return { ok: true };
