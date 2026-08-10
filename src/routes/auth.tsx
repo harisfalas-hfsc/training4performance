@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
+
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" } =>
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
-  const { session, hasAccess } = useAuth();
+  const { session } = useAuth();
   const [isSignup, setIsSignup] = useState(mode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,8 +41,23 @@ function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (session) void navigate({ to: hasAccess ? "/dashboard" : "/account", replace: true });
-  }, [session, hasAccess, navigate]);
+    if (session) void navigate({ to: "/dashboard", replace: true });
+  }, [session, navigate]);
+
+  async function forgotPassword() {
+    setError(null);
+    setNotice(null);
+    if (!email) {
+      setError("Enter your email above first, then press “Forgot password”.");
+      return;
+    }
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (err) setError(err.message);
+    else setNotice("Reset link sent — check your inbox.");
+  }
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -109,6 +126,17 @@ function AuthPage() {
           <Field label="Email" type="email" value={email} onChange={setEmail} required />
           <Field label="Password" type="password" value={password} onChange={setPassword} required />
 
+          {!isSignup ? (
+            <button
+              type="button"
+              onClick={forgotPassword}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Forgot your password?
+            </button>
+          ) : null}
+
+
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {notice ? <p className="text-sm text-success">{notice}</p> : null}
 
@@ -149,16 +177,31 @@ function Field({
   type?: string;
   required?: boolean;
 }) {
+  const isPassword = type === "password";
+  const [show, setShow] = useState(false);
   return (
     <label className="block">
       <span className="eyebrow">{label}</span>
-      <input
-        type={type}
-        value={value}
-        required={required}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 h-10 w-full rounded-md border border-input bg-surface-2 px-3 text-sm"
-      />
+      <div className="relative mt-1">
+        <input
+          type={isPassword && show ? "text" : type}
+          value={value}
+          required={required}
+          onChange={(e) => onChange(e.target.value)}
+          className={`h-10 w-full rounded-md border border-input bg-surface-2 px-3 text-sm ${isPassword ? "pr-10" : ""}`}
+        />
+        {isPassword ? (
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            aria-label={show ? "Hide password" : "Show password"}
+            className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
+          >
+            {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        ) : null}
+      </div>
     </label>
   );
 }
+

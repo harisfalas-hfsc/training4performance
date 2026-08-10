@@ -144,26 +144,21 @@ function Account() {
                   {Number(subscription.price_eur).toFixed(0)}
                 </p>
               ) : null}
-              <Link
-                to="/dashboard"
-                className="mt-4 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-              >
-                Open the platform
-              </Link>
             </>
           ) : (
             <>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {subscription?.status === "pending"
-                  ? `Your subscription for ${subscription.team_name} is being set up. You can browse the whole platform in view-only mode meanwhile — editing unlocks once it is confirmed.`
-                  : `You can browse the whole platform in view-only mode. A team subscription costs €999 for the ${season.label} season (1 June – 31 May) and unlocks adding and editing squads, training, GPS, testing and reports.`}
+              <p className="mt-2 text-lg font-semibold">View-only mode</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                You can open the platform and browse every page, chart and screen for free. A team subscription
+                costs €999 for the {season.label} season (1 June – 31 May) and unlocks adding and editing squads,
+                training, GPS, testing and reports.
               </p>
               <button
                 onClick={activate}
-                disabled={busy || subscription?.status === "pending"}
+                disabled={busy}
                 className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {busy ? "Sending…" : subscription?.status === "pending" ? "Checkout pending" : "Subscribe — €999 / season"}
+                {busy ? "Sending…" : "Subscribe — €999 / season"}
               </button>
               <p className="mt-2 text-xs text-muted-foreground">
                 Online payments are coming soon — for now subscriptions are activated after invoicing. Contact
@@ -171,7 +166,16 @@ function Account() {
               </p>
             </>
           )}
+          <div>
+            <Link
+              to="/dashboard"
+              className="mt-4 inline-flex rounded-md border border-border bg-surface-2 px-4 py-2 text-sm font-semibold"
+            >
+              Open the platform
+            </Link>
+          </div>
         </div>
+
 
         {error ? <p className="mt-4 text-sm text-destructive">{error}</p> : null}
 
