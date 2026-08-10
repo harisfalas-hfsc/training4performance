@@ -125,7 +125,7 @@ function TeamPage() {
     <AppShell title="Team & data" subtitle="Create your team, follow the setup, export or delete everything">
       <div className="space-y-6">
         <section className="rounded-xl border border-border bg-surface p-4">
-          <SectionTitle title="Getting started" subtitle="Five steps from an empty account to a running season" />
+          <SectionTitle title="Getting started" hint="Five steps from an empty account to a running season" />
           <ol className="mt-3 space-y-2">
             {steps.map((s) => (
               <li key={s.label} className="flex items-start gap-3 rounded-lg border border-border/60 bg-surface-2 p-3">
@@ -154,7 +154,7 @@ function TeamPage() {
         <section className="rounded-xl border border-border bg-surface p-4">
           <SectionTitle
             title={configured ? "Your team" : "Create your team"}
-            subtitle={`One account holds ${MAX_TEAMS_PER_ACCOUNT} team. A second team needs a second account and subscription.`}
+            hint={`One account holds ${MAX_TEAMS_PER_ACCOUNT} team. A second team needs a second account and subscription.`}
           />
           <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
             <Field label="Club *">
@@ -199,7 +199,7 @@ function TeamPage() {
 
         <section className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-border bg-surface p-4">
-            <SectionTitle title="Limits" subtitle="What one subscription covers" />
+            <SectionTitle title="Limits" hint="What one subscription covers" />
             <ul className="mt-3 space-y-2 text-sm">
               <Limit label="Teams per account" value={`${MAX_TEAMS_PER_ACCOUNT}`} note="One team per subscription." />
               <Limit label="Squads per team" value="1" note="The squad of that team." />
@@ -218,7 +218,7 @@ function TeamPage() {
           </div>
 
           <div className="rounded-xl border border-border bg-surface p-4">
-            <SectionTitle title="Export your data" subtitle="Your records are your property — download them anytime" />
+            <SectionTitle title="Export your data" hint="Your records are your property — download them anytime" />
             <p className="mt-2 text-sm text-muted-foreground">
               A ZIP with <strong>workspace.json</strong> (complete backup) plus CSVs for players, GPS, sessions, tests
               and medical events. Works even if you stop your subscription.
@@ -236,7 +236,7 @@ function TeamPage() {
         </section>
 
         <section className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-          <SectionTitle title="Danger zone" subtitle="These actions cannot be undone — export first" />
+          <SectionTitle title="Danger zone" hint="These actions cannot be undone — export first" />
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div className="rounded-lg border border-border bg-surface p-3">
               <p className="text-sm font-semibold">Delete all records, keep the team</p>

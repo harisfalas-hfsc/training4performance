@@ -34,6 +34,7 @@ import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedManualRouteImport } from './routes/_authenticated/manual'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
+import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players.$id'
 
@@ -161,6 +162,11 @@ const AuthenticatedSquadRoute = AuthenticatedSquadRouteImport.update({
   path: '/squad',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   id: '/training',
   path: '/training',
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/squad': typeof AuthenticatedSquadRoute
+  '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
 }
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/squad': typeof AuthenticatedSquadRoute
+  '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
 }
@@ -255,6 +263,7 @@ export interface FileRoutesById {
   '/_authenticated/manual': typeof AuthenticatedManualRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/squad': typeof AuthenticatedSquadRoute
+  '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
 }
@@ -285,6 +294,7 @@ export interface FileRouteTypes {
     | '/manual'
     | '/reports'
     | '/squad'
+    | '/team'
     | '/training'
     | '/players/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -313,6 +323,7 @@ export interface FileRouteTypes {
     | '/manual'
     | '/reports'
     | '/squad'
+    | '/team'
     | '/training'
     | '/players/$id'
   id:
@@ -342,6 +353,7 @@ export interface FileRouteTypes {
     | '/_authenticated/manual'
     | '/_authenticated/reports'
     | '/_authenticated/squad'
+    | '/_authenticated/team'
     | '/_authenticated/training'
     | '/_authenticated/players/$id'
   fileRoutesById: FileRoutesById
@@ -538,6 +550,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSquadRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/team': {
+      id: '/_authenticated/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedTeamRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/training': {
       id: '/_authenticated/training'
       path: '/training'
@@ -569,6 +588,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedManualRoute: typeof AuthenticatedManualRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
+  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
   AuthenticatedPlayersIdRoute: typeof AuthenticatedPlayersIdRoute
 }
@@ -587,6 +607,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedManualRoute: AuthenticatedManualRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSquadRoute: AuthenticatedSquadRoute,
+  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
   AuthenticatedPlayersIdRoute: AuthenticatedPlayersIdRoute,
 }
