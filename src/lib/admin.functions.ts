@@ -266,16 +266,16 @@ export const adminUpdateCustomer = createServerFn({ method: "POST" })
     try {
       await assertAdmin(context as never);
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const profilePatch: Record<string, string> = {};
-      if (data.full_name !== undefined) profilePatch["full_name"] = data.full_name;
-      if (data.club_name !== undefined) profilePatch["club_name"] = data.club_name;
+      const profilePatch: { full_name?: string; club_name?: string } = {};
+      if (data.full_name !== undefined) profilePatch.full_name = data.full_name;
+      if (data.club_name !== undefined) profilePatch.club_name = data.club_name;
       if (Object.keys(profilePatch).length) {
         const { error } = await supabaseAdmin.from("profiles").update(profilePatch).eq("id", data.userId);
         if (error) return { error: error.message };
       }
-      const subPatch: Record<string, string> = {};
-      if (data.team_name !== undefined) subPatch["team_name"] = data.team_name;
-      if (data.note !== undefined) subPatch["admin_note"] = data.note;
+      const subPatch: { team_name?: string; admin_note?: string } = {};
+      if (data.team_name !== undefined) subPatch.team_name = data.team_name;
+      if (data.note !== undefined) subPatch.admin_note = data.note;
       if (Object.keys(subPatch).length) {
         const { error } = await supabaseAdmin.from("subscriptions").update(subPatch).eq("user_id", data.userId);
         if (error) return { error: error.message };
