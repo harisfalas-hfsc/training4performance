@@ -26,11 +26,13 @@ import {
   adminGrantAccess,
   adminImpersonate,
   adminListCustomers,
+  adminListTeams,
   adminRevokeAccess,
   adminSetRole,
   adminUpdateCustomer,
   type AdminCustomer,
   type AdminStats,
+  type AdminTeam,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
