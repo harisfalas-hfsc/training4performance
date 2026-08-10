@@ -12,7 +12,7 @@ const links = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { session, hasAccess } = useAuth();
+  const { session } = useAuth();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
@@ -44,10 +44,10 @@ export function SiteHeader() {
         <div className="flex shrink-0 items-center gap-2">
           {session ? (
             <Link
-              to={hasAccess ? "/dashboard" : "/account"}
+              to="/dashboard"
               className="whitespace-nowrap rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
             >
-              {hasAccess ? "Open platform" : "My account"}
+              Open platform
             </Link>
           ) : (
             <>
