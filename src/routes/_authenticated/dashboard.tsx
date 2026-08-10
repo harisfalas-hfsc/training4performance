@@ -65,7 +65,24 @@ function Dashboard() {
         </Link>
       }
     >
+      {!isTeamConfigured() || players.length === 0 ? (
+        <section className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <div>
+            <p className="text-sm font-semibold">Set up your workspace</p>
+            <p className="text-xs text-muted-foreground">
+              Create your team, add your squad, import GPS and design your first session — five guided steps.
+            </p>
+          </div>
+          <Link
+            to="/team"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Start setup <ArrowUpRight className="size-4" />
+          </Link>
+        </section>
+      ) : null}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
         <MetricCard
           label="Who do I have?"
           value={`${av.available}/${players.length}`}
