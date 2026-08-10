@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Download, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
-import { HBar, MultiLine, TrendBars } from "@/components/charts";
+import { CHART_KINDS, HBar, MultiChart, type ChartKind } from "@/components/charts";
 import {
   fullName,
   gpsHistory,
