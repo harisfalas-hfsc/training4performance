@@ -15,6 +15,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as GpsRouteImport } from './routes/gps'
+import { Route as LogbookRouteImport } from './routes/logbook'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SquadRouteImport } from './routes/squad'
 import { Route as TrainingRouteImport } from './routes/training'
@@ -50,6 +51,11 @@ const GpsRoute = GpsRouteImport.update({
   path: '/gps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LogbookRoute = LogbookRouteImport.update({
+  id: '/logbook',
+  path: '/logbook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AnalyticsRoute
   '/board': typeof BoardRoute
   '/gps': typeof GpsRoute
+  '/logbook': typeof LogbookRoute
   '/reports': typeof ReportsRoute
   '/squad': typeof SquadRoute
   '/training': typeof TrainingRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AnalyticsRoute
   '/board': typeof BoardRoute
   '/gps': typeof GpsRoute
+  '/logbook': typeof LogbookRoute
   '/reports': typeof ReportsRoute
   '/squad': typeof SquadRoute
   '/training': typeof TrainingRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/analytics': typeof AnalyticsRoute
   '/board': typeof BoardRoute
   '/gps': typeof GpsRoute
+  '/logbook': typeof LogbookRoute
   '/reports': typeof ReportsRoute
   '/squad': typeof SquadRoute
   '/training': typeof TrainingRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/board'
     | '/gps'
+    | '/logbook'
     | '/reports'
     | '/squad'
     | '/training'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/board'
     | '/gps'
+    | '/logbook'
     | '/reports'
     | '/squad'
     | '/training'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/board'
     | '/gps'
+    | '/logbook'
     | '/reports'
     | '/squad'
     | '/training'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   AnalyticsRoute: typeof AnalyticsRoute
   BoardRoute: typeof BoardRoute
   GpsRoute: typeof GpsRoute
+  LogbookRoute: typeof LogbookRoute
   ReportsRoute: typeof ReportsRoute
   SquadRoute: typeof SquadRoute
   TrainingRoute: typeof TrainingRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GpsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/logbook': {
+      id: '/logbook'
+      path: '/logbook'
+      fullPath: '/logbook'
+      preLoaderRoute: typeof LogbookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reports': {
       id: '/reports'
       path: '/reports'
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsRoute: AnalyticsRoute,
   BoardRoute: BoardRoute,
   GpsRoute: GpsRoute,
+  LogbookRoute: LogbookRoute,
   ReportsRoute: ReportsRoute,
   SquadRoute: SquadRoute,
   TrainingRoute: TrainingRoute,
