@@ -7,6 +7,7 @@ import {
   ClipboardPen,
   Circle,
   Download,
+  FileSpreadsheet,
   Radar,
   Save,
   Shield,
