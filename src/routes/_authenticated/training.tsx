@@ -519,7 +519,7 @@ function TrainingPage() {
                             </button>
                           </div>
                         </div>
-                        {gym ? (
+                        {gym || it.strength ? (
                           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
                             <NumField
                               label="Sets"
