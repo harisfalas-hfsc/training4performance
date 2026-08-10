@@ -593,30 +593,36 @@ function ReportsPage() {
 
             {has("playerTable") && (
               <div>
-                <p className="eyebrow mb-2">Player summary</p>
+                <p className="eyebrow mb-2">
+                  Player summary · {from} → {to} · {kpiCols.length} selected KPI(s)
+                </p>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full min-w-[40rem] text-sm">
                     <thead>
                       <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                         <th className="py-2">Player</th>
-                        <th className="text-right">Distance 7d</th>
-                        <th className="text-right">HSR 7d</th>
-                        <th className="text-right">Sprint 7d</th>
+                        {kpiCols.map((k) => (
+                          <th key={k} className="text-right">
+                            {PIVOT_METRICS.find((m) => m.key === k)?.label ?? k}
+                          </th>
+                        ))}
                         <th className="text-right">Acute load</th>
                         <th className="text-right">ACWR</th>
                         <th className="text-right">Availability</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {metrics.map((m) => (
-                        <tr key={m.player.id} className="border-b border-border/60">
-                          <td className="py-1.5">{fullName(m.player)}</td>
-                          <td className="text-right tabular-nums">{m.distance7.toLocaleString()}</td>
-                          <td className="text-right tabular-nums">{m.hsr7}</td>
-                          <td className="text-right tabular-nums">{m.sprint7}</td>
-                          <td className="text-right tabular-nums">{m.load.acute}</td>
-                          <td className="text-right tabular-nums">{m.load.acwr || "—"}</td>
-                          <td className="text-right tabular-nums">{availabilitySummary(m.player.id).availability}%</td>
+                      {reportRows.map((r) => (
+                        <tr key={r.player.id} className="border-b border-border/60">
+                          <td className="py-1.5">{fullName(r.player)}</td>
+                          {kpiCols.map((k) => (
+                            <td key={k} className="text-right tabular-nums">
+                              {(r.values[k] ?? 0).toLocaleString()}
+                            </td>
+                          ))}
+                          <td className="text-right tabular-nums">{r.load.acute}</td>
+                          <td className="text-right tabular-nums">{r.load.acwr || "—"}</td>
+                          <td className="text-right tabular-nums">{availabilitySummary(r.player.id).availability}%</td>
                         </tr>
                       ))}
                     </tbody>
@@ -624,6 +630,7 @@ function ReportsPage() {
                 </div>
               </div>
             )}
+
 
             <div>
               <p className="eyebrow mb-2">Medical & availability</p>
