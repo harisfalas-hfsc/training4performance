@@ -365,12 +365,38 @@ const ARROW_TOOLS: Tool[] = ["arrow", "dashed", "zigzag", "curve", "loop", "pen"
 let seq = 0;
 const uid = () => `n${++seq}-${Date.now().toString(36)}`;
 
-export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
+export interface BoardDrawing {
+  tokens: BoardToken[];
+  shapes: BoardShape[];
+  orientation?: Orientation;
+}
+
+export function parseDrawing(json?: string): BoardDrawing | null {
+  if (!json) return null;
+  try {
+    const d = JSON.parse(json) as BoardDrawing;
+    return d && Array.isArray(d.tokens) ? d : null;
+  } catch {
+    return null;
+  }
+}
+
+export function TacticsBoard({
+  initialTokens = [] as BoardToken[],
+  drawing: initialDrawing,
+  onSave,
+  saveLabel = "Save drawing",
+}: {
+  initialTokens?: BoardToken[];
+  drawing?: BoardDrawing | null;
+  onSave?: (drawing: BoardDrawing) => void;
+  saveLabel?: string;
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [orientation, setOrientation] = useState<Orientation>("portrait");
+  const [orientation, setOrientation] = useState<Orientation>(initialDrawing?.orientation ?? "portrait");
   const [tool, setTool] = useState<Tool>("select");
-  const [tokens, setTokens] = useState<BoardToken[]>(initialTokens);
-  const [shapes, setShapes] = useState<BoardShape[]>([]);
+  const [tokens, setTokens] = useState<BoardToken[]>(initialDrawing?.tokens ?? initialTokens);
+  const [shapes, setShapes] = useState<BoardShape[]>(initialDrawing?.shapes ?? []);
   const [history, setHistory] = useState<Snapshot[]>([]);
   const [panel, setPanel] = useState<"players" | "equipment" | null>("players");
   const [pending, setPending] = useState<{ kind: TokenKind; color: string } | null>(null);
