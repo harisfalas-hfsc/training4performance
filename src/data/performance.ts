@@ -459,6 +459,12 @@ export function nextPlayerId() {
 
 export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
   if (!guardWrite()) return;
+  if (players.length >= MAX_PLAYERS_PER_SQUAD) {
+    toast.error("Squad is full", {
+      description: `A squad holds up to ${MAX_PLAYERS_PER_SQUAD} players. Remove a player before adding another.`,
+    });
+    return;
+  }
   const p: Player = {
     id: input.id ?? nextPlayerId(),
     firstName: input.firstName,
