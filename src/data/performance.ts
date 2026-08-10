@@ -399,6 +399,32 @@ export function updateSession(id: string, patch: Partial<Session>) {
   emit();
 }
 
+/** Effective status of a session: explicit, else derived from the date. */
+export function sessionStatus(s: Session): SessionStatus {
+  if (s.status) return s.status;
+  const today = new Date().toISOString().slice(0, 10);
+  if (s.date > today) return "scheduled";
+  return s.actualRpe ? "completed" : "pending";
+}
+
+export function setSessionStatus(id: string, status: SessionStatus) {
+  updateSession(id, { status });
+}
+
+export function toggleSessionFavorite(id: string) {
+  const s = sessionCalendar.find((x) => x.id === id);
+  if (s) updateSession(id, { favorite: !s.favorite });
+}
+
+/** Duplicate a saved session (e.g. a favourite template) onto another date. */
+export function duplicateSession(id: string, date: string) {
+  const s = sessionCalendar.find((x) => x.id === id);
+  if (!s) return;
+  const { id: _id, ...rest } = s;
+  return addSession({ ...rest, date, status: "scheduled", actualRpe: undefined, favorite: false });
+}
+
+
 export function removeSession(id: string) {
   const s = sessionCalendar.find((x) => x.id === id);
   replace(sessionCalendar, sessionCalendar.filter((x) => x.id !== id));
