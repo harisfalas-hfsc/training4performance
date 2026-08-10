@@ -22,7 +22,7 @@ import {
 export const Route = createFileRoute("/ai")({
   head: () => ({
     meta: [
-      { title: "AI Performance Assistant — T4P — Training 4 Performance" },
+      { title: "AI Performance Assistant — T4P" },
       {
         name: "description",
         content:

@@ -17,7 +17,7 @@ import {
 export const Route = createFileRoute("/analytics")({
   head: () => ({
     meta: [
-      { title: "Squad Analytics & Comparison — T4P — Training 4 Performance" },
+      { title: "Squad Analytics & Comparison — T4P" },
       {
         name: "description",
         content:

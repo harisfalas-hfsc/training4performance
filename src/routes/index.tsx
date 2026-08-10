@@ -22,13 +22,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Coach Dashboard — T4P — Training 4 Performance" },
+      { title: "Coach Dashboard — T4P" },
       {
         name: "description",
         content:
           "Daily squad availability, training load, GPS response and attention list for football fitness and performance staff.",
       },
-      { property: "og:title", content: "Coach Dashboard — T4P — Training 4 Performance" },
+      { property: "og:title", content: "Coach Dashboard — T4P" },
       {
         property: "og:description",
         content: "Squad availability, workload, wellness and AI-supported observations in one connected screen.",
