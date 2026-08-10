@@ -420,8 +420,8 @@ export function toggleSessionFavorite(id: string) {
 export function duplicateSession(id: string, date: string) {
   const s = sessionCalendar.find((x) => x.id === id);
   if (!s) return;
-  const { id: _id, ...rest } = s;
-  return addSession({ ...rest, date, status: "scheduled", actualRpe: undefined, favorite: false });
+  const { id: _id, actualRpe: _rpe, ...rest } = s;
+  return addSession({ ...rest, date, status: "scheduled", favorite: false });
 }
 
 
