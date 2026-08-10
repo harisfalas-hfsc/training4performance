@@ -50,7 +50,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
     period: "Last 7 days",
     sections: ["headline", "loadTrend", "playerTable", "availability", "observations"],
     formats: ["PDF", "PNG"],
-    allowedRoles: ["head_coach", "fitness_staff", "medical_staff"],
+    allowedRoles: ["fitness_staff"],
     builtIn: true,
   },
   {
@@ -60,7 +60,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
     period: "Last 28 days",
     sections: ["headline", "loadTrend", "gpsOutput", "playerTable", "wellness", "observations"],
     formats: ["Excel", "CSV"],
-    allowedRoles: ["fitness_staff", "medical_staff"],
+    allowedRoles: ["fitness_staff"],
     builtIn: true,
   },
   {
@@ -70,7 +70,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
     period: "Last 14 days",
     sections: ["headline", "availability", "medical", "wellness"],
     formats: ["PDF"],
-    allowedRoles: ["medical_staff"],
+    allowedRoles: ["fitness_staff"],
     builtIn: true,
   },
   {
@@ -80,7 +80,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
     period: "Season",
     sections: ["headline", "availability", "loadTrend", "observations"],
     formats: ["PDF"],
-    allowedRoles: ["head_coach", "fitness_staff", "medical_staff"],
+    allowedRoles: ["fitness_staff"],
     builtIn: true,
   },
 ];

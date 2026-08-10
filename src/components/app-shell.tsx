@@ -9,19 +9,21 @@ import {
   BookOpen,
   FileText,
   LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
   Radar,
   Users,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { team, squadName, squadAvailability } from "@/data/performance";
-import { ROLES, useRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/squad", label: "Squad", icon: Users },
-  { to: "/training", label: "Training", icon: CalendarDays },
-  { to: "/board", label: "Tactics Board", icon: ClipboardPen },
+  { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/training", label: "Training Designer", icon: ClipboardPen },
+  { to: "/board", label: "Tactics Board", icon: Activity },
   { to: "/logbook", label: "Logbook", icon: BookOpen },
   { to: "/gps", label: "GPS Import", icon: Radar },
   { to: "/alerts", label: "Alerts", icon: BellRing },
@@ -43,11 +45,36 @@ export function AppShell({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const av = squadAvailability();
-  const { role, setRole, def } = useRole();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
+  }, []);
+
+  const toggle = () => {
+    setOpen((v) => {
+      window.localStorage.setItem("t4p.sidebar", v ? "closed" : "open");
+      return !v;
+    });
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+      {open && (
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={toggle}
+          className="fixed inset-0 z-30 bg-background/60 backdrop-blur-sm"
+        />
+      )}
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 flex h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-200",
+          open ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
         <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-4">
           <Activity className="size-5 text-primary" />
           <div className="leading-tight">
@@ -58,13 +85,14 @@ export function AppShell({
           </div>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-0.5 p-3">
+        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
           {nav.map((item) => {
             const active = pathname.startsWith(item.to);
             return (
               <Link
                 key={item.to}
                 to={item.to}
+                onClick={toggle}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   active && "bg-sidebar-accent text-primary",
@@ -90,29 +118,27 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-            <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                onClick={toggle}
+                aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground"
+              >
+                {open ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
+              </button>
+              <div className="min-w-0">
               <p className="eyebrow">
                 {team.club} · {team.name} · {squadName} · {team.season}
               </p>
               <h1 className="truncate text-2xl font-semibold uppercase tracking-wide">{title}</h1>
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-2">
-                <span className="eyebrow">Signed in as</span>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as typeof role)}
-                  title={def.description}
-                  className="h-9 rounded-md border border-input bg-surface-2 px-2 text-sm"
-                >
-                  {ROLES.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <Link to="/" className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+                Website
+              </Link>
               {actions}
               <Link
                 to="/account"
@@ -122,7 +148,7 @@ export function AppShell({
               </Link>
             </div>
           </div>
-          <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2 lg:hidden">
+          <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2">
             {nav.map((item) => {
               const active = pathname.startsWith(item.to);
               return (

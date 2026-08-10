@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/reports")({
       {
         name: "description",
         content:
-          "Configurable report templates plus one-click scheduled exports for specific staff audiences and date ranges, with role-based medical redaction.",
+          "Configurable report templates plus one-click scheduled exports for specific staff audiences and date ranges.",
       },
       { property: "og:title", content: "Report Templates & Scheduled Exports — T4P" },
       { property: "og:description", content: "Choose a template, a date range and an audience — T4P builds and sends the report." },

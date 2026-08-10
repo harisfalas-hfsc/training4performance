@@ -93,11 +93,34 @@ export interface Drill {
   players: number;
 }
 
+/** Ordered parts of a training day. */
+export const TRAINING_BLOCKS = [
+  "Warm-up",
+  "Activation / Prehab",
+  "Strength room",
+  "Technical",
+  "Tactical",
+  "Conditioning",
+  "Speed & power",
+  "Small-sided games",
+  "Set pieces",
+  "Cool-down / Recovery",
+] as const;
+export type TrainingBlock = (typeof TRAINING_BLOCKS)[number];
+
+export const TRAINING_LOCATIONS = ["Pitch", "Gym", "Pool", "Indoor", "Classroom"] as const;
+export type TrainingLocation = (typeof TRAINING_LOCATIONS)[number];
+
+export type SessionStatus = "scheduled" | "pending" | "completed";
+
 export interface SessionPlanItem {
   drill: string;
   purpose: string;
   durationMin: number;
   rpe: number;
+  block?: TrainingBlock;
+  location?: TrainingLocation;
+  notes?: string;
 }
 
 export interface Session {
@@ -113,7 +136,10 @@ export interface Session {
   /** Drill-by-drill plan of the day (parts of training). */
   plan?: SessionPlanItem[];
   group?: string;
+  status?: SessionStatus;
+  favorite?: boolean;
 }
+
 
 export interface MedicalEvent {
   playerId: string;
@@ -372,6 +398,32 @@ export function updateSession(id: string, patch: Partial<Session>) {
   sessionCalendar[i] = { ...sessionCalendar[i]!, ...patch };
   emit();
 }
+
+/** Effective status of a session: explicit, else derived from the date. */
+export function sessionStatus(s: Session): SessionStatus {
+  if (s.status) return s.status;
+  const today = new Date().toISOString().slice(0, 10);
+  if (s.date > today) return "scheduled";
+  return s.actualRpe ? "completed" : "pending";
+}
+
+export function setSessionStatus(id: string, status: SessionStatus) {
+  updateSession(id, { status });
+}
+
+export function toggleSessionFavorite(id: string) {
+  const s = sessionCalendar.find((x) => x.id === id);
+  if (s) updateSession(id, { favorite: !s.favorite });
+}
+
+/** Duplicate a saved session (e.g. a favourite template) onto another date. */
+export function duplicateSession(id: string, date: string) {
+  const s = sessionCalendar.find((x) => x.id === id);
+  if (!s) return;
+  const { id: _id, actualRpe: _rpe, ...rest } = s;
+  return addSession({ ...rest, date, status: "scheduled", favorite: false });
+}
+
 
 export function removeSession(id: string) {
   const s = sessionCalendar.find((x) => x.id === id);

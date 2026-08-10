@@ -1,38 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { CalendarPlus, Plus, Save, Timer, Trash2, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarPlus, Copy, Plus, Save, Star, Timer, Trash2, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import {
   addSession,
   drills,
+  duplicateSession,
   fullName,
   getDrill,
   players,
   removeSession,
   sessionCalendar,
+  sessionStatus,
+  setSessionStatus,
   today,
+  toggleSessionFavorite,
+  TRAINING_BLOCKS,
+  TRAINING_LOCATIONS,
   updateSession,
   useDataVersion,
   type Session,
+  type SessionPlanItem,
+  type SessionStatus,
+  type TrainingBlock,
+  type TrainingLocation,
   type TrainingStatus,
 } from "@/data/performance";
 
 export const Route = createFileRoute("/_authenticated/training")({
   head: () => ({
     meta: [
-      { title: "Training Calendar & Session Designer — T4P" },
+      { title: "Training Designer — T4P" },
       {
         name: "description",
         content:
-          "Plan microcycle sessions, build drills with focus categories and estimated RPE, record participation and sketch the pitch.",
+          "Design each training day block by block — warm-up, strength room, technical, conditioning — with duration, RPE, location and participation.",
       },
-      { property: "og:title", content: "Training Calendar & Session Designer" },
+      { property: "og:title", content: "Training Designer — T4P" },
       {
         property: "og:description",
-        content: "One session, everything connected: drills, focus, RPE, participation and planned load.",
+        content: "Build the session in blocks, schedule it, mark it completed and save it as a favourite template.",
       },
     ],
+  }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    date: typeof search["date"] === "string" ? (search["date"] as string) : undefined,
   }),
   component: TrainingPage,
 });
@@ -45,6 +58,12 @@ const STATUS: TrainingStatus[] = [
   "Modified Training",
   "Did Not Train",
 ];
+
+const STATE_LABEL: Record<SessionStatus, string> = {
+  scheduled: "Scheduled",
+  pending: "Pending completion",
+  completed: "Completed",
+};
 
 const defaultStatus = (availability: string): TrainingStatus =>
   availability === "injured" || availability === "ill"
@@ -59,59 +78,64 @@ const defaultStatus = (availability: string): TrainingStatus =>
 
 function TrainingPage() {
   useDataVersion();
+  const search = Route.useSearch();
   const [selectedId, setSelectedId] = useState(
-    () => (sessionCalendar.find((s) => s.date === today) ?? sessionCalendar[sessionCalendar.length - 1])?.id ?? "",
+    () =>
+      (sessionCalendar.find((s) => s.date === search.date) ??
+        sessionCalendar.find((s) => s.date === today) ??
+        sessionCalendar[sessionCalendar.length - 1])?.id ?? "",
   );
   const [showNew, setShowNew] = useState(false);
   const session = sessionCalendar.find((s) => s.id === selectedId) ?? sessionCalendar[sessionCalendar.length - 1];
   const [participation, setParticipation] = useState<Record<string, TrainingStatus>>(() =>
     Object.fromEntries(players.map((p) => [p.id, defaultStatus(p.availability)])),
   );
-  const [sessionDrills, setSessionDrills] = useState<string[]>(session?.drills ?? []);
+  const [items, setItems] = useState<SessionPlanItem[]>(() => session?.plan ?? []);
+  const [activeBlock, setActiveBlock] = useState<TrainingBlock>("Warm-up");
   const [actualRpe, setActualRpe] = useState<number>(session?.actualRpe ?? 0);
+  const [saved, setSaved] = useState(false);
 
-  const selectSession = (s: Session) => {
-    setSelectedId(s.id);
-    setSessionDrills(s.drills);
-    setActualRpe(s.actualRpe ?? 0);
-  };
+  useEffect(() => {
+    setItems(session?.plan ?? []);
+    setActualRpe(session?.actualRpe ?? 0);
+  }, [session?.id]);
+
+  const selectSession = (s: Session) => setSelectedId(s.id);
+
+  const addItem = (item: SessionPlanItem) => setItems((prev) => [...prev, item]);
+  const patchItem = (i: number, patch: Partial<SessionPlanItem>) =>
+    setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+  const removeItem = (i: number) => setItems((prev) => prev.filter((_, idx) => idx !== i));
 
   const saveSession = () => {
     if (!session) return;
-    const list = sessionDrills.map(getDrill);
-    const per = list.length ? Math.round(session.durationMin / list.length) : 0;
     updateSession(session.id, {
-      drills: sessionDrills,
-      ...(actualRpe ? { actualRpe } : {}),
-      plan: list.map((d) => ({
-        drill: d.name,
-        purpose: d.categories[0] ?? "TRAINING",
-        durationMin: per,
-        rpe: d.rpe,
-      })),
+      plan: items,
+      drills: items.map((i) => i.drill),
+      durationMin: items.reduce((a, i) => a + (i.durationMin || 0), 0) || session.durationMin,
+      ...(actualRpe ? { actualRpe, status: "completed" as SessionStatus } : {}),
     });
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 2000);
   };
 
   const plan = useMemo(() => {
-    const list = sessionDrills.map(getDrill);
-    const minutes = list.length ? Math.round(session?.durationMin ?? 0) : 0;
-    const plannedRpe = list.length ? +(list.reduce((a, d) => a + d.rpe, 0) / list.length).toFixed(1) : 0;
-    const sprintDistance = list.some((d) => d.categories.includes("Maximum Speed")) ? 125 : 0;
+    const minutes = items.reduce((a, i) => a + (i.durationMin || 0), 0);
+    const weighted = items.reduce((a, i) => a + (i.rpe || 0) * (i.durationMin || 0), 0);
+    const plannedRpe = minutes ? +(weighted / minutes).toFixed(1) : 0;
     return {
       minutes,
       plannedRpe,
       load: Math.round(plannedRpe * minutes),
-      sprintDistance,
-      highIntensity: list.filter((d) => d.intensity === "High").length,
-      focus: Array.from(new Set(list.flatMap((d) => d.categories))),
+      blocks: Array.from(new Set(items.map((i) => i.block ?? "Warm-up"))),
     };
-  }, [sessionDrills, session]);
+  }, [items]);
 
   const counts = STATUS.map((s) => ({ s, n: Object.values(participation).filter((v) => v === s).length }));
 
   if (!session) {
     return (
-      <AppShell title="Training" subtitle="Calendar · participation · session designer">
+      <AppShell title="Training Designer" subtitle="Build the day block by block">
         <div className="panel p-6">
           <p className="text-sm text-muted-foreground">No sessions yet — create the first training day.</p>
           <NewSessionForm onDone={(id) => setSelectedId(id)} />
@@ -120,11 +144,13 @@ function TrainingPage() {
     );
   }
 
+  const state = sessionStatus(session);
+
   return (
-    <AppShell title="Training" subtitle="Calendar · participation · session designer">
+    <AppShell title="Training Designer" subtitle="Blocks · participation · planned load">
       <section className="panel p-4">
         <SectionTitle
-          title="Microcycle"
+          title="Training days"
           hint="Select a day to open the session"
           right={
             <div className="flex items-center gap-2">
@@ -134,6 +160,16 @@ function TrainingPage() {
                 className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
               >
                 <CalendarPlus className="size-4" /> {showNew ? "Close" : "New training day"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const d = window.prompt("Copy this session to date (YYYY-MM-DD)", today);
+                  if (d) duplicateSession(session.id, d);
+                }}
+                className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Copy className="size-4" /> Duplicate
               </button>
               <button
                 type="button"
@@ -151,39 +187,52 @@ function TrainingPage() {
           <NewSessionForm
             onDone={(id) => {
               setSelectedId(id);
-              setSessionDrills([]);
+              setItems([]);
               setActualRpe(0);
               setShowNew(false);
             }}
           />
         )}
         <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
-          {sessionCalendar.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => selectSession(s)}
-              className={`rounded-md border p-3 text-left transition-colors ${
-                s.id === selectedId ? "border-primary bg-primary/10" : "border-border bg-surface-2 hover:border-primary/40"
-              }`}
-            >
-              <p className="eyebrow">{s.date === today ? "Today" : s.date.slice(5)}</p>
-              <p className="font-display text-lg font-semibold">{s.label}</p>
-              <p className="text-xs text-muted-foreground">{s.title}</p>
-            </button>
-          ))}
+          {sessionCalendar.map((s) => {
+            const st = sessionStatus(s);
+            return (
+              <button
+                key={s.id}
+                onClick={() => selectSession(s)}
+                className={`rounded-md border p-3 text-left transition-colors ${
+                  s.id === selectedId ? "border-primary bg-primary/10" : "border-border bg-surface-2 hover:border-primary/40"
+                }`}
+              >
+                <p className="eyebrow flex items-center justify-between">
+                  <span>{s.date === today ? "Today" : s.date.slice(5)}</span>
+                  {s.favorite ? <Star className="size-3 fill-primary text-primary" /> : null}
+                </p>
+                <p className="font-display text-lg font-semibold">{s.label}</p>
+                <p className="truncate text-xs text-muted-foreground">{s.title}</p>
+                <p
+                  className={`mt-1 text-[0.68rem] ${
+                    st === "completed" ? "text-success" : st === "pending" ? "text-warning" : "text-muted-foreground"
+                  }`}
+                >
+                  {STATE_LABEL[st]}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Duration" value={session.durationMin} unit="min" icon={<Timer className="size-4" />} />
-        <MetricCard label="Planned RPE" value={plan.plannedRpe || session.plannedRpe} hint="Average of drill estimates" />
+        <MetricCard label="Planned duration" value={plan.minutes || session.durationMin} unit="min" icon={<Timer className="size-4" />} />
+        <MetricCard label="Planned RPE" value={plan.plannedRpe || session.plannedRpe} hint="Duration-weighted across blocks" />
         <MetricCard
           label="Actual RPE"
           value={actualRpe || "—"}
           hint={actualRpe ? `Difference ${(actualRpe - (plan.plannedRpe || session.plannedRpe)).toFixed(1)}` : "Enter after training"}
           tone={actualRpe > (plan.plannedRpe || session.plannedRpe) ? "warn" : "default"}
         />
-        <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`Planned sprint volume ${plan.sprintDistance} m`} />
+        <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`${plan.blocks.length} block(s) planned`} />
       </section>
 
       <section className="mt-4 grid gap-4 xl:grid-cols-3">
@@ -225,9 +274,28 @@ function TrainingPage() {
             title="Session designer"
             hint={session.objective}
             right={
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={state}
+                  onChange={(e) => setSessionStatus(session.id, e.target.value as SessionStatus)}
+                  className="h-8 rounded-md border border-input bg-surface-2 px-2 text-xs"
+                >
+                  {(["scheduled", "pending", "completed"] as SessionStatus[]).map((s) => (
+                    <option key={s} value={s}>
+                      {STATE_LABEL[s]}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => toggleSessionFavorite(session.id)}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Star className={`size-4 ${session.favorite ? "fill-primary text-primary" : ""}`} />
+                  {session.favorite ? "Favourite" : "Save as favourite"}
+                </button>
                 <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                  Actual session RPE
+                  Actual RPE
                   <input
                     type="number"
                     min={0}
@@ -242,55 +310,140 @@ function TrainingPage() {
                   onClick={saveSession}
                   className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
                 >
-                  <Save className="size-4" /> Save session
+                  <Save className="size-4" /> {saved ? "Saved" : "Save session"}
                 </button>
               </div>
             }
           />
 
+          <div className="mb-3 flex flex-wrap gap-1">
+            {TRAINING_BLOCKS.map((b) => {
+              const n = items.filter((i) => (i.block ?? "Warm-up") === b).length;
+              return (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setActiveBlock(b)}
+                  className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold ${
+                    activeBlock === b ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {b}
+                  {n ? <span className="ml-1 text-[0.65rem] opacity-70">({n})</span> : null}
+                </button>
+              );
+            })}
+          </div>
+
           <Pitch />
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <div>
-              <p className="eyebrow mb-2">Session drills</p>
-              <ul className="space-y-2">
-                {sessionDrills.map((d, i) => {
-                  const drill = getDrill(d);
-                  return (
-                    <li key={`${d}-${i}`} className="rounded-md border border-border bg-surface-2 p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold">{drill.name}</p>
-                        <button
-                          onClick={() => setSessionDrills((prev) => prev.filter((_, idx) => idx !== i))}
-                          className="text-xs text-muted-foreground hover:text-destructive"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {drill.duration} · {drill.area} · {drill.players} players · RPE {drill.rpe} · {drill.intensity}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {drill.categories.map((c) => (
-                          <span key={c} className="rounded-full bg-secondary px-2 py-0.5 text-[0.68rem] text-secondary-foreground">
-                            {c}
-                          </span>
-                        ))}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-              {plan.focus.length > 0 && (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Session focus profile: {plan.focus.join(" · ")}
-                </p>
-              )}
+              <p className="eyebrow mb-2">Session plan</p>
+              <div className="space-y-3">
+                {TRAINING_BLOCKS.filter((b) => items.some((i) => (i.block ?? "Warm-up") === b)).map((b) => (
+                  <div key={b} className="rounded-md border border-border bg-surface-2 p-3">
+                    <p className="eyebrow text-primary">{b}</p>
+                    <ul className="mt-2 space-y-2">
+                      {items.map((it, i) =>
+                        (it.block ?? "Warm-up") !== b ? null : (
+                          <li key={`${b}-${i}`} className="rounded-md border border-border p-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <input
+                                value={it.drill}
+                                onChange={(e) => patchItem(i, { drill: e.target.value })}
+                                className="w-full bg-transparent text-sm font-semibold outline-none"
+                              />
+                              <button onClick={() => removeItem(i)} className="text-xs text-muted-foreground hover:text-destructive">
+                                Remove
+                              </button>
+                            </div>
+                            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                              <label className="text-[0.68rem] text-muted-foreground">
+                                Min
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={it.durationMin}
+                                  onChange={(e) => patchItem(i, { durationMin: Number(e.target.value) })}
+                                  className="control h-8"
+                                />
+                              </label>
+                              <label className="text-[0.68rem] text-muted-foreground">
+                                RPE
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={10}
+                                  value={it.rpe}
+                                  onChange={(e) => patchItem(i, { rpe: Number(e.target.value) })}
+                                  className="control h-8"
+                                />
+                              </label>
+                              <label className="text-[0.68rem] text-muted-foreground">
+                                Where
+                                <select
+                                  value={it.location ?? "Pitch"}
+                                  onChange={(e) => patchItem(i, { location: e.target.value as TrainingLocation })}
+                                  className="control h-8"
+                                >
+                                  {TRAINING_LOCATIONS.map((l) => (
+                                    <option key={l} value={l}>
+                                      {l}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="text-[0.68rem] text-muted-foreground">
+                                Purpose
+                                <input
+                                  value={it.purpose}
+                                  onChange={(e) => patchItem(i, { purpose: e.target.value })}
+                                  className="control h-8"
+                                />
+                              </label>
+                            </div>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+                ))}
+                {items.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Empty session. Pick a block above, then add a drill from the library or a custom part.
+                  </p>
+                ) : null}
+              </div>
+
+              <form
+                className="mt-3 flex gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const fd = new FormData(e.currentTarget);
+                  const name = String(fd.get("name") ?? "").trim();
+                  if (!name) return;
+                  addItem({
+                    drill: name,
+                    purpose: activeBlock,
+                    durationMin: Number(fd.get("min")) || 10,
+                    rpe: Number(fd.get("rpe")) || 5,
+                    block: activeBlock,
+                    location: activeBlock === "Strength room" ? "Gym" : "Pitch",
+                  });
+                  e.currentTarget.reset();
+                }}
+              >
+                <input name="name" placeholder={`Custom part for ${activeBlock}`} className="control flex-1" />
+                <input name="min" type="number" placeholder="min" className="control w-20" />
+                <input name="rpe" type="number" placeholder="RPE" className="control w-20" />
+                <button className="rounded-md border border-border px-3 text-sm font-semibold">Add</button>
+              </form>
             </div>
 
             <div>
-              <p className="eyebrow mb-2">Drill library</p>
-              <ul className="max-h-80 space-y-1.5 overflow-y-auto pr-1">
+              <p className="eyebrow mb-2">Drill library → {activeBlock}</p>
+              <ul className="max-h-96 space-y-1.5 overflow-y-auto pr-1">
                 {drills.map((d) => (
                   <li key={d.id} className="flex items-center justify-between gap-2 rounded-md border border-border p-2">
                     <span className="min-w-0">
@@ -300,7 +453,17 @@ function TrainingPage() {
                       </span>
                     </span>
                     <button
-                      onClick={() => setSessionDrills((prev) => [...prev, d.id])}
+                      onClick={() => {
+                        const drill = getDrill(d.id);
+                        addItem({
+                          drill: drill.name,
+                          purpose: drill.categories[0] ?? activeBlock,
+                          durationMin: Number.parseInt(drill.duration, 10) || 10,
+                          rpe: drill.rpe,
+                          block: activeBlock,
+                          location: activeBlock === "Strength room" ? "Gym" : "Pitch",
+                        });
+                      }}
                       className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
                       aria-label={`Add ${d.name}`}
                     >
@@ -344,6 +507,7 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
           plannedRpe: Number(form.plannedRpe) || 7,
           drills: [],
           group: form.group,
+          status: "scheduled",
         });
         onDone(s.id);
       }}

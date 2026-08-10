@@ -76,7 +76,7 @@ function Home() {
             </Link>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            €999 per season, per team · additional sub-teams €399 / year
+            €999 per season, per team · every module included
           </p>
         </div>
       </section>
@@ -98,7 +98,7 @@ function Home() {
         <div className="mx-auto grid max-w-6xl gap-6 px-5 py-14 lg:grid-cols-3">
           {[
             { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard." },
-            { icon: ShieldCheck, t: "Role-based access", d: "Head coach, fitness staff and medical staff each see what they need. Clinical detail stays with medical staff." },
+            { icon: ShieldCheck, t: "One workspace", d: "Your whole staff works on the same squad, calendar and data — no per-user fees, no separate tiers." },
             { icon: BarChart3, t: "Your own load model", d: "Choose the KPIs and weights that build training load, and drive ACWR, monotony and strain from your data." },
           ].map((b) => (
             <div key={b.t}>
@@ -113,7 +113,7 @@ function Home() {
       <section className="mx-auto max-w-3xl px-5 py-16 text-center">
         <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">Ready for the season?</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          The season runs 1 June to 31 May. Subscribe your first team, then add academy and sub-teams as you need them.
+          The season runs 1 June to 31 May. One subscription covers your team and your whole staff.
         </p>
         <Link
           to="/pricing"
