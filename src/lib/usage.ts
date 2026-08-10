@@ -24,7 +24,7 @@ export async function syncUsageSnapshot(input: {
         sessions: input.sessions,
         gps_rows: input.gpsRows,
         tests: input.tests,
-        player_names: input.playerNames.slice(0, 60),
+        player_names: input.playerNames,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" },
