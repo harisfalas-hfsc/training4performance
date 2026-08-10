@@ -129,6 +129,9 @@ export interface SessionPlanItem {
   purpose: string;
   durationMin: number;
   rpe: number;
+  /** RPE actually reported after the session (manual load entry when there is no GPS). */
+  actualRpe?: number;
+
   block?: TrainingBlock;
   location?: TrainingLocation;
   notes?: string;
