@@ -30,7 +30,7 @@ import {
   useDataVersion,
 } from "@/data/performance";
 import { useAuth } from "@/lib/auth";
-import { syncUsageSnapshot } from "@/lib/usage";
+import { hydrateWorkspace, syncUsageSnapshot } from "@/lib/usage";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -77,6 +77,11 @@ export function AppShell({
   useEffect(() => {
     setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    void hydrateWorkspace(user.id);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;

@@ -303,6 +303,15 @@ export const sessionCalendar: Session[] = seedSessions();
 export const manualTests: ManualTest[] = [];
 export const medicalEvents: MedicalEvent[] = [];
 
+export interface WorkspaceData {
+  team: Team;
+  players: Player[];
+  sessions: Session[];
+  gpsHistory: GpsDay[];
+  manualTests: ManualTest[];
+  medicalEvents: MedicalEvent[];
+}
+
 const STORAGE_KEY = "t4p.data.v1";
 const listeners = new Set<() => void>();
 let version = 0;
@@ -328,6 +337,27 @@ function emit() {
   version++;
   persist();
   listeners.forEach((l) => l());
+}
+
+export function workspaceSnapshot(): WorkspaceData {
+  return {
+    team: { ...team },
+    players: players.map((player) => ({ ...player })),
+    sessions: sessionCalendar.map((session) => ({ ...session })),
+    gpsHistory: gpsHistory.map((row) => ({ ...row })),
+    manualTests: manualTests.map((test) => ({ ...test })),
+    medicalEvents: medicalEvents.map((event) => ({ ...event })),
+  };
+}
+
+export function applyWorkspaceData(data: Partial<WorkspaceData>) {
+  if (data.team) Object.assign(team, data.team);
+  if (data.players) replace(players, data.players);
+  if (data.sessions) replace(sessionCalendar, data.sessions);
+  if (data.gpsHistory) replace(gpsHistory, data.gpsHistory);
+  if (data.manualTests) replace(manualTests, data.manualTests);
+  if (data.medicalEvents) replace(medicalEvents, data.medicalEvents);
+  emit();
 }
 
 function replace<T>(target: T[], next: T[]) {
