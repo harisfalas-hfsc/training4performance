@@ -21,12 +21,12 @@ import {
 export const Route = createFileRoute("/squad")({
   head: () => ({
     meta: [
-      { title: "Squad & Players — Football Performance OS" },
+      { title: "Squad & Players — T4P — Training 4 Performance" },
       {
         name: "description",
         content: "Full squad list with position, availability, 7-day workload, HSR, sprint exposure and ACWR.",
       },
-      { property: "og:title", content: "Squad & Players — Football Performance OS" },
+      { property: "og:title", content: "Squad & Players — T4P — Training 4 Performance" },
       { property: "og:description", content: "Every player, one connected performance record." },
     ],
   }),

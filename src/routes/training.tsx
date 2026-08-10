@@ -17,7 +17,7 @@ import {
 export const Route = createFileRoute("/training")({
   head: () => ({
     meta: [
-      { title: "Training Calendar & Session Designer — Football Performance OS" },
+      { title: "Training Calendar & Session Designer — T4P — Training 4 Performance" },
       {
         name: "description",
         content:

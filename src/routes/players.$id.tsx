@@ -32,7 +32,7 @@ export const Route = createFileRoute("/players/$id")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Player not found — Football Performance OS" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Player not found — T4P — Training 4 Performance" }, { name: "robots", content: "noindex" }] };
     }
     const title = `${loaderData.name} — Performance Passport`;
     const description = `Fitness testing, GPS load, wellness, training participation and medical history for ${loaderData.name} (${loaderData.position}).`;
