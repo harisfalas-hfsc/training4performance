@@ -18,8 +18,8 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
         <Link to="/" className="flex items-center gap-2">
-          <span className="grid size-9 place-items-center rounded-md bg-primary/15 text-primary">
-            <Activity className="size-5" />
+          <span className="grid size-9 place-items-center overflow-hidden rounded-md bg-white">
+            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-8 object-contain" />
           </span>
           <span className="leading-tight">
             <span className="block font-display text-base font-semibold uppercase tracking-widest">T4P</span>
@@ -28,6 +28,7 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
+
 
         <nav className="hidden items-center gap-1 md:flex">
           {links.map((l) => (
