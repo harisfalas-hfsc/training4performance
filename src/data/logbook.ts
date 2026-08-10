@@ -608,10 +608,8 @@ export const TEST_BATTERY: TestBattery[] = [
   { name: "FMS (Inline Lunge)", unit: "0-3", higherIsBetter: true, min: 1, max: 3, decimals: 0 },
 ];
 
-export const TEST_ROUNDS = [
-  { id: "r1", label: "Pre-season 2026", date: "2026-07-08" },
-  { id: "r2", label: "In-season 1 2026", date: "2026-08-05" },
-];
+/** Test rounds present in the data (workbook rounds + rounds staff add). */
+export const TEST_ROUNDS: Array<{ id: string; label: string; date: string }> = [];
 
 export interface TestCell {
   playerId: string;
@@ -660,12 +658,13 @@ function buildTestResults(): TestCell[] {
 
 export const testResults: TestCell[] = buildTestResults();
 
-/** Test rounds actually present in the data. */
-export const TEST_ROUNDS_LIVE: string[] = [];
-
 function rebuildRounds() {
   const rounds = [...new Set(testResults.map((t) => t.round))].sort();
-  TEST_ROUNDS_LIVE.splice(0, TEST_ROUNDS_LIVE.length, ...rounds);
+  TEST_ROUNDS.splice(
+    0,
+    TEST_ROUNDS.length,
+    ...rounds.map((label, i) => ({ id: `r${i + 1}`, label, date: label.replace(/^Testing\s*/, "") })),
+  );
 }
 rebuildRounds();
 
