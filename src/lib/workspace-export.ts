@@ -41,9 +41,12 @@ interface ZipEntry {
   data: Uint8Array;
 }
 
-export function createZip(files: Array<{ name: string; content: string }>): Blob {
+export function createZip(files: Array<{ name: string; content: string | Uint8Array }>): Blob {
   const enc = new TextEncoder();
-  const entries: ZipEntry[] = files.map((f) => ({ name: f.name, data: enc.encode(f.content) }));
+  const entries: ZipEntry[] = files.map((f) => ({
+    name: f.name,
+    data: typeof f.content === "string" ? enc.encode(f.content) : f.content,
+  }));
   const chunks: Uint8Array[] = [];
   const central: Uint8Array[] = [];
   let offset = 0;
