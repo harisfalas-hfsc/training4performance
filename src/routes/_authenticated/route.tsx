@@ -33,7 +33,7 @@ function AuthenticatedLayout() {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link to="/account" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-              Activate subscription
+              Request access
             </Link>
             <Link to="/pricing" className="rounded-md border border-border px-4 py-2 text-sm font-semibold">
               See pricing
