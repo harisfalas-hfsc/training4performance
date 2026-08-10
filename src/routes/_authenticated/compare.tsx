@@ -311,26 +311,40 @@ function ComparePage() {
       </section>
 
       <section className="panel mt-4 p-4">
-        <SectionTitle title="Comparison table" hint={`${label} on ${dayA} against the squad average`} />
+        <SectionTitle
+          title="Comparison table"
+          hint={`${tableMetrics.length} KPI(s) on ${dayA} — primary metric compared with the squad average`}
+        />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[32rem] text-sm">
             <thead className="text-left text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="py-2">#</th>
                 <th>Player</th>
-                <th>{label}</th>
-                <th>vs team</th>
+                {tableMetrics.map((k) => (
+                  <th key={k} className="text-right">
+                    {METRICS.find((m) => m.key === k)!.label}
+                  </th>
+                ))}
+                <th className="text-right">vs team</th>
               </tr>
             </thead>
             <tbody>
               {ranking.map((r, i) => {
                 const diff = Math.round(r.value - teamAvgA);
+                const row = gpsHistory.find(
+                  (g) => g.date === dayA && fullName(players.find((p) => p.id === g.playerId) ?? players[0]!) === r.name,
+                );
                 return (
                   <tr key={r.name} className="border-t border-border">
                     <td className="py-1.5 text-muted-foreground">{i + 1}</td>
                     <td>{r.name}</td>
-                    <td className="tabular-nums">{r.value.toLocaleString()}</td>
-                    <td className={`tabular-nums ${diff >= 0 ? "text-success" : "text-warning"}`}>
+                    {tableMetrics.map((k) => (
+                      <td key={k} className="text-right tabular-nums">
+                        {row ? Math.round(metricOf(row, k)).toLocaleString() : "—"}
+                      </td>
+                    ))}
+                    <td className={`text-right tabular-nums ${diff >= 0 ? "text-success" : "text-warning"}`}>
                       {diff >= 0 ? "+" : ""}
                       {diff.toLocaleString()}
                     </td>
@@ -341,6 +355,7 @@ function ComparePage() {
           </table>
         </div>
       </section>
+
     </AppShell>
   );
 }
