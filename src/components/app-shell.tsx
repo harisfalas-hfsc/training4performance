@@ -10,6 +10,7 @@ import {
   FileText,
   GitCompare,
   LayoutDashboard,
+  LifeBuoy,
   PanelLeftClose,
   PanelLeftOpen,
   Radar,
@@ -45,6 +46,7 @@ const nav = [
   { to: "/compare", label: "Compare & Graphs", icon: GitCompare, color: "#9333ea" },
   { to: "/ai", label: "AI Assistant", icon: BrainCircuit, color: "#9333ea" },
   { to: "/reports", label: "Reports", icon: FileText, color: "#ea580c" },
+  { to: "/manual", label: "Manual", icon: LifeBuoy, color: "#0d9488" },
 ] as const;
 
 const adminItem = { to: "/admin", label: "Admin panel", icon: Shield, color: "#111827" } as const;

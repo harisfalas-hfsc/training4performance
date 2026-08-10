@@ -30,6 +30,7 @@ import { Route as AuthenticatedCompareRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gps'
 import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
+import { Route as AuthenticatedManualRouteImport } from './routes/_authenticated/manual'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
@@ -139,6 +140,11 @@ const AuthenticatedLogbookRoute = AuthenticatedLogbookRouteImport.update({
   path: '/logbook',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedManualRoute = AuthenticatedManualRouteImport.update({
+  id: '/manual',
+  path: '/manual',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
   '/logbook': typeof AuthenticatedLogbookRoute
+  '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/squad': typeof AuthenticatedSquadRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
   '/logbook': typeof AuthenticatedLogbookRoute
+  '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/squad': typeof AuthenticatedSquadRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/gps': typeof AuthenticatedGpsRoute
   '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
+  '/_authenticated/manual': typeof AuthenticatedManualRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/squad': typeof AuthenticatedSquadRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/gps'
     | '/logbook'
+    | '/manual'
     | '/reports'
     | '/squad'
     | '/training'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/gps'
     | '/logbook'
+    | '/manual'
     | '/reports'
     | '/squad'
     | '/training'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/gps'
     | '/_authenticated/logbook'
+    | '/_authenticated/manual'
     | '/_authenticated/reports'
     | '/_authenticated/squad'
     | '/_authenticated/training'
@@ -485,6 +497,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLogbookRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/manual': {
+      id: '/_authenticated/manual'
+      path: '/manual'
+      fullPath: '/manual'
+      preLoaderRoute: typeof AuthenticatedManualRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
       path: '/reports'
@@ -527,6 +546,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGpsRoute: typeof AuthenticatedGpsRoute
   AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
+  AuthenticatedManualRoute: typeof AuthenticatedManualRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
@@ -544,6 +564,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGpsRoute: AuthenticatedGpsRoute,
   AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,
+  AuthenticatedManualRoute: AuthenticatedManualRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSquadRoute: AuthenticatedSquadRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
@@ -569,3 +590,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
