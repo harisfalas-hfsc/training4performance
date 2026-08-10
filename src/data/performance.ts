@@ -414,12 +414,14 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
       replace(sessionCalendar, seedSessions());
     } else if (raw) {
     const s = JSON.parse(raw) as {
+      team?: Team;
       players?: Player[];
       gpsHistory?: GpsDay[];
       sessionCalendar?: Session[];
       manualTests?: ManualTest[];
       medicalEvents?: MedicalEvent[];
     };
+    if (s.team) Object.assign(team, s.team);
     if (s.players?.length) replace(players, s.players);
     if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
     if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
