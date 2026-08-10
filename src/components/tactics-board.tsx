@@ -663,7 +663,7 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
               })}
             </div>
             <p className="mt-2 text-[0.65rem] leading-snug text-muted-foreground">
-              Select an item, then tap the pitch. Numbers increase automatically.
+              Select an item, then tap the pitch. Numbers increase automatically. Anything already on the pitch can be dragged at any time — no need to switch tool.
             </p>
           </div>
         )}
