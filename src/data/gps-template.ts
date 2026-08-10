@@ -8,6 +8,8 @@
  * as custom KPIs and stay available to analytics, alerts and reports.
  */
 
+import { guardWrite } from "@/lib/access";
+
 export type CoreField =
   | "name"
   | "date"
@@ -168,6 +170,7 @@ export function loadTemplates(): SavedTemplate[] {
 }
 
 export function saveTemplate(name: string, headers: string[], mapping: ColumnMapping[]) {
+  if (!guardWrite()) return;
   if (typeof window === "undefined") return;
   const id = signature(headers);
   const next = loadTemplates().filter((t) => t.id !== id);
@@ -176,6 +179,7 @@ export function saveTemplate(name: string, headers: string[], mapping: ColumnMap
 }
 
 export function removeTemplate(id: string) {
+  if (!guardWrite()) return;
   if (typeof window === "undefined") return;
   window.localStorage.setItem(TEMPLATE_KEY, JSON.stringify(loadTemplates().filter((t) => t.id !== id)));
 }

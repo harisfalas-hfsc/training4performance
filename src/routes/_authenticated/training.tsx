@@ -1514,7 +1514,7 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
           group: form.group,
           status: "scheduled",
         });
-        onDone(s.id);
+        if (s) onDone(s.id);
       }}
     >
       <Field label="Date">
