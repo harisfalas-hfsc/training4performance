@@ -32,7 +32,7 @@ function BoardPage() {
         <SectionTitle title="How to use the board" hint="Everything is tap-first, so it works on the touchline" />
         <ul className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
           <li>· Tap <span className="text-foreground">Players</span> or <span className="text-foreground">Equipment</span> to open a palette, pick an item, then tap the pitch to place it.</li>
-          <li>· With the <span className="text-foreground">Move</span> tool, drag any token to a new position.</li>
+          <li>· Drag any token at any time to reposition it — no need to switch back to the Move tool.</li>
           <li>· Arrow, dashed arrow, line and freehand draw runs, passes and dribbles in the selected colour.</li>
           <li>· Zone and circle mark playing areas; text adds a label anywhere on the pitch.</li>
           <li>· The eraser removes a single token or drawing; undo steps back through the last changes.</li>

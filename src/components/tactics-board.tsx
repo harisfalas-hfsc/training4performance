@@ -6,7 +6,6 @@ import {
   Spline,
   Waves,
   RefreshCw,
-  PenLine,
   Download,
   Eraser,
   MousePointer2,
@@ -119,8 +118,7 @@ const TOOLS: { id: Tool; label: string; icon: typeof MousePointer2 }[] = [
   { id: "curve", label: "Curved run", icon: Spline },
   { id: "loop", label: "Loop / circle run", icon: RefreshCw },
   { id: "line", label: "Line", icon: Minus },
-  { id: "pen", label: "Freehand", icon: Pencil },
-  { id: "penArrow", label: "Freehand run with arrow", icon: PenLine },
+  { id: "penArrow", label: "Freehand run (arrow)", icon: Pencil },
   { id: "zone", label: "Zone", icon: Square },
   { id: "circle", label: "Circle", icon: CircleIcon },
   { id: "text", label: "Text", icon: TypeIcon },
@@ -358,7 +356,7 @@ function shapePath(s: BoardShape) {
   return `M ${a.x} ${a.y} L ${b.x} ${b.y}`;
 }
 
-const ARROW_TOOLS: Tool[] = ["arrow", "dashed", "zigzag", "curve", "loop", "penArrow"];
+const ARROW_TOOLS: Tool[] = ["arrow", "dashed", "zigzag", "curve", "loop", "pen", "penArrow"];
 
 /* ------------------------------------------------------------------ */
 /* board                                                               */
@@ -478,14 +476,13 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
   };
 
   const onTokenDown = (e: React.PointerEvent, id: string) => {
+    e.stopPropagation();
     if (tool === "erase") {
-      e.stopPropagation();
       push();
       setTokens((prev) => prev.filter((t) => t.id !== id));
       return;
     }
-    if (tool !== "select" || pending) return;
-    e.stopPropagation();
+    // any existing item can always be dragged, whatever tool or palette item is active
     push();
     dragId.current = id;
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
@@ -666,7 +663,7 @@ export function TacticsBoard({ initialTokens = [] as BoardToken[] }) {
               })}
             </div>
             <p className="mt-2 text-[0.65rem] leading-snug text-muted-foreground">
-              Select an item, then tap the pitch. Numbers increase automatically.
+              Select an item, then tap the pitch. Numbers increase automatically. Anything already on the pitch can be dragged at any time — no need to switch tool.
             </p>
           </div>
         )}
