@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
   BarChart3,
+  BellRing,
   BrainCircuit,
   CalendarDays,
   FileText,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { team, squadName, squadAvailability } from "@/data/performance";
+import { ROLES, useRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -18,6 +20,7 @@ const nav = [
   { to: "/squad", label: "Squad", icon: Users },
   { to: "/training", label: "Training", icon: CalendarDays },
   { to: "/gps", label: "GPS Import", icon: Radar },
+  { to: "/alerts", label: "Alerts", icon: BellRing },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/ai", label: "AI Assistant", icon: BrainCircuit },
   { to: "/reports", label: "Reports", icon: FileText },
@@ -36,6 +39,7 @@ export function AppShell({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const av = squadAvailability();
+  const { role, setRole, def } = useRole();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -44,9 +48,9 @@ export function AppShell({
           <Activity className="size-5 text-primary" />
           <div className="leading-tight">
             <p className="font-display text-sm font-semibold uppercase tracking-widest text-sidebar-foreground">
-              Performance OS
+              T4P
             </p>
-            <p className="text-[0.68rem] text-muted-foreground">{team.club}</p>
+            <p className="text-[0.68rem] text-muted-foreground">Training 4 Performance</p>
           </div>
         </div>
 
@@ -89,7 +93,24 @@ export function AppShell({
               <h1 className="truncate text-2xl font-semibold uppercase tracking-wide">{title}</h1>
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
             </div>
-            {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-2">
+                <span className="eyebrow">Signed in as</span>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as typeof role)}
+                  title={def.description}
+                  className="h-9 rounded-md border border-input bg-surface-2 px-2 text-sm"
+                >
+                  {ROLES.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {actions}
+            </div>
           </div>
           <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2 lg:hidden">
             {nav.map((item) => {

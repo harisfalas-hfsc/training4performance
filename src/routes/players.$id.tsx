@@ -287,7 +287,12 @@ function PlayerProfile() {
           <section className="grid gap-4 xl:grid-cols-3">
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle title="Injury & illness history" />
-              {medical.length === 0 ? (
+              {!canSeeMedical ? (
+                <p className="flex items-center gap-2 rounded-md border border-border bg-surface-2 p-3 text-sm text-muted-foreground">
+                  <Lock className="size-4" /> {MEDICAL_REDACTED}. {medical.length} recorded episode(s); current training
+                  availability is {availability.availability}%.
+                </p>
+              ) : medical.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No recorded injuries or illness this season.</p>
               ) : (
                 <ul className="space-y-3">
