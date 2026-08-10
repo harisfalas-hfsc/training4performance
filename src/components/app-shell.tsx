@@ -130,7 +130,7 @@ export function AppShell({
         </div>
 
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
-          {nav.map((item) => {
+          {navItems.map((item) => {
             const active = pathname.startsWith(item.to);
             return (
               <Link
@@ -193,7 +193,7 @@ export function AppShell({
             </div>
           </div>
           <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2">
-            {nav.map((item) => {
+            {navItems.map((item) => {
               const active = pathname.startsWith(item.to);
               return (
                 <Link
