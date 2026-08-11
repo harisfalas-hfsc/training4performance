@@ -184,8 +184,11 @@ function groupRows(rows: Row[], combine: boolean, segmentMap: Record<string, str
   return [...out.values()];
 }
 
+/** Sentinel: no calendar entry yet — create an empty session for the file's date on import. */
+const AUTO_SESSION = "__auto__";
 
 function GpsPage() {
+
   useDataVersion();
   const { can } = useRole();
   const inputRef = useRef<HTMLInputElement>(null);
