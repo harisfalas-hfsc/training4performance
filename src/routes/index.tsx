@@ -54,16 +54,16 @@ function Home() {
     <MarketingPage>
       {/* Hero */}
       <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-5 py-12 lg:py-16">
-          <img
-            src={heroMotion}
-            alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
-            width={1600}
-            height={1008}
-            className="w-full rounded-3xl border border-border bg-surface-2/40 object-cover"
-          />
+        <img
+          src={heroMotion}
+          alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
+          width={1600}
+          height={1008}
+          className="block w-full object-cover"
+        />
 
-          <div className="mx-auto mt-10 max-w-3xl text-center">
+        <div className="mx-auto max-w-6xl px-5 pb-14 pt-10">
+          <div className="mx-auto max-w-3xl text-center">
             <p className="eyebrow">Training 4 Performance</p>
             <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide sm:text-5xl lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
