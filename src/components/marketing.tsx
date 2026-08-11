@@ -133,7 +133,7 @@ export function SiteHeader() {
                 <Link
                   to="/dashboard"
                   onClick={() => setMenu(false)}
-                  className="block rounded-md bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  className="block rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
                 >
                   Go to platform
                 </Link>
@@ -142,7 +142,7 @@ export function SiteHeader() {
                   to="/auth"
                   search={{ mode: "signup" }}
                   onClick={() => setMenu(false)}
-                  className="block rounded-md bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  className="block rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
                 >
                   Get started
                 </Link>

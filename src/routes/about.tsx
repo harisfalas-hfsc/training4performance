@@ -88,7 +88,7 @@ function About() {
           <img
             src="/logo-t4p.png"
             alt="Training 4 Performance logo"
-            className="mx-auto mb-6 size-16 object-contain"
+            className="t4p-logo mx-auto mb-6 size-16 object-contain"
             width={64}
             height={64}
           />
@@ -166,7 +166,7 @@ function About() {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               to="/haris-falas"
-              className="rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+              className="rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground"
             >
               Read the full profile
             </Link>

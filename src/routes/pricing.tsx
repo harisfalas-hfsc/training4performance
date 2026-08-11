@@ -78,7 +78,7 @@ function Pricing() {
             <Link
               to={session ? "/account" : "/auth"}
               {...(session ? {} : { search: { mode: "signup" } as never })}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+              className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground"
             >
               {session ? "Activate my subscription" : "Get started"}
             </Link>
