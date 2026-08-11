@@ -730,10 +730,11 @@ export function TacticsBoard({
       </div>
 
 
-      <div className="grid gap-3 p-3 lg:grid-cols-[170px_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-3 p-3 lg:grid-cols-[170px_minmax(0,1fr)]">
         {/* palette */}
         {panel && (
-          <div className="rounded-md border border-border bg-surface-2 p-2">
+          <div className="min-w-0 rounded-md border border-border bg-surface-2 p-2">
+
             <p className="eyebrow mb-2">{panel === "players" ? "Players & ball" : "Equipment"}</p>
             {panel === "players" && (
               <div className="mb-2 flex flex-wrap gap-1">
@@ -779,11 +780,13 @@ export function TacticsBoard({
         )}
 
         {/* pitch */}
-        <div className="relative overflow-hidden rounded-md border border-border bg-pitch">
+        <div className="relative min-w-0 overflow-hidden rounded-md border border-border bg-pitch">
           <svg
             ref={svgRef}
             viewBox={`${vb.x} ${vb.y} ${w} ${h}`}
-            className="block max-h-[75vh] w-full select-none"
+            preserveAspectRatio="xMidYMid meet"
+            className="block h-auto max-h-[70vh] w-full max-w-full select-none"
+
             style={{
               // Drawing tools need the gesture; otherwise let the page scroll
               // vertically even when the finger starts on the pitch.
