@@ -210,9 +210,11 @@ export function AppShell({
                   <Shield className="size-3.5" /> Return to admin
                 </Button>
               ) : null}
+              <ThemeToggle />
               <Link to="/" className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
                 Website
               </Link>
+
               {actions}
               <Link
                 to="/account"
