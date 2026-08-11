@@ -449,6 +449,74 @@ function TrainingPage() {
   const sheetRpe = plan.plannedRpe || session.plannedRpe || 0;
   const sheetLoad = plan.load || Math.round(sheetMinutes * sheetRpe);
 
+  const sheetPayload = () => ({
+    club: "Training 4 Performance",
+    date: session.date,
+    label: session.label,
+    type,
+    group: session.group ?? TRAINING_GROUPS[0]!,
+    objective: session.objective,
+    minutes: sheetMinutes,
+    rpe: sheetRpe,
+    load: sheetLoad,
+    blocks: blocks.map((b) => {
+      const bItems = items.filter((i) => (i.block ?? "") === b);
+      return {
+        name: b,
+        minutes: bItems.reduce((a, i) => a + (i.durationMin || 0), 0),
+        items: bItems.map((it) => ({
+          drill: it.drill,
+          detail: it.strength
+            ? `${it.strength.sets} × ${it.strength.reps}${
+                it.strength.weightKg ? ` @ ${it.strength.weightKg} kg` : ""
+              } · rest ${it.strength.restSec}s`
+            : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`,
+        })),
+      };
+    }),
+  });
+
+  /** Print / save the session sheet as a clean A4 PDF. */
+  const printSheet = () => {
+    const ok = printSessionSheet(sheetPayload());
+    toast[ok ? "success" : "message"](
+      ok ? "Session sheet opened — use “Save as PDF”" : "Pop-up blocked — the sheet was downloaded instead",
+    );
+  };
+
+  /** Download this exact training as a spreadsheet (Excel or CSV). */
+  const exportSession = (format: "Excel" | "CSV") => {
+    const rows = blocks.flatMap((b) => {
+      const bItems = items.filter((i) => (i.block ?? "") === b);
+      if (!bItems.length) return [[b, "—", 0, 0, "", ""]];
+      return bItems.map((it) => [
+        b,
+        it.drill,
+        it.durationMin || 0,
+        it.rpe || 0,
+        it.actualRpe || "",
+        it.strength
+          ? `${it.strength.sets}×${it.strength.reps}${it.strength.weightKg ? ` @ ${it.strength.weightKg}kg` : ""}`
+          : (it.purpose ?? ""),
+      ]);
+    });
+    const msg = exportReport(format, {
+      title: `${type} — ${session.date}`,
+      club: "Training 4 Performance",
+      subtitle: `${session.label} · ${session.group ?? TRAINING_GROUPS[0]} · ${STATE_LABEL[state]}`,
+      headline: [
+        { label: "Duration", value: `${sheetMinutes} min` },
+        { label: "Planned RPE", value: String(sheetRpe) },
+        { label: "Planned load", value: `${sheetLoad} AU` },
+        { label: "Reported load", value: plan.actualLoad ? `${plan.actualLoad} AU` : hasGps ? "From GPS" : "—" },
+      ],
+      columns: ["Block", "Drill", "Minutes", "Planned RPE", "Reported RPE", "Detail"],
+      rows,
+      observations: [session.objective || "No objective recorded", hasGps ? "GPS data attached to this day" : "No GPS attached"],
+    });
+    toast.success(msg);
+  };
+
 
   return (
     <AppShell
