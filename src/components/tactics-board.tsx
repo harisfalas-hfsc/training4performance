@@ -782,7 +782,7 @@ export function TacticsBoard({
         <div className="relative overflow-hidden rounded-md border border-border bg-pitch">
           <svg
             ref={svgRef}
-            viewBox={`0 0 ${w} ${h}`}
+            viewBox={`${vb.x} ${vb.y} ${w} ${h}`}
             className="block max-h-[75vh] w-full select-none"
             style={{
               // Drawing tools need the gesture; otherwise let the page scroll
@@ -799,14 +799,15 @@ export function TacticsBoard({
               <marker id="t4p-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
               </marker>
-              <pattern id="t4p-stripes" width={w / 8} height={h} patternUnits="userSpaceOnUse">
-                <rect width={w / 16} height={h} fill="#ffffff" opacity="0.045" />
+              <pattern id="t4p-stripes" width={DIMS[orientation].w / 8} height={DIMS[orientation].h} patternUnits="userSpaceOnUse">
+                <rect width={DIMS[orientation].w / 16} height={DIMS[orientation].h} fill="#ffffff" opacity="0.045" />
               </pattern>
             </defs>
 
-            <rect width={w} height={h} fill="var(--color-pitch)" />
-            <rect width={w} height={h} fill="url(#t4p-stripes)" pointerEvents="none" />
-            <PitchMarkings orientation={orientation} />
+            <rect width={DIMS[orientation].w} height={DIMS[orientation].h} fill="var(--color-pitch)" />
+            <rect width={DIMS[orientation].w} height={DIMS[orientation].h} fill="url(#t4p-stripes)" pointerEvents="none" />
+            <PitchMarkings orientation={orientation} field={field} />
+
 
             {liveShapes.map((s) => (
               <path
