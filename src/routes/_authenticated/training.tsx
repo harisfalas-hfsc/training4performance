@@ -57,11 +57,7 @@ import {
   DAY_DESCRIPTIONS,
   DRILL_PURPOSES,
   LIFT_PATTERNS,
-  removeSavedBlock,
-  removeSavedSession,
   saveBlockTemplate,
-  savedBlocks,
-  savedSessions,
   saveSessionTemplate,
   SESSION_TYPES,
   sessionTypeOf,
@@ -143,29 +139,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
-
-/** Small toolbar button used by the per-session action bar. */
-function ActionBtn({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
-    >
-      {icon} {label}
-    </button>
-  );
-}
-
-
 
 function StepBar({ step, onStep }: { step: number; onStep: (n: number) => void }) {
   return (
@@ -347,17 +320,6 @@ function TrainingPage() {
     flash(`${b} saved to your library`);
   };
 
-  /** Insert a saved block (as a new block) into the training being designed. */
-  const insertSavedBlock = (id: string) => {
-    const sb = savedBlocks().find((x) => x.id === id);
-    if (!sb) return;
-    const name = uniqueBlockName(sb.name, blocks);
-    setBlocks((prev) => [...prev, name]);
-    setItems((prev) => [...prev, ...sb.items.map((i) => ({ ...i, block: name }))]);
-    setActiveBlock(name);
-    flash(`${sb.name} inserted as ${name}`);
-  };
-
   const plan = useMemo(() => {
     const minutes = items.reduce((a, i) => a + (i.durationMin || 0), 0);
     const weighted = items.reduce((a, i) => a + (i.rpe || 0) * (i.durationMin || 0), 0);
@@ -414,17 +376,6 @@ function TrainingPage() {
       plan: items,
     });
     flash("Training saved to your library");
-  };
-
-  /** Load a saved training into the day being designed. */
-  const applyTemplate = (id: string) => {
-    const tpl = savedSessions().find((t) => t.id === id);
-    if (!tpl) return;
-    setType(tpl.type ?? type);
-    setBlocks(tpl.blockNames);
-    setItems(tpl.plan.map((i) => ({ ...i })));
-    setActiveBlock(tpl.blockNames[0] ?? "BLOCK 1");
-    flash(`${tpl.name} loaded — save it to keep it on this day`);
   };
 
   /** Copy this whole training onto another date. */
