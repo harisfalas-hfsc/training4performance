@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 import {
   Activity,
@@ -212,7 +211,6 @@ export function AppShell({
                   <Shield className="size-3.5" /> Return to admin
                 </Button>
               ) : null}
-              <ThemeToggle />
               <Link to="/" className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
                 Website
               </Link>
