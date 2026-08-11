@@ -476,7 +476,8 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
 
       // If the user asked for a chart but the model did not emit a chart tag,
       // append a generated tag from workspace context so the UI still renders it.
-      if (chartRequest && !/\[(?:CHART|ART)/i.test(fullText)) {
+      const hasValidChartTag = /\[(?:CHART|ART)\s+player="[^"]+"\s+metric="[^"]+"/.test(fullText);
+      if (chartRequest && !hasValidChartTag) {
         const fallback = buildFallbackChart(chartRequest, workspaceContext);
         if (fallback) {
           const playerName = fallback.title.split(" — ")[0] ?? "Player";
