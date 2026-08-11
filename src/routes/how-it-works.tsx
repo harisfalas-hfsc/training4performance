@@ -1,4 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  Activity,
+  ArrowRight,
+  BarChart3,
+  BellRing,
+  CalendarDays,
+  ClipboardPen,
+  Dumbbell,
+  FileSpreadsheet,
+  HeartPulse,
+  Radar,
+  Shield,
+  Users,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 
 export const Route = createFileRoute("/how-it-works")({
@@ -8,10 +23,13 @@ export const Route = createFileRoute("/how-it-works")({
       {
         name: "description",
         content:
-          "Step by step: set up your squad, plan the microcycle, design sessions on the tactics board, import GPS, monitor load and act on alerts with T4P.",
+          "The real T4P flow: create your team, build the squad, complete each player profile, run fitness tests, design training in blocks, schedule it in the calendar, import GPS, and read load, ACWR, alerts and reports.",
       },
       { property: "og:title", content: "How T4P Works" },
-      { property: "og:description", content: "From squad setup to daily decisions — the full T4P workflow." },
+      {
+        property: "og:description",
+        content: "Team → squad → player profiles → tests → training design → calendar → GPS → load, alerts and reports.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -19,97 +37,88 @@ export const Route = createFileRoute("/how-it-works")({
   component: HowItWorks,
 });
 
-const steps = [
+type Step = { icon: LucideIcon; t: string; d: string; tone: string };
+
+const steps: Step[] = [
   {
-    t: "1 · Set up the club and squad",
-    d: "Create the team, season and squad. Each player gets a passport: profile, position, dominant leg, contract and availability status. Add, edit or release players at any time — every record follows the athlete.",
+    icon: Shield,
+    tone: "blue",
+    t: "Create your team",
+    d: "Start by creating the team: club name, season, category and crest. One account holds one team, and everything you build from here lives inside it — your data, nobody else's.",
   },
   {
-    t: "2 · Invite the staff",
-    d: "One subscription covers the whole staff. Everyone works in the same fitness-coach workspace, on the same squad, the same calendar and the same data — no separate permission tiers to maintain.",
+    icon: Users,
+    tone: "green",
+    t: "Build the squad",
+    d: "Add your players. At the beginning a name is enough — the squad is unlimited, and you can add, edit or remove players at any time as the season moves.",
   },
   {
-    t: "3 · Plan the microcycle in the calendar",
-    d: "The month calendar shows every training day as scheduled, pending or completed, with favourites marked. Create a day, open it in the designer, duplicate a good session onto another date or change its state directly from the list.",
+    icon: ClipboardPen,
+    tone: "violet",
+    t: "Complete each player profile",
+    d: "Open a player and fill the passport: position, birth date, dominant leg, height, body mass, body fat, availability status and medical notes. Every screen in T4P reads from this single record.",
   },
   {
-    t: "4 · Design the session block by block",
-    d: "The training designer splits the day into blocks — warm-up, activation/prehab, strength room, technical, tactical, conditioning, speed & power, small-sided games, set pieces, cool-down. Each part carries its own duration, RPE, location (pitch, gym, pool, indoor, classroom) and purpose, and the planned duration, weighted RPE and planned load update as you build.",
+    icon: HeartPulse,
+    tone: "pink",
+    t: "Record the fitness tests",
+    d: "Enter your testing battery — CMJ and jumps, sprint splits, Yo-Yo and aerobic tests, strength numbers, FMS and mobility. Results are stored per date, so progress and personal bests are tracked automatically.",
   },
   {
-    t: "5 · Sketch it on the tactics board",
-    d: "Place players, balls, cones, poles, ladders, hurdles, mannequins and goals on a real pitch. Draw runs, passes, dashed movements, zigzag and curved runs, zones and text. Undo, rotate the pitch and export the session as an image for the staff briefing.",
+    icon: Dumbbell,
+    tone: "amber",
+    t: "Design the training session",
+    d: "Build the day in blocks — warm-up, activation, strength, technical, tactical, conditioning, speed & power, small-sided games, set pieces, cool-down. Each part has its own minutes, RPE, location and purpose, and you can pull drills from the library, write them manually, or sketch them on the tactics board.",
   },
   {
-    t: "6 · Import GPS data",
-    d: "Drag in an export from Catapult, STATSports, GPEXE or Polar — the provider is detected automatically, progress is shown live, and any player name that cannot be matched appears in a clear mapping report so you can resolve it. Or download the T4P template and align your system to it once.",
+    icon: CalendarDays,
+    tone: "indigo",
+    t: "Schedule it in the calendar",
+    d: "Assign the session to a date in the match-day cycle and set its state: scheduled, pending or completed. Duplicate a good session onto another day, mark favourites and record who took part.",
   },
   {
-    t: "7 · Add RPE and split drills",
-    d: "RPE can be entered per player per session, or per drill when the GPS session is cut into parts. Session load is RPE × duration, and drill splits let the GPS output match what was actually coached.",
+    icon: Radar,
+    tone: "cyan",
+    t: "Import the GPS report",
+    d: "After training, upload the export from your GPS system — Catapult, STATSports, GPEXE, Polar or your own spreadsheet. You map your columns to T4P metrics once, unmatched player names come back in a clear report, and every file is attached to a training day, never left standalone.",
   },
   {
-    t: "8 · Build your own load model",
-    d: "Choose which KPIs define training load — total distance, high-speed running, sprint distance and efforts, accelerations, decelerations, jumps, max speed, sRPE — and set their weights. Each KPI is normalised against the squad reference and combined into a composite load in AU, which drives acute (7-day), chronic (28-day), ACWR, monotony and strain.",
+    icon: Activity,
+    tone: "teal",
+    t: "Everything connects",
+    d: "RPE, duration, participation, GPS output and test results merge on the same player record. You choose which KPIs define load — distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed, sRPE — and their weights, and T4P builds your own composite load, acute, chronic, ACWR, monotony and strain.",
   },
   {
-    t: "9 · Monitor and get alerted",
-    d: "Thresholds for ACWR spikes, weekly load jumps, wellness drops and availability risk run automatically. Every triggered alert names the player, the reason and a concrete suggestion for tomorrow's plan.",
+    icon: BellRing,
+    tone: "red",
+    t: "Read the alerts",
+    d: "Thresholds run automatically on ACWR spikes, weekly load jumps, wellness drops, exposure gaps and availability risk. Each alert names the player, the reason and a concrete suggestion for tomorrow.",
   },
   {
-    t: "10 · Analyse with the logbook and pivots",
-    d: "The activity logbook holds every player-session row. The activity chart is a real pivot: pick any KPI, group by player, position, date, activity type, MD cycle or drill, aggregate by sum, average, max or count, filter by date range and export.",
+    icon: BarChart3,
+    tone: "blue",
+    t: "Analyse in the logbook",
+    d: "The logbook holds every player-session row. Pivot any KPI by player, position, date, activity type, MD cycle or drill, aggregate by sum, average, max or count, and chart it the way you want to see it.",
   },
   {
-    t: "11 · Report and export",
-    d: "Configurable report templates per audience — head coach weekly, fitness load block, return-to-play brief, club management summary — with one-click export and scheduled delivery for a chosen date range.",
+    icon: FileSpreadsheet,
+    tone: "green",
+    t: "Report and export",
+    d: "Build report templates per audience — head coach weekly, load block, return-to-play, club management — and export in one click as PDF, PNG, Excel or CSV. Your whole workspace can also be downloaded as Excel files or a full ZIP backup, any time.",
   },
 ];
 
-
-const manual: Array<{ t: string; d: string[] }> = [
-  {
-    t: "Getting started",
-    d: [
-      "Create an account with your email, then activate the team subscription from My account. The platform — dashboard, squad, calendar, designer, tactics board, logbook, GPS, alerts, analytics and reports — unlocks immediately.",
-      "Open the menu with the panel button at the top left of any platform screen. It slides over the page so the working area stays full width, and closes as soon as you pick a destination.",
-    ],
-  },
-  {
-    t: "Squad",
-    d: [
-      "Add a player with name, position, birth date, dominant leg and availability. Update availability whenever status changes: available, partial, individual, rehab, ill or injured.",
-      "Removing a player (transfer or release) removes their GPS rows, tests and medical entries with them, so historical squad averages stay clean.",
-      "Click any player to open the passport: profile, load history, GPS trends, tests, availability and medical episodes.",
-    ],
-  },
-  {
-    t: "Calendar and training designer",
-    d: [
-      "In the calendar, use the month arrows to move, the filter to show only scheduled, pending, completed or favourite sessions, and Open to jump straight into that day.",
-      "In the designer, create a training day with a date, MD label, title, group, objective, duration and planned RPE.",
-      "Select a block, then add parts either from the drill library or as a custom line. Edit minutes, RPE, location and purpose per part. Planned load is the duration-weighted RPE multiplied by total planned minutes.",
-      "After training, type the actual session RPE and save — the day is marked completed automatically. Mark a well-built session as a favourite and duplicate it onto any future date.",
-      "Participation is recorded once per day per player and flows into every other screen.",
-    ],
-  },
-  {
-    t: "GPS import",
-    d: [
-      "Drop your provider export and T4P detects Catapult, STATSports, GPEXE, Polar or the T4P template, shows upload progress and reports every player name it could not match so you can fix the mapping.",
-      "If your system exports a different layout, download the T4P sample CSV once and configure your provider to match it — after that every upload is one drag.",
-      "Sessions can be cut into parts so GPS output lines up with the drills that were actually coached.",
-    ],
-  },
-  {
-    t: "Load model, alerts and reports",
-    d: [
-      "Choose the KPIs that define load for your methodology — distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed, sRPE — and weight them. The composite drives acute, chronic, ACWR, monotony and strain.",
-      "Alerts fire on ACWR spikes, weekly load jumps, wellness drops and availability risk, each with a suggested adjustment for tomorrow.",
-      "Report templates are configurable per audience, exportable in one click and schedulable for a chosen cadence and date range.",
-    ],
-  },
-];
+const tones: Record<string, { chip: string; card: string; num: string }> = {
+  blue: { chip: "bg-brand-blue/12 text-brand-blue", card: "border-brand-blue/25", num: "text-brand-blue" },
+  green: { chip: "bg-brand-green/12 text-brand-green", card: "border-brand-green/25", num: "text-brand-green" },
+  violet: { chip: "bg-brand-violet/12 text-brand-violet", card: "border-brand-violet/25", num: "text-brand-violet" },
+  pink: { chip: "bg-brand-pink/12 text-brand-pink", card: "border-brand-pink/25", num: "text-brand-pink" },
+  amber: { chip: "bg-brand-amber/12 text-brand-amber", card: "border-brand-amber/25", num: "text-brand-amber" },
+  indigo: { chip: "bg-brand-indigo/12 text-brand-indigo", card: "border-brand-indigo/25", num: "text-brand-indigo" },
+  cyan: { chip: "bg-brand-cyan/12 text-brand-cyan", card: "border-brand-cyan/25", num: "text-brand-cyan" },
+  teal: { chip: "bg-brand-teal/12 text-brand-teal", card: "border-brand-teal/25", num: "text-brand-teal" },
+  red: { chip: "bg-brand-red/12 text-brand-red", card: "border-brand-red/25", num: "text-brand-red" },
+};
 
 const faq = [
   {
@@ -122,7 +131,7 @@ const faq = [
   },
   {
     q: "Which GPS providers are supported?",
-    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped through the downloadable T4P template.",
+    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template — including your own club KPIs.",
   },
   {
     q: "Can I change the ACWR formula?",
@@ -130,77 +139,89 @@ const faq = [
   },
   {
     q: "Can I edit or delete data after saving?",
-    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed.",
+    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
+  },
+  {
+    q: "Can I browse before I subscribe?",
+    a: "Yes. Any account can open the platform and look at every screen. Creating and editing data requires an active subscription.",
   },
   {
     q: "Is my data protected?",
-    a: "Data is stored on European infrastructure and processed under GDPR. See the privacy policy and terms for the full detail.",
+    a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
   },
 ];
 
 function HowItWorks() {
   return (
     <MarketingPage>
-      <div className="mx-auto max-w-3xl px-5 py-14">
-        <p className="eyebrow">How it works</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold uppercase tracking-wide">
-          From squad setup to tomorrow's session
-        </h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          T4P follows the real weekly rhythm of a football performance department. Each step feeds the next, and
-          every screen reads the same connected player record.
-        </p>
+      <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
+        <div className="mx-auto max-w-4xl px-5 py-14">
+          <p className="eyebrow text-brand-blue">How it works</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
+            Team → squad → players → training → GPS → decisions
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            T4P follows the real order of work in a performance department. You build the team once, then every
+            session, GPS file and test result attaches to the same player record — so the analysis is ready before
+            you have to make the decision.
+          </p>
+        </div>
+      </section>
 
-        <ol className="mt-10 space-y-4">
-          {steps.map((s) => (
-            <li key={s.t} className="panel p-4">
-              <p className="font-display text-base font-semibold uppercase tracking-wide text-primary">{s.t}</p>
-              <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
-            </li>
-          ))}
+      <div className="mx-auto max-w-4xl px-5 py-12">
+        <ol className="space-y-4">
+          {steps.map((s, i) => {
+            const tone = tones[s.tone]!;
+            const Icon = s.icon;
+            return (
+              <li key={s.t} className={`panel ${tone.card} flex gap-4 p-5`}>
+                <div className={`grid size-11 shrink-0 place-items-center rounded-xl ${tone.chip}`}>
+                  <Icon className="size-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="flex items-baseline gap-2">
+                    <span className={`font-display text-sm font-semibold ${tone.num}`}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="font-display text-lg font-semibold uppercase tracking-wide">{s.t}</span>
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.d}</p>
+                </div>
+              </li>
+            );
+          })}
         </ol>
 
-        <h2 className="mt-12 font-display text-2xl font-semibold uppercase tracking-wide">User manual</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Everything you need to run the platform day to day.
-        </p>
-        <div className="mt-6 space-y-4">
-          {manual.map((m) => (
-            <section key={m.t} className="panel p-4">
-              <h3 className="font-display text-base font-semibold uppercase tracking-wide text-primary">{m.t}</h3>
-              <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                {m.d.map((line) => (
-                  <li key={line} className="flex gap-2">
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
-                    {line}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+        <h2 className="mt-14 font-display text-2xl font-semibold uppercase tracking-wide">Questions</h2>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {faq.map((f, i) => {
+            const tone = Object.values(tones)[i % 9]!;
+            return (
+              <div key={f.q} className={`panel ${tone.card} p-5`}>
+                <p className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}>{f.q}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+              </div>
+            );
+          })}
         </div>
 
-        <h2 className="mt-12 font-display text-2xl font-semibold uppercase tracking-wide">FAQ</h2>
-        <div className="mt-6 space-y-3">
-          {faq.map((f) => (
-            <details key={f.q} className="panel p-4">
-              <summary className="cursor-pointer text-sm font-semibold">{f.q}</summary>
-              <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-            </details>
-          ))}
-        </div>
-
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            className="rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
-          >
-            Create your account
-          </Link>
-          <Link to="/pricing" className="rounded-md border border-border px-5 py-3 text-sm font-semibold">
-            Pricing
-          </Link>
+        <div className="panel mt-12 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-cyan/10 p-6 text-center">
+          <p className="font-display text-xl font-semibold uppercase tracking-wide">Ready to set up your team?</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Create an account, browse everything, and subscribe when you want to start building.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+            >
+              Create your account <ArrowRight className="size-4" />
+            </Link>
+            <Link to="/pricing" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+              See pricing
+            </Link>
+          </div>
         </div>
       </div>
     </MarketingPage>
