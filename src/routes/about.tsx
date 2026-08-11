@@ -68,7 +68,15 @@ const questions = [
     chip: "bg-brand-amber/12 text-brand-amber",
     card: "border-brand-amber/25",
   },
+  {
+    icon: Sparkles,
+    q: "Can I just ask?",
+    a: "Smarty Assistant reads your squad data and answers in plain language — reports, comparisons, workload trends and session ideas.",
+    chip: "bg-brand-blue/12 text-brand-blue",
+    card: "border-brand-blue/25",
+  },
 ];
+
 
 const includes = [
   { t: "Team and squad", d: "One team per account, unlimited players, full passports with profile, tests and medical status.", tone: "border-brand-blue/25", dot: "bg-brand-blue" },
