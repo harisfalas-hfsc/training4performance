@@ -42,11 +42,27 @@ Nothing is written without confirmation, and view-only (unpaid) accounts get the
 - The coach can view, edit and delete anything the assistant remembered, from the assistant panel.
 - Memory is injected into every conversation so answers get more tailored over time.
 
-## 6. Credits
+## 6. Credits and assistant pricing
 
+Two models are possible:
+
+**A. Included in the €999 season subscription**
+- Unlimited or generous-capped assistant use bundled with the team plan.
+- Simplest sales message, but at 30 interactions/day the AI cost must be low enough to absorb.
+
+**B. Separate Smarty Assistant add-on (e.g. €9.99/month)**
+- A user on 30 requests/day × 365 days = ~10,950 requests/year.
+- At €9.99/month = €119.88/year per user.
+- Profitability depends on the average cost per request: short factual lookups are cheap; long multi-player reports with charts are more expensive.
+- A safe structure: the add-on includes a monthly request allowance (e.g. 500 requests), then overage packs, so heavy users pay more and light users are still profitable.
+- This keeps the base T4P subscription clean and makes the assistant a recurring revenue line.
+
+**Implementation**
 - Each assistant request consumes credits (heavier requests such as multi-player reports cost more).
 - Credit balance shown in the assistant header and on the account page; the T4P owner grants/tops up credits per customer from the admin panel, and sees usage per customer.
 - When credits run out the assistant explains it and points to the owner/top-up, instead of failing silently.
+- Admin panel shows cost/usage per customer so the owner can decide whether to offer the assistant as bundled, add-on, or usage-based.
+
 
 ## 7. Where it is explained
 
