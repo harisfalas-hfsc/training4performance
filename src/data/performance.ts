@@ -192,108 +192,36 @@ export interface MedicalEvent {
 }
 
 export const team: Team = {
-  id: "team-salamina-1",
+  id: "team-unassigned",
   name: "First Team",
-  club: "Salamina FC",
+  club: "Your club",
   season: "2025/26",
-  competition: "Cyprus League",
+  competition: "",
   ageGroup: "Senior",
   gender: "Male",
-  headCoach: "—",
-  fitnessCoach: "Haris Falas",
+  headCoach: "",
+  fitnessCoach: "",
 };
 
 export const squadName = "First Team Squad";
 
 /* ------------------------------------------------------------------ */
-/* Seed from the workbook                                              */
+/* No seed data — every workspace starts empty                         */
 /* ------------------------------------------------------------------ */
 
-const CATEGORY_RPE: Record<string, number> = {
-  "FULL TRAINING": 6,
-  "FRIENDLY MATCH": 8,
-  "RECOVERY - REGENERATION": 3,
-  "RETURN TO PLAY": 4,
-};
-
-const CATEGORY_STATUS: Record<string, TrainingStatus> = {
-  "FULL TRAINING": "Full Training",
-  "FRIENDLY MATCH": "Full Training",
-  "RECOVERY - REGENERATION": "Modified Training",
-  "RETURN TO PLAY": "Rehabilitation",
-};
-
 function seedPlayers(): Player[] {
-  return SALAMINA_PLAYERS.map((p) => ({
-    id: p.id,
-    firstName: p.firstName,
-    lastName: p.lastName,
-    dob: "",
-    position: p.position,
-    dominantLeg: "Right" as const,
-    nationality: "",
-    number: p.number,
-    heightCm: 0,
-    weightKg: p.weightKg ?? 0,
-    bodyFat: p.bodyFat ?? 0,
-    availability: "available" as Availability,
-    note: undefined,
-  }));
+  return [];
 }
 
 function seedGps(): GpsDay[] {
-  return SALAMINA_GPS.map(
-    ([date, playerId, category, minutes, distance, hsr, sprint, maxSpeed, accel, decel, jumps, energy, sprintEvents]) => ({
-      date,
-      playerId,
-      minutes,
-      distance,
-      hsr,
-      sprint,
-      maxSpeed,
-      accel,
-      decel,
-      rpe: CATEGORY_RPE[category] ?? 5,
-      status: CATEGORY_STATUS[category] ?? "Full Training",
-      category,
-      jumps,
-      energy,
-      sprintEvents,
-      avgSpeed: minutes ? +((distance / 1000 / (minutes / 60))).toFixed(2) : 0,
-    }),
-  );
+  return [];
 }
 
-const seedDates = [...new Set(SALAMINA_GPS.map((r) => r[0]))].sort();
-
-/** The real calendar day. Historical GPS dates must never masquerade as today. */
+/** The real calendar day. */
 export const today = new Date().toISOString().slice(0, 10);
 
-function dominantCategory(date: string) {
-  const counts: Record<string, number> = {};
-  SALAMINA_GPS.filter((r) => r[0] === date).forEach((r) => {
-    counts[r[2]] = (counts[r[2]] ?? 0) + 1;
-  });
-  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "FULL TRAINING";
-}
-
 function seedSessions(): Session[] {
-  return seedDates.map((date, i) => {
-    const cat = dominantCategory(date);
-    const rows = SALAMINA_GPS.filter((r) => r[0] === date);
-    const dur = Math.round(rows.reduce((a, r) => a + r[3], 0) / Math.max(1, rows.length));
-    return {
-      id: `s-${date}`,
-      date,
-      label: cat === "FRIENDLY MATCH" ? "MD" : `D${i + 1}`,
-      title: cat,
-      durationMin: dur,
-      objective: cat === "FRIENDLY MATCH" ? "Friendly match" : "Session recorded from GPS export",
-      plannedRpe: CATEGORY_RPE[cat] ?? 5,
-      actualRpe: CATEGORY_RPE[cat] ?? 5,
-      drills: [],
-    };
-  });
+  return [];
 }
 
 /* ------------------------------------------------------------------ */
