@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Compass, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
@@ -46,12 +46,11 @@ export function DiscoverMenu({
         onClick={() => setOpen(true)}
         aria-label="Open discovery menu"
         className={cn(
-          "inline-flex shrink-0 items-center gap-2 rounded-full border-2 border-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground",
+          "grid size-12 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70",
           className,
         )}
       >
-        <Compass className="size-4" />
-        <span className="hidden sm:inline">Discover</span>
+        <Menu className="size-6" />
       </button>
 
       {open && mounted
