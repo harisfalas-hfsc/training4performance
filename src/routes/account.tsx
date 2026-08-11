@@ -4,17 +4,17 @@ import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { currentSeason, useAuth } from "@/lib/auth";
+import { seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
-    meta: [
-      { title: "My account — T4P" },
-      { name: "description", content: "Manage your T4P subscription and platform access." },
-      { property: "og:title", content: "My T4P account" },
-      { property: "og:description", content: "Subscription and access to the platform." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    ...seoHead({
+      path: "/account",
+      title: "My account | T4P",
+      description: "Manage your T4P subscription and platform access.",
+      card: "summary",
+      noindex: true,
+    }),
   }),
   component: Account,
 });

@@ -19,23 +19,36 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant } from "@/components/brand-text";
+import { breadcrumbLd, jsonLd, seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
-    meta: [
-      { title: "How T4P Works — Training 4 Performance" },
-      {
-        name: "description",
-        content:
-          "The real T4P flow: create your team, build the squad, complete each player profile, run fitness tests, design training in blocks, schedule it in the calendar, import GPS, and read load, ACWR, alerts and reports.",
-      },
-      { property: "og:title", content: "How T4P Works" },
-      {
-        property: "og:description",
-        content: "Team → squad → player profiles → tests → training design → calendar → GPS → load, alerts and reports.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...seoHead({
+      path: "/how-it-works",
+      title: "How It Works — GPS, Training Load & ACWR Workflow | T4P",
+      description:
+        "See the T4P workflow: create a team, build the squad, run fitness tests, design training in blocks, schedule sessions, import GPS data and read load, ACWR, alerts and reports.",
+      keywords: [
+        "football GPS data upload platform",
+        "training load monitoring football",
+        "soccer training session designer",
+        "football practice planner",
+      ],
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "How it works", path: "/how-it-works" },
+      ]),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqSchema.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
+      }),
     ],
   }),
   component: HowItWorks,

@@ -8,21 +8,19 @@ import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import { T4P } from "@/components/brand-text";
 import { WELLNESS_FIELDS, type WellnessField } from "@/data/wellness";
 import { portalLogin, portalPayload, portalSaveWellness, portalSignIn, type PortalPayload } from "@/lib/portal.functions";
+import { seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
   head: () => ({
-    meta: [
-      { title: "Player Portal — Training 4 Performance" },
-      {
-        name: "description",
-        content:
-          "Players sign in with their personal code to complete the daily wellness questionnaire and follow their own training response in simple graphs.",
-      },
-      { property: "og:title", content: "Player Portal — Training 4 Performance" },
-      { property: "og:description", content: "Daily wellness questionnaire and personal training graphs for players." },
-      { name: "robots", content: "noindex" },
-    ],
+    ...seoHead({
+      path: "/portal",
+      title: "Player Portal | T4P Training 4 Performance",
+      description:
+        "Players sign in to complete the daily wellness questionnaire and follow their own training response in simple graphs.",
+      card: "summary",
+      noindex: true,
+    }),
   }),
   component: PortalPage,
 });

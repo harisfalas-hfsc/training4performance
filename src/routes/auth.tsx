@@ -6,6 +6,7 @@ import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
+import { seoHead } from "@/lib/seo";
 
 
 export const Route = createFileRoute("/auth")({
@@ -13,17 +14,13 @@ export const Route = createFileRoute("/auth")({
     search["mode"] === "signup" ? { mode: "signup" } : {},
 
   head: () => ({
-    meta: [
-      { title: "Sign in — T4P Training 4 Performance" },
-      {
-        name: "description",
-        content: "Sign in or create your T4P account to access the football performance platform.",
-      },
-      { property: "og:title", content: "Sign in to T4P" },
-      { property: "og:description", content: "Access your squad, training, GPS and reporting workspace." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    ...seoHead({
+      path: "/auth",
+      title: "Sign in | T4P Training 4 Performance",
+      description: "Sign in or create your T4P account to access the football performance platform.",
+      card: "summary",
+      noindex: true,
+    }),
   }),
   component: AuthPage,
 });
