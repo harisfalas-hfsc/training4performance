@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Compass, X } from "lucide-react";
-import { useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +34,8 @@ export function DiscoverMenu({
 }) {
   const [open, setOpen] = useState(false);
   const { session } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const close = () => setOpen(false);
 
   return (
@@ -50,7 +53,8 @@ export function DiscoverMenu({
         <span className="hidden sm:inline">Discover</span>
       </button>
 
-      {open ? (
+      {open && mounted
+        ? createPortal(
         <div className="fixed inset-0 z-50 flex">
           <button
             aria-label="Close menu"
@@ -121,8 +125,10 @@ export function DiscoverMenu({
               )}
             </div>
           </aside>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+          )
+        : null}
     </>
   );
 }
