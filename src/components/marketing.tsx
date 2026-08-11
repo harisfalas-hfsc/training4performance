@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { Compass, LogOut, User, X } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -11,140 +11,188 @@ const links = [
 ] as const;
 
 export function SiteHeader() {
-  const [open, setOpen] = useState(false);
-  const { session } = useAuth();
+  const [menu, setMenu] = useState(false);
+  const [avatar, setAvatar] = useState(false);
+  const { session, profile, signOut } = useAuth();
+  const avatarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatar(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  const initials = (profile?.full_name || session?.user?.email || "?").slice(0, 1).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <Link to="/" className="flex min-w-0 items-center gap-2">
-          <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-8 shrink-0 object-contain" />
-          <span className="min-w-0 leading-tight">
-            <span className="block font-display text-base font-semibold uppercase tracking-widest">T4P</span>
-            <span className="block truncate text-[0.6rem] uppercase tracking-wider text-muted-foreground">
-              Training 4 Performance
-            </span>
-          </span>
-        </Link>
-
-
-        <nav className="hidden items-center gap-1 md:flex">
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-primary" }}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex shrink-0 items-center gap-2">
-          {session ? (
-            <Link
-              to="/dashboard"
-              className="whitespace-nowrap rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
-            >
-              Open platform
-            </Link>
-          ) : (
-            <>
-              <Link to="/auth" className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground sm:block">
-                Sign in
-              </Link>
-              <Link
-                to="/auth"
-                search={{ mode: "signup" }}
-                className="whitespace-nowrap rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
-              >
-                Get started
-              </Link>
-            </>
-          )}
+    <>
+      <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
+        <div className="mx-auto grid max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
           <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Menu"
-            className="rounded-md border border-border p-2 md:hidden"
+            onClick={() => setMenu(true)}
+            aria-label="Open discovery menu"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border px-3 py-2 text-xs font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
           >
-            <Menu className="size-4" />
+            <Compass className="size-4" />
+            <span className="hidden sm:inline">Discover</span>
           </button>
-        </div>
-      </div>
-      {open ? (
-        <div className="border-t border-border px-5 py-2 md:hidden">
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              onClick={() => setOpen(false)}
-              className="block rounded-md px-2 py-2 text-sm text-muted-foreground"
+
+          <Link to="/" className="flex min-w-0 items-center justify-center gap-2">
+            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-7 shrink-0 object-contain" />
+            <span className="min-w-0 leading-tight">
+              <span className="block font-display text-sm font-semibold uppercase tracking-[0.35em]">T4P</span>
+            </span>
+          </Link>
+
+          <div ref={avatarRef} className="relative shrink-0">
+            <button
+              onClick={() => setAvatar((v) => !v)}
+              aria-label="Account menu"
+              className="grid size-9 place-items-center rounded-full border border-border bg-surface-2 text-xs font-semibold uppercase"
             >
-              {l.label}
-            </Link>
-          ))}
+              {session ? initials : <User className="size-4 text-muted-foreground" />}
+            </button>
+            {avatar ? (
+              <div className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-panel">
+                {session ? (
+                  <>
+                    <p className="truncate border-b border-border px-4 py-3 text-xs text-muted-foreground">
+                      {session.user.email}
+                    </p>
+                    <MenuLink to="/dashboard" onClick={() => setAvatar(false)}>
+                      Go to platform
+                    </MenuLink>
+                    <MenuLink to="/account" onClick={() => setAvatar(false)}>
+                      Manage account
+                    </MenuLink>
+                    <button
+                      onClick={() => {
+                        setAvatar(false);
+                        void signOut();
+                      }}
+                      className="flex w-full items-center gap-2 border-t border-border px-4 py-3 text-left text-sm text-muted-foreground hover:bg-surface-2 hover:text-foreground"
+                    >
+                      <LogOut className="size-4" /> Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <MenuLink to="/auth" onClick={() => setAvatar(false)}>
+                      Sign in
+                    </MenuLink>
+                    <MenuLink to="/auth" search={{ mode: "signup" }} onClick={() => setAvatar(false)}>
+                      Create account
+                    </MenuLink>
+                  </>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </header>
+
+      {menu ? (
+        <div className="fixed inset-0 z-50 flex">
+          <button
+            aria-label="Close menu"
+            onClick={() => setMenu(false)}
+            className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
+          />
+          <aside className="relative flex h-full w-[min(20rem,85vw)] flex-col border-r border-border bg-background px-6 py-6">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow">Discover</p>
+              <button onClick={() => setMenu(false)} aria-label="Close">
+                <X className="size-4 text-muted-foreground" />
+              </button>
+            </div>
+            <nav className="mt-6 flex flex-col">
+              {links.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  onClick={() => setMenu(false)}
+                  className="border-b border-border py-4 font-display text-lg uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+                  activeProps={{ className: "text-foreground" }}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="mt-auto pt-6">
+              {session ? (
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMenu(false)}
+                  className="block rounded-md bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Go to platform
+                </Link>
+              ) : (
+                <Link
+                  to="/auth"
+                  search={{ mode: "signup" }}
+                  onClick={() => setMenu(false)}
+                  className="block rounded-md bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Get started
+                </Link>
+              )}
+            </div>
+          </aside>
         </div>
       ) : null}
-    </header>
+    </>
+  );
+}
+
+function MenuLink({
+  to,
+  search,
+  onClick,
+  children,
+}: {
+  to: string;
+  search?: Record<string, string>;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      to={to as never}
+      search={search as never}
+      onClick={onClick}
+      className="block px-4 py-3 text-sm text-muted-foreground hover:bg-surface-2 hover:text-foreground"
+    >
+      {children}
+    </Link>
   );
 }
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-surface-2/40">
-      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <p className="font-display text-sm font-semibold uppercase tracking-widest">T4P</p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Training 4 Performance — integrated football fitness, performance and training management.
-          </p>
-        </div>
-        <FooterCol
-          title="Platform"
-          items={[
-            { to: "/how-it-works", label: "How it works" },
-            { to: "/pricing", label: "Pricing" },
-            { to: "/auth", label: "Sign in" },
-          ]}
-        />
-        <FooterCol
-          title="Company"
-          items={[
-            { to: "/about", label: "About T4P" },
-            { to: "/haris-falas", label: "Haris Falas" },
-          ]}
-        />
-        <FooterCol
-          title="Legal"
-          items={[
-            { to: "/terms", label: "Terms & Conditions" },
-            { to: "/privacy", label: "Privacy Policy (GDPR)" },
-            { to: "/disclaimer", label: "Disclaimer" },
-          ]}
-        />
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-8 sm:flex-row sm:justify-between">
+        <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
+          Training 4 Performance
+        </p>
+        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+          <Link to="/terms" className="hover:text-foreground">
+            Terms &amp; Conditions
+          </Link>
+          <Link to="/privacy" className="hover:text-foreground">
+            Privacy Policy
+          </Link>
+          <Link to="/disclaimer" className="hover:text-foreground">
+            Disclaimer
+          </Link>
+        </nav>
       </div>
-      <div className="border-t border-border px-5 py-4 text-center text-xs text-muted-foreground">
+      <div className="border-t border-border px-5 py-4 text-center text-[0.7rem] text-muted-foreground">
         © {new Date().getFullYear()} Training 4 Performance. All rights reserved.
       </div>
     </footer>
-  );
-}
-
-function FooterCol({ title, items }: { title: string; items: { to: string; label: string }[] }) {
-  return (
-    <div>
-      <p className="eyebrow">{title}</p>
-      <ul className="mt-2 space-y-1.5">
-        {items.map((i) => (
-          <li key={i.to}>
-            <Link to={i.to as never} className="text-xs text-muted-foreground hover:text-primary">
-              {i.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }
 
