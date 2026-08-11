@@ -19,7 +19,6 @@ import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
 import {
-  MAX_PLAYERS_PER_SQUAD,
   MAX_TEAMS_PER_ACCOUNT,
   clearWorkspaceRecords,
   deleteTeamAndData,
