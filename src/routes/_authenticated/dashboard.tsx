@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Activity, AlertTriangle, ArrowUpRight, HeartPulse, Timer, TrendingUp, Users } from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, CalendarPlus, HeartPulse, Timer, TrendingUp, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendBars } from "@/components/charts";
@@ -8,7 +8,6 @@ import {
   avg,
   fullName,
   getPlayer,
-  isTeamConfigured,
   players,
   playerWellness,
   sessionCalendar,
@@ -56,32 +55,22 @@ function Dashboard() {
   return (
     <AppShell
       title="Coach Dashboard"
-      subtitle="Monday 10 August 2026 · MD-2"
+      subtitle={new Intl.DateTimeFormat("en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date(`${today}T12:00:00`))}
       actions={
         <Link
           to="/training"
+          search={todaySession ? { date: today } : {}}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
-          Open today's session <ArrowUpRight className="size-4" />
+          {todaySession ? "Open today’s training" : "Create today’s training"} <ArrowUpRight className="size-4" />
         </Link>
       }
     >
-      {!isTeamConfigured() || players.length === 0 ? (
-        <section className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <div>
-            <p className="text-sm font-semibold">Set up your workspace</p>
-            <p className="text-xs text-muted-foreground">
-              Create your team, add your squad, import GPS and design your first session — five guided steps.
-            </p>
-          </div>
-          <Link
-            to="/team"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            Start setup <ArrowUpRight className="size-4" />
-          </Link>
-        </section>
-      ) : null}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
 
         <MetricCard
@@ -150,7 +139,18 @@ function Dashboard() {
                 <span>Planned RPE {todaySession.plannedRpe}</span>
               </p>
             </div>
-          ) : null}
+          ) : (
+            <div className="rounded-md border border-dashed border-border p-4 text-center">
+              <p className="text-sm font-semibold">No training planned today</p>
+              <p className="mt-1 text-xs text-muted-foreground">Start with a blank session for {today}.</p>
+              <Link
+                to="/training"
+                className="mt-3 inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                <CalendarPlus className="size-4" /> Create today’s training
+              </Link>
+            </div>
+          )}
 
           <p className="eyebrow mt-4">Next up</p>
           <ul className="mt-2 space-y-2">
