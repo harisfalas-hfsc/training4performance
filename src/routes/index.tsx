@@ -52,46 +52,87 @@ const features = [
 function Home() {
   return (
     <MarketingPage>
-      {/* Hero */}
-      <section className="border-b border-border">
+      {/* MOBILE hero — centered text under a compact image */}
+      <section className="border-b border-border sm:hidden">
         <img
           src={heroMotion}
           alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
           width={1600}
           height={1008}
-          className="block w-full object-cover"
+          className="block h-52 w-full object-cover"
         />
+        <div className="px-5 pb-10 pt-8 text-center">
+          <p className="eyebrow">Training 4 Performance</p>
+          <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
+            The football performance system for S&amp;C coaches that connects everything
+          </h1>
+          <p className="mt-4 text-sm text-muted-foreground">
+            T4P is the daily companion for strength &amp; conditioning coaches in football. It brings every player
+            record, training session, GPS report, wellness entry, test result and medical note into one connected
+            workspace.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground"
+            >
+              Get started <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              to="/how-it-works"
+              className="inline-flex h-12 items-center justify-center rounded-md border border-border text-sm font-semibold"
+            >
+              See how it works
+            </Link>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">€999 per season, per team · every module included</p>
+        </div>
+      </section>
 
-        <div className="mx-auto max-w-6xl px-5 pb-14 pt-10">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="eyebrow">Training 4 Performance</p>
-            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide sm:text-5xl lg:text-6xl">
+      {/* FULL-BLEED HERO — content on the picture (desktop/tablet) */}
+      <section className="relative hidden overflow-hidden border-b border-border sm:block">
+        <img
+          src={heroMotion}
+          alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
+          width={1600}
+          height={1008}
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/25" />
+        <div className="relative mx-auto max-w-6xl px-5 py-24 lg:py-36">
+          <div className="max-w-3xl">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-white/70">Training 4 Performance</p>
+            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-white lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground">
+            <p className="mt-5 max-w-2xl text-base text-white/80 lg:text-lg">
               T4P is the daily companion for strength &amp; conditioning coaches in football. It brings every player
               record, training session, GPS report, wellness entry, test result and medical note into one connected
               workspace — so you spend less time switching files and more time coaching.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+                className="inline-flex h-12 items-center gap-2 rounded-md bg-primary px-7 text-sm font-semibold text-primary-foreground"
               >
                 Get started <ArrowRight className="size-4" />
               </Link>
               <Link
                 to="/how-it-works"
-                className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-3 text-sm font-semibold"
+                className="inline-flex h-12 items-center gap-2 rounded-md border border-white/40 px-7 text-sm font-semibold text-white"
               >
                 See how it works
               </Link>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">€999 per season, per team · every module included</p>
+            <p className="mt-4 text-xs text-white/60">€999 per season, per team · every module included</p>
           </div>
         </div>
       </section>
+
 
 
       {/* Platform preview */}
