@@ -204,7 +204,7 @@ export function AppShell({
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 [&>*]:min-h-9">
               {supportMode ? (
                 <Button size="sm" onClick={() => void returnToAdmin()}>
                   <Shield className="size-3.5" /> Return to admin
