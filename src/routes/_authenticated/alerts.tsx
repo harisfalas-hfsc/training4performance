@@ -108,11 +108,34 @@ function AlertsPage() {
   const [to, setTo] = useState(new Date().toISOString().slice(0, 10));
   const [query, setQuery] = useState("");
   const [showRules, setShowRules] = useState(false);
+  const [loadedSettings, setLoadedSettings] = useState(false);
 
-  // Re-evaluate rules and records, then merge into the stored feed.
+  // Load the coach's saved rule settings (per account).
   useEffect(() => {
+    const key = scopedStorageKey(SETTINGS_KEY);
+    if (key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw) as { thresholds?: Thresholds; enabled?: RuleId[] };
+          if (parsed.thresholds) setThresholds({ ...DEFAULT_THRESHOLDS, ...parsed.thresholds });
+          if (parsed.enabled) setEnabled(parsed.enabled);
+        }
+      } catch {
+        /* ignore corrupt settings */
+      }
+    }
+    setLoadedSettings(true);
+  }, []);
+
+  // Save settings, then re-evaluate rules and records and merge into the stored feed.
+  useEffect(() => {
+    if (!loadedSettings) return;
+    const key = scopedStorageKey(SETTINGS_KEY);
+    if (key) localStorage.setItem(key, JSON.stringify({ thresholds, enabled }));
     syncNotifications(thresholds, enabled);
-  }, [thresholds, enabled]);
+  }, [thresholds, enabled, loadedSettings]);
+
 
   const range = useMemo(() => {
     if (period === "today") return { start: new Date().toISOString().slice(0, 10), end: "9999-12-31" };
