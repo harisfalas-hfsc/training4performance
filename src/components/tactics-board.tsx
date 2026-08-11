@@ -424,6 +424,8 @@ export function TacticsBoard({
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [orientation, setOrientation] = useState<Orientation>(initialDrawing?.orientation ?? "portrait");
+  const [view, setView] = useState<PitchView>(initialDrawing?.view ?? "full");
+  const [field, setField] = useState<FieldType>(initialDrawing?.field ?? "football");
   const [tool, setTool] = useState<Tool>("select");
   const [tokens, setTokens] = useState<BoardToken[]>(initialDrawing?.tokens ?? initialTokens);
   const [shapes, setShapes] = useState<BoardShape[]>(initialDrawing?.shapes ?? []);
@@ -437,7 +439,10 @@ export function TacticsBoard({
   const drawing = useRef<BoardShape | null>(null);
   const [, force] = useState(0);
 
-  const { w, h } = DIMS[orientation];
+  const vb = viewBoxFor(orientation, view);
+  const w = vb.w;
+  const h = vb.h;
+
 
   const push = useCallback(
     () => setHistory((prev) => [...prev.slice(-29), { tokens, shapes }]),
