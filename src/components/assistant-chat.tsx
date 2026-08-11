@@ -3,19 +3,21 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   assistantCreateThread,
   assistantDeleteThread,
   assistantGetCredits,
+  assistantGetContext,
   assistantListMessages,
   assistantListThreads,
   assistantRenameThread,
   assistantSaveMessage,
 } from "@/lib/assistant.functions";
 import { useServerFn } from "@tanstack/react-start";
+import type { AssistantDateRow, AssistantWorkspaceContext } from "@/lib/assistant-data";
 import {
   Bot,
   ChevronLeft,
@@ -34,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { MultiChart, type ChartKind } from "@/components/charts";
 
 interface Message {
   id: string;
@@ -56,26 +59,234 @@ const SUGGESTIONS = [
   "What is the squad average wellness today?",
 ];
 
-function formatAnswer(text: string) {
-  return text.split("\n").map((line, i) => {
+interface ChartSpec {
+  kind: ChartKind;
+  title: string;
+  xKey: string;
+  series: Array<{ key: string; name: string; color?: string }>;
+  data: Array<Record<string, string | number>>;
+}
+
+const CHART_METRIC_LABELS: Record<string, string> = {
+  distance: "Distance (m)",
+  hsr: "HSR (m)",
+  sprint: "Sprint (m)",
+  maxSpeed: "Max speed (km/h)",
+  avgSpeed: "Avg speed (km/h)",
+  accel: "Accelerations",
+  decel: "Decelerations",
+  rpe: "RPE",
+  jumps: "Jumps",
+  energy: "Energy (kJ)",
+};
+
+function parseChartTag(text: string): { text: string; tag?: { player: string; metric: string; kind: ChartKind } } {
+  // Accept [CHART ...] or malformed [ART ...] produced by some models,
+  // but only if it contains both player and metric attributes.
+  const match = text.match(/\[(?:CHART|ART)\s+([^\]]+)\]/);
+  if (!match || !match[1]) return { text };
+  const attrs: Record<string, string> = {};
+  const pairs = match[1].matchAll(/(\w+)="([^"]*)"/g);
+  for (const pair of pairs) {
+    const key = pair[1] ?? "";
+    const value = pair[2] ?? "";
+    if (key) attrs[key] = value;
+  }
+  if (!attrs["player"] || !attrs["metric"]) return { text };
+  return {
+    text: text.replace(match[0], "").trim(),
+    tag: { player: attrs["player"], metric: attrs["metric"], kind: (attrs["kind"] as ChartKind) || "line" },
+  };
+}
+
+function findPlayerByName(name: string, ctx: AssistantWorkspaceContext | null) {
+  if (!ctx) return undefined;
+  const lower = name.toLowerCase();
+  // Exact/substring match either direction.
+  let player = ctx.playerDateMetrics.find(
+    (p) => p.playerName.toLowerCase().includes(lower) || lower.includes(p.playerName.toLowerCase()),
+  );
+  if (player) return player;
+  // Last-name heuristic: match last token.
+  const lastToken = lower.split(/\s+/).pop();
+  if (lastToken) {
+    player = ctx.playerDateMetrics.find((p) => {
+      const tokens = p.playerName.toLowerCase().split(/\s+/);
+      return tokens.some((t) => t === lastToken || t.startsWith(lastToken));
+    });
+  }
+  return player;
+}
+
+function buildChartFromTag(
+  tag: { player: string; metric: string; kind: ChartKind },
+  ctx: AssistantWorkspaceContext | null,
+): ChartSpec | undefined {
+  if (!ctx) return undefined;
+  const player = findPlayerByName(tag.player, ctx);
+  if (!player) return undefined;
+  const metric = tag.metric;
+  const label = CHART_METRIC_LABELS[metric] ?? metric;
+  const data = player.rows
+    .filter((r) => r[metric as keyof AssistantDateRow] !== undefined)
+    .map((r) => ({
+      date: r.date,
+      [metric]: Number(r[metric as keyof AssistantDateRow]),
+    }));
+  if (data.length === 0) return undefined;
+  return {
+    kind: tag.kind,
+    title: `${player.playerName} — ${label}`,
+    xKey: "date",
+    series: [{ key: metric, name: label }],
+    data,
+  };
+}
+
+function detectChartRequest(text: string): { player: string | undefined; metric: string | undefined; kind: ChartKind } | undefined {
+  const lower = text.toLowerCase();
+  const isChart = /\b(chart|graph|plot|trend|visual|visualize|visualise)\b/.test(lower);
+  if (!isChart) return undefined;
+
+  const playerNames = (window as unknown as { __smartyPlayerNames?: string[] }).__smartyPlayerNames ?? [];
+  let player: string | undefined;
+  for (const name of playerNames) {
+    if (lower.includes(name.toLowerCase())) {
+      player = name;
+      break;
+    }
+  }
+
+  const metricMap: Record<string, string> = {
+    distance: "distance",
+    hsr: "hsr",
+    "high speed running": "hsr",
+    "high-speed running": "hsr",
+    sprint: "sprint",
+    "max speed": "maxSpeed",
+    "maximum speed": "maxSpeed",
+    "top speed": "maxSpeed",
+    speed: "maxSpeed",
+    "avg speed": "avgSpeed",
+    "average speed": "avgSpeed",
+    accelerations: "accel",
+    acceleration: "accel",
+    decelerations: "decel",
+    deceleration: "decel",
+    rpe: "rpe",
+    jumps: "jumps",
+    jump: "jumps",
+    energy: "energy",
+  };
+  let metric: string | undefined;
+  for (const [phrase, key] of Object.entries(metricMap)) {
+    if (lower.includes(phrase)) {
+      metric = key;
+      break;
+    }
+  }
+
+  const kind: ChartKind = lower.includes("bar") ? "bar" : lower.includes("area") ? "area" : "line";
+  return { player, metric, kind };
+}
+
+function buildFallbackChart(
+  request: { player: string | undefined; metric: string | undefined; kind: ChartKind },
+  ctx: AssistantWorkspaceContext | null,
+): ChartSpec | undefined {
+  if (!ctx || ctx.playerDateMetrics.length === 0) return undefined;
+  const player = request.player
+    ? ctx.playerDateMetrics.find((p) => p.playerName.toLowerCase().includes(request.player!.toLowerCase()))
+    : ctx.playerDateMetrics[0];
+  if (!player) return undefined;
+  const metric = request.metric ?? "maxSpeed";
+  const label = CHART_METRIC_LABELS[metric] ?? metric;
+  const data = player.rows
+    .filter((r) => r[metric as keyof AssistantDateRow] !== undefined)
+    .map((r) => ({
+      date: r.date,
+      [metric]: Number(r[metric as keyof AssistantDateRow]),
+    }));
+  if (data.length === 0) return undefined;
+  return {
+    kind: request.kind,
+    title: `${player.playerName} — ${label}`,
+    xKey: "date",
+    series: [{ key: metric, name: label }],
+    data,
+  };
+}
+
+function renderInlineMarkdown(text: string) {
+  const parts: React.ReactNode[] = [];
+  const regex = /(\*\*|\*|__|_)(.*?)\1/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={lastIndex}>{text.slice(lastIndex, match.index)}</span>);
+    }
+    const delimiter = match[1] ?? "";
+    const content = match[2] ?? "";
+    parts.push(
+      delimiter.length === 2 ? (
+        <strong key={match.index}>{content}</strong>
+      ) : (
+        <em key={match.index}>{content}</em>
+      ),
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(<span key={lastIndex}>{text.slice(lastIndex)}</span>);
+  }
+  return parts.length ? parts : text;
+}
+
+function formatAnswer(text: string, ctx: AssistantWorkspaceContext | null) {
+  const { text: cleanText, tag } = parseChartTag(text);
+  const chart = tag ? buildChartFromTag(tag, ctx) : undefined;
+  const lines = cleanText.split("\n");
+  const elements: React.ReactNode[] = [];
+  let key = 0;
+
+  lines.forEach((line) => {
     const trimmed = line.trim();
     if (trimmed.startsWith("- ")) {
-      return (
-        <li key={i} className="ml-4 list-disc">
-          {trimmed.slice(2)}
-        </li>
+      elements.push(
+        <li key={key++} className="ml-4 list-disc">
+          {renderInlineMarkdown(trimmed.slice(2))}
+        </li>,
       );
-    }
-    if (/^\d+\.\s/.test(trimmed)) {
-      return (
-        <li key={i} className="ml-4 list-decimal">
-          {trimmed.replace(/^\d+\.\s/, "")}
-        </li>
+    } else if (/^\d+\.\s/.test(trimmed)) {
+      elements.push(
+        <li key={key++} className="ml-4 list-decimal">
+          {renderInlineMarkdown(trimmed.replace(/^\d+\.\s/, ""))}
+        </li>,
       );
+    } else if (trimmed === "") {
+      elements.push(<br key={key++} />);
+    } else {
+      elements.push(<p key={key++}>{renderInlineMarkdown(line)}</p>);
     }
-    if (trimmed === "") return <br key={i} />;
-    return <p key={i}>{line}</p>;
   });
+
+  if (chart) {
+    elements.push(
+      <div key={key++} className="mt-3 rounded-xl border bg-white p-3">
+        <p className="mb-2 text-xs font-semibold text-muted-foreground">{chart.title}</p>
+        <MultiChart
+          kind={chart.kind}
+          data={chart.data}
+          series={chart.series}
+          xKey={chart.xKey}
+          height={200}
+        />
+      </div>,
+    );
+  }
+
+  return elements;
 }
 
 export function AssistantChat({ onClose }: { onClose: () => void }) {
@@ -87,6 +298,7 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState<number | null>(null);
   const [view, setView] = useState<"chat" | "threads">("chat");
+  const [workspaceContext, setWorkspaceContext] = useState<AssistantWorkspaceContext | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const listThreads = useServerFn(assistantListThreads);
@@ -96,11 +308,29 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
   const deleteThread = useServerFn(assistantDeleteThread);
   const renameThread = useServerFn(assistantRenameThread);
   const getCredits = useServerFn(assistantGetCredits);
+  const getContext = useServerFn(assistantGetContext);
 
   useEffect(() => {
     void loadThreads();
     void loadCredits();
+    void loadContext();
   }, []);
+
+  async function loadContext() {
+    try {
+      const { context } = await getContext();
+      if (context) setWorkspaceContext(context as AssistantWorkspaceContext);
+    } catch {
+      // non-fatal: assistant can still answer without charts
+    }
+  }
+
+  useEffect(() => {
+    if (workspaceContext) {
+      (window as unknown as { __smartyPlayerNames?: string[] }).__smartyPlayerNames =
+        workspaceContext.playerDateMetrics.map((p) => p.playerName);
+    }
+  }, [workspaceContext]);
 
   useEffect(() => {
     if (activeThread) {
@@ -181,6 +411,7 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
     }
 
     const userText = input.trim();
+    const chartRequest = detectChartRequest(userText);
     setInput("");
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", content: userText }]);
     setLoading(true);
@@ -243,6 +474,21 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
         }
       }
 
+      // If the user asked for a chart but the model did not emit a chart tag,
+      // append a generated tag from workspace context so the UI still renders it.
+      const hasValidChartTag = /\[(?:CHART|ART)\s+player="[^"]+"\s+metric="[^"]+"/.test(fullText);
+      if (chartRequest && !hasValidChartTag) {
+        const fallback = buildFallbackChart(chartRequest, workspaceContext);
+        if (fallback) {
+          const playerName = fallback.title.split(" — ")[0] ?? "Player";
+          const metricKey = fallback.series[0]?.key ?? "maxSpeed";
+          fullText += `\n\n[CHART player="${playerName}" metric="${metricKey}" kind="${chartRequest.kind}"]`;
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, content: fullText } : m)),
+          );
+        }
+      }
+
       await saveMessage({ data: { threadId, role: "assistant", content: fullText } });
       await loadCredits();
     } catch (e) {
@@ -283,7 +529,7 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <SheetHeader className="border-b px-6 py-4">
+      <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {view === "chat" && threads.length > 0 && (
@@ -291,13 +537,13 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
-            <SheetTitle className="flex items-center gap-2 text-base">
+            <h2 className="flex items-center gap-2 text-base font-semibold">
               <Sparkles className="h-5 w-5 text-[#3B82F6]" />
               {view === "chat" ? activeTitle : "Chat history"}
-            </SheetTitle>
+            </h2>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="font-mono">
+            <Badge variant="secondary" className="font-mono" data-testid="credit-balance">
               {credits ?? "—"} credits
             </Badge>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
@@ -305,10 +551,10 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
             </Button>
           </div>
         </div>
-        <SheetDescription className="text-left">
+        <p className="mt-1 text-left text-sm text-muted-foreground">
           Ask Smarty about reports, player comparisons, workload, or training ideas.
-        </SheetDescription>
-      </SheetHeader>
+        </p>
+      </div>
 
       {view === "threads" ? (
         <ScrollArea className="flex-1 px-4 py-3">
@@ -384,7 +630,7 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
                       m.role === "user" ? "bg-[#3B82F6] text-white" : "bg-slate-100 text-slate-900"
                     }`}
                   >
-                    {m.role === "assistant" ? formatAnswer(m.content || (loading ? "Thinking…" : "")) : m.content}
+                    {m.role === "assistant" ? formatAnswer(m.content || (loading ? "Thinking…" : ""), workspaceContext) : m.content}
                   </div>
                 </div>
               ))}
@@ -412,8 +658,9 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
                 placeholder="Ask Smarty Assistant…"
                 className="flex-1"
                 disabled={loading}
+                data-testid="assistant-input"
               />
-              <Button type="submit" size="icon" disabled={!input.trim() || loading} className="shrink-0 bg-[#3B82F6] hover:bg-[#2563EB]">
+              <Button type="submit" size="icon" disabled={!input.trim() || loading} className="shrink-0 bg-[#3B82F6] hover:bg-[#2563EB]" data-testid="assistant-send">
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>

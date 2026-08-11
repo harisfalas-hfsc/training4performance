@@ -4,6 +4,7 @@ import { buildAssistantContext, contextPrompt } from "@/lib/assistant-data";
 import type { GpsDay, ManualTest, MedicalEvent, Player, Session, Team, Wellness } from "@/data/performance";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/responses";
+const CREDIT_COST = 1;
 
 export const Route = createFileRoute("/api/assistant/chat")({
   server: {
@@ -19,6 +20,32 @@ export const Route = createFileRoute("/api/assistant/chat")({
 
           if (!Array.isArray(body.messages) || body.messages.length === 0) {
             return new Response(JSON.stringify({ error: "messages required" }), { status: 400, headers: { "Content-Type": "application/json" } });
+          }
+
+          const { data: creditRow } = await supabase
+            .from("assistant_credits")
+            .select("balance")
+            .eq("user_id", userId)
+            .single();
+
+          const balance = creditRow?.balance ?? 0;
+          if (balance < CREDIT_COST) {
+            return new Response(
+              JSON.stringify({ error: "Insufficient Smarty Assistant credits. Please top up your balance." }),
+              { status: 402, headers: { "Content-Type": "application/json" } },
+            );
+          }
+
+          const { error: debitError } = await supabase
+            .from("assistant_credits")
+            .update({ balance: balance - CREDIT_COST, updated_at: new Date().toISOString() })
+            .eq("user_id", userId);
+
+          if (debitError) {
+            return new Response(JSON.stringify({ error: "Could not deduct assistant credit" }), {
+              status: 500,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           const { data: row } = await supabase
@@ -74,6 +101,8 @@ export const Route = createFileRoute("/api/assistant/chat")({
           }
 
           const runId = gatewayRes.headers.get("X-Lovable-AIG-Run-ID") ?? "";
+          const requestTokens = Math.ceil(system.length / 4) + body.messages.reduce((sum, m) => sum + Math.ceil(m.content.length / 4), 0);
+          const threadId = body.threadId ?? null;
 
           const stream = new ReadableStream({
             async start(controller) {
@@ -82,6 +111,8 @@ export const Route = createFileRoute("/api/assistant/chat")({
                 controller.close();
                 return;
               }
+
+              let responseText = "";
 
               try {
                 controller.enqueue(new TextEncoder().encode(`event: runId\ndata: ${JSON.stringify({ runId })}\n\n`));
@@ -109,7 +140,9 @@ export const Route = createFileRoute("/api/assistant/chat")({
                         controller.enqueue(new TextEncoder().encode(`event: reasoning\ndata: ${JSON.stringify({ text: parsed.delta })}\n\n`));
                       }
                       if (deltas.length) {
-                        controller.enqueue(new TextEncoder().encode(`event: text\ndata: ${JSON.stringify({ text: deltas.join("") })}\n\n`));
+                        const joined = deltas.join("");
+                        responseText += joined;
+                        controller.enqueue(new TextEncoder().encode(`event: text\ndata: ${JSON.stringify({ text: joined })}\n\n`));
                       }
                     } catch {
                       // ignore malformed SSE lines
@@ -120,6 +153,15 @@ export const Route = createFileRoute("/api/assistant/chat")({
                 controller.enqueue(new TextEncoder().encode(`event: done\ndata: {}\n\n`));
                 controller.close();
                 reader.releaseLock();
+
+                const responseTokens = Math.ceil(responseText.length / 4);
+                await supabase.from("assistant_usage").insert({
+                  user_id: userId,
+                  thread_id: threadId,
+                  request_tokens: requestTokens,
+                  response_tokens: responseTokens,
+                  cost_eur: 0,
+                });
               }
             },
           });

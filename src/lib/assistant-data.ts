@@ -24,6 +24,30 @@ export interface AssistantWorkspaceContext {
   recentAlerts: AssistantAlert[];
   lastSessionDate: string;
   dataRange: { from: string; to: string };
+  /** Per-player, per-date GPS rows so the assistant can compare sessions. */
+  playerDateMetrics: AssistantPlayerDateMetrics[];
+}
+
+export interface AssistantPlayerDateMetrics {
+  playerId: string;
+  playerName: string;
+  position: string;
+  rows: AssistantDateRow[];
+}
+
+export interface AssistantDateRow {
+  date: string;
+  minutes: number;
+  distance: number;
+  hsr: number;
+  sprint: number;
+  maxSpeed: number;
+  accel: number;
+  decel: number;
+  rpe: number;
+  jumps: number | undefined;
+  energy: number | undefined;
+  avgSpeed: number | undefined;
 }
 
 export interface AssistantPlayer {
@@ -157,6 +181,33 @@ export function buildAssistantContext(
     }
   });
 
+  const playerDateMetrics: AssistantPlayerDateMetrics[] = players.map((p) => {
+    const rows = gpsHistory
+      .filter((g) => g.playerId === p.id)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-30)
+      .map((g) => ({
+        date: g.date,
+        minutes: g.minutes,
+        distance: Math.round(g.distance),
+        hsr: Math.round(g.hsr),
+        sprint: Math.round(g.sprint),
+        maxSpeed: +g.maxSpeed.toFixed(1),
+        accel: Math.round(g.accel),
+        decel: Math.round(g.decel),
+        rpe: g.rpe,
+        jumps: g.jumps ? Math.round(g.jumps) : undefined,
+        energy: g.energy ? Math.round(g.energy) : undefined,
+        avgSpeed: g.avgSpeed ? +g.avgSpeed.toFixed(1) : undefined,
+      }));
+    return {
+      playerId: p.id,
+      playerName: `${p.firstName} ${p.lastName}`,
+      position: p.position,
+      rows,
+    };
+  });
+
   return {
     team,
     squadSize: players.length,
@@ -176,6 +227,7 @@ export function buildAssistantContext(
     recentAlerts: alerts.slice(0, 12),
     lastSessionDate: to,
     dataRange: { from, to },
+    playerDateMetrics,
   };
 }
 
@@ -214,6 +266,18 @@ export function contextPrompt(ctx: AssistantWorkspaceContext): string {
     .map((a) => `- [${a.severity}] ${a.playerName}: ${a.text}`)
     .join("\n") || "No active alerts.";
 
+  const playerSessions = ctx.playerDateMetrics
+    .map((p) => {
+      const rows = p.rows
+        .map(
+          (r) =>
+            `  ${r.date}: dist=${r.distance}m hsr=${r.hsr}m sprint=${r.sprint}m maxSpeed=${r.maxSpeed}km/h avgSpeed=${r.avgSpeed ?? "-"}km/h rpe=${r.rpe}`,
+        )
+        .join("\n");
+      return `- ${p.playerName} (${p.position}):\n${rows || "  No GPS rows"}`;
+    })
+    .join("\n");
+
   return `You are Smarty Assistant, the AI analyst inside T4P (Training 4 Performance).
 Team: ${ctx.team.club} — ${ctx.team.name}, season ${ctx.team.season}.
 Squad size: ${ctx.squadSize} players.
@@ -225,10 +289,17 @@ SQUAD OVERVIEW:
 ${players}
 
 RECENT SESSIONS:
-${sessions}
+${sessions || "No sessions recorded."}
+
+PLAYER SESSION-BY-SESSION METRICS (last 30 GPS rows per player):
+${playerSessions || "No per-session GPS data."}
 
 ACTIVE ALERTS:
 ${alerts}
 
-Answer the coach's questions using ONLY the data above. If you do not have the data, say so. Always be concise, practical and coach-facing. When you mention a player, include their name and position. When discussing load, reference ACWR, distance, HSR or wellness as appropriate. Never make medical diagnoses. The coach keeps the final decision.`;
+Answer the coach's questions using ONLY the data above. If you do not have the data, say so. Always be concise, practical and coach-facing. When you mention a player, include their name and position. When discussing load, reference ACWR, distance, HSR or wellness as appropriate. Never make medical diagnoses. The coach keeps the final decision.
+
+If the coach asks for a graph or chart, you MUST output a chart tag on its own line AFTER your explanation. The tag must match the player name and metric exactly. Example:
+[CHART player="Demetriou Andreas" metric="maxSpeed" kind="line"]
+Available metrics: distance, hsr, sprint, maxSpeed, avgSpeed, accel, decel, rpe, jumps, energy. Available kinds: line, bar, area. Use the player's per-session rows above to describe the trend. Never skip the chart tag when a graph is requested.`;
 }
