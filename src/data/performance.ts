@@ -2,13 +2,12 @@
  * Central connected data model for T4P (Training 4 Performance).
  *
  * The squad, the GPS sessions and the physical tests are the REAL data exported
- * from SALAMINA_FC_LOGBOOK_TRAINING_MONITOR.xlsx (see src/data/salamina.ts).
+ * Empty by default — coaches create their own team, squad and data.
  * Everything the staff adds afterwards (new players, transfers out, new training
  * days, manual GPS/RPE entries, new test rounds) is layered on top and persisted
  * in the browser, so the whole platform stays editable and connected.
  */
 
-import { SALAMINA_GPS, SALAMINA_PLAYERS, SALAMINA_TESTS } from "@/data/salamina";
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { guardWrite } from "@/lib/access";
