@@ -142,7 +142,11 @@ function RpePage() {
   return (
     <AppShell
       title="Manual RPE load"
-      subtitle="Strength, indoor, pool or any block without a GPS file — rate it 0-10 and T4P adds it to the same training load."
+      subtitle={
+        <>
+          Strength, indoor, pool or any block without a GPS file — rate it 0-10 and <T4P /> adds it to the same training load.
+        </>
+      }
     >
       <section className="mt-1 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard

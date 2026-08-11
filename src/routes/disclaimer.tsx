@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
+import { T4P } from "@/components/brand-text";
 
 export const Route = createFileRoute("/disclaimer")({
   head: () => ({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/disclaimer")({
       <Prose title="Disclaimer" updated="10 August 2026">
         <h2>No medical advice</h2>
         <p>
-          T4P is a performance monitoring and decision-support tool for qualified sports staff. It does not provide
+          <T4P /> is a performance monitoring and decision-support tool for qualified sports staff. It does not provide
           medical advice, diagnosis or treatment, and it is not a medical device within the meaning of Regulation
           (EU) 2017/745. Injury, illness and return-to-play decisions must always be made by qualified medical
           professionals.
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/disclaimer")({
 
         <h2>Data accuracy</h2>
         <p>
-          T4P processes data as supplied by the club and by GPS or other third-party systems. No warranty is given
+          <T4P /> processes data as supplied by the club and by GPS or other third-party systems. No warranty is given
           as to the accuracy, completeness or fitness for purpose of imported third-party data.
         </p>
 
@@ -50,7 +51,7 @@ export const Route = createFileRoute("/disclaimer")({
 
         <h2>Limitation</h2>
         <p>
-          To the fullest extent permitted by applicable law, T4P and its creator accept no liability for injury,
+          To the fullest extent permitted by applicable law, <T4P /> and its creator accept no liability for injury,
           loss of performance, sporting outcome, financial loss or any other damage arising from decisions taken on
           the basis of information presented in the platform.
         </p>

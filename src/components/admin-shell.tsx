@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Shield } from "lucide-react";
 import type { ReactNode } from "react";
+import { T4P } from "@/components/brand-text";
 
 /**
  * Standalone shell for the owner-only admin panel.
@@ -27,7 +28,7 @@ export function AdminShell({
               <Shield className="size-4" style={{ color: "#111827" }} />
             </span>
             <div className="min-w-0">
-              <p className="eyebrow truncate">T4P back office · owner only</p>
+              <p className="eyebrow truncate"><T4P /> back office · owner only</p>
               <h1 className="truncate text-2xl font-semibold uppercase tracking-wide">{title}</h1>
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
             </div>

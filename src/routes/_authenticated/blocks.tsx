@@ -96,7 +96,7 @@ function BlocksPage() {
           <SectionTitle title="No block-level GPS yet" hint="Import a GPS file split into parts to unlock this page" />
           <p>
             On the GPS Import page, choose the column that cuts the training into parts (period / drill / block), map each
-            part to a block of the session and import. T4P then keeps one record per block, so the same block can be
+            part to a block of the session and import. <T4P /> then keeps one record per block, so the same block can be
             compared across every training day.
           </p>
         </div>

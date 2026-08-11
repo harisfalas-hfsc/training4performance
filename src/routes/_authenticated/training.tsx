@@ -1028,7 +1028,7 @@ function TrainingPage() {
             <div className="rounded-md border border-border p-4">
               <p className="eyebrow mb-2">Option B · Reported RPE per block</p>
               <p className="mb-3 text-sm text-muted-foreground">
-                No GPS? Enter what the players reported for each block — T4P computes session-RPE load
+                No GPS? Enter what the players reported for each block — <T4P /> computes session-RPE load
                 (RPE × minutes) and feeds the same acute:chronic model.
               </p>
               <ul className="space-y-2">
