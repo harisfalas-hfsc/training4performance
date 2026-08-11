@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { FileText, GitCompare, Layers } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
+import { Button } from "@/components/ui/button";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, type ChartKind } from "@/components/charts";
 import {
   customKpis,
@@ -105,6 +107,11 @@ function AnalyticsPage() {
 
   return (
     <AppShell title="Analytics" subtitle="Choose your KPIs, your window and your chart style">
+      <nav className="mb-4 flex flex-wrap gap-2" aria-label="Analytics and reporting tools">
+        <Button asChild variant="outline"><Link to="/compare"><GitCompare className="size-4" /> Compare players</Link></Button>
+        <Button asChild variant="outline"><Link to="/blocks"><Layers className="size-4" /> Compare blocks</Link></Button>
+        <Button asChild variant="outline"><Link to="/reports"><FileText className="size-4" /> Reports & exports</Link></Button>
+      </nav>
       <section className="panel mb-4 p-4">
         <SectionTitle title="Analysis setup" hint="Pick any combination of KPIs and how you want them drawn" />
         <div className="flex flex-wrap items-center gap-2">

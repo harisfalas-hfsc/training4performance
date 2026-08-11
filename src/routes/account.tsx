@@ -130,6 +130,18 @@ function Account() {
           </div>
         </div>
 
+        {isAdmin ? (
+          <div className="panel mt-8 flex flex-wrap items-center justify-between gap-3 p-5">
+            <div>
+              <p className="eyebrow">T4P owner</p>
+              <p className="mt-1 text-sm text-muted-foreground">Customer access, subscriptions and platform support.</p>
+            </div>
+            <Link to="/admin" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              Open admin panel
+            </Link>
+          </div>
+        ) : null}
+
 
         <div className="panel mt-8 p-5">
           <p className="eyebrow">Subscription</p>
