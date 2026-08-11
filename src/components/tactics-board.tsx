@@ -399,6 +399,9 @@ export interface BoardDrawing {
   tokens: BoardToken[];
   shapes: BoardShape[];
   orientation?: Orientation;
+  view?: PitchView;
+  field?: FieldType;
+
 }
 
 export function parseDrawing(json?: string): BoardDrawing | null {
