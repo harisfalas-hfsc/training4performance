@@ -44,7 +44,7 @@ import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
-import { usePlatformBack } from "@/lib/platform-history";
+import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
 
 const nav = platformNav;
 
@@ -140,7 +140,12 @@ export function AppShell({
               ) : null}
             </div>
 
-            <Link to="/dashboard" className="flex min-w-0 items-center justify-center" aria-label="Platform home">
+            <Link
+              to="/dashboard"
+              onClick={resetPlatformHistory}
+              className="flex min-w-0 items-center justify-center"
+              aria-label="Platform home"
+            >
               <img
                 src="/logo-t4p.png"
                 alt="Training 4 Performance logo"
