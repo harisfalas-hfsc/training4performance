@@ -393,6 +393,7 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
     }
 
     const userText = input.trim();
+    const chartRequest = detectChartRequest(userText);
     setInput("");
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", content: userText }]);
     setLoading(true);
@@ -452,6 +453,20 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
           } catch {
             // ignore
           }
+        }
+      }
+
+      // If the user asked for a chart but the model did not emit a chart tag,
+      // append a generated tag from workspace context so the UI still renders it.
+      if (chartRequest && !/\[(?:CHART|ART)/i.test(fullText)) {
+        const fallback = buildFallbackChart(chartRequest, workspaceContext);
+        if (fallback) {
+          const playerName = fallback.title.split(" — ")[0] ?? "Player";
+          const metricKey = fallback.series[0]?.key ?? "maxSpeed";
+          fullText += `\n\n[CHART player="${playerName}" metric="${metricKey}" kind="${chartRequest.kind}"]`;
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, content: fullText } : m)),
+          );
         }
       }
 
