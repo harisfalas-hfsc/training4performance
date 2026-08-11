@@ -236,12 +236,23 @@ const RANGES = [
 type RangeId = (typeof RANGES)[number]["id"];
 
 function PortalHome({ payload, code, onSaved }: { payload: PortalPayload; code: string; onSaved: () => void }) {
-  const [tab, setTab] = useState<"wellness" | "reports">("wellness");
+  const r = payload.identity.reports;
+  const canReports = r.gps || r.tests || r.load;
+  const [tab, setTab] = useState<"wellness" | "reports">(r.wellness ? "wellness" : "reports");
   const answeredToday = payload.wellness.some((w) => w.date === todayIso());
+
+  if (!r.wellness && !canReports) {
+    return (
+      <div className="panel p-6 text-center text-sm text-muted-foreground">
+        Your coach has not shared anything with you yet. Check back later.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-1">
+      <div className={`grid gap-1 ${r.wellness && canReports ? "grid-cols-2" : "grid-cols-1"}`}>
+        {r.wellness ? (
         <button
           type="button"
           onClick={() => setTab("wellness")}
@@ -251,6 +262,8 @@ function PortalHome({ payload, code, onSaved }: { payload: PortalPayload; code: 
         >
           <HeartPulse className="size-4" /> Daily wellness{answeredToday ? " ✓" : ""}
         </button>
+        ) : null}
+        {canReports ? (
         <button
           type="button"
           onClick={() => setTab("reports")}
@@ -260,9 +273,10 @@ function PortalHome({ payload, code, onSaved }: { payload: PortalPayload; code: 
         >
           <Activity className="size-4" /> My reports
         </button>
+        ) : null}
       </div>
 
-      {tab === "wellness" ? (
+      {tab === "wellness" && r.wellness ? (
         <WellnessTab payload={payload} code={code} onSaved={onSaved} />
       ) : (
         <ReportsTab payload={payload} />
@@ -390,6 +404,8 @@ function WellnessTab({ payload, code, onSaved }: { payload: PortalPayload; code:
 const num = (v: unknown) => (typeof v === "number" ? v : Number(v) || 0);
 
 function ReportsTab({ payload }: { payload: PortalPayload }) {
+  const r = payload.identity.reports;
+  const shows = (metric: string) => r.metrics.includes(metric);
   const [range, setRange] = useState<RangeId>("week");
   const days = RANGES.find((r) => r.id === range)!.days;
   const from = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
@@ -428,10 +444,13 @@ function ReportsTab({ payload }: { payload: PortalPayload }) {
         ))}
       </div>
 
+      {r.gps && shows("distance") ? (
       <ChartPanel title="Running volume" hint="Total distance covered">
         {grouped.length ? <TrendArea data={grouped} dataKey="distance" height={200} hideAxisValues /> : <Empty />}
       </ChartPanel>
+      ) : null}
 
+      {r.gps && (shows("hsr") || shows("sprint")) ? (
       <ChartPanel title="High-speed running & sprinting" hint="How much fast running you did">
         {grouped.length ? (
           <MultiLine
@@ -448,7 +467,9 @@ function ReportsTab({ payload }: { payload: PortalPayload }) {
           <Empty />
         )}
       </ChartPanel>
+      ) : null}
 
+      {r.gps && (shows("accel") || shows("decel")) ? (
       <ChartPanel title="Accelerations & decelerations" hint="Explosive efforts">
         {grouped.length ? (
           <MultiLine
@@ -465,14 +486,21 @@ function ReportsTab({ payload }: { payload: PortalPayload }) {
           <Empty />
         )}
       </ChartPanel>
+      ) : null}
 
+      {r.load ? (
       <ChartPanel title="Training effort" hint="How hard the sessions felt">
         {grouped.length ? <TrendBars data={grouped} dataKey="load" height={200} hideAxisValues /> : <Empty />}
       </ChartPanel>
+      ) : null}
 
+      {r.tests ? <TestsPanel payload={payload} /> : null}
+
+      {r.wellness ? (
       <ChartPanel title="How you have been feeling" hint="Your own daily answers">
         {wellness.length ? <TrendArea data={wellness} dataKey="wellness" height={200} hideAxisValues /> : <Empty />}
       </ChartPanel>
+      ) : null}
 
       <p className="text-center text-xs text-muted-foreground">
         Graphs only — the exact numbers stay with your performance staff.
@@ -503,6 +531,42 @@ function groupRows(rows: Array<Record<string, unknown>>, bucket: "day" | "week" 
     map.set(key, cur);
   }
   return [...map.values()];
+}
+
+function TestsPanel({ payload }: { payload: PortalPayload }) {
+  const tests = payload.tests
+    .map((t) => ({
+      date: String(t["date"] ?? ""),
+      name: String(t["testName"] ?? t["testId"] ?? "Test"),
+      value: num(t["value"]),
+    }))
+    .filter((t) => t.date)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const names = [...new Set(tests.map((t) => t.name))];
+
+  return (
+    <section className="panel p-4">
+      <p className="text-sm font-semibold">My fitness tests</p>
+      <p className="mb-2 text-xs text-muted-foreground">How your results moved over the season</p>
+      {names.length ? (
+        <div className="space-y-4">
+          {names.map((name) => (
+            <div key={name}>
+              <p className="eyebrow mb-1">{name}</p>
+              <TrendArea
+                data={tests.filter((t) => t.name === name).map((t) => ({ date: t.date.slice(5), value: t.value }))}
+                dataKey="value"
+                height={140}
+                hideAxisValues
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Empty />
+      )}
+    </section>
+  );
 }
 
 function ChartPanel({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
