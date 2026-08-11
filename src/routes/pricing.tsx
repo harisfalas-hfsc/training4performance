@@ -50,12 +50,12 @@ function Pricing() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-indigo/10 via-background to-brand-cyan/10">
-        <div className="mx-auto max-w-5xl px-5 py-14">
+        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
           <p className="eyebrow text-brand-indigo">Pricing</p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
             One price, one season, one team
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
             The T4P season runs from <strong className="text-foreground">1 June to 31 May</strong>. Current season:{" "}
             {season.label} ({season.start} → {season.end}).
           </p>

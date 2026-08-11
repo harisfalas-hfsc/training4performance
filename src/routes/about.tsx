@@ -84,11 +84,11 @@ function About() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-green/8 via-background to-brand-blue/10">
-        <div className="mx-auto max-w-4xl px-5 py-14">
+        <div className="mx-auto max-w-4xl px-5 py-14 text-center">
           <img
             src="/logo-t4p.png"
             alt="Training 4 Performance logo"
-            className="mb-6 size-16 object-contain"
+            className="mx-auto mb-6 size-16 object-contain"
             width={64}
             height={64}
           />
@@ -96,13 +96,14 @@ function About() {
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
             The football performance system that connects everything
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             T4P (Training 4 Performance) is an integrated football fitness, performance and training management
             platform for strength &amp; conditioning coaches. One player record sits at the centre, and the squad,
             training sessions, GPS output, RPE, wellness, testing, medical status, alerts and reports all connect to it.
           </p>
         </div>
       </section>
+
 
       <div className="mx-auto max-w-4xl px-5 py-12">
         <div className="grid gap-4 md:grid-cols-2">
