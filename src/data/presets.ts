@@ -6,6 +6,7 @@
  * persisted in the browser and merged on top of the defaults.
  */
 
+import type { SessionPlanItem } from "@/data/performance";
 import { useSyncExternalStore } from "react";
 import { guardWrite } from "@/lib/access";
 import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
@@ -283,13 +284,36 @@ export const LIFT_PATTERNS: LiftPattern[] = [
 
 const KEY = "t4p.library.v1";
 
+/** A saved block: the block name plus every drill/exercise inside it. */
+export interface SavedBlock {
+  id: string;
+  name: string;
+  savedAt: string;
+  items: SessionPlanItem[];
+}
+
+/** A saved training: type, block names and the full plan, reusable on any date. */
+export interface SavedSessionTemplate {
+  id: string;
+  name: string;
+  savedAt: string;
+  type?: string;
+  objective?: string;
+  durationMin: number;
+  plannedRpe: number;
+  blockNames: string[];
+  plan: SessionPlanItem[];
+}
+
 interface LibraryState {
   strength: StrengthExercise[];
   drills: { name: string; purpose: string; rpe: number; minutes: number }[];
   blockNames: string[];
+  blocks: SavedBlock[];
+  sessions: SavedSessionTemplate[];
 }
 
-const state: LibraryState = { strength: [], drills: [], blockNames: [] };
+const state: LibraryState = { strength: [], drills: [], blockNames: [], blocks: [], sessions: [] };
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -297,6 +321,8 @@ function load(userId: string | null, migrateLegacy: boolean) {
   state.strength = [];
   state.drills = [];
   state.blockNames = [];
+  state.blocks = [];
+  state.sessions = [];
   if (typeof window === "undefined" || !userId) return;
   try {
     const key = scopedStorageKey(KEY, userId);
@@ -311,6 +337,8 @@ function load(userId: string | null, migrateLegacy: boolean) {
       state.strength = s.strength ?? [];
       state.drills = s.drills ?? [];
       state.blockNames = s.blockNames ?? [];
+      state.blocks = s.blocks ?? [];
+      state.sessions = s.sessions ?? [];
     }
   } catch {
     /* ignore */
@@ -380,5 +408,54 @@ export function addCustomDrill(d: { name: string; purpose: string; rpe: number; 
 export function removeCustomDrill(name: string) {
   if (!guardWrite()) return;
   state.drills = state.drills.filter((x) => x.name !== name);
+  emit();
+}
+
+/* ---------- saved blocks & saved trainings ---------- */
+
+const newId = () => `lib-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
+export const savedBlocks = () => state.blocks;
+export const savedSessions = () => state.sessions;
+
+/** Save a block (its drills/exercises) so it can be reused in any other training. */
+export function saveBlockTemplate(name: string, items: SessionPlanItem[]) {
+  if (!guardWrite()) return;
+  const block: SavedBlock = {
+    id: newId(),
+    name: name.trim() || "Saved block",
+    savedAt: new Date().toISOString(),
+    items: items.map((i) => ({ ...i })),
+  };
+  state.blocks.unshift(block);
+  emit();
+  return block;
+}
+
+export function removeSavedBlock(id: string) {
+  if (!guardWrite()) return;
+  state.blocks = state.blocks.filter((b) => b.id !== id);
+  emit();
+}
+
+/** Save a whole training (blocks + plan) as a reusable template. */
+export function saveSessionTemplate(t: Omit<SavedSessionTemplate, "id" | "savedAt">) {
+  if (!guardWrite()) return;
+  const tpl: SavedSessionTemplate = {
+    ...t,
+    name: t.name.trim() || "Saved training",
+    blockNames: [...t.blockNames],
+    plan: t.plan.map((i) => ({ ...i })),
+    id: newId(),
+    savedAt: new Date().toISOString(),
+  };
+  state.sessions.unshift(tpl);
+  emit();
+  return tpl;
+}
+
+export function removeSavedSession(id: string) {
+  if (!guardWrite()) return;
+  state.sessions = state.sessions.filter((s) => s.id !== id);
   emit();
 }
