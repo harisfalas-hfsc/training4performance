@@ -83,18 +83,33 @@ function RpePage() {
     Boolean(blockName) && gpsBlocks.some((g) => g.date === date && g.block === blockName);
 
   const save = () => {
-    if (!players.length) return toast.error("Add players to your squad first");
-    if (block === "__custom" && !customBlock.trim()) return toast.error("Name the block first");
-    if (minutes <= 0) return toast.error("Set the duration in minutes");
+    if (!players.length) {
+      toast.error("Add players to your squad first");
+      return;
+    }
+    if (block === "__custom" && !customBlock.trim()) {
+      toast.error("Name the block first");
+      return;
+    }
+    if (minutes <= 0) {
+      toast.error("Set the duration in minutes");
+      return;
+    }
 
     if (mode === "squad") {
       const ids = targets;
-      if (!ids.length) return toast.error("Select at least one athlete");
+      if (!ids.length) {
+        toast.error("Select at least one athlete");
+        return;
+      }
       bulkRpeEntries(date, blockName, ids, rpe, minutes, note || undefined);
       toast.success(`RPE ${rpe}/10 saved for ${ids.length} athlete(s) — ${blockLabel}`);
     } else {
       const entries = Object.entries(individual).filter(([, v]) => v > 0);
-      if (!entries.length) return toast.error("Set an RPE for at least one athlete");
+      if (!entries.length) {
+        toast.error("Set an RPE for at least one athlete");
+        return;
+      }
       for (const [playerId, value] of entries) {
         upsertRpeEntry({
           date,

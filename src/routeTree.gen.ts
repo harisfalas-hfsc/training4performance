@@ -36,6 +36,7 @@ import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gp
 import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
 import { Route as AuthenticatedManualRouteImport } from './routes/_authenticated/manual'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedRpeRouteImport } from './routes/_authenticated/rpe'
 import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
@@ -176,6 +177,11 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRpeRoute = AuthenticatedRpeRouteImport.update({
+  id: '/rpe',
+  path: '/rpe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSquadRoute = AuthenticatedSquadRouteImport.update({
   id: '/squad',
   path: '/squad',
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/logbook': typeof AuthenticatedLogbookRoute
   '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/rpe': typeof AuthenticatedRpeRoute
   '/squad': typeof AuthenticatedSquadRoute
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/logbook': typeof AuthenticatedLogbookRoute
   '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/rpe': typeof AuthenticatedRpeRoute
   '/squad': typeof AuthenticatedSquadRoute
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -297,6 +305,7 @@ export interface FileRoutesById {
   '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
   '/_authenticated/manual': typeof AuthenticatedManualRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/rpe': typeof AuthenticatedRpeRoute
   '/_authenticated/squad': typeof AuthenticatedSquadRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/logbook'
     | '/manual'
     | '/reports'
+    | '/rpe'
     | '/squad'
     | '/team'
     | '/training'
@@ -365,6 +375,7 @@ export interface FileRouteTypes {
     | '/logbook'
     | '/manual'
     | '/reports'
+    | '/rpe'
     | '/squad'
     | '/team'
     | '/training'
@@ -399,6 +410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/logbook'
     | '/_authenticated/manual'
     | '/_authenticated/reports'
+    | '/_authenticated/rpe'
     | '/_authenticated/squad'
     | '/_authenticated/team'
     | '/_authenticated/training'
@@ -614,6 +626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rpe': {
+      id: '/_authenticated/rpe'
+      path: '/rpe'
+      fullPath: '/rpe'
+      preLoaderRoute: typeof AuthenticatedRpeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/squad': {
       id: '/_authenticated/squad'
       path: '/squad'
@@ -667,6 +686,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
   AuthenticatedManualRoute: typeof AuthenticatedManualRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedRpeRoute: typeof AuthenticatedRpeRoute
   AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
@@ -688,6 +708,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,
   AuthenticatedManualRoute: AuthenticatedManualRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedRpeRoute: AuthenticatedRpeRoute,
   AuthenticatedSquadRoute: AuthenticatedSquadRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
