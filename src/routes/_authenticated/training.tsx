@@ -1452,11 +1452,22 @@ function SessionSheet({
           const min = bItems.reduce((a, i) => a + (i.durationMin || 0), 0);
           return (
             <section key={b} className="rounded-md border border-border p-3">
-              <p className="flex items-baseline justify-between">
+              <p className="flex items-baseline justify-between gap-2">
                 <span className="eyebrow text-primary">
                   {bi + 1}. {b}
                 </span>
-                <span className="text-xs text-muted-foreground">{min} min</span>
+                <span className="flex items-baseline gap-2">
+                  <span className="text-xs text-muted-foreground">{min} min</span>
+                  {onEdit ? (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(b)}
+                      className="rounded border border-border px-1.5 text-[0.65rem] font-semibold text-muted-foreground hover:text-primary"
+                    >
+                      Edit
+                    </button>
+                  ) : null}
+                </span>
               </p>
               {bItems.length ? (
                 <ol className="mt-2 space-y-1.5">
@@ -1477,8 +1488,16 @@ function SessionSheet({
                   ))}
                 </ol>
               ) : (
-                <p className="mt-2 text-xs text-muted-foreground">Nothing planned in this block.</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Nothing planned in this block yet.{" "}
+                  {onEdit ? (
+                    <button type="button" onClick={() => onEdit(b)} className="font-semibold text-primary underline">
+                      Add drills
+                    </button>
+                  ) : null}
+                </p>
               )}
+
             </section>
           );
         })}
