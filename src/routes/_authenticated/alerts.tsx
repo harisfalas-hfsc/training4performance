@@ -37,7 +37,11 @@ import {
   type NotificationCategory,
 } from "@/data/notifications";
 import { useRole } from "@/lib/roles";
+import { scopedStorageKey } from "@/lib/workspace-scope";
 import { T4P } from "@/components/brand-text";
+
+const SETTINGS_KEY = "t4p.alert-settings.v1";
+
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({
@@ -108,11 +112,34 @@ function AlertsPage() {
   const [to, setTo] = useState(new Date().toISOString().slice(0, 10));
   const [query, setQuery] = useState("");
   const [showRules, setShowRules] = useState(false);
+  const [loadedSettings, setLoadedSettings] = useState(false);
 
-  // Re-evaluate rules and records, then merge into the stored feed.
+  // Load the coach's saved rule settings (per account).
   useEffect(() => {
+    const key = scopedStorageKey(SETTINGS_KEY);
+    if (key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw) as { thresholds?: Thresholds; enabled?: RuleId[] };
+          if (parsed.thresholds) setThresholds({ ...DEFAULT_THRESHOLDS, ...parsed.thresholds });
+          if (parsed.enabled) setEnabled(parsed.enabled);
+        }
+      } catch {
+        /* ignore corrupt settings */
+      }
+    }
+    setLoadedSettings(true);
+  }, []);
+
+  // Save settings, then re-evaluate rules and records and merge into the stored feed.
+  useEffect(() => {
+    if (!loadedSettings) return;
+    const key = scopedStorageKey(SETTINGS_KEY);
+    if (key) localStorage.setItem(key, JSON.stringify({ thresholds, enabled }));
     syncNotifications(thresholds, enabled);
-  }, [thresholds, enabled]);
+  }, [thresholds, enabled, loadedSettings]);
+
 
   const range = useMemo(() => {
     if (period === "today") return { start: new Date().toISOString().slice(0, 10), end: "9999-12-31" };
@@ -365,37 +392,54 @@ function AlertsPage() {
       {showRules && (
         <section className="panel mt-4 p-4">
           <SectionTitle
-            title="Alert settings"
-            hint={`${enabled.length} of ${RULES.length} rules active — switch a rule off to stop it creating notifications, or move its limit`}
+            title="Alert settings — choose which alerts you get"
+            hint={`${enabled.length} of ${RULES.length} checks are switched on. Saved automatically for your account.`}
             right={
               <div className="flex gap-1">
                 <button
                   onClick={() => setEnabled(RULES.map((r) => r.id))}
                   className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
                 >
-                  All on
+                  Switch all on
                 </button>
                 <button
                   onClick={() => setEnabled([])}
                   className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
                 >
-                  All off
+                  Switch all off
                 </button>
                 <button
-                  onClick={() => setThresholds(DEFAULT_THRESHOLDS)}
+                  onClick={() => {
+                    setThresholds(DEFAULT_THRESHOLDS);
+                    setEnabled(DEFAULT_ENABLED);
+                  }}
                   className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
                 >
-                  Restore default limits
+                  <RotateCcw className="mr-1 inline size-3" />
+                  Back to recommended settings
                 </button>
               </div>
             }
           />
-          <p className="mb-3 rounded-md border border-border bg-surface-2 p-3 text-xs text-muted-foreground">
-            <strong className="text-foreground">What a limit is:</strong> each rule fires only when a player crosses the number you
-            set here (for example ACWR above 1.30). Moving a slider makes a rule stricter or more relaxed.{" "}
-            <strong className="text-foreground">Restore default limits</strong> simply puts every slider back to the
-            sports-science defaults — it does not delete any notification.
-          </p>
+          <div className="mb-3 space-y-2 rounded-md border border-border bg-surface-2 p-3 text-xs text-muted-foreground">
+            <p>
+              <strong className="text-foreground">What this panel does:</strong> every card below is one automatic check.
+              The tick box decides if the check runs at all; the slider is the number a player must pass before <T4P />{" "}
+              writes a notification into your inbox above.
+            </p>
+            <p>
+              <strong className="text-foreground">Example:</strong> the ACWR slider at 1.35 means "warn me when a player's
+              7-day load is more than 1.35 times his 28-day average". Drag it down to 1.25 and you get warned earlier and
+              more often; drag it up to 1.50 and you only hear about the extreme cases.
+            </p>
+            <p>
+              <strong className="text-foreground">Back to recommended settings</strong> puts every tick box and every
+              slider back to the values sports science suggests, in case you changed them and want to start again. It
+              never touches your notifications — nothing in the inbox, read box or bin is deleted.
+            </p>
+            <p>Changes apply the moment you make them and are remembered next time you sign in.</p>
+          </div>
+
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {RULES.map((r) => {
               const active = enabled.includes(r.id);
