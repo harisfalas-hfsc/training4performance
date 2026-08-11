@@ -19,3 +19,9 @@ export const platformNav = [
   { to: "/alerts", label: "Alerts", icon: BellRing, color: "#dc2626" },
   { to: "/analytics", label: "Analytics & Reports", icon: BarChart3, color: "#4f46e5" },
 ] as const;
+
+export const toolsNav = [
+  { to: "/board", label: "Tactics Board", icon: LayoutGrid, color: "#0f766e" },
+  { to: "/gps", label: "GPS Upload", icon: Satellite, color: "#0891b2" },
+  { to: "/calculators", label: "Calculators", icon: Calculator, color: "#b45309" },
+] as const;

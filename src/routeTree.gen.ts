@@ -29,6 +29,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedBlocksRouteImport } from './routes/_authenticated/blocks'
 import { Route as AuthenticatedBoardRouteImport } from './routes/_authenticated/board'
+import { Route as AuthenticatedCalculatorsRouteImport } from './routes/_authenticated/calculators'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedCompareRouteImport } from './routes/_authenticated/compare'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -142,6 +143,12 @@ const AuthenticatedBoardRoute = AuthenticatedBoardRouteImport.update({
   path: '/board',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalculatorsRoute =
+  AuthenticatedCalculatorsRouteImport.update({
+    id: '/calculators',
+    path: '/calculators',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -228,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AuthenticatedAssistantRoute
   '/blocks': typeof AuthenticatedBlocksRoute
   '/board': typeof AuthenticatedBoardRoute
+  '/calculators': typeof AuthenticatedCalculatorsRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/compare': typeof AuthenticatedCompareRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -262,6 +270,7 @@ export interface FileRoutesByTo {
   '/assistant': typeof AuthenticatedAssistantRoute
   '/blocks': typeof AuthenticatedBlocksRoute
   '/board': typeof AuthenticatedBoardRoute
+  '/calculators': typeof AuthenticatedCalculatorsRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/compare': typeof AuthenticatedCompareRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -298,6 +307,7 @@ export interface FileRoutesById {
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/blocks': typeof AuthenticatedBlocksRoute
   '/_authenticated/board': typeof AuthenticatedBoardRoute
+  '/_authenticated/calculators': typeof AuthenticatedCalculatorsRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/compare': typeof AuthenticatedCompareRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/blocks'
     | '/board'
+    | '/calculators'
     | '/calendar'
     | '/compare'
     | '/dashboard'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/blocks'
     | '/board'
+    | '/calculators'
     | '/calendar'
     | '/compare'
     | '/dashboard'
@@ -403,6 +415,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistant'
     | '/_authenticated/blocks'
     | '/_authenticated/board'
+    | '/_authenticated/calculators'
     | '/_authenticated/calendar'
     | '/_authenticated/compare'
     | '/_authenticated/dashboard'
@@ -577,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBoardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calculators': {
+      id: '/_authenticated/calculators'
+      path: '/calculators'
+      fullPath: '/calculators'
+      preLoaderRoute: typeof AuthenticatedCalculatorsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/calendar': {
       id: '/_authenticated/calendar'
       path: '/calendar'
@@ -679,6 +699,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedBlocksRoute: typeof AuthenticatedBlocksRoute
   AuthenticatedBoardRoute: typeof AuthenticatedBoardRoute
+  AuthenticatedCalculatorsRoute: typeof AuthenticatedCalculatorsRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedCompareRoute: typeof AuthenticatedCompareRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -701,6 +722,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedBlocksRoute: AuthenticatedBlocksRoute,
   AuthenticatedBoardRoute: AuthenticatedBoardRoute,
+  AuthenticatedCalculatorsRoute: AuthenticatedCalculatorsRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedCompareRoute: AuthenticatedCompareRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
@@ -737,3 +759,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
