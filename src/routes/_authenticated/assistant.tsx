@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { AssistantChat } from "@/components/assistant-chat";
 
-export const Route = createFileRoute("/_authenticated/smarty-assistant")({
+export const Route = createFileRoute("/_authenticated/assistant")({
   component: SmartyAssistantPage,
   head: () => ({
     meta: [
