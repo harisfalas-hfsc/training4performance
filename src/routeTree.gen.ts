@@ -37,6 +37,7 @@ import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players.$id'
+import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -177,6 +178,11 @@ const AuthenticatedPlayersIdRoute = AuthenticatedPlayersIdRouteImport.update({
   path: '/players/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAssistantChatRoute = ApiAssistantChatRouteImport.update({
+  id: '/api/assistant/chat',
+  path: '/api/assistant/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -235,6 +242,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -266,6 +274,7 @@ export interface FileRoutesById {
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/training'
     | '/players/$id'
+    | '/api/assistant/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -326,6 +336,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/training'
     | '/players/$id'
+    | '/api/assistant/chat'
   id:
     | '__root__'
     | '/'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team'
     | '/_authenticated/training'
     | '/_authenticated/players/$id'
+    | '/api/assistant/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -371,6 +383,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
+  ApiAssistantChatRoute: typeof ApiAssistantChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -571,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlayersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/assistant/chat': {
+      id: '/api/assistant/chat'
+      path: '/api/assistant/chat'
+      fullPath: '/api/assistant/chat'
+      preLoaderRoute: typeof ApiAssistantChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -628,17 +648,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
+  ApiAssistantChatRoute: ApiAssistantChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

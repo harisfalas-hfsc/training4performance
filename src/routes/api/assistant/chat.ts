@@ -27,12 +27,13 @@ export const Route = createFileRoute("/api/assistant/chat")({
             .eq("user_id", userId)
             .single();
 
-          const team = (row?.team ?? { name: "", club: "", season: "" }) as Team;
-          const players = Array.isArray(row?.players) ? (row.players as Player[]) : [];
-          const sessions = Array.isArray(row?.sessions) ? (row.sessions as Session[]) : [];
-          const gpsHistory = Array.isArray(row?.gps_history) ? (row.gps_history as GpsDay[]) : [];
-          const manualTests = Array.isArray(row?.manual_tests) ? (row.manual_tests as ManualTest[]) : [];
-          const medicalEvents = Array.isArray(row?.medical_events) ? (row.medical_events as MedicalEvent[]) : [];
+          const team = (row?.team ?? { name: "", club: "", season: "" }) as unknown as Team;
+          const players = Array.isArray(row?.players) ? (row.players as unknown as Player[]) : [];
+          const sessions = Array.isArray(row?.sessions) ? (row.sessions as unknown as Session[]) : [];
+          const gpsHistory = Array.isArray(row?.gps_history) ? (row.gps_history as unknown as GpsDay[]) : [];
+          const manualTests = Array.isArray(row?.manual_tests) ? (row.manual_tests as unknown as ManualTest[]) : [];
+          const medicalEvents = Array.isArray(row?.medical_events) ? (row.medical_events as unknown as MedicalEvent[]) : [];
+
           const wellness: Wellness[] = [];
 
           const ctx = buildAssistantContext(team, players, gpsHistory, sessions, manualTests, medicalEvents, wellness);
