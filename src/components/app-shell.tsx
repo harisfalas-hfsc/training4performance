@@ -252,9 +252,11 @@ export function AppShell({
 
         <main className="flex-1 p-5">{children}</main>
       </div>
+      <SmartyAssistant />
     </div>
   );
 }
+
 
 function Row({ label, value, tone }: { label: string; value: number; tone: string }) {
   return (
