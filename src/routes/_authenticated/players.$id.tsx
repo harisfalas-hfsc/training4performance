@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { AcwrChart, MultiLine, TrendArea, TrendBars } from "@/components/charts";
+import { PlayerAccessCard } from "@/components/player-access-card";
 import {
   age,
   availabilitySummary,
@@ -82,7 +83,7 @@ export const Route = createFileRoute("/_authenticated/players/$id")({
   component: PlayerProfile,
 });
 
-const TABS = ["Profile", "Fitness", "Strength", "GPS", "Wellness", "Training", "Medical", "Analytics"] as const;
+const TABS = ["Profile", "Fitness", "Strength", "GPS", "Wellness", "Training", "Medical", "Analytics", "Portal access"] as const;
 const POSITIONS: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
 const AVAILABILITY: Availability[] = ["available", "partial", "individual", "rehab", "injured", "ill"];
 
@@ -172,6 +173,7 @@ function PlayerProfile() {
       </div>
 
       <div className="mt-4">
+        {tab === "Portal access" && <PlayerAccessCard playerId={player.id} playerName={fullName(player)} />}
         {tab === "Profile" && <ProfileTab player={player} />}
         {tab === "Fitness" && <FitnessTab playerId={id} />}
         {tab === "Strength" && <StrengthTab playerId={id} />}

@@ -47,6 +47,7 @@ interface AccessRow {
   player_id: string;
   player_name: string;
   code: string;
+  email: string | null;
   active: boolean;
   last_login_at: string | null;
 }
@@ -411,7 +412,7 @@ function AccessTab() {
     if (!user?.id) return;
     const { data } = await supabase
       .from("player_access")
-      .select("id,player_id,player_name,code,active,last_login_at")
+      .select("id,player_id,player_name,code,email,active,last_login_at")
       .eq("coach_id", user.id);
     setRows((data ?? []) as AccessRow[]);
   };
@@ -475,7 +476,7 @@ function AccessTab() {
               <thead>
                 <tr className="text-left text-xs uppercase text-muted-foreground">
                   <th className="py-2">Player</th>
-                  <th>Access code</th>
+                  <th>Email / code</th>
                   <th>Status</th>
                   <th>Last sign-in</th>
                   <th />
@@ -487,7 +488,16 @@ function AccessTab() {
                   return (
                     <tr key={p.id} className="border-t border-border">
                       <td className="py-2 font-medium">{fullName(p)}</td>
-                      <td className="font-mono tabular-nums">{row ? row.code : "—"}</td>
+                      <td className="text-xs">
+                        {row ? (
+                          <>
+                            <span className="block">{row.email ?? "no email"}</span>
+                            <span className="font-mono text-muted-foreground">{row.code}</span>
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                       <td className={row ? (row.active ? "text-success" : "text-muted-foreground") : "text-muted-foreground"}>
                         {row ? (row.active ? "Active" : "Suspended") : "No access"}
                       </td>

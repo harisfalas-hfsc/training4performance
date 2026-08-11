@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import { T4P } from "@/components/brand-text";
 import { WELLNESS_FIELDS, type WellnessField } from "@/data/wellness";
-import { portalLogin, portalPayload, portalSaveWellness, type PortalPayload } from "@/lib/portal.functions";
+import { portalLogin, portalPayload, portalSaveWellness, portalSignIn, type PortalPayload } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/portal")({
   component: PortalPage,
 });
 
-const CODE_KEY = "t4p.portalCode";
+const CODE_KEY = "t4p.portalToken";
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 type Answers = Record<WellnessField, number> & { sleepHours: number | null; note: string };
@@ -45,42 +45,63 @@ const blankAnswers = (): Answers => ({
 });
 
 function PortalPage() {
-  const [code, setCode] = useState("");
+  const [token, setToken] = useState("");
   const [payload, setPayload] = useState<PortalPayload | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const login = useServerFn(portalLogin);
+  const signIn = useServerFn(portalSignIn);
+  const loginWithCode = useServerFn(portalLogin);
   const fetchPayload = useServerFn(portalPayload);
 
-  const open = useCallback(
-    async (raw: string, quiet = false) => {
-      const value = raw.trim().toUpperCase();
-      if (value.length < 6) return;
+  const openWithToken = useCallback(
+    async (value: string, quiet = false) => {
       setLoading(true);
       try {
-        await login({ data: { code: value } });
         const data = await fetchPayload({ data: { code: value } });
         setPayload(data);
-        setCode(value);
+        setToken(value);
         window.localStorage.setItem(CODE_KEY, value);
       } catch {
         window.localStorage.removeItem(CODE_KEY);
-        if (!quiet) toast.error("That code is not valid. Ask your coach for a new one.");
+        setPayload(null);
+        if (!quiet) toast.error("Your access is not active. Ask your coach.");
       } finally {
         setLoading(false);
       }
     },
-    [login, fetchPayload],
+    [fetchPayload],
   );
 
   useEffect(() => {
     const saved = window.localStorage.getItem(CODE_KEY);
-    if (saved) void open(saved, true);
-  }, [open]);
+    if (saved) void openWithToken(saved, true);
+  }, [openWithToken]);
+
+  const withEmail = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const identity = await signIn({ data: { email, password } });
+      await openWithToken(identity.token);
+    } catch {
+      toast.error("Wrong email or password.");
+      setLoading(false);
+    }
+  };
+
+  const withCode = async (code: string) => {
+    setLoading(true);
+    try {
+      const identity = await loginWithCode({ data: { code: code.trim().toUpperCase() } });
+      await openWithToken(identity.token);
+    } catch {
+      toast.error("That code is not valid. Ask your coach for a new one.");
+      setLoading(false);
+    }
+  };
 
   const refresh = async () => {
-    if (!code) return;
-    const data = await fetchPayload({ data: { code } });
+    if (!token) return;
+    const data = await fetchPayload({ data: { code: token } });
     setPayload(data);
   };
 
@@ -94,7 +115,7 @@ function PortalPage() {
             <div className="min-w-0">
               <p className="text-sm font-semibold leading-tight">Player portal</p>
               <p className="truncate text-xs text-muted-foreground">
-                {payload ? `${payload.identity.playerName}` : "Sign in with your personal code"}
+                {payload ? payload.identity.playerName : "Sign in with the login your coach gave you"}
               </p>
             </div>
           </div>
@@ -105,7 +126,7 @@ function PortalPage() {
               onClick={() => {
                 window.localStorage.removeItem(CODE_KEY);
                 setPayload(null);
-                setCode("");
+                setToken("");
               }}
             >
               <LogOut className="size-3.5" /> Sign out
@@ -116,23 +137,36 @@ function PortalPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-6">
         {!payload ? (
-          <LoginCard loading={loading} onSubmit={(value) => void open(value)} />
+          <LoginCard loading={loading} onEmail={(e, p) => void withEmail(e, p)} onCode={(c) => void withCode(c)} />
         ) : (
-          <PortalHome payload={payload} code={code} onSaved={() => void refresh()} />
+          <PortalHome payload={payload} code={token} onSaved={() => void refresh()} />
         )}
       </main>
     </div>
   );
 }
 
-function LoginCard({ loading, onSubmit }: { loading: boolean; onSubmit: (code: string) => void }) {
-  const [value, setValue] = useState("");
+function LoginCard({
+  loading,
+  onEmail,
+  onCode,
+}: {
+  loading: boolean;
+  onEmail: (email: string, password: string) => void;
+  onCode: (code: string) => void;
+}) {
+  const [mode, setMode] = useState<"password" | "code">("password");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+
   return (
     <form
       className="panel mx-auto max-w-md space-y-4 p-6"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit(value);
+        if (mode === "password") onEmail(email, password);
+        else onCode(code);
       }}
     >
       <div className="flex items-center gap-2 text-primary">
@@ -140,21 +174,55 @@ function LoginCard({ loading, onSubmit }: { loading: boolean; onSubmit: (code: s
         <h1 className="text-lg font-semibold">Sign in to your portal</h1>
       </div>
       <p className="text-sm text-muted-foreground">
-        Your coach gave you a personal code. It only opens your own wellness questionnaire and your own graphs inside <T4P />.
+        Your coach created your login. It only opens your own wellness questionnaire and the reports he shared with you inside <T4P />.
       </p>
-      <input
-        className="control w-full text-center font-mono text-lg tracking-widest"
-        placeholder="ABC-DEF-GHJ"
-        autoCapitalize="characters"
-        value={value}
-        onChange={(e) => setValue(e.target.value.toUpperCase())}
-      />
+
+      {mode === "password" ? (
+        <>
+          <label className="flex flex-col gap-1">
+            <span className="eyebrow">Email</span>
+            <input
+              className="control w-full"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="eyebrow">Password</span>
+            <input
+              className="control w-full"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+        </>
+      ) : (
+        <input
+          className="control w-full text-center font-mono text-lg tracking-widest"
+          placeholder="ABC123DEF"
+          autoCapitalize="characters"
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+        />
+      )}
+
       <button
         type="submit"
         disabled={loading}
         className="w-full rounded-md bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
       >
         {loading ? "Checking…" : "Open my portal"}
+      </button>
+      <button
+        type="button"
+        className="w-full text-xs text-muted-foreground hover:underline"
+        onClick={() => setMode(mode === "password" ? "code" : "password")}
+      >
+        {mode === "password" ? "I only have an access code" : "I have an email and password"}
       </button>
     </form>
   );
@@ -168,12 +236,23 @@ const RANGES = [
 type RangeId = (typeof RANGES)[number]["id"];
 
 function PortalHome({ payload, code, onSaved }: { payload: PortalPayload; code: string; onSaved: () => void }) {
-  const [tab, setTab] = useState<"wellness" | "reports">("wellness");
+  const r = payload.identity.reports;
+  const canReports = r.gps || r.tests || r.load;
+  const [tab, setTab] = useState<"wellness" | "reports">(r.wellness ? "wellness" : "reports");
   const answeredToday = payload.wellness.some((w) => w.date === todayIso());
+
+  if (!r.wellness && !canReports) {
+    return (
+      <div className="panel p-6 text-center text-sm text-muted-foreground">
+        Your coach has not shared anything with you yet. Check back later.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-1">
+      <div className={`grid gap-1 ${r.wellness && canReports ? "grid-cols-2" : "grid-cols-1"}`}>
+        {r.wellness ? (
         <button
           type="button"
           onClick={() => setTab("wellness")}
@@ -183,6 +262,8 @@ function PortalHome({ payload, code, onSaved }: { payload: PortalPayload; code: 
         >
           <HeartPulse className="size-4" /> Daily wellness{answeredToday ? " ✓" : ""}
         </button>
+        ) : null}
+        {canReports ? (
         <button
           type="button"
           onClick={() => setTab("reports")}
@@ -192,9 +273,10 @@ function PortalHome({ payload, code, onSaved }: { payload: PortalPayload; code: 
         >
           <Activity className="size-4" /> My reports
         </button>
+        ) : null}
       </div>
 
-      {tab === "wellness" ? (
+      {tab === "wellness" && r.wellness ? (
         <WellnessTab payload={payload} code={code} onSaved={onSaved} />
       ) : (
         <ReportsTab payload={payload} />
@@ -322,6 +404,8 @@ function WellnessTab({ payload, code, onSaved }: { payload: PortalPayload; code:
 const num = (v: unknown) => (typeof v === "number" ? v : Number(v) || 0);
 
 function ReportsTab({ payload }: { payload: PortalPayload }) {
+  const r = payload.identity.reports;
+  const shows = (metric: string) => r.metrics.includes(metric);
   const [range, setRange] = useState<RangeId>("week");
   const days = RANGES.find((r) => r.id === range)!.days;
   const from = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
@@ -360,10 +444,13 @@ function ReportsTab({ payload }: { payload: PortalPayload }) {
         ))}
       </div>
 
+      {r.gps && shows("distance") ? (
       <ChartPanel title="Running volume" hint="Total distance covered">
         {grouped.length ? <TrendArea data={grouped} dataKey="distance" height={200} hideAxisValues /> : <Empty />}
       </ChartPanel>
+      ) : null}
 
+      {r.gps && (shows("hsr") || shows("sprint")) ? (
       <ChartPanel title="High-speed running & sprinting" hint="How much fast running you did">
         {grouped.length ? (
           <MultiLine
@@ -380,7 +467,9 @@ function ReportsTab({ payload }: { payload: PortalPayload }) {
           <Empty />
         )}
       </ChartPanel>
+      ) : null}
 
+      {r.gps && (shows("accel") || shows("decel")) ? (
       <ChartPanel title="Accelerations & decelerations" hint="Explosive efforts">
         {grouped.length ? (
           <MultiLine
@@ -397,14 +486,21 @@ function ReportsTab({ payload }: { payload: PortalPayload }) {
           <Empty />
         )}
       </ChartPanel>
+      ) : null}
 
+      {r.load ? (
       <ChartPanel title="Training effort" hint="How hard the sessions felt">
         {grouped.length ? <TrendBars data={grouped} dataKey="load" height={200} hideAxisValues /> : <Empty />}
       </ChartPanel>
+      ) : null}
 
+      {r.tests ? <TestsPanel payload={payload} /> : null}
+
+      {r.wellness ? (
       <ChartPanel title="How you have been feeling" hint="Your own daily answers">
         {wellness.length ? <TrendArea data={wellness} dataKey="wellness" height={200} hideAxisValues /> : <Empty />}
       </ChartPanel>
+      ) : null}
 
       <p className="text-center text-xs text-muted-foreground">
         Graphs only — the exact numbers stay with your performance staff.
@@ -435,6 +531,42 @@ function groupRows(rows: Array<Record<string, unknown>>, bucket: "day" | "week" 
     map.set(key, cur);
   }
   return [...map.values()];
+}
+
+function TestsPanel({ payload }: { payload: PortalPayload }) {
+  const tests = payload.tests
+    .map((t) => ({
+      date: String(t["date"] ?? ""),
+      name: String(t["testName"] ?? t["testId"] ?? "Test"),
+      value: num(t["value"]),
+    }))
+    .filter((t) => t.date)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const names = [...new Set(tests.map((t) => t.name))];
+
+  return (
+    <section className="panel p-4">
+      <p className="text-sm font-semibold">My fitness tests</p>
+      <p className="mb-2 text-xs text-muted-foreground">How your results moved over the season</p>
+      {names.length ? (
+        <div className="space-y-4">
+          {names.map((name) => (
+            <div key={name}>
+              <p className="eyebrow mb-1">{name}</p>
+              <TrendArea
+                data={tests.filter((t) => t.name === name).map((t) => ({ date: t.date.slice(5), value: t.value }))}
+                dataKey="value"
+                height={140}
+                hideAxisValues
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Empty />
+      )}
+    </section>
+  );
 }
 
 function ChartPanel({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {

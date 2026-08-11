@@ -168,10 +168,14 @@ export type Database = {
           coach_id: string
           code: string
           created_at: string
+          email: string | null
           id: string
           last_login_at: string | null
+          password_hash: string | null
+          password_salt: string | null
           player_id: string
           player_name: string
+          reports: Json
           updated_at: string
         }
         Insert: {
@@ -179,10 +183,14 @@ export type Database = {
           coach_id: string
           code: string
           created_at?: string
+          email?: string | null
           id?: string
           last_login_at?: string | null
+          password_hash?: string | null
+          password_salt?: string | null
           player_id: string
           player_name: string
+          reports?: Json
           updated_at?: string
         }
         Update: {
@@ -190,10 +198,14 @@ export type Database = {
           coach_id?: string
           code?: string
           created_at?: string
+          email?: string | null
           id?: string
           last_login_at?: string | null
+          password_hash?: string | null
+          password_salt?: string | null
           player_id?: string
           player_name?: string
+          reports?: Json
           updated_at?: string
         }
         Relationships: []

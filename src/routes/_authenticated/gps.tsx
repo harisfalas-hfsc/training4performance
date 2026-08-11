@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, Download, FileWarning, HelpCircle, Save, Upload, XCircle } from "lucide-react";
+import { CheckCircle2, Download, FileWarning, HelpCircle, Save, Upload, UserPlus, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import {
+  addPlayer,
   fullName,
   getPlayer,
   matchName,
@@ -324,6 +325,32 @@ function GpsPage() {
         r.raw.toLowerCase() === raw.toLowerCase() ? { ...r, matchedId: playerId || null, confidence: playerId ? 1 : 0 } : r,
       ),
     );
+
+  /** Create squad members straight from the file, so a coach never types the names twice. */
+  const createMissingPlayers = () => {
+    const missing = athleteRows.filter((r) => !r.matchedId);
+    if (!missing.length) return;
+    const created: Record<string, string> = {};
+    for (const r of missing) {
+      const parts = r.raw.trim().split(/[\s,]+/).filter(Boolean);
+      const last = parts.length > 1 ? parts.slice(1).join(" ") : "";
+      const player = addPlayer({ firstName: parts[0] ?? r.raw, lastName: last, position: "CM" });
+      if (player) created[r.raw.toLowerCase()] = player.id;
+    }
+    const count = Object.keys(created).length;
+    if (!count) {
+      toast.error("A team subscription is needed to add players.");
+      return;
+    }
+    setRows((prev) =>
+      prev.map((r) =>
+        !r.matchedId && created[r.raw.toLowerCase()]
+          ? { ...r, matchedId: created[r.raw.toLowerCase()]!, confidence: 1 }
+          : r,
+      ),
+    );
+    toast.success(`${count} player(s) added to your squad from the file`);
+  };
 
   const persistTemplate = () => {
     if (!parsed) return;
@@ -720,7 +747,7 @@ function GpsPage() {
           label="Unmatched"
           value={unmatched}
           tone={unmatched ? "bad" : "good"}
-          hint="Rename in the player profile or in the file — no duplicate player is ever created"
+          hint="Create them from the file in one click, or rename them so future files match automatically"
         />
       </section>
 
@@ -744,6 +771,17 @@ function GpsPage() {
         <section className="mt-6 panel p-4">
           <SectionTitle
             title="Player matching"
+            right={
+              unmatched ? (
+                <button
+                  type="button"
+                  onClick={createMissingPlayers}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                >
+                  <UserPlus className="size-3.5" /> Create {unmatched} missing player(s)
+                </button>
+              ) : undefined
+            }
             hint={
               combine
                 ? "One line per athlete — the parts of the training are already combined into his session total."
