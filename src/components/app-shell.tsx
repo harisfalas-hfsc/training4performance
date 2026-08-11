@@ -1,4 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { SmartyAssistant } from "@/components/smarty-assistant";
+
 
 import {
   Activity,
