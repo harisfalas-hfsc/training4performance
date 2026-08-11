@@ -507,24 +507,25 @@ function ReportsPage() {
             />
           </label>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
           <button
             onClick={sendNow}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
           >
-            <Send className="size-4" /> Export now
+            <Send className="size-4" /> Download {format} now
           </button>
           <button
             onClick={scheduleExport}
             disabled={!can("scheduleExports")}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm disabled:opacity-40"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm disabled:opacity-40"
           >
             <CalendarClock className="size-4" /> Schedule export
           </button>
         </div>
 
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="scroll-pane mt-5 overflow-x-auto">
+          <table className="w-full min-w-[46rem] text-sm">
+
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <th className="py-2">Template</th>
