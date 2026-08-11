@@ -160,23 +160,27 @@ function viewBoxFor(orientation: Orientation, view: PitchView) {
 }
 
 function PitchMarkings({ orientation, field }: { orientation: Orientation; field: FieldType }) {
-
   const { w, h } = DIMS[orientation];
   const m = 26;
   const line = "var(--color-pitch-line)";
   const common = { fill: "none", stroke: line, strokeWidth: 3 } as const;
   const long = orientation === "portrait" ? h : w;
   const short = orientation === "portrait" ? w : h;
-  const boxDepth = long * 0.15;
-  const boxWidth = short * 0.62;
+  const futsal = field === "futsal";
+  const boxDepth = long * (futsal ? 0.1 : 0.15);
+  const boxWidth = short * (futsal ? 0.45 : 0.62);
   const goalDepth = long * 0.05;
-  const goalWidth = short * 0.3;
-  const spot = long * 0.1;
-  const r = short * 0.16;
+  const goalWidth = short * (futsal ? 0.22 : 0.3);
+  const spot = long * (futsal ? 0.07 : 0.1);
+  const r = short * (futsal ? 0.12 : 0.16);
 
   const el: React.ReactNode[] = [
     <rect key="outer" x={m} y={m} width={w - m * 2} height={h - m * 2} {...common} />,
   ];
+
+  if (field === "blank") return <g pointerEvents="none">{el}</g>;
+
+
 
   if (orientation === "portrait") {
     const cx = w / 2;
