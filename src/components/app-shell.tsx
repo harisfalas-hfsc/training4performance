@@ -21,7 +21,7 @@ import {
   Radar,
   Shield,
   Sparkles,
-  Users,,
+  Users,
   Gauge,
 } from "lucide-react";
 
