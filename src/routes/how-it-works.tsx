@@ -155,12 +155,12 @@ function HowItWorks() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
-        <div className="mx-auto max-w-4xl px-5 py-14">
+        <div className="mx-auto max-w-4xl px-5 py-14 text-center">
           <p className="eyebrow text-brand-blue">How it works</p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
             Team → squad → players → training → GPS → decisions
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             T4P follows the real order of work in a performance department. You build the team once, then every
             session, GPS file and test result attaches to the same player record — so the analysis is ready before
             you have to make the decision.

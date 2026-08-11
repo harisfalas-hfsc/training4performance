@@ -30,9 +30,12 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       type="button"
       onClick={flip}
       aria-label={theme === "dark" ? "Switch to light view" : "Switch to dark view"}
-      className={`inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground ${className}`}
+      title={theme === "dark" ? "Switch to light view" : "Switch to dark view"}
+      className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground ${className}`}
     >
       {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
     </button>
   );
 }
+

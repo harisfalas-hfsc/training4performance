@@ -54,18 +54,26 @@ function Home() {
     <MarketingPage>
       {/* Hero */}
       <section className="border-b border-border">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:py-20">
-          <div>
+        <div className="mx-auto max-w-6xl px-5 py-12 lg:py-16">
+          <img
+            src={heroMotion}
+            alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
+            width={1600}
+            height={1008}
+            className="w-full rounded-3xl border border-border bg-surface-2/40 object-cover"
+          />
+
+          <div className="mx-auto mt-10 max-w-3xl text-center">
             <p className="eyebrow">Training 4 Performance</p>
-            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide sm:text-5xl">
+            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide sm:text-5xl lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
-            <p className="mt-5 max-w-xl text-base text-muted-foreground">
+            <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground">
               T4P is the daily companion for strength &amp; conditioning coaches in football. It brings every player
               record, training session, GPS report, wellness entry, test result and medical note into one connected
               workspace — so you spend less time switching files and more time coaching.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
@@ -82,16 +90,9 @@ function Home() {
             </div>
             <p className="mt-4 text-xs text-muted-foreground">€999 per season, per team · every module included</p>
           </div>
-
-          <img
-            src={heroMotion}
-            alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
-            width={1600}
-            height={1008}
-            className="w-full rounded-2xl border border-border bg-surface-2/40 object-cover"
-          />
         </div>
       </section>
+
 
       {/* Platform preview */}
       <section className="border-b border-border bg-surface-2/40">
