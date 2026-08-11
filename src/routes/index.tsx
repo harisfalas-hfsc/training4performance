@@ -61,7 +61,7 @@ function Home() {
           height={770}
           className="block h-44 w-full object-cover"
         />
-        <div className="px-5 pb-10 pt-6 text-center">
+        <div className="px-5 pb-8 pt-5 text-center">
           <p className="eyebrow">Training 4 Performance</p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
             The football performance system for S&amp;C coaches that connects everything
@@ -102,7 +102,7 @@ function Home() {
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/40" />
-        <div className="relative mx-auto max-w-6xl px-5 pb-12 pt-8 lg:pb-16 lg:pt-10">
+        <div className="relative mx-auto max-w-7xl px-5 pb-8 pt-6 lg:pb-10 lg:pt-8">
 
           <div className="max-w-3xl">
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">Training 4 Performance</p>
@@ -139,7 +139,7 @@ function Home() {
 
       {/* Platform preview */}
       <section className="border-b border-border bg-surface-2/40">
-        <div className="mx-auto max-w-6xl px-5 py-16">
+        <div className="mx-auto max-w-7xl px-5 py-10">
           <p className="eyebrow">Inside the platform</p>
           <h2 className="mt-3 max-w-2xl font-display text-2xl font-semibold uppercase tracking-wide">
             One workspace, from session design to the weekly report
@@ -207,7 +207,7 @@ function Home() {
       </section>
 
       {/* Capabilities */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-7xl px-5 py-10">
         <p className="eyebrow">Capabilities</p>
         <h2 className="mt-3 font-display text-2xl font-semibold uppercase tracking-wide">What's inside</h2>
         <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
@@ -223,7 +223,7 @@ function Home() {
 
       {/* About */}
       <section className="border-y border-border bg-surface-2/40">
-        <div className="mx-auto max-w-6xl px-5 py-16">
+        <div className="mx-auto max-w-7xl px-5 py-10">
           <p className="eyebrow">About Training 4 Performance</p>
           <div className="mt-6 grid gap-8 lg:grid-cols-3">
             {[
@@ -247,7 +247,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-5 py-16 text-center">
+      <section className="mx-auto max-w-3xl px-5 py-10 text-center">
         <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">Ready for the season?</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           The season runs 1 June to 31 May. One subscription covers your team and your whole staff.

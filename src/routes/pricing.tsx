@@ -50,7 +50,7 @@ function Pricing() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-indigo/10 via-background to-brand-cyan/10">
-        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+        <div className="mx-auto max-w-6xl px-5 py-10 text-center">
           <p className="eyebrow text-brand-indigo">Pricing</p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
             One price, one season, one team
@@ -62,7 +62,7 @@ function Pricing() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-5xl px-5 py-12">
+      <div className="mx-auto max-w-6xl px-5 py-10">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           <div className="panel relative overflow-hidden border-brand-indigo/35 bg-gradient-to-br from-brand-indigo/10 to-brand-pink/10 p-6">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-indigo/15 px-3 py-1 text-xs font-semibold text-brand-indigo">

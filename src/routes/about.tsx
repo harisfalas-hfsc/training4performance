@@ -84,7 +84,7 @@ function About() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-green/8 via-background to-brand-blue/10">
-        <div className="mx-auto max-w-4xl px-5 py-14 text-center">
+        <div className="mx-auto max-w-5xl px-5 py-10 text-center">
           <img
             src="/logo-t4p.png"
             alt="Training 4 Performance logo"
@@ -105,7 +105,7 @@ function About() {
       </section>
 
 
-      <div className="mx-auto max-w-4xl px-5 py-12">
+      <div className="mx-auto max-w-6xl px-5 py-10">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="panel border-brand-red/25 p-6">
             <p className="eyebrow text-brand-red">The problem</p>
