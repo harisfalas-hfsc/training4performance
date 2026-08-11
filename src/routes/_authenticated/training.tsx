@@ -1504,39 +1504,8 @@ function TrainingPage() {
                   <Pencil className="size-4" /> Edit blocks
                 </button>
                 <button
-                  onClick={() => {
-                    const ok = printSessionSheet({
-                      club: "Training 4 Performance",
-                      date: session.date,
-                      label: session.label,
-                      type,
-                      group: session.group ?? TRAINING_GROUPS[0]!,
-                      objective: session.objective,
-                      minutes: sheetMinutes,
-                      rpe: sheetRpe,
-                      load: sheetLoad,
-                      blocks: blocks.map((b) => {
-                        const bItems = items.filter((i) => (i.block ?? "") === b);
-                        return {
-                          name: b,
-                          minutes: bItems.reduce((a, i) => a + (i.durationMin || 0), 0),
-                          items: bItems.map((it) => ({
-                            drill: it.drill,
-                            detail: it.strength
-                              ? `${it.strength.sets} × ${it.strength.reps}${
-                                  it.strength.weightKg ? ` @ ${it.strength.weightKg} kg` : ""
-                                } · rest ${it.strength.restSec}s`
-                              : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`,
-                          })),
-                        };
-                      }),
-                    });
-                    toast[ok ? "success" : "message"](
-                      ok
-                        ? "Print-ready sheet opened — choose Save as PDF"
-                        : "Pop-up blocked — the printable sheet was downloaded instead",
-                    );
-                  }}
+                  onClick={printSheet}
+
                   className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
                 >
                   <Printer className="size-4" /> Print / PDF
