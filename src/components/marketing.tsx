@@ -92,10 +92,12 @@ export function SiteHeader() {
                   </>
                 )}
               </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
+
 
       {menu ? (
         <div className="fixed inset-0 z-50 flex">
