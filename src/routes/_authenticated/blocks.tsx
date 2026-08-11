@@ -165,13 +165,10 @@ function BlocksPage() {
           </section>
 
           <section className="mt-4 grid gap-4 xl:grid-cols-2">
-            <ChartFrame title={`${block} — ${metricLabel}`} subtitle="One bar per training day">
-              <TrendBars data={rows} dataKey="value" xKey="date" />
+            <ChartFrame title={`${block} — ${metricLabel} (one bar per training day)`}>
+              <TrendBars data={rows.map((r) => ({ ...r }))} dataKey="value" xKey="date" />
             </ChartFrame>
-            <ChartFrame
-              title={compareBlock ? `${block} vs ${compareBlock}` : `${block} trend`}
-              subtitle={compareBlock ? "Same KPI, two blocks" : "Day-by-day trend"}
-            >
+            <ChartFrame title={compareBlock ? `${block} vs ${compareBlock} — ${metricLabel}` : `${block} — day-by-day trend`}>
               <MultiLine
                 data={merged}
                 dualAxis={false}
