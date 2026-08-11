@@ -361,13 +361,60 @@ function rowFromGps(g: GpsDay, p: Player): LogbookRow {
   };
 }
 
+/** Manual RPE work (strength / indoor / pool) added as its own logbook rows. */
+function manualRows(byId: Map<string, Player>): LogbookRow[] {
+  const grouped = new Map<string, { date: string; playerId: string; minutes: number; load: number; blocks: string[] }>();
+  for (const e of rpeEntries) {
+    if (!rpeEntryCounts(e)) continue;
+    const key = `${e.playerId}-${e.date}`;
+    const g = grouped.get(key) ?? { date: e.date, playerId: e.playerId, minutes: 0, load: 0, blocks: [] };
+    g.minutes += e.minutes;
+    g.load += e.rpe * e.minutes;
+    g.blocks.push(e.block || "Whole session");
+    grouped.set(key, g);
+  }
+  const rows: LogbookRow[] = [];
+  for (const g of grouped.values()) {
+    const p = byId.get(g.playerId);
+    if (!p) continue;
+    rows.push({
+      id: `manual-${g.playerId}-${g.date}`,
+      date: g.date,
+      category: "MANUAL RPE",
+      dayDescription: dayLabel(g.date),
+      drill: g.blocks.join(" + "),
+      playerId: g.playerId,
+      athlete: fullName(p).toUpperCase(),
+      role: p.position,
+      starter: false,
+      minutes: g.minutes,
+      distance: 0,
+      hsr: 0,
+      sprintDistance: 0,
+      maxSprintDistance: 0,
+      sprints: 0,
+      accel: 0,
+      decel: 0,
+      jumps: 0,
+      maxSpeed: 0,
+      avgSpeed: 0,
+      energy: 0,
+      rpe: g.minutes ? +(g.load / g.minutes).toFixed(1) : 0,
+      status: "trained",
+    });
+  }
+  return rows;
+}
+
 function buildLogbookRows(): LogbookRow[] {
   const byId = new Map(players.map((p) => [p.id, p]));
-  return gpsHistory
-    .map((g) => {
+  return [
+    ...gpsHistory.map((g) => {
       const p = byId.get(g.playerId);
       return p ? rowFromGps(g, p) : null;
-    })
+    }),
+    ...manualRows(byId),
+  ]
     .filter((r): r is LogbookRow => r !== null)
     .sort((a, b) => a.date.localeCompare(b.date) || a.athlete.localeCompare(b.athlete));
 }
