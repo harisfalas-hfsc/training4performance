@@ -19,7 +19,6 @@ import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
 import {
-  MAX_PLAYERS_PER_SQUAD,
   MAX_TEAMS_PER_ACCOUNT,
   clearWorkspaceRecords,
   deleteTeamAndData,
@@ -95,7 +94,7 @@ function TeamPage() {
     {
       label: "2. Build the squad",
       done: players.length > 0,
-      hint: `Add your players one by one (up to ${MAX_PLAYERS_PER_SQUAD}).`,
+      hint: "Add your players one by one — names are enough to start, details come later.",
       to: "/squad" as const,
       icon: Users,
     },
@@ -206,8 +205,8 @@ function TeamPage() {
               <Limit label="Squads per team" value="1" note="The squad of that team." />
               <Limit
                 label="Players in the squad"
-                value={`${players.length} / ${MAX_PLAYERS_PER_SQUAD}`}
-                note="Remove a player to free a slot."
+                value={`${players.length} · Unlimited`}
+                note="No cap on squad size."
               />
               <Limit label="Sessions, GPS rows, tests" value="Unlimited" note="For the whole season." />
             </ul>

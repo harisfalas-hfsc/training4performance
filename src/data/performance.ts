@@ -45,8 +45,8 @@ export interface Team {
 
 /** One workspace = one team. A second team needs a second account/subscription. */
 export const MAX_TEAMS_PER_ACCOUNT = 1;
-/** Hard cap of players inside the single squad of a workspace. */
-export const MAX_PLAYERS_PER_SQUAD = 60;
+/** Squad size is unlimited (0 = no cap). */
+export const MAX_PLAYERS_PER_SQUAD = 0;
 
 
 export interface Player {
@@ -460,12 +460,6 @@ export function nextPlayerId() {
 
 export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
   if (!guardWrite()) return;
-  if (players.length >= MAX_PLAYERS_PER_SQUAD) {
-    toast.error("Squad is full", {
-      description: `A squad holds up to ${MAX_PLAYERS_PER_SQUAD} players. Remove a player before adding another.`,
-    });
-    return;
-  }
   const p: Player = {
     id: input.id ?? nextPlayerId(),
     firstName: input.firstName,
