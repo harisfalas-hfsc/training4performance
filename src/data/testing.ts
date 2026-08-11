@@ -1,6 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { SALAMINA_TESTS } from "@/data/salamina";
-import { getPlayer, gpsHistory, players, testPlayerId } from "@/data/performance";
+import { getPlayer, gpsHistory, players } from "@/data/performance";
 import { guardWrite } from "@/lib/access";
 import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
