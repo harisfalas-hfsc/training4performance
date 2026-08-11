@@ -430,6 +430,12 @@ function TrainingPage() {
   const hasGps = sessionHasGps(session);
   const distribution = hasGps ? blockDistribution({ ...session, plan: items, blockNames: blocks }) : [];
 
+  /** What the sheet shows: fall back to the values stored on the day when the blocks are still empty. */
+  const sheetMinutes = plan.minutes || session.durationMin || 0;
+  const sheetRpe = plan.plannedRpe || session.plannedRpe || 0;
+  const sheetLoad = plan.load || Math.round(sheetMinutes * sheetRpe);
+
+
   return (
     <AppShell
       title="Training Designer"
