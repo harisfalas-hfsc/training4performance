@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
+import { jsonLd, seoHead, OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
