@@ -3,7 +3,6 @@
  * (Activity logbook / Activity chart / Training logbook / Tests / Data).
  */
 import {
-import {
   customKpis,
   fullName,
   gpsHistory,
