@@ -24,8 +24,10 @@ export function usePlatformBack() {
   const goBack = () => {
     if (stack.length < 2) return;
     const target = stack[stack.length - 2];
+    if (!target) return;
     void navigate({ to: target });
   };
+
 
   return { canGoBack, goBack };
 }
