@@ -125,6 +125,80 @@ function buildChartFromTag(
   };
 }
 
+function detectChartRequest(text: string): { player?: string; metric?: string; kind: ChartKind } | undefined {
+  const lower = text.toLowerCase();
+  const isChart = /\b(chart|graph|plot|trend|visual|visualize|visualise)\b/.test(lower);
+  if (!isChart) return undefined;
+
+  const playerNames = (window as unknown as { __smartyPlayerNames?: string[] }).__smartyPlayerNames ?? [];
+  let player: string | undefined;
+  for (const name of playerNames) {
+    if (lower.includes(name.toLowerCase())) {
+      player = name;
+      break;
+    }
+  }
+
+  const metricMap: Record<string, string> = {
+    distance: "distance",
+    hsr: "hsr",
+    "high speed running": "hsr",
+    "high-speed running": "hsr",
+    sprint: "sprint",
+    "max speed": "maxSpeed",
+    "maximum speed": "maxSpeed",
+    "top speed": "maxSpeed",
+    speed: "maxSpeed",
+    "avg speed": "avgSpeed",
+    "average speed": "avgSpeed",
+    accelerations: "accel",
+    acceleration: "accel",
+    decelerations: "decel",
+    deceleration: "decel",
+    rpe: "rpe",
+    jumps: "jumps",
+    jump: "jumps",
+    energy: "energy",
+  };
+  let metric: string | undefined;
+  for (const [phrase, key] of Object.entries(metricMap)) {
+    if (lower.includes(phrase)) {
+      metric = key;
+      break;
+    }
+  }
+
+  const kind: ChartKind = lower.includes("bar") ? "bar" : lower.includes("area") ? "area" : "line";
+  return { player, metric, kind };
+}
+
+function buildFallbackChart(
+  request: { player?: string; metric?: string; kind: ChartKind },
+  ctx: AssistantWorkspaceContext | null,
+): ChartSpec | undefined {
+  if (!ctx || ctx.playerDateMetrics.length === 0) return undefined;
+  const player = request.player
+    ? ctx.playerDateMetrics.find((p) => p.playerName.toLowerCase().includes(request.player!.toLowerCase()))
+    : ctx.playerDateMetrics[0];
+  if (!player) return undefined;
+  const metric = request.metric ?? "maxSpeed";
+  const label = CHART_METRIC_LABELS[metric] ?? metric;
+  const data = player.rows
+    .filter((r) => r[metric as keyof AssistantDateRow] !== undefined)
+    .map((r) => ({
+      date: r.date,
+      [metric]: Number(r[metric as keyof AssistantDateRow]),
+    }));
+  if (data.length === 0) return undefined;
+  return {
+    kind: request.kind,
+    title: `${player.playerName} — ${label}`,
+    xKey: "date",
+    series: [{ key: metric, name: label }],
+    data,
+  };
+}
+
 function renderInlineMarkdown(text: string) {
   const parts: React.ReactNode[] = [];
   const regex = /(\*\*|\*|__|_)(.*?)\1/g;
