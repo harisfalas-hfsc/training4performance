@@ -5,7 +5,6 @@ import {
   ClipboardPen,
   LayoutDashboard,
   Building2,
-  Shield,
 } from "lucide-react";
 
 export const platformNav = [
@@ -16,5 +15,3 @@ export const platformNav = [
   { to: "/alerts", label: "Alerts", icon: BellRing, color: "#dc2626" },
   { to: "/analytics", label: "Analytics & Reports", icon: BarChart3, color: "#4f46e5" },
 ] as const;
-
-export const adminNavItem = { to: "/admin", label: "Admin panel", icon: Shield, color: "#111827" } as const;
