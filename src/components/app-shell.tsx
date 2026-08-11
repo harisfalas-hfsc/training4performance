@@ -18,14 +18,11 @@ import {
   LifeBuoy,
   PanelLeftClose,
   PanelLeftOpen,
-  Radar,
   Shield,
-  Sparkles,
-  Users,
-  Gauge,
+  User,
 } from "lucide-react";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   team,
   squadName,
@@ -43,10 +40,9 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
-import { platformNav, adminNavItem } from "@/lib/nav-items";
+import { platformNav } from "@/lib/nav-items";
 
 const nav = platformNav;
-const adminItem = adminNavItem;
 
 export function AppShell({
   title,
@@ -60,21 +56,27 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, subscription, isAdmin, user } = useAuth();
+  const { profile, subscription, user } = useAuth();
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
   const av = squadAvailability();
   const [open, setOpen] = useState(false);
   const [supportMode, setSupportMode] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
   const version = useDataVersion();
-
-  const navItems = useMemo(
-    () => (isAdmin ? [...nav, adminItem] : [...nav]),
-    [isAdmin],
-  );
+  const navItems = nav;
 
   useEffect(() => {
     setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
     setSupportMode(Boolean(window.sessionStorage.getItem("t4p.adminSession")));
+  }, []);
+
+  useEffect(() => {
+    const closeAccount = (event: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(event.target as Node)) setAccountOpen(false);
+    };
+    document.addEventListener("mousedown", closeAccount);
+    return () => document.removeEventListener("mousedown", closeAccount);
   }, []);
 
   const returnToAdmin = async () => {
@@ -206,12 +208,35 @@ export function AppShell({
               <DiscoverMenu platformItems={navItems} />
 
               {actions}
-              <Link
-                to="/account"
-                className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-              >
-                Account
-              </Link>
+              <div ref={accountRef} className="relative">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Open my account"
+                  aria-expanded={accountOpen}
+                  onClick={() => setAccountOpen((value) => !value)}
+                  className="rounded-full border-2 border-primary bg-primary/10 text-primary"
+                >
+                  {profile?.full_name ? (
+                    <span className="text-xs font-bold">{profile.full_name.slice(0, 1).toUpperCase()}</span>
+                  ) : (
+                    <User className="size-4" />
+                  )}
+                </Button>
+                {accountOpen ? (
+                  <div className="absolute right-0 top-11 z-40 w-52 overflow-hidden rounded-md border border-border bg-popover shadow-panel">
+                    <p className="truncate border-b border-border px-3 py-2 text-xs text-muted-foreground">{user?.email}</p>
+                    <Link
+                      to="/account"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-3 py-2.5 text-sm font-medium hover:bg-accent"
+                    >
+                      My account
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
           <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2">

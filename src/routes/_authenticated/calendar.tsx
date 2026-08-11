@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, FileDown, Plus, Star, Trash2 } from "lucide-react";
+import { Activity, CalendarDays, ChevronLeft, ChevronRight, FileDown, Gauge, Plus, Radar, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
@@ -22,6 +22,7 @@ import {
 import { compositeAcwr, logbookRows } from "@/data/logbook";
 import { exportReport, type ReportPayload } from "@/lib/report-export";
 import { DAY_DESCRIPTIONS, SESSION_TYPES, sessionTypeOf } from "@/data/presets";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -185,6 +186,11 @@ function CalendarPage() {
         </Link>
       }
     >
+      <nav className="mb-4 flex flex-wrap gap-2" aria-label="Calendar data tools">
+        <Button asChild variant="outline"><Link to="/logbook"><Activity className="size-4" /> Activity logbook & performance tests</Link></Button>
+        <Button asChild variant="outline"><Link to="/gps"><Radar className="size-4" /> Import GPS for a session</Link></Button>
+        <Button asChild variant="outline"><Link to="/rpe"><Gauge className="size-4" /> Enter session or block RPE</Link></Button>
+      </nav>
       <section className="panel p-4">
         <SectionTitle
           title={`${MONTHS[month]} ${year}`}

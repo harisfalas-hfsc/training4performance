@@ -9,6 +9,7 @@ export function SmartyAssistant() {
   const [position, setPosition] = useState(120);
   const [pulse, setPulse] = useState(false);
   const dragging = useRef(false);
+  const moved = useRef(false);
   const startY = useRef(0);
   const startPos = useRef(0);
 
@@ -31,14 +32,16 @@ export function SmartyAssistant() {
   function onPointerDown(e: React.PointerEvent) {
     if (open) return;
     dragging.current = true;
+    moved.current = false;
     startY.current = e.clientY;
     startPos.current = position;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    e.currentTarget.setPointerCapture(e.pointerId);
   }
 
   function onPointerMove(e: React.PointerEvent) {
     if (!dragging.current) return;
     const delta = e.clientY - startY.current;
+    if (Math.abs(delta) > 5) moved.current = true;
     const next = Math.max(60, Math.min(window.innerHeight - 140, startPos.current + delta));
     setPosition(next);
   }
@@ -46,23 +49,33 @@ export function SmartyAssistant() {
   function onPointerUp(e: React.PointerEvent) {
     if (!dragging.current) return;
     dragging.current = false;
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    e.currentTarget.releasePointerCapture(e.pointerId);
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("t4p.assistant.position", String(position));
+      const delta = e.clientY - startY.current;
+      const finalPosition = Math.max(60, Math.min(window.innerHeight - 140, startPos.current + delta));
+      window.localStorage.setItem("t4p.assistant.position", String(finalPosition));
     }
+  }
+
+  function openAssistant() {
+    if (moved.current) {
+      moved.current = false;
+      return;
+    }
+    setOpen(true);
   }
 
   return (
     <>
       <div
-        className="fixed right-4 z-50 hidden md:block"
+        className="fixed right-4 z-50 hidden touch-none select-none md:block"
         style={{ top: position }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
         <button
-          onClick={() => setOpen(true)}
+          onClick={openAssistant}
           className={`group relative flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg ring-2 ring-[#3B82F6]/20 transition-all hover:scale-105 hover:shadow-xl active:scale-95 ${
             pulse ? "animate-pulse ring-[#3B82F6]" : ""
           }`}

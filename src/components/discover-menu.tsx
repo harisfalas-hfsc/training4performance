@@ -11,6 +11,7 @@ export const publicLinks = [
   { to: "/how-it-works", label: "How it works" },
   { to: "/smarty-assistant", label: "Smarty Assistant" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/manual", label: "Platform manual" },
 ] as const;
 
 export type PlatformItem = {

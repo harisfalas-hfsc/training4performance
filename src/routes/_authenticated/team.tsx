@@ -124,6 +124,14 @@ function TeamPage() {
   return (
     <AppShell title="Team & data" subtitle="Create your team, follow the setup, export or delete everything">
       <div className="space-y-6">
+        <section className="flex flex-wrap gap-2" aria-label="Team and player tools">
+          <Button asChild>
+            <Link to="/squad"><Users className="size-4" /> Squad & player passports</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/logbook"><CheckCircle2 className="size-4" /> Performance tests</Link>
+          </Button>
+        </section>
         <section className="rounded-xl border border-border bg-surface p-4">
           <SectionTitle title="Getting started" hint="Five steps from an empty account to a running season" />
           <ol className="mt-3 space-y-2">
