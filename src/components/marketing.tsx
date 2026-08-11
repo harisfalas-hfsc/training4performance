@@ -30,7 +30,7 @@ export function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
           <button
             onClick={() => setMenu(true)}
             aria-label="Open discovery menu"
@@ -179,7 +179,7 @@ function MenuLink({
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-surface-2/40">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-8 sm:flex-row sm:justify-between">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-5 py-6 sm:flex-row sm:justify-between">
         <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
           Training 4 Performance
         </p>
@@ -220,7 +220,7 @@ export function MarketingPage({
 
 export function Prose({ title, updated, children }: { title: string; updated?: string; children: ReactNode }) {
   return (
-    <div className="mx-auto max-w-3xl px-5 py-14">
+    <div className="mx-auto max-w-4xl px-5 py-10">
       <h1 className="font-display text-3xl font-semibold uppercase tracking-wide">{title}</h1>
       {updated ? <p className="mt-1 text-xs text-muted-foreground">Last updated: {updated}</p> : null}
       <div className="mt-8 space-y-5 text-sm leading-relaxed text-muted-foreground [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_li]:ml-5 [&_li]:list-disc [&_strong]:text-foreground">
