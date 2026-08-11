@@ -3,7 +3,7 @@ import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Sparkles, Users
 
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { breadcrumbLd, jsonLd, seoHead, webPageLd, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -20,6 +20,14 @@ export const Route = createFileRoute("/about")({
       ],
     }),
     scripts: [
+      webPageLd({
+        path: "/about",
+        name: "About Training 4 Performance",
+        description:
+          "What T4P connects for football performance staff and who built it: squad management, training design, GPS analytics, training load, wellness, testing and reporting.",
+        type: "AboutPage",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "About", path: "/about" },

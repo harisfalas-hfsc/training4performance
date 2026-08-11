@@ -3,7 +3,7 @@ import { Check, Sparkles } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { currentSeason, useAuth } from "@/lib/auth";
-import { breadcrumbLd, jsonLd, seoHead, OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { breadcrumbLd, jsonLd, seoHead, webPageLd, OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -19,6 +19,13 @@ export const Route = createFileRoute("/pricing")({
       ],
     }),
     scripts: [
+      webPageLd({
+        path: "/pricing",
+        name: "T4P Pricing",
+        description:
+          "T4P pricing: EUR 999 per season for one football team, unlimited players and unlimited staff users, with every module included.",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "Pricing", path: "/pricing" },

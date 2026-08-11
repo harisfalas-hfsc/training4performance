@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { breadcrumbLd, jsonLd, seoHead, webPageLd, FOUNDER_ID, ORGANIZATION_ID, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/haris-falas")({
   head: () => ({
@@ -15,6 +15,14 @@ export const Route = createFileRoute("/haris-falas")({
       keywords: ["football fitness coach", "S&C coach software", "sports scientist football platform"],
     }),
     scripts: [
+      webPageLd({
+        path: "/haris-falas",
+        name: "Haris Falas — sports scientist and S&C coach",
+        description:
+          "Professional background of Haris Falas, sports scientist and strength & conditioning coach in football, and creator of T4P.",
+        type: "ProfilePage",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "Haris Falas", path: "/haris-falas" },

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
-import { breadcrumbLd, seoHead } from "@/lib/seo";
+import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -13,6 +13,12 @@ export const Route = createFileRoute("/terms")({
       card: "summary",
     }),
     scripts: [
+      webPageLd({
+        path: "/terms",
+        name: "Terms & Conditions",
+        description: "The contractual terms governing use of the T4P football performance platform.",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "Terms & Conditions", path: "/terms" },
