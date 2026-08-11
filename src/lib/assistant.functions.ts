@@ -142,6 +142,28 @@ export const assistantSpendCredit = createServerFn({ method: "POST" })
     return { balance: newBalance };
   });
 
+export const assistantGetContext = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: row } = await supabase
+      .from("workspace_data")
+      .select("team, players, sessions, gps_history, manual_tests, medical_events")
+      .eq("user_id", userId)
+      .single();
+
+    const team = (row?.team ?? { name: "", club: "", season: "" }) as unknown as import("@/data/performance").Team;
+    const players = Array.isArray(row?.players) ? (row.players as unknown as import("@/data/performance").Player[]) : [];
+    const sessions = Array.isArray(row?.sessions) ? (row.sessions as unknown as import("@/data/performance").Session[]) : [];
+    const gpsHistory = Array.isArray(row?.gps_history) ? (row.gps_history as unknown as import("@/data/performance").GpsDay[]) : [];
+    const manualTests = Array.isArray(row?.manual_tests) ? (row.manual_tests as unknown as import("@/data/performance").ManualTest[]) : [];
+    const medicalEvents = Array.isArray(row?.medical_events) ? (row.medical_events as unknown as import("@/data/performance").MedicalEvent[]) : [];
+
+    const { buildAssistantContext } = await import("@/lib/assistant-data");
+    const ctx = buildAssistantContext(team, players, gpsHistory, sessions, manualTests, medicalEvents, []);
+    return { context: ctx };
+  });
+
 export const assistantAdminGrantCredits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { userId: string; amount: number }) => data)

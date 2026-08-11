@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { AssistantChat } from "@/components/assistant-chat";
 import { useAuth } from "@/lib/auth";
 
@@ -85,6 +85,8 @@ export function SmartyAssistant() {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="w-full sm:max-w-md p-0">
+          <SheetTitle className="sr-only">Smarty Assistant</SheetTitle>
+          <SheetDescription className="sr-only">Ask Smarty about your squad and training data.</SheetDescription>
           <AssistantChat onClose={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
