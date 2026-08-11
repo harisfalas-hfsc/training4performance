@@ -23,7 +23,7 @@ function AuthenticatedLayout() {
   return (
     <>
       {!hasAccess ? (
-        <div className="sticky top-0 z-50 border-b border-border bg-primary/10 px-4 py-2 text-xs sm:text-sm">
+        <div className="relative z-10 border-b border-border bg-primary/10 px-4 py-2 text-xs sm:text-sm">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
             <span className="inline-flex items-center gap-1.5 font-semibold">
               <Eye className="size-4" aria-hidden /> View-only mode
