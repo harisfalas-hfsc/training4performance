@@ -1,4 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 import {
   Activity,
   BarChart3,
