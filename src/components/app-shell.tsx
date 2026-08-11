@@ -19,8 +19,10 @@ import {
   PanelLeftOpen,
   Radar,
   Shield,
+  Sparkles,
   Users,
 } from "lucide-react";
+
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   team,
