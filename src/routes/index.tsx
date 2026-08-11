@@ -13,7 +13,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
-import heroMotion from "@/assets/hero-motion.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,15 +51,8 @@ const features = [
 function Home() {
   return (
     <MarketingPage>
-      {/* MOBILE hero — centered text under a compact image */}
+      {/* MOBILE hero — centered text */}
       <section className="border-b border-border sm:hidden">
-        <img
-          src={heroMotion}
-          alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
-          width={1540}
-          height={770}
-          className="block h-44 w-full object-cover"
-        />
         <div className="px-5 pb-8 pt-5 text-center">
           <p className="eyebrow">Training 4 Performance</p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
@@ -90,18 +82,8 @@ function Home() {
         </div>
       </section>
 
-      {/* FULL-BLEED HERO — content on the picture (desktop/tablet) */}
+      {/* DESKTOP HERO — clean text */}
       <section className="relative hidden overflow-hidden border-b border-border sm:block">
-        <img
-          src={heroMotion}
-          alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
-          width={1540}
-          height={770}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/40" />
         <div className="relative mx-auto max-w-7xl px-5 pb-8 pt-6 lg:pb-10 lg:pt-8">
 
           <div className="max-w-3xl">

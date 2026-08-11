@@ -96,13 +96,6 @@ function About() {
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-green/8 via-background to-brand-blue/10">
         <div className="mx-auto max-w-5xl px-5 py-10 text-center">
-          <img
-            src="/logo-t4p.png"
-            alt="Training 4 Performance logo"
-            className="t4p-logo mx-auto mb-6 size-16 object-contain"
-            width={64}
-            height={64}
-          />
           <p className="eyebrow text-brand-green">About</p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
             The football performance system that connects everything
