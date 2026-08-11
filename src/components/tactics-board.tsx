@@ -134,23 +134,53 @@ const DIMS: Record<Orientation, { w: number; h: number }> = {
   landscape: { w: 1000, h: 680 },
 };
 
-function PitchMarkings({ orientation }: { orientation: Orientation }) {
+export type PitchView = "full" | "half" | "quarter";
+export type FieldType = "football" | "futsal" | "blank";
+
+const VIEWS: { id: PitchView; label: string }[] = [
+  { id: "full", label: "Full pitch" },
+  { id: "half", label: "Half pitch" },
+  { id: "quarter", label: "Quarter pitch" },
+];
+
+const FIELDS: { id: FieldType; label: string }[] = [
+  { id: "football", label: "Football 11v11" },
+  { id: "futsal", label: "Futsal / indoor" },
+  { id: "blank", label: "Blank field" },
+];
+
+/** Visible area of the base pitch for the chosen view. */
+function viewBoxFor(orientation: Orientation, view: PitchView) {
+  const { w, h } = DIMS[orientation];
+  if (view === "full") return { x: 0, y: 0, w, h };
+  if (orientation === "portrait") {
+    return view === "half" ? { x: 0, y: 0, w, h: h / 2 } : { x: 0, y: 0, w: w / 2, h: h / 2 };
+  }
+  return view === "half" ? { x: 0, y: 0, w: w / 2, h } : { x: 0, y: 0, w: w / 2, h: h / 2 };
+}
+
+function PitchMarkings({ orientation, field }: { orientation: Orientation; field: FieldType }) {
   const { w, h } = DIMS[orientation];
   const m = 26;
   const line = "var(--color-pitch-line)";
   const common = { fill: "none", stroke: line, strokeWidth: 3 } as const;
   const long = orientation === "portrait" ? h : w;
   const short = orientation === "portrait" ? w : h;
-  const boxDepth = long * 0.15;
-  const boxWidth = short * 0.62;
+  const futsal = field === "futsal";
+  const boxDepth = long * (futsal ? 0.1 : 0.15);
+  const boxWidth = short * (futsal ? 0.45 : 0.62);
   const goalDepth = long * 0.05;
-  const goalWidth = short * 0.3;
-  const spot = long * 0.1;
-  const r = short * 0.16;
+  const goalWidth = short * (futsal ? 0.22 : 0.3);
+  const spot = long * (futsal ? 0.07 : 0.1);
+  const r = short * (futsal ? 0.12 : 0.16);
 
   const el: React.ReactNode[] = [
     <rect key="outer" x={m} y={m} width={w - m * 2} height={h - m * 2} {...common} />,
   ];
+
+  if (field === "blank") return <g pointerEvents="none">{el}</g>;
+
+
 
   if (orientation === "portrait") {
     const cx = w / 2;
@@ -369,6 +399,9 @@ export interface BoardDrawing {
   tokens: BoardToken[];
   shapes: BoardShape[];
   orientation?: Orientation;
+  view?: PitchView;
+  field?: FieldType;
+
 }
 
 export function parseDrawing(json?: string): BoardDrawing | null {
@@ -394,6 +427,8 @@ export function TacticsBoard({
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [orientation, setOrientation] = useState<Orientation>(initialDrawing?.orientation ?? "portrait");
+  const [view, setView] = useState<PitchView>(initialDrawing?.view ?? "full");
+  const [field, setField] = useState<FieldType>(initialDrawing?.field ?? "football");
   const [tool, setTool] = useState<Tool>("select");
   const [tokens, setTokens] = useState<BoardToken[]>(initialDrawing?.tokens ?? initialTokens);
   const [shapes, setShapes] = useState<BoardShape[]>(initialDrawing?.shapes ?? []);
@@ -407,7 +442,10 @@ export function TacticsBoard({
   const drawing = useRef<BoardShape | null>(null);
   const [, force] = useState(0);
 
-  const { w, h } = DIMS[orientation];
+  const vb = viewBoxFor(orientation, view);
+  const w = vb.w;
+  const h = vb.h;
+
 
   const push = useCallback(
     () => setHistory((prev) => [...prev.slice(-29), { tokens, shapes }]),
@@ -590,7 +628,8 @@ export function TacticsBoard({
             active={tool === t.id && !pending}
             label={t.label}
             onClick={() => {
-              setTool(t.id);
+              // tapping an active tool releases it, so the page can scroll again
+              setTool(tool === t.id && !pending ? "select" : t.id);
               setPending(null);
             }}
           >
@@ -615,7 +654,7 @@ export function TacticsBoard({
         {onSave ? (
           <button
             type="button"
-            onClick={() => onSave({ tokens, shapes, orientation })}
+            onClick={() => onSave({ tokens, shapes, orientation, view, field })}
             className="ml-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
           >
             {saveLabel}
@@ -638,22 +677,58 @@ export function TacticsBoard({
         </span>
       </div>
 
+      {/* pitch setup */}
+      <div className="grid gap-2 border-b border-border px-3 py-2 sm:grid-cols-3">
+        <label className="field">
+          <span className="field-label">Field type</span>
+          <select className="control" value={field} onChange={(e) => setField(e.target.value as FieldType)}>
+            {FIELDS.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span className="field-label">Pitch area</span>
+          <select className="control" value={view} onChange={(e) => setView(e.target.value as PitchView)}>
+            {VIEWS.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span className="field-label">Orientation</span>
+          <select
+            className="control"
+            value={orientation}
+            onChange={(e) => setOrientation(e.target.value as Orientation)}
+          >
+            <option value="portrait">Portrait (vertical)</option>
+            <option value="landscape">Landscape (horizontal)</option>
+          </select>
+        </label>
+      </div>
+
       {/* status line */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs text-muted-foreground">
         <span>
           {pending
             ? `Tap the pitch to place: ${pending.kind}`
             : tool === "select"
-              ? "Drag any item to reposition it"
+              ? "Drag any item to reposition it — the page scrolls normally"
               : tool === "erase"
                 ? "Tap an item or a drawing to remove it"
-                : "Drag on the pitch to draw"}
+                : "Drawing mode: drag on the pitch. Tap the active tool again to release it and scroll."}
         </span>
         <span className="tabular-nums">
           {tokens.filter((t) => t.kind === "player" || t.kind === "keeper").length} players · {tokens.length} items ·{" "}
           {shapes.length} drawings
         </span>
       </div>
+
 
       <div className="grid gap-3 p-3 lg:grid-cols-[170px_1fr]">
         {/* palette */}
@@ -707,7 +782,7 @@ export function TacticsBoard({
         <div className="relative overflow-hidden rounded-md border border-border bg-pitch">
           <svg
             ref={svgRef}
-            viewBox={`0 0 ${w} ${h}`}
+            viewBox={`${vb.x} ${vb.y} ${w} ${h}`}
             className="block max-h-[75vh] w-full select-none"
             style={{
               // Drawing tools need the gesture; otherwise let the page scroll
@@ -724,14 +799,15 @@ export function TacticsBoard({
               <marker id="t4p-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
               </marker>
-              <pattern id="t4p-stripes" width={w / 8} height={h} patternUnits="userSpaceOnUse">
-                <rect width={w / 16} height={h} fill="#ffffff" opacity="0.045" />
+              <pattern id="t4p-stripes" width={DIMS[orientation].w / 8} height={DIMS[orientation].h} patternUnits="userSpaceOnUse">
+                <rect width={DIMS[orientation].w / 16} height={DIMS[orientation].h} fill="#ffffff" opacity="0.045" />
               </pattern>
             </defs>
 
-            <rect width={w} height={h} fill="var(--color-pitch)" />
-            <rect width={w} height={h} fill="url(#t4p-stripes)" pointerEvents="none" />
-            <PitchMarkings orientation={orientation} />
+            <rect width={DIMS[orientation].w} height={DIMS[orientation].h} fill="var(--color-pitch)" />
+            <rect width={DIMS[orientation].w} height={DIMS[orientation].h} fill="url(#t4p-stripes)" pointerEvents="none" />
+            <PitchMarkings orientation={orientation} field={field} />
+
 
             {liveShapes.map((s) => (
               <path
