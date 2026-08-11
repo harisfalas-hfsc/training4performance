@@ -57,11 +57,11 @@ function Home() {
         <img
           src={heroMotion}
           alt="Line-art illustration of a footballer striking a ball and a sprinting player with motion and data curves"
-          width={1600}
-          height={1008}
-          className="block h-52 w-full object-cover"
+          width={1540}
+          height={770}
+          className="block h-44 w-full object-cover"
         />
-        <div className="px-5 pb-10 pt-8 text-center">
+        <div className="px-5 pb-10 pt-6 text-center">
           <p className="eyebrow">Training 4 Performance</p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
             The football performance system for S&amp;C coaches that connects everything
