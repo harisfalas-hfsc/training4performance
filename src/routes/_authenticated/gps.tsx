@@ -209,12 +209,16 @@ function GpsPage() {
     () =>
       (search.session && sessionCalendar.some((s) => s.id === search.session) ? search.session : undefined) ??
       sessionCalendar.find((s) => s.date === today)?.id ??
-      sessions[0]?.id ??
-      "",
+      AUTO_SESSION,
   );
   const [markCompleted, setMarkCompleted] = useState(true);
   const session = sessionCalendar.find((s) => s.id === sessionId);
   const blocks = session ? sessionBlocks(session) : [];
+  /** Date of the file itself (row date column), used when we create the session automatically. */
+  const fileDate = useMemo(() => rows.map((r) => r.date).find((d): d is string => !!d) ?? today, [rows]);
+  const autoMode = sessionId === AUTO_SESSION || !session;
+  const targetDate = session?.date ?? fileDate;
+
 
   const segmentValues = useMemo(
     () => [...new Set(rows.map((r) => r.segment).filter((s): s is string => !!s))],
