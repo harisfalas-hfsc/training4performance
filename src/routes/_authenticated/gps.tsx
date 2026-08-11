@@ -10,6 +10,7 @@ import {
   matchName,
   players,
   sessionBlocks,
+  addSession,
   sessionCalendar,
   sessionStatus,
   today,
@@ -184,8 +185,11 @@ function groupRows(rows: Row[], combine: boolean, segmentMap: Record<string, str
   return [...out.values()];
 }
 
+/** Sentinel: no calendar entry yet — create an empty session for the file's date on import. */
+const AUTO_SESSION = "__auto__";
 
 function GpsPage() {
+
   useDataVersion();
   const { can } = useRole();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -209,12 +213,16 @@ function GpsPage() {
     () =>
       (search.session && sessionCalendar.some((s) => s.id === search.session) ? search.session : undefined) ??
       sessionCalendar.find((s) => s.date === today)?.id ??
-      sessions[0]?.id ??
-      "",
+      AUTO_SESSION,
   );
   const [markCompleted, setMarkCompleted] = useState(true);
   const session = sessionCalendar.find((s) => s.id === sessionId);
   const blocks = session ? sessionBlocks(session) : [];
+  /** Date of the file itself (row date column), used when we create the session automatically. */
+  const fileDate = useMemo(() => rows.map((r) => r.date).find((d): d is string => !!d) ?? today, [rows]);
+  const autoMode = sessionId === AUTO_SESSION || !session;
+  const targetDate = session?.date ?? fileDate;
+
 
   const segmentValues = useMemo(
     () => [...new Set(rows.map((r) => r.segment).filter((s): s is string => !!s))],
@@ -325,11 +333,36 @@ function GpsPage() {
   };
 
   const runImport = () => {
-    if (!session) return;
     const ok = athleteRows.filter((r) => r.matchedId && r.confidence >= 0.95);
+    if (!ok.length) return;
+    // No calendar entry for this day: create an empty session so the load has an anchor.
+    // It can be opened and designed later in the Training Designer.
+    let target = session;
+    if (!target) {
+      const existing = sessionCalendar.find((s) => s.date === fileDate);
+      target =
+        existing ??
+        addSession({
+          date: fileDate,
+          label: "Unplanned",
+          title: "Unplanned activity",
+          durationMin: Math.round(ok.map((r) => r.core.minutes ?? 0).sort((a, b) => a - b)[Math.floor(ok.length / 2)] ?? 0),
+          objective: "Created automatically from a GPS upload — open it to add the blocks you actually ran.",
+          plannedRpe: 0,
+          drills: [],
+          type: "TRAINING",
+        });
+      if (!target) {
+        toast.error("Could not create a session for this file");
+        return;
+      }
+      setSessionId(target.id);
+    }
+    const sessionRef = target;
     for (const r of ok) {
       const c = r.core;
-      const minutes = c.minutes ?? session.durationMin;
+      const minutes = c.minutes ?? sessionRef.durationMin;
+
       const extra = { ...r.extra };
       const extraLabels = { ...r.extraLabels };
       // keep the per-block breakdown alongside the day total
@@ -343,7 +376,7 @@ function GpsPage() {
           extraLabels[mk] = `${p.block} · minutes`;
         }
       }
-      const day = r.date ?? session.date;
+      const day = r.date ?? sessionRef.date;
       // one GPS record per block of the training, so the same block can be compared across days
       for (const p of r.parts) {
         const c2 = p.core;
@@ -375,9 +408,9 @@ function GpsPage() {
         maxSpeed: c.maxSpeed ?? 0,
         accel: c.accel ?? 0,
         decel: c.decel ?? 0,
-        rpe: c.rpe ?? session.actualRpe ?? session.plannedRpe,
+        rpe: c.rpe ?? sessionRef.actualRpe ?? sessionRef.plannedRpe,
         status: "Full Training",
-        category: session.type ?? "TRAINING",
+        category: sessionRef.type ?? "TRAINING",
         ...(c.jumps !== undefined ? { jumps: c.jumps } : {}),
         ...(c.energy !== undefined ? { energy: c.energy } : {}),
         ...(c.avgSpeed !== undefined ? { avgSpeed: c.avgSpeed } : {}),
@@ -385,14 +418,14 @@ function GpsPage() {
         ...(Object.keys(extra).length ? { extra, extraLabels } : {}),
       });
     }
-    const pbs = detectSpeedPbs().filter((f) => f.date === session.date);
+    const pbs = detectSpeedPbs().filter((f) => f.date === sessionRef.date);
     applyAutoFindings(pbs);
     if (markCompleted) {
-      updateSession(session.id, { status: "completed", actualRpe: session.actualRpe ?? session.plannedRpe });
+      updateSession(sessionRef.id, { status: "completed", actualRpe: sessionRef.actualRpe ?? sessionRef.plannedRpe });
     }
     setImported({
       count: ok.length,
-      date: session.date,
+      date: sessionRef.date,
       kpis: customCols.length,
       pbs: pbs.map((f) => `${findingPlayerName(f.playerId)} — ${f.text}`),
     });
@@ -408,12 +441,12 @@ function GpsPage() {
       subtitle={
         session
           ? `${session.date} · ${session.label} — ${session.title}${parsed ? ` · file: ${parsed.fileName}` : ""}`
-          : "Select a training session to import into"
+          : `No calendar entry — an empty session will be created for ${targetDate}${parsed ? ` · file: ${parsed.fileName}` : ""}`
       }
       actions={
         <button
           onClick={runImport}
-          disabled={needsConfirm > 0 || uploading || !session || !matched || !can("importGps")}
+          disabled={needsConfirm > 0 || uploading || !matched || !can("importGps")}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           <Upload className="size-4" /> Import {matched} rows
@@ -423,13 +456,13 @@ function GpsPage() {
       <section className="panel mb-4 p-4">
         <SectionTitle
           title="Associate this file with a training"
-          hint="GPS data is always written into a specific session — that is what drives load, alerts, reports and the logbook"
+          hint="GPS data is always written into a session — if there is no entry for that day, one is created automatically and you can design it later"
         />
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="field sm:col-span-2">
             <span className="field-label">Training session</span>
             <select className="control" value={sessionId} onChange={(e) => setSessionId(e.target.value)}>
-              {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
+              <option value={AUTO_SESSION}>No calendar entry — create an empty session for {targetDate}</option>
               {sessions.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.date} · {s.label} — {s.title} ({sessionStatus(s)})
@@ -448,12 +481,16 @@ function GpsPage() {
           </label>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          {session?.plan?.length
-            ? `This session has ${session.plan.length} planned block(s) — totals are split across them automatically.`
-            : "This session has no planned blocks — the file is stored as one whole-session record."}{" "}
+          {autoMode
+            ? `No training was designed for ${targetDate} — T4P creates an empty "Unplanned activity" session, stores the file in it and counts the load in ACWR. Open it later in the Training Designer to add the blocks you actually ran.`
+            : session?.plan?.length
+              ? `This session has ${session.plan.length} planned block(s) — totals are split across them automatically.`
+              : "This session has no planned blocks — the file is stored as one whole-session record."}{" "}
           If the file has its own date column, that date is used per row.
         </p>
       </section>
+
+
 
       <section className="panel p-4">
         <SectionTitle
