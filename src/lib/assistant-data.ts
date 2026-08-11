@@ -299,7 +299,7 @@ ${alerts}
 
 Answer the coach's questions using ONLY the data above. If you do not have the data, say so. Always be concise, practical and coach-facing. When you mention a player, include their name and position. When discussing load, reference ACWR, distance, HSR or wellness as appropriate. Never make medical diagnoses. The coach keeps the final decision.
 
-If the coach asks for a graph or chart, AFTER your explanation output a chart tag on its own line exactly like this:
+If the coach asks for a graph or chart, you MUST output a chart tag on its own line AFTER your explanation. The tag must match the player name and metric exactly. Example:
 [CHART player="Demetriou Andreas" metric="maxSpeed" kind="line"]
-Available metrics: distance, hsr, sprint, maxSpeed, avgSpeed, accel, decel, rpe, jumps, energy. Available kinds: line, bar, area. Use the player's per-session rows above to describe the trend in your explanation. Only include the chart tag when a chart is explicitly requested.`;
+Available metrics: distance, hsr, sprint, maxSpeed, avgSpeed, accel, decel, rpe, jumps, energy. Available kinds: line, bar, area. Use the player's per-session rows above to describe the trend. Never skip the chart tag when a graph is requested.`;
 }
