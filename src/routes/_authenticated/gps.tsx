@@ -10,6 +10,7 @@ import {
   matchName,
   players,
   sessionBlocks,
+  addSession,
   sessionCalendar,
   sessionStatus,
   today,
@@ -375,7 +376,7 @@ function GpsPage() {
           extraLabels[mk] = `${p.block} · minutes`;
         }
       }
-      const day = r.date ?? session.date;
+      const day = r.date ?? sessionRef.date;
       // one GPS record per block of the training, so the same block can be compared across days
       for (const p of r.parts) {
         const c2 = p.core;
@@ -407,9 +408,9 @@ function GpsPage() {
         maxSpeed: c.maxSpeed ?? 0,
         accel: c.accel ?? 0,
         decel: c.decel ?? 0,
-        rpe: c.rpe ?? session.actualRpe ?? session.plannedRpe,
+        rpe: c.rpe ?? sessionRef.actualRpe ?? sessionRef.plannedRpe,
         status: "Full Training",
-        category: session.type ?? "TRAINING",
+        category: sessionRef.type ?? "TRAINING",
         ...(c.jumps !== undefined ? { jumps: c.jumps } : {}),
         ...(c.energy !== undefined ? { energy: c.energy } : {}),
         ...(c.avgSpeed !== undefined ? { avgSpeed: c.avgSpeed } : {}),
@@ -417,14 +418,14 @@ function GpsPage() {
         ...(Object.keys(extra).length ? { extra, extraLabels } : {}),
       });
     }
-    const pbs = detectSpeedPbs().filter((f) => f.date === session.date);
+    const pbs = detectSpeedPbs().filter((f) => f.date === sessionRef.date);
     applyAutoFindings(pbs);
     if (markCompleted) {
-      updateSession(session.id, { status: "completed", actualRpe: session.actualRpe ?? session.plannedRpe });
+      updateSession(sessionRef.id, { status: "completed", actualRpe: sessionRef.actualRpe ?? sessionRef.plannedRpe });
     }
     setImported({
       count: ok.length,
-      date: session.date,
+      date: sessionRef.date,
       kpis: customCols.length,
       pbs: pbs.map((f) => `${findingPlayerName(f.playerId)} — ${f.text}`),
     });
