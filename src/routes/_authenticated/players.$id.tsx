@@ -4,7 +4,7 @@ import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react"
 import { AppShell } from "@/components/app-shell";
 import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
-import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
+import { AcwrChart, MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import {
   age,
   availabilitySummary,
@@ -13,6 +13,7 @@ import {
   getPlayer,
   initials,
   playerMedical,
+  acwrSeries,
   playerDays,
   playerMetrics,
   playerTrend,
@@ -146,6 +147,14 @@ function PlayerProfile() {
           <Info label="Season availability" value={`${availability.availability}%`} />
           <Info label="Nationality" value={player.nationality} />
         </div>
+      </div>
+
+      <div className="panel mt-4 p-4">
+        <SectionTitle
+          title="Acute:chronic workload"
+          hint="Rolling 7-day load against the 28-day baseline. The coloured bands are the published injury-risk zones."
+        />
+        <AcwrChart data={acwrSeries(player.id, 42).map((d) => ({ date: d.date.slice(5), acwr: d.acwr }))} />
       </div>
 
       <div className="mt-4 flex flex-wrap gap-1">

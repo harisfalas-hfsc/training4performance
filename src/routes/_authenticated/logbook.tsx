@@ -4,7 +4,7 @@ import { Download, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { T4P } from "@/components/brand-text";
 import { AcwrPill, MetricCard, SectionTitle } from "@/components/perf-ui";
-import { MultiLine, TrendBars } from "@/components/charts";
+import { AcwrChart, MultiLine, TrendBars } from "@/components/charts";
 import {
   addManualTest,
   fullName,
@@ -686,6 +686,19 @@ function RecordTestForm({
 
 /* ---------------- Load model ---------------- */
 
+/** Day-by-day acute:chronic ratio from the composite daily loads. */
+function rollingAcwr(daily: Array<{ date: string; load: number }>, acuteWindow = 7, chronicWindow = 28) {
+  const dayMsLocal = 86400000;
+  const back = (date: string, n: number) => new Date(new Date(date).getTime() - n * dayMsLocal).toISOString().slice(0, 10);
+  return daily.slice(-42).map((d) => {
+    const win = (n: number) =>
+      daily.filter((x) => x.date > back(d.date, n) && x.date <= d.date).reduce((a, x) => a + x.load, 0);
+    const acute = win(acuteWindow);
+    const chronic = win(chronicWindow) / (chronicWindow / acuteWindow);
+    return { date: d.date.slice(5), acwr: chronic ? +(acute / chronic).toFixed(2) : 0 };
+  });
+}
+
 function LoadModelTab({ weights, setWeights }: { weights: LoadWeights; setWeights: (w: LoadWeights) => void }) {
   const [playerId, setPlayerId] = useState(players[0]!.id);
   const acwr = compositeAcwr(playerId, weights);
@@ -756,6 +769,10 @@ function LoadModelTab({ weights, setWeights }: { weights: LoadWeights; setWeight
           </div>
         </div>
         <MultiLine data={trend} series={[{ key: "load", color: "var(--color-chart-1)", name: "Composite load (AU)" }]} dualAxis={false} height={260} />
+        <div className="mt-4">
+          <p className="eyebrow mb-1">Acute:chronic ratio with injury-risk bands</p>
+          <AcwrChart data={rollingAcwr(acwr.daily)} height={240} />
+        </div>
       </div>
 
       <div className="panel p-4">
