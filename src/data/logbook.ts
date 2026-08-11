@@ -681,32 +681,8 @@ export interface TestCell {
   value: number;
 }
 
-const TEST_FIELD_MAP: Array<{ field: keyof (typeof SALAMINA_TESTS)[number]; test: string }> = [
-  { field: "weight", test: "BODY WEIGHT (kg)" },
-  { field: "bf", test: "BODY FAT (%)" },
-  { field: "cmj", test: "C.M.J. (2 Legs)" },
-  { field: "sj", test: "S.J. (2 Legs)" },
-  { field: "sjR", test: "S.J. (Right Leg)" },
-  { field: "sjL", test: "S.J. (Left Leg)" },
-  { field: "yoyoDistance", test: "YO-YO TEST (Distance)" },
-  { field: "yoyoMas", test: "M.A.S. (Velocity)" },
-  { field: "ohs", test: "FMS (O.H.S.)" },
-  { field: "aslR", test: "FMS (A.S.L.)" },
-];
-
 function buildTestResults(): TestCell[] {
   const out: TestCell[] = [];
-  SALAMINA_TESTS.forEach((row) => {
-    const pid = testPlayerId(row.first, row.last);
-    if (!pid) return;
-    const p = players.find((x) => x.id === pid);
-    if (!p) return;
-    TEST_FIELD_MAP.forEach(({ field, test }) => {
-      const v = row[field];
-      if (typeof v !== "number") return;
-      out.push({ playerId: pid, athlete: fullName(p).toUpperCase(), round: `Testing ${row.date}`, test: test as EvaluationTestName, value: v });
-    });
-  });
   manualTests.forEach((m) => {
     const p = players.find((x) => x.id === m.playerId);
     if (!p) return;
