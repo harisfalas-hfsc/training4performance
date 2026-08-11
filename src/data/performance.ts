@@ -266,8 +266,8 @@ function seedGps(): GpsDay[] {
 
 const seedDates = [...new Set(SALAMINA_GPS.map((r) => r[0]))].sort();
 
-/** Last day with real data — the platform "today". */
-export const today = seedDates[seedDates.length - 1] ?? "2025-08-30";
+/** The real calendar day. Historical GPS dates must never masquerade as today. */
+export const today = new Date().toISOString().slice(0, 10);
 
 function dominantCategory(date: string) {
   const counts: Record<string, number> = {};

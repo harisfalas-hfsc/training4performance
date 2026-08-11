@@ -57,11 +57,7 @@ import {
   DAY_DESCRIPTIONS,
   DRILL_PURPOSES,
   LIFT_PATTERNS,
-  removeSavedBlock,
-  removeSavedSession,
   saveBlockTemplate,
-  savedBlocks,
-  savedSessions,
   saveSessionTemplate,
   SESSION_TYPES,
   sessionTypeOf,
@@ -108,12 +104,14 @@ const STATE_LABEL: Record<SessionStatus, string> = {
 };
 
 const STEPS = [
-  { id: 1, label: "Set up the day" },
-  { id: 2, label: "Build the blocks" },
-  { id: 3, label: "Preview & schedule" },
-  { id: 4, label: "Record the data" },
-  { id: 5, label: "Load & alerts" },
+  { id: 1, label: "Session details" },
+  { id: 2, label: "Build blocks" },
+  { id: 3, label: "Review & save" },
 ] as const;
+
+const DESIGNER_TYPES = SESSION_TYPES.filter((sessionType) =>
+  ["FULL TRAINING", "STRENGTH TRAINING", "RECOVERY", "GAME", "OTHER TRAINING"].includes(sessionType.name),
+);
 
 const defaultStatus = (availability: string): TrainingStatus =>
   availability === "injured" || availability === "ill"
@@ -141,29 +139,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
-
-/** Small toolbar button used by the per-session action bar. */
-function ActionBtn({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
-    >
-      {icon} {label}
-    </button>
-  );
-}
-
-
 
 function StepBar({ step, onStep }: { step: number; onStep: (n: number) => void }) {
   return (
@@ -251,13 +226,11 @@ function TrainingPage() {
   const [selectedId, setSelectedId] = useState(
     () =>
       (sessionCalendar.find((s) => s.date === search.date) ??
-        sessionCalendar.find((s) => s.date === today) ??
-        sessionCalendar[sessionCalendar.length - 1])?.id ?? "",
+        sessionCalendar.find((s) => s.date === today))?.id ?? "",
   );
-  const [showNew, setShowNew] = useState(false);
   const [step, setStep] = useState(1);
   const [showSheet, setShowSheet] = useState(false);
-  const session = sessionCalendar.find((s) => s.id === selectedId) ?? sessionCalendar[sessionCalendar.length - 1];
+  const session = sessionCalendar.find((s) => s.id === selectedId);
 
   const [participation, setParticipation] = useState<Record<string, TrainingStatus>>(() =>
     Object.fromEntries(players.map((p) => [p.id, defaultStatus(p.availability)])),
@@ -347,17 +320,6 @@ function TrainingPage() {
     flash(`${b} saved to your library`);
   };
 
-  /** Insert a saved block (as a new block) into the training being designed. */
-  const insertSavedBlock = (id: string) => {
-    const sb = savedBlocks().find((x) => x.id === id);
-    if (!sb) return;
-    const name = uniqueBlockName(sb.name, blocks);
-    setBlocks((prev) => [...prev, name]);
-    setItems((prev) => [...prev, ...sb.items.map((i) => ({ ...i, block: name }))]);
-    setActiveBlock(name);
-    flash(`${sb.name} inserted as ${name}`);
-  };
-
   const plan = useMemo(() => {
     const minutes = items.reduce((a, i) => a + (i.durationMin || 0), 0);
     const weighted = items.reduce((a, i) => a + (i.rpe || 0) * (i.durationMin || 0), 0);
@@ -416,17 +378,6 @@ function TrainingPage() {
     flash("Training saved to your library");
   };
 
-  /** Load a saved training into the day being designed. */
-  const applyTemplate = (id: string) => {
-    const tpl = savedSessions().find((t) => t.id === id);
-    if (!tpl) return;
-    setType(tpl.type ?? type);
-    setBlocks(tpl.blockNames);
-    setItems(tpl.plan.map((i) => ({ ...i })));
-    setActiveBlock(tpl.blockNames[0] ?? "BLOCK 1");
-    flash(`${tpl.name} loaded — save it to keep it on this day`);
-  };
-
   /** Copy this whole training onto another date. */
   const duplicateToDate = () => {
     if (!session) return;
@@ -455,10 +406,26 @@ function TrainingPage() {
 
   if (!session) {
     return (
-      <AppShell title="Training Designer" subtitle="Create the first training day">
-        <div className="panel p-5">
-          <SectionTitle title="New training day" hint="Pick a date and a session type — everything else follows" />
-          <NewSessionForm onDone={(id) => setSelectedId(id)} />
+      <AppShell
+        title="Create today’s training"
+        subtitle={today}
+        actions={
+          <Link to="/calendar" className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold">
+            <ArrowLeft className="size-4" /> Calendar
+          </Link>
+        }
+      >
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-4 rounded-md border border-primary/30 bg-primary/5 p-4">
+            <p className="font-semibold">Start here</p>
+            <p className="text-sm text-muted-foreground">Confirm today’s details, then build the session one block at a time.</p>
+          </div>
+          <NewSessionForm
+            onDone={(id) => {
+              setSelectedId(id);
+              setStep(2);
+            }}
+          />
         </div>
       </AppShell>
     );
@@ -545,128 +512,18 @@ function TrainingPage() {
   return (
     <AppShell
       title="Training Designer"
-      subtitle="Plan → preview → schedule → record data → load & alerts"
+      subtitle={`${session.date === today ? "Today" : session.date} · ${type}`}
       actions={
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowSheet(true)}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
-          >
-            <Eye className="size-4" /> Session sheet
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowNew((v) => !v)}
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground"
-          >
-            <CalendarPlus className="size-4" /> {showNew ? "Close" : "New day"}
+          <Link to="/calendar" className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold">
+            <ArrowLeft className="size-4" /> Calendar
+          </Link>
+          <button type="button" onClick={() => saveSession(undefined, "Draft saved")} className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground">
+            <Save className="size-4" /> Save
           </button>
         </div>
       }
     >
-      {/* ---------- day picker ---------- */}
-      <section className="panel p-4">
-        <SectionTitle title="Training days" hint="Select the day you want to work on" />
-        {showNew && (
-          <NewSessionForm
-            onDone={(id) => {
-              setSelectedId(id);
-              setShowNew(false);
-              setStep(1);
-            }}
-          />
-        )}
-        <div className="scroll-pane -mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
-          {sessionCalendar.map((s) => {
-            const st = sessionStatus(s);
-            return (
-              <button
-                key={s.id}
-                onClick={() => setSelectedId(s.id)}
-                className={`w-44 shrink-0 rounded-md border p-3 text-left transition-colors ${
-                  s.id === selectedId ? "border-primary bg-primary/10" : "border-border bg-surface-2 hover:border-primary/40"
-                }`}
-              >
-                <p className="eyebrow flex items-center justify-between">
-                  <span>{s.date === today ? "Today" : s.date.slice(5)}</span>
-                  {s.favorite ? <Star className="size-3 fill-primary text-primary" /> : null}
-                </p>
-                <p className="mt-0.5 truncate font-display text-base font-semibold">{s.label}</p>
-                <p className="truncate text-xs text-muted-foreground">{s.type ?? s.title}</p>
-                <p
-                  className={`mt-1 text-[0.68rem] ${
-                    st === "completed" ? "text-success" : st === "pending" ? "text-warning" : "text-muted-foreground"
-                  }`}
-                >
-                  {STATE_LABEL[st]}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ---------- session actions (available on every session, at every step) ---------- */}
-      <section className="panel mt-3 p-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="eyebrow mr-1">This session</span>
-          <select
-            value={state}
-            onChange={(e) => {
-              const next = e.target.value as SessionStatus;
-              setSessionStatus(session.id, next);
-              flash(
-                next === "completed"
-                  ? "Marked as completed"
-                  : next === "pending"
-                    ? "Marked as awaiting data"
-                    : "Marked as scheduled (not completed)",
-              );
-            }}
-            className={`control h-9 w-44 text-xs font-semibold ${
-              state === "completed" ? "text-success" : state === "pending" ? "text-warning" : ""
-            }`}
-          >
-            <option value="scheduled">Scheduled — not completed</option>
-            <option value="pending">Awaiting data</option>
-            <option value="completed">Completed</option>
-          </select>
-          <ActionBtn
-            icon={<Star className={`size-4 ${session.favorite ? "fill-primary text-primary" : ""}`} />}
-            label={session.favorite ? "Favourite" : "Favourite"}
-            onClick={() => {
-              toggleSessionFavorite(session.id);
-              flash(session.favorite ? "Removed from favourites" : "Added to favourites");
-            }}
-          />
-          <ActionBtn icon={<Pencil className="size-4" />} label="Edit blocks" onClick={() => setStep(2)} />
-          <ActionBtn icon={<Copy className="size-4" />} label="Duplicate" onClick={duplicateToDate} />
-          <ActionBtn icon={<Save className="size-4" />} label="Save as template" onClick={saveAsTemplate} />
-          <Link
-            to="/gps"
-            search={{ session: session.id }}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
-          >
-            <Radar className="size-4" /> {hasGps ? "Replace GPS" : "Upload GPS"}
-          </Link>
-          <ActionBtn icon={<Timer className="size-4" />} label="Manual data" onClick={() => setStep(4)} />
-          <ActionBtn icon={<Eye className="size-4" />} label="Session sheet" onClick={() => setShowSheet(true)} />
-          <ActionBtn icon={<Printer className="size-4" />} label="Print / PDF" onClick={printSheet} />
-          <ActionBtn icon={<Download className="size-4" />} label="Excel" onClick={() => exportSession("Excel")} />
-          <ActionBtn icon={<Download className="size-4" />} label="CSV" onClick={() => exportSession("CSV")} />
-          <button
-            type="button"
-            onClick={deleteDay}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-destructive/40 px-3 text-xs font-semibold text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 className="size-4" /> Delete
-          </button>
-        </div>
-      </section>
-
-
-
       <StepBar step={step} onStep={setStep} />
 
       {saved ? (
@@ -685,7 +542,7 @@ function TrainingPage() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <Field label="Session type">
               <select value={type} onChange={(e) => applyType(e.target.value)} className="control">
-                {SESSION_TYPES.map((t) => (
+                {DESIGNER_TYPES.map((t) => (
                   <option key={t.name} value={t.name}>
                     {t.name}
                   </option>
@@ -733,31 +590,9 @@ function TrainingPage() {
                 className="control"
               />
             </Field>
-            <Field label="Session template">
-              <button
-                type="button"
-                onClick={() => toggleSessionFavorite(session.id)}
-                className="control flex items-center gap-2 text-left text-sm"
-              >
-                <Star className={`size-4 ${session.favorite ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                {session.favorite ? "Saved as template" : "Save as template"}
-              </button>
-            </Field>
           </div>
 
-          <p className="mt-4 text-xs text-muted-foreground">
-            Preset blocks for {type}: <span className="text-foreground">{preset.blocks.join(" · ")}</span> — rename them
-            in the next step. Individual player participation is recorded in step 4, after the session happens.
-          </p>
-
           <StepActions onNext={() => setStep(2)} nextLabel="Build the blocks">
-            <button
-              type="button"
-              onClick={duplicateToDate}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Copy className="size-4" /> Duplicate day
-            </button>
             <button
               type="button"
               onClick={deleteDay}
@@ -776,11 +611,11 @@ function TrainingPage() {
           <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               label="Planned duration"
-              value={plan.minutes || session.durationMin}
+              value={plan.minutes}
               unit="min"
               icon={<Timer className="size-4" />}
             />
-            <MetricCard label="Planned RPE" value={plan.plannedRpe || session.plannedRpe} hint="Duration-weighted" />
+            <MetricCard label="Planned RPE" value={plan.plannedRpe} hint="Calculated from added items" />
             <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`${blocks.length} blocks`} />
             <MetricCard
               label="Gym tonnage"
@@ -869,9 +704,8 @@ function TrainingPage() {
               </div>
 
               <div id="plan-blocks" className="scroll-mt-24 space-y-3">
-                {blocks.map((b) => {
+                {blocks.filter((b) => b === activeBlock).map((b) => {
                   const blockItems = items.map((it, i) => ({ it, i })).filter(({ it }) => (it.block ?? "") === b);
-                  if (!blockItems.length) return null;
                   const gym = isGymBlock(b, preset.kind);
                   const min = blockItems.reduce((a, x) => a + (x.it.durationMin || 0), 0);
                   return (
@@ -1005,14 +839,17 @@ function TrainingPage() {
                           </li>
                         ))}
                       </ul>
+                      {!blockItems.length ? (
+                        <div className="mt-3 rounded-md border border-dashed border-border p-5 text-center">
+                          <p className="text-sm font-semibold">This block is empty</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Add a training drill or strength exercise from the library beside it.
+                          </p>
+                        </div>
+                      ) : null}
                     </div>
                   );
                 })}
-                {items.length === 0 ? (
-                  <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                    Empty session. Pick a block above, then add drills or exercises from the library.
-                  </p>
-                ) : null}
               </div>
 
               <form
@@ -1078,94 +915,6 @@ function TrainingPage() {
 
           </section>
 
-          <section className="panel mt-4 p-5">
-            <SectionTitle
-              title="Your saved blocks & trainings"
-              hint="Reuse anything you saved before — insert a block, or load a whole training into this day"
-            />
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div>
-                <p className="eyebrow mb-2">Saved blocks</p>
-                {savedBlocks().length === 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    Nothing yet — use “Save block” on any block above to reuse it another day.
-                  </p>
-                ) : (
-                  <ul className="space-y-2">
-                    {savedBlocks().map((sb) => (
-                      <li
-                        key={sb.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface-2 p-2.5"
-                      >
-                        <span className="text-sm">
-                          <span className="font-semibold">{sb.name}</span>{" "}
-                          <span className="text-xs text-muted-foreground">
-                            · {sb.items.length} item(s) · {sb.items.reduce((a, i) => a + (i.durationMin || 0), 0)} min
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => insertSavedBlock(sb.id)}
-                            className="h-7 rounded-md bg-primary px-2.5 text-[0.68rem] font-semibold text-primary-foreground"
-                          >
-                            Insert
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeSavedBlock(sb.id)}
-                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
-                          >
-                            Delete
-                          </button>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div>
-                <p className="eyebrow mb-2">Saved trainings</p>
-                {savedSessions().length === 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    Nothing yet — use “Save as template” in the preview step to reuse a whole training.
-                  </p>
-                ) : (
-                  <ul className="space-y-2">
-                    {savedSessions().map((t) => (
-                      <li
-                        key={t.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface-2 p-2.5"
-                      >
-                        <span className="text-sm">
-                          <span className="font-semibold">{t.name}</span>{" "}
-                          <span className="text-xs text-muted-foreground">
-                            · {t.blockNames.length} block(s) · {t.plan.length} item(s)
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => applyTemplate(t.id)}
-                            className="h-7 rounded-md bg-primary px-2.5 text-[0.68rem] font-semibold text-primary-foreground"
-                          >
-                            Load into this day
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeSavedSession(t.id)}
-                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
-                          >
-                            Delete
-                          </button>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </section>
         </>
       )}
 
@@ -1205,7 +954,7 @@ function TrainingPage() {
             />
           </div>
 
-          <StepActions onBack={() => setStep(2)} onNext={() => setStep(4)} nextLabel="Record the data">
+          <StepActions onBack={() => setStep(2)}>
             <button
               type="button"
               onClick={() => saveSession("scheduled", "Scheduled — it is on the calendar")}
@@ -1938,7 +1687,7 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
   const [form, setForm] = useState({
     date: today,
     type: SESSION_TYPES[0]!.name,
-    label: "MD -2",
+    label: "TRAINING",
     objective: "",
     group: TRAINING_GROUPS[0]!,
   });
@@ -1947,7 +1696,7 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
 
   return (
     <form
-      className="mb-4 grid gap-3 rounded-md border border-border bg-surface-2 p-4 sm:grid-cols-2 xl:grid-cols-3"
+      className="grid gap-4 rounded-md border border-border bg-card p-5 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         const s = addSession({
@@ -1955,10 +1704,10 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
           label: form.label,
           title: form.type,
           type: form.type,
-          blockNames: preset.blocks,
+          blockNames: ["BLOCK 1"],
           objective: form.objective || `${form.type} session`,
-          durationMin: preset.defaultMinutes,
-          plannedRpe: preset.defaultRpe,
+          durationMin: 0,
+          plannedRpe: 0,
           drills: [],
           plan: [],
           group: form.group,
@@ -1970,9 +1719,9 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
       <Field label="Date">
         <input className="control" type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} />
       </Field>
-      <Field label="Session type">
+      <Field label="Training type">
         <select className="control" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-          {SESSION_TYPES.map((t) => (
+          {DESIGNER_TYPES.map((t) => (
             <option key={t.name} value={t.name}>
               {t.name}
             </option>
@@ -2005,14 +1754,11 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
           onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))}
         />
       </Field>
-      <div className="flex items-end">
-        <button type="submit" className="h-9 w-full rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground">
-          Create training day
+      <div className="flex items-end sm:col-span-2">
+        <button type="submit" className="h-11 w-full rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground">
+          Start building blocks
         </button>
       </div>
-      <p className="text-xs text-muted-foreground sm:col-span-2 xl:col-span-3">
-        Preset blocks: {preset.blocks.join(" · ")} — rename them once the day exists.
-      </p>
     </form>
   );
 }
