@@ -1034,9 +1034,14 @@ function TrainingPage() {
               objective={session.objective}
               blocks={blocks}
               items={items}
-              minutes={plan.minutes || session.durationMin}
-              plannedRpe={plan.plannedRpe || session.plannedRpe}
-              load={plan.load}
+              minutes={sheetMinutes}
+              plannedRpe={sheetRpe}
+              load={sheetLoad}
+              onEdit={(b) => {
+                if (b) setActiveBlock(b);
+                setStep(2);
+              }}
+
             />
           </div>
 
