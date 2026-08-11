@@ -86,7 +86,7 @@ export const calculators: CalculatorSpec[] = [
       const shuttle = Math.floor(v("shuttle"));
       if (level > 23 || shuttle > 17) return [{ label: "Level or shuttle is incorrect", value: "—" }];
       let total = shuttle;
-      for (let i = 0; i < SHUTTLES_PER_LEVEL.length; i += 1) if (level > i + 1) total += SHUTTLES_PER_LEVEL[i];
+      for (let i = 0; i < SHUTTLES_PER_LEVEL.length; i += 1) if (level > i + 1) total += SHUTTLES_PER_LEVEL[i] ?? 0;
       const vo2 = 18.043461 + 0.3689295 * total - 0.000349 * total * total;
       return [
         { label: "VO2 max", value: round(vo2, 2), unit: "ml/kg/min", emphasis: true },
