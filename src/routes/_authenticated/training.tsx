@@ -8,6 +8,7 @@ import {
   CalendarPlus,
   CheckCircle2,
   Copy,
+  Download,
   Dumbbell,
   Eye,
   Layers,
@@ -23,7 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { printSessionSheet } from "@/lib/report-export";
+import { exportReport, printSessionSheet } from "@/lib/report-export";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 
 import { TacticsBoard, parseDrawing } from "@/components/tactics-board";
@@ -140,6 +141,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+
+/** Small toolbar button used by the per-session action bar. */
+function ActionBtn({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
+    >
+      {icon} {label}
+    </button>
+  );
+}
+
+
 
 function StepBar({ step, onStep }: { step: number; onStep: (n: number) => void }) {
   return (
@@ -415,7 +439,19 @@ function TrainingPage() {
     }
   };
 
+  /** Delete the day and move the selection to a neighbouring day. */
+  const deleteDay = () => {
+    if (!session) return;
+    if (!window.confirm(`Delete ${session.date} — ${session.title}? This cannot be undone.`)) return;
+    const rest = sessionCalendar.filter((s) => s.id !== session.id);
+    removeSession(session.id);
+    setSelectedId(rest[rest.length - 1]?.id ?? "");
+    setStep(1);
+    flash("Training day deleted");
+  };
+
   const counts = STATUS.map((s) => ({ s, n: Object.values(participation).filter((v) => v === s).length }));
+
 
   if (!session) {
     return (
@@ -436,6 +472,74 @@ function TrainingPage() {
   const sheetMinutes = plan.minutes || session.durationMin || 0;
   const sheetRpe = plan.plannedRpe || session.plannedRpe || 0;
   const sheetLoad = plan.load || Math.round(sheetMinutes * sheetRpe);
+
+  const sheetPayload = () => ({
+    club: "Training 4 Performance",
+    date: session.date,
+    label: session.label,
+    type,
+    group: session.group ?? TRAINING_GROUPS[0]!,
+    objective: session.objective,
+    minutes: sheetMinutes,
+    rpe: sheetRpe,
+    load: sheetLoad,
+    blocks: blocks.map((b) => {
+      const bItems = items.filter((i) => (i.block ?? "") === b);
+      return {
+        name: b,
+        minutes: bItems.reduce((a, i) => a + (i.durationMin || 0), 0),
+        items: bItems.map((it) => ({
+          drill: it.drill,
+          detail: it.strength
+            ? `${it.strength.sets} × ${it.strength.reps}${
+                it.strength.weightKg ? ` @ ${it.strength.weightKg} kg` : ""
+              } · rest ${it.strength.restSec}s`
+            : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`,
+        })),
+      };
+    }),
+  });
+
+  /** Print / save the session sheet as a clean A4 PDF. */
+  const printSheet = () => {
+    const ok = printSessionSheet(sheetPayload());
+    toast[ok ? "success" : "message"](
+      ok ? "Session sheet opened — use “Save as PDF”" : "Pop-up blocked — the sheet was downloaded instead",
+    );
+  };
+
+  /** Download this exact training as a spreadsheet (Excel or CSV). */
+  const exportSession = (format: "Excel" | "CSV") => {
+    const rows = blocks.flatMap((b) => {
+      const bItems = items.filter((i) => (i.block ?? "") === b);
+      if (!bItems.length) return [[b, "—", 0, 0, "", ""]];
+      return bItems.map((it) => [
+        b,
+        it.drill,
+        it.durationMin || 0,
+        it.rpe || 0,
+        it.actualRpe || "",
+        it.strength
+          ? `${it.strength.sets}×${it.strength.reps}${it.strength.weightKg ? ` @ ${it.strength.weightKg}kg` : ""}`
+          : (it.purpose ?? ""),
+      ]);
+    });
+    const msg = exportReport(format, {
+      title: `${type} — ${session.date}`,
+      club: "Training 4 Performance",
+      subtitle: `${session.label} · ${session.group ?? TRAINING_GROUPS[0]} · ${STATE_LABEL[state]}`,
+      headline: [
+        { label: "Duration", value: `${sheetMinutes} min` },
+        { label: "Planned RPE", value: String(sheetRpe) },
+        { label: "Planned load", value: `${sheetLoad} AU` },
+        { label: "Reported load", value: plan.actualLoad ? `${plan.actualLoad} AU` : hasGps ? "From GPS" : "—" },
+      ],
+      columns: ["Block", "Drill", "Minutes", "Planned RPE", "Reported RPE", "Detail"],
+      rows,
+      observations: [session.objective || "No objective recorded", hasGps ? "GPS data attached to this day" : "No GPS attached"],
+    });
+    toast.success(msg);
+  };
 
 
   return (
@@ -502,6 +606,66 @@ function TrainingPage() {
           })}
         </div>
       </section>
+
+      {/* ---------- session actions (available on every session, at every step) ---------- */}
+      <section className="panel mt-3 p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="eyebrow mr-1">This session</span>
+          <select
+            value={state}
+            onChange={(e) => {
+              const next = e.target.value as SessionStatus;
+              setSessionStatus(session.id, next);
+              flash(
+                next === "completed"
+                  ? "Marked as completed"
+                  : next === "pending"
+                    ? "Marked as awaiting data"
+                    : "Marked as scheduled (not completed)",
+              );
+            }}
+            className={`control h-9 w-44 text-xs font-semibold ${
+              state === "completed" ? "text-success" : state === "pending" ? "text-warning" : ""
+            }`}
+          >
+            <option value="scheduled">Scheduled — not completed</option>
+            <option value="pending">Awaiting data</option>
+            <option value="completed">Completed</option>
+          </select>
+          <ActionBtn
+            icon={<Star className={`size-4 ${session.favorite ? "fill-primary text-primary" : ""}`} />}
+            label={session.favorite ? "Favourite" : "Favourite"}
+            onClick={() => {
+              toggleSessionFavorite(session.id);
+              flash(session.favorite ? "Removed from favourites" : "Added to favourites");
+            }}
+          />
+          <ActionBtn icon={<Pencil className="size-4" />} label="Edit blocks" onClick={() => setStep(2)} />
+          <ActionBtn icon={<Copy className="size-4" />} label="Duplicate" onClick={duplicateToDate} />
+          <ActionBtn icon={<Save className="size-4" />} label="Save as template" onClick={saveAsTemplate} />
+          <Link
+            to="/gps"
+            search={{ session: session.id }}
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+          >
+            <Radar className="size-4" /> {hasGps ? "Replace GPS" : "Upload GPS"}
+          </Link>
+          <ActionBtn icon={<Timer className="size-4" />} label="Manual data" onClick={() => setStep(4)} />
+          <ActionBtn icon={<Eye className="size-4" />} label="Session sheet" onClick={() => setShowSheet(true)} />
+          <ActionBtn icon={<Printer className="size-4" />} label="Print / PDF" onClick={printSheet} />
+          <ActionBtn icon={<Download className="size-4" />} label="Excel" onClick={() => exportSession("Excel")} />
+          <ActionBtn icon={<Download className="size-4" />} label="CSV" onClick={() => exportSession("CSV")} />
+          <button
+            type="button"
+            onClick={deleteDay}
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-destructive/40 px-3 text-xs font-semibold text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="size-4" /> Delete
+          </button>
+        </div>
+      </section>
+
+
 
       <StepBar step={step} onStep={setStep} />
 
@@ -589,23 +753,19 @@ function TrainingPage() {
           <StepActions onNext={() => setStep(2)} nextLabel="Build the blocks">
             <button
               type="button"
-              onClick={() => {
-                const d = window.prompt("Copy this session to date (YYYY-MM-DD)", today);
-                if (d) duplicateSession(session.id, d);
-              }}
+              onClick={duplicateToDate}
               className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
             >
               <Copy className="size-4" /> Duplicate day
             </button>
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm(`Delete ${session.date} ${session.title}?`)) removeSession(session.id);
-              }}
+              onClick={deleteDay}
               className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="size-4" /> Delete day
             </button>
+
           </StepActions>
         </section>
       )}
@@ -1344,39 +1504,8 @@ function TrainingPage() {
                   <Pencil className="size-4" /> Edit blocks
                 </button>
                 <button
-                  onClick={() => {
-                    const ok = printSessionSheet({
-                      club: "Training 4 Performance",
-                      date: session.date,
-                      label: session.label,
-                      type,
-                      group: session.group ?? TRAINING_GROUPS[0]!,
-                      objective: session.objective,
-                      minutes: sheetMinutes,
-                      rpe: sheetRpe,
-                      load: sheetLoad,
-                      blocks: blocks.map((b) => {
-                        const bItems = items.filter((i) => (i.block ?? "") === b);
-                        return {
-                          name: b,
-                          minutes: bItems.reduce((a, i) => a + (i.durationMin || 0), 0),
-                          items: bItems.map((it) => ({
-                            drill: it.drill,
-                            detail: it.strength
-                              ? `${it.strength.sets} × ${it.strength.reps}${
-                                  it.strength.weightKg ? ` @ ${it.strength.weightKg} kg` : ""
-                                } · rest ${it.strength.restSec}s`
-                              : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`,
-                          })),
-                        };
-                      }),
-                    });
-                    toast[ok ? "success" : "message"](
-                      ok
-                        ? "Print-ready sheet opened — choose Save as PDF"
-                        : "Pop-up blocked — the printable sheet was downloaded instead",
-                    );
-                  }}
+                  onClick={printSheet}
+
                   className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
                 >
                   <Printer className="size-4" /> Print / PDF
