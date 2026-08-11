@@ -1214,15 +1214,21 @@ function TrainingPage() {
       {step === 5 && (
         <>
           <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`RPE ${plan.plannedRpe} × ${plan.minutes} min`} />
+            <MetricCard
+              label="Planned load"
+              value={sheetLoad}
+              unit="AU"
+              hint={`RPE ${sheetRpe} × ${sheetMinutes} min (AU = arbitrary units)`}
+            />
             <MetricCard
               label="Actual load"
               value={plan.actualLoad || (hasGps ? "GPS" : "—")}
               unit={plan.actualLoad ? "AU" : ""}
               hint={hasGps ? "GPS associated with this day" : "From reported RPE"}
-              tone={plan.actualLoad && plan.actualLoad > plan.load * 1.15 ? "warn" : "good"}
+              tone={plan.actualLoad && plan.actualLoad > sheetLoad * 1.15 ? "warn" : "good"}
             />
-            <MetricCard label="Duration" value={plan.minutes || session.durationMin} unit="min" />
+            <MetricCard label="Duration" value={sheetMinutes} unit="min" />
+
             <MetricCard label="Status" value={STATE_LABEL[state]} hint={`${session.date} · ${session.label}`} />
           </section>
 
