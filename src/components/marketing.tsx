@@ -1,21 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { Compass, LogOut, User, X } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { SmartyAssistant } from "@/components/smarty-assistant";
 
+import { DiscoverMenu } from "@/components/discover-menu";
+import { platformNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
 
-const links = [
-  { to: "/about", label: "About" },
-  { to: "/how-it-works", label: "How it works" },
-  { to: "/smarty-assistant", label: "Smarty Assistant" },
-  { to: "/pricing", label: "Pricing" },
-] as const;
+
 
 
 export function SiteHeader() {
-  const [menu, setMenu] = useState(false);
   const [avatar, setAvatar] = useState(false);
   const { session, profile, signOut } = useAuth();
   const avatarRef = useRef<HTMLDivElement>(null);
@@ -34,14 +30,7 @@ export function SiteHeader() {
     <>
       <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
-          <button
-            onClick={() => setMenu(true)}
-            aria-label="Open discovery menu"
-            className="inline-flex shrink-0 items-center gap-2 rounded-full border-2 border-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-          >
-            <Compass className="size-4" />
-            <span className="hidden sm:inline">Discover</span>
-          </button>
+          <DiscoverMenu platformItems={platformNav} />
 
           <Link to="/" className="flex min-w-0 items-center justify-center gap-2.5">
             <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-11 shrink-0 object-contain sm:size-12" />
@@ -102,56 +91,6 @@ export function SiteHeader() {
       </header>
 
 
-      {menu ? (
-        <div className="fixed inset-0 z-50 flex">
-          <button
-            aria-label="Close menu"
-            onClick={() => setMenu(false)}
-            className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
-          />
-          <aside className="relative flex h-full w-[min(20rem,85vw)] flex-col border-r border-border bg-background px-6 py-6">
-            <div className="flex items-center justify-between">
-              <p className="eyebrow">Discover</p>
-              <button onClick={() => setMenu(false)} aria-label="Close">
-                <X className="size-4 text-muted-foreground" />
-              </button>
-            </div>
-            <nav className="mt-6 flex flex-col">
-              {links.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMenu(false)}
-                  className="border-b border-border py-4 font-display text-lg uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
-                  activeProps={{ className: "text-foreground" }}
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-            <div className="mt-auto pt-6">
-              {session ? (
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMenu(false)}
-                  className="block rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Go to platform
-                </Link>
-              ) : (
-                <Link
-                  to="/auth"
-                  search={{ mode: "signup" }}
-                  onClick={() => setMenu(false)}
-                  className="block rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Get started
-                </Link>
-              )}
-            </div>
-          </aside>
-        </div>
-      ) : null}
     </>
   );
 }

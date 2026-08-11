@@ -42,29 +42,11 @@ import { hydrateWorkspace, syncUsageSnapshot } from "@/lib/usage";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { DiscoverMenu } from "@/components/discover-menu";
+import { platformNav, adminNavItem } from "@/lib/nav-items";
 
-const nav = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "#2563eb" },
-  { to: "/team", label: "Team & data", icon: Building2, color: "#0f766e" },
-  { to: "/squad", label: "Squad", icon: Users, color: "#059669" },
-  { to: "/calendar", label: "Calendar", icon: CalendarDays, color: "#0891b2" },
-  { to: "/training", label: "Training Designer", icon: ClipboardPen, color: "#7c3aed" },
-  { to: "/board", label: "Tactics Board", icon: Activity, color: "#16a34a" },
-  { to: "/logbook", label: "Logbook", icon: BookOpen, color: "#d97706" },
-  { to: "/gps", label: "GPS Import", icon: Radar, color: "#06b6d4" },
-  { to: "/blocks", label: "Block comparison", icon: Layers, color: "#0284c7" },
-  { to: "/rpe", label: "Manual RPE load", icon: Gauge, color: "#db2777" },
-  { to: "/alerts", label: "Alerts", icon: BellRing, color: "#dc2626" },
-  { to: "/analytics", label: "Analytics", icon: BarChart3, color: "#4f46e5" },
-  { to: "/compare", label: "Compare & Graphs", icon: GitCompare, color: "#9333ea" },
-  { to: "/ai", label: "AI Assistant", icon: BrainCircuit, color: "#9333ea" },
-  { to: "/reports", label: "Reports", icon: FileText, color: "#ea580c" },
-  { to: "/manual", label: "Manual", icon: LifeBuoy, color: "#0d9488" },
-  { to: "/assistant", label: "Smarty Assistant", icon: Sparkles, color: "#3B82F6" },
-] as const;
-
-
-const adminItem = { to: "/admin", label: "Admin panel", icon: Shield, color: "#111827" } as const;
+const nav = platformNav;
+const adminItem = adminNavItem;
 
 export function AppShell({
   title,
@@ -221,9 +203,7 @@ export function AppShell({
                   <Shield className="size-3.5" /> Return to admin
                 </Button>
               ) : null}
-              <Link to="/" className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
-                Website
-              </Link>
+              <DiscoverMenu platformItems={navItems} />
 
               {actions}
               <Link
