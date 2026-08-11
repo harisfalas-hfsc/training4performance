@@ -53,6 +53,16 @@
   --color-pitch-line: var(--pitch-line);
   --color-surface-2: var(--surface-2);
 
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-green: var(--brand-green);
+  --color-brand-violet: var(--brand-violet);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-red: var(--brand-red);
+  --color-brand-indigo: var(--brand-indigo);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-teal: var(--brand-teal);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
