@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
+import { T4P, Training4Performance } from "@/components/brand-text";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/terms")({
       <Prose title="Terms & Conditions" updated="10 August 2026">
         <h2>1. Scope</h2>
         <p>
-          These terms govern the use of T4P (Training 4 Performance), a software-as-a-service platform for football
+          These terms govern the use of <T4P /> (<Training4Performance />), a software-as-a-service platform for football
           fitness, performance and training management ("the Service"). By creating an account or using the
           Service, the subscribing club, organisation or individual ("the Customer") accepts these terms.
         </p>
@@ -53,21 +54,21 @@ export const Route = createFileRoute("/terms")({
         <h2>5. Customer data and roles</h2>
         <p>
           The Customer remains the controller of all player, staff and performance data entered into the Service.
-          T4P acts as a processor on the Customer's behalf under Article 28 GDPR. Health-related data (injury,
+          <T4P /> acts as a processor on the Customer's behalf under Article 28 GDPR. Health-related data (injury,
           diagnosis, rehabilitation) is accessible to the staff users the Customer invites to its workspace; the
           Customer is responsible for limiting those invitations to authorised personnel.
         </p>
 
         <h2>6. Availability</h2>
         <p>
-          T4P aims for high availability but does not guarantee uninterrupted access. Planned maintenance is
+          <T4P /> aims for high availability but does not guarantee uninterrupted access. Planned maintenance is
           communicated in advance where reasonably possible. No warranty is given that the Service will be free of
           errors.
         </p>
 
         <h2>7. Liability</h2>
         <p>
-          T4P is a decision-support tool. It does not provide medical advice and does not replace professional
+          <T4P /> is a decision-support tool. It does not provide medical advice and does not replace professional
           judgement by qualified coaching or medical staff. To the maximum extent permitted by applicable law,
           liability is limited to the fees paid by the Customer in the twelve months preceding the event giving
           rise to the claim. Nothing limits liability for death, personal injury caused by negligence, fraud, or
@@ -76,7 +77,7 @@ export const Route = createFileRoute("/terms")({
 
         <h2>8. Termination</h2>
         <p>
-          A subscription runs for the full season and may be terminated at the end of that period. T4P may suspend
+          A subscription runs for the full season and may be terminated at the end of that period. <T4P /> may suspend
           or terminate access in the event of material breach of these terms or non-payment, following notice.
           On termination, the Customer may request an export of its data within 30 days.
         </p>
@@ -89,7 +90,7 @@ export const Route = createFileRoute("/terms")({
 
         <h2>10. Governing law</h2>
         <p>
-          These terms are governed by the law of the European Union member state in which T4P is established, with
+          These terms are governed by the law of the European Union member state in which <T4P /> is established, with
           mandatory consumer protection rules of the customer's country of residence remaining unaffected. Disputes
           are subject to the competent courts of that jurisdiction. EU consumers may also use the European Online
           Dispute Resolution platform.

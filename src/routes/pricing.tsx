@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P } from "@/components/brand-text";
 import { currentSeason, useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/pricing")({
@@ -56,7 +57,7 @@ function Pricing() {
             One price, one season, one team
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
-            The T4P season runs from <strong className="text-foreground">1 June to 31 May</strong>. Current season:{" "}
+            The <T4P /> season runs from <strong className="text-foreground">1 June to 31 May</strong>. Current season:{" "}
             {season.label} ({season.start} → {season.end}).
           </p>
         </div>

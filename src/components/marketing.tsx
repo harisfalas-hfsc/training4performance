@@ -3,6 +3,7 @@ import { LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { SmartyAssistant } from "@/components/smarty-assistant";
+import { Training4Performance } from "@/components/brand-text";
 
 import { DiscoverMenu } from "@/components/discover-menu";
 import { platformNav } from "@/lib/nav-items";
@@ -120,7 +121,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-surface-2/40">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-5 py-6 sm:flex-row sm:justify-between">
         <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
-          Training 4 Performance
+          <Training4Performance />
         </p>
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
           <Link to="/terms" className="hover:text-foreground">
@@ -135,7 +136,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="border-t border-border px-5 py-4 text-center text-[0.7rem] text-muted-foreground">
-        © {new Date().getFullYear()} Training 4 Performance. All rights reserved.
+        © {new Date().getFullYear()} <Training4Performance />. All rights reserved.
       </div>
     </footer>
   );

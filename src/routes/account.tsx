@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { currentSeason, useAuth } from "@/lib/auth";
 
@@ -93,7 +94,7 @@ function Account() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {user?.email}
-          {isAdmin ? <span className="ml-2 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary">T4P owner</span> : null}
+          {isAdmin ? <span className="ml-2 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary"><T4P /> owner</span> : null}
         </p>
         {clubName ? (
           <p className="mt-1 text-sm">
@@ -133,7 +134,7 @@ function Account() {
         {isAdmin ? (
           <div className="panel mt-8 flex flex-wrap items-center justify-between gap-3 p-5">
             <div>
-              <p className="eyebrow">T4P owner</p>
+              <p className="eyebrow"><T4P /> owner</p>
               <p className="mt-1 text-sm text-muted-foreground">Customer access, subscriptions and platform support.</p>
             </div>
             <Link to="/admin" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
