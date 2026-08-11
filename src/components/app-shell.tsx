@@ -146,7 +146,7 @@ export function AppShell({
         )}
       >
         <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-4">
-          <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-7 shrink-0 object-contain" />
+          <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-7 shrink-0 object-contain" />
 
           <div className="min-w-0 leading-tight">
             <p className="font-display text-sm font-semibold uppercase tracking-widest text-sidebar-foreground">
