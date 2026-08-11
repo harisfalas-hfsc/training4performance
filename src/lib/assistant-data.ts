@@ -32,7 +32,7 @@ export interface AssistantPlayer {
   position: string;
   number: number;
   availability: string;
-  age?: number;
+  age?: number | undefined;
   heightCm: number;
   weightKg: number;
   bodyFat: number;
