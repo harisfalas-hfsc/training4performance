@@ -642,8 +642,9 @@ function ReportsPage() {
                 <p className="eyebrow mb-2">
                   Player summary · {from} → {to} · {kpiCols.length} selected KPI(s)
                 </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[40rem] text-sm">
+                <div className="scroll-pane overflow-x-auto">
+                  <table className="w-full min-w-[46rem] whitespace-nowrap text-sm">
+
                     <thead>
                       <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                         <th className="py-2">Player</th>
