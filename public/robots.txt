@@ -1,7 +1,22 @@
 User-agent: Googlebot
 Allow: /
 
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
 User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: DuckDuckBot
 Allow: /
 
 User-agent: Twitterbot
@@ -10,5 +25,84 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /account
+Disallow: /reset-password
+Disallow: /portal
+Disallow: /dashboard
+Disallow: /squad
+Disallow: /team
+Disallow: /players
+Disallow: /calendar
+Disallow: /training
+Disallow: /blocks
+Disallow: /board
+Disallow: /gps
+Disallow: /rpe
+Disallow: /wellness
+Disallow: /logbook
+Disallow: /analytics
+Disallow: /compare
+Disallow: /reports
+Disallow: /alerts
+Disallow: /calculators
+Disallow: /manual
+Disallow: /admin
+Disallow: /ai
+Disallow: /assistant
+Disallow: /api/
+
+Sitemap: https://training4performance.com/sitemap.xml
