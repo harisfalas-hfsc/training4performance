@@ -1192,10 +1192,7 @@ export function matchName(rawName: string): { id: string | null; confidence: num
   return best.confidence >= 0.6 ? best : { id: null, confidence: best.confidence };
 }
 
-export const sampleImportNames = [
-  ...SALAMINA_PLAYERS.slice(0, 14).map((p) => p.raw),
-  "PAPADOPOULOS ANTONIS",
-];
+export const sampleImportNames: string[] = [];
 
 export function buildImportRows(): ImportRow[] {
   return sampleImportNames.map((raw, i) => {
