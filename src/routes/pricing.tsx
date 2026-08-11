@@ -3,20 +3,44 @@ import { Check, Sparkles } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { currentSeason, useAuth } from "@/lib/auth";
+import { breadcrumbLd, jsonLd, seoHead, OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
-    meta: [
-      { title: "Pricing — T4P Training 4 Performance" },
-      {
-        name: "description",
-        content:
-          "T4P costs €999 per season (1 June – 31 May) for one team, with unlimited players, unlimited staff users and every module included.",
-      },
-      { property: "og:title", content: "T4P Pricing — €999 per season" },
-      { property: "og:description", content: "One team, one season, every module included." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...seoHead({
+      path: "/pricing",
+      title: "Pricing — €999 Per Season | Football S&C Software | T4P",
+      description:
+        "T4P costs €999 per season (1 June – 31 May) for one football team: unlimited players, unlimited staff users, GPS, ACWR, testing, wellness and reporting included.",
+      keywords: [
+        "football performance management platform pricing",
+        "athlete monitoring system football price",
+        "S&C coach software subscription",
+      ],
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Pricing", path: "/pricing" },
+      ]),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: "T4P Team Season Subscription",
+        description:
+          "One season of T4P — Training 4 Performance for one football team: squad management, training design, GPS import, training load and ACWR, wellness, fitness testing, alerts and reports, with unlimited staff users.",
+        image: OG_IMAGE,
+        brand: { "@type": "Brand", name: SITE_NAME },
+        url: `${SITE_URL}/pricing`,
+        offers: {
+          "@type": "Offer",
+          price: "999",
+          priceCurrency: "EUR",
+          url: `${SITE_URL}/pricing`,
+          availability: "https://schema.org/InStock",
+          category: "Season subscription",
+        },
+      }),
     ],
   }),
   component: Pricing,

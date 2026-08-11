@@ -19,23 +19,36 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant } from "@/components/brand-text";
+import { breadcrumbLd, jsonLd, seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
-    meta: [
-      { title: "How T4P Works — Training 4 Performance" },
-      {
-        name: "description",
-        content:
-          "The real T4P flow: create your team, build the squad, complete each player profile, run fitness tests, design training in blocks, schedule it in the calendar, import GPS, and read load, ACWR, alerts and reports.",
-      },
-      { property: "og:title", content: "How T4P Works" },
-      {
-        property: "og:description",
-        content: "Team → squad → player profiles → tests → training design → calendar → GPS → load, alerts and reports.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...seoHead({
+      path: "/how-it-works",
+      title: "How It Works — GPS, Training Load & ACWR Workflow | T4P",
+      description:
+        "See the T4P workflow: create a team, build the squad, run fitness tests, design training in blocks, schedule sessions, import GPS data and read load, ACWR, alerts and reports.",
+      keywords: [
+        "football GPS data upload platform",
+        "training load monitoring football",
+        "soccer training session designer",
+        "football practice planner",
+      ],
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "How it works", path: "/how-it-works" },
+      ]),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqSchema.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
+      }),
     ],
   }),
   component: HowItWorks,
@@ -192,6 +205,38 @@ const faq = [
   {
     q: "Is my data protected?",
     a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
+  },
+];
+
+/** Plain-text mirror of the FAQ above, used only for FAQPage JSON-LD. */
+const faqSchema = [
+  {
+    q: "What does the subscription cost and what does it cover?",
+    a: "\u20ac999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
+  },
+  {
+    q: "Do I need a GPS system to use T4P?",
+    a: "No. RPE, duration, participation, wellness and test data alone already produce load, ACWR, monotony and strain. GPS simply adds resolution.",
+  },
+  {
+    q: "Which GPS providers are supported?",
+    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template \u2014 including your own club KPIs.",
+  },
+  {
+    q: "Can I change the ACWR formula?",
+    a: "Yes. You pick the KPIs and their weights, so the composite load \u2014 and therefore the acute to chronic workload ratio \u2014 reflects your own methodology rather than a fixed formula.",
+  },
+  {
+    q: "Can I edit or delete data after saving?",
+    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
+  },
+  {
+    q: "Can I browse before I subscribe?",
+    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
+  },
+  {
+    q: "Is my data protected?",
+    a: "Each account is fully isolated \u2014 you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
   },
 ];
 

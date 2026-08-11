@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
+import { breadcrumbLd, seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/disclaimer")({
   head: () => ({
-    meta: [
-      { title: "Disclaimer — T4P" },
-      {
-        name: "description",
-        content:
-          "Disclaimer for T4P: the platform is a decision-support tool and does not provide medical, diagnostic or legal advice.",
-      },
-      { property: "og:title", content: "Disclaimer — T4P" },
-      { property: "og:description", content: "Limits of use for the T4P performance platform." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+    ...seoHead({
+      path: "/disclaimer",
+      title: "Disclaimer | T4P Training 4 Performance",
+      description:
+        "T4P is a decision-support tool for football performance staff and does not provide medical, diagnostic or legal advice. Read the full disclaimer.",
+      card: "summary",
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Disclaimer", path: "/disclaimer" },
+      ]),
     ],
   }),
   component: () => (

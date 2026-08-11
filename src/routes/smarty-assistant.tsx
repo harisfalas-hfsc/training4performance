@@ -2,23 +2,26 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BarChart3, BrainCircuit, MessageSquare, Shield, Sparkles, Table2, Zap } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant } from "@/components/brand-text";
+import { breadcrumbLd, seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/smarty-assistant")({
   head: () => ({
-    meta: [
-      { title: "Smarty Assistant — T4P" },
-      {
-        name: "description",
-        content:
-          "Smarty Assistant is the AI analyst inside T4P. Ask questions about your squad, sessions, GPS and workload in plain language and get instant reports, comparisons and insights.",
-      },
-      { property: "og:title", content: "Smarty Assistant — T4P" },
-      {
-        property: "og:description",
-        content: "Ask your football performance data anything. Reports, comparisons and workload insights in seconds.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...seoHead({
+      path: "/smarty-assistant",
+      title: "Smarty Assistant — AI Football Performance Analyst | T4P",
+      description:
+        "Smarty Assistant is the AI analyst inside T4P. Ask about squad workload, GPS metrics, player comparisons and ACWR trends in plain language and get instant football performance reports.",
+      keywords: [
+        "soccer analytics dashboard",
+        "football training load report",
+        "football team performance comparison tool",
+      ],
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Smarty Assistant", path: "/smarty-assistant" },
+      ]),
     ],
   }),
   component: SmartyAssistantPage,

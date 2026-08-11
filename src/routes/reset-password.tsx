@@ -3,17 +3,17 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { supabase } from "@/integrations/supabase/client";
+import { seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
-    meta: [
-      { title: "Set a new password — T4P" },
-      { name: "description", content: "Choose a new password for your T4P coaching account." },
-      { property: "og:title", content: "Set a new T4P password" },
-      { property: "og:description", content: "Choose a new password for your T4P account." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    ...seoHead({
+      path: "/reset-password",
+      title: "Set a new password | T4P",
+      description: "Choose a new password for your T4P coaching account.",
+      card: "summary",
+      noindex: true,
+    }),
   }),
   component: ResetPassword,
 });

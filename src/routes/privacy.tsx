@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
+import { breadcrumbLd, seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
-    meta: [
-      { title: "Privacy Policy (GDPR) — T4P" },
-      {
-        name: "description",
-        content:
-          "How T4P collects, processes and protects personal data under the EU General Data Protection Regulation, including special-category health data.",
-      },
-      { property: "og:title", content: "Privacy Policy — T4P" },
-      { property: "og:description", content: "GDPR-compliant privacy information for T4P users and clubs." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+    ...seoHead({
+      path: "/privacy",
+      title: "Privacy Policy (GDPR) | T4P Training 4 Performance",
+      description:
+        "How T4P collects, processes and protects personal data under the EU GDPR, including special-category health data for football players and coaching staff.",
+      card: "summary",
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Privacy Policy", path: "/privacy" },
+      ]),
     ],
   }),
   component: () => (

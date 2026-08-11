@@ -1,19 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
+import { breadcrumbLd, seoHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
-    meta: [
-      { title: "Terms & Conditions — T4P" },
-      {
-        name: "description",
-        content: "Terms and conditions of use for the T4P (Training 4 Performance) football performance platform.",
-      },
-      { property: "og:title", content: "Terms & Conditions — T4P" },
-      { property: "og:description", content: "The contractual terms governing use of T4P." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+    ...seoHead({
+      path: "/terms",
+      title: "Terms & Conditions | T4P Training 4 Performance",
+      description:
+        "Terms and conditions of use for T4P (Training 4 Performance), the football performance management platform for strength and conditioning coaches.",
+      card: "summary",
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Terms & Conditions", path: "/terms" },
+      ]),
     ],
   }),
   component: () => (

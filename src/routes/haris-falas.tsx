@@ -1,24 +1,41 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
+import { breadcrumbLd, jsonLd, seoHead, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/haris-falas")({
   head: () => ({
-    meta: [
-      { title: "Haris Falas — Sports Scientist & S&C Coach | T4P" },
-      {
-        name: "description",
-        content:
-          "Haris Falas is a sports scientist and strength & conditioning coach who has worked with professional football teams in Cyprus, and the creator of T4P — Training 4 Performance.",
-      },
-      { property: "og:title", content: "Haris Falas — Creator of T4P" },
-      {
-        property: "og:description",
-        content:
-          "Sports scientist and strength & conditioning coach in professional football, creator of Training 4 Performance.",
-      },
-      { property: "og:type", content: "profile" },
-      { name: "twitter:card", content: "summary" },
+    ...seoHead({
+      path: "/haris-falas",
+      title: "Haris Falas — Sports Scientist & Football S&C Coach | T4P",
+      description:
+        "Haris Falas is a sports scientist and strength & conditioning coach in professional football in Cyprus, and the creator of T4P — Training 4 Performance.",
+      type: "profile",
+      card: "summary",
+      keywords: ["football fitness coach", "S&C coach software", "sports scientist football platform"],
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Haris Falas", path: "/haris-falas" },
+      ]),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: "Haris Falas",
+        jobTitle: "Sports Scientist & Strength and Conditioning Coach",
+        url: `${SITE_URL}/haris-falas`,
+        image: `${SITE_URL}/haris-falas.jpg`,
+        nationality: "Cypriot",
+        knowsAbout: [
+          "Football strength and conditioning",
+          "GPS player tracking",
+          "Training load monitoring",
+          "Acute to chronic workload ratio",
+          "Football fitness testing",
+        ],
+        worksFor: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
+      }),
     ],
   }),
   component: ProfilePage,

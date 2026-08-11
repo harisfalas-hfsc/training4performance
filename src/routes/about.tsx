@@ -3,23 +3,45 @@ import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Sparkles, Users
 
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
+import { breadcrumbLd, jsonLd, seoHead, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
-    meta: [
-      { title: "About T4P — Training 4 Performance" },
-      {
-        name: "description",
-        content:
-          "T4P is one connected football performance system: squad availability and player passports, block-based session design, tactics board, GPS import, composite load and ACWR, wellness, testing, medical status, alerts and reports — created by Haris Falas.",
-      },
-      { property: "og:title", content: "About T4P — Training 4 Performance" },
-      {
-        property: "og:description",
-        content: "Why T4P exists, what it connects and who built it.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    ...seoHead({
+      path: "/about",
+      title: "About T4P — Football Sports Science Platform for Coaches",
+      description:
+        "T4P connects squad availability, player passports, session design, GPS import, composite load and ACWR, wellness, testing and reports — built by sports scientist Haris Falas.",
+      keywords: [
+        "football sports science platform",
+        "sports scientist football platform",
+        "academy fitness coach software",
+        "first team performance staff software",
+      ],
+    }),
+    scripts: [
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "About", path: "/about" },
+      ]),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        name: "About Training 4 Performance",
+        url: `${SITE_URL}/about`,
+        mainEntity: {
+          "@type": "Organization",
+          name: SITE_NAME,
+          url: `${SITE_URL}/`,
+          logo: `${SITE_URL}/logo-t4p.png`,
+          founder: {
+            "@type": "Person",
+            name: "Haris Falas",
+            jobTitle: "Sports Scientist & Strength and Conditioning Coach",
+            url: `${SITE_URL}/haris-falas`,
+          },
+        },
+      }),
     ],
   }),
 

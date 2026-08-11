@@ -1,0 +1,43 @@
+# Training 4 Performance (T4P)
+
+> T4P — Training 4 Performance is a football (soccer) performance management platform for strength & conditioning coaches, fitness coaches and sports scientists. It connects squad management, training design, GPS import, training-load and ACWR analytics, athlete wellness, fitness testing, alerts and reporting in one workspace.
+
+- Website: https://training4performance.com/
+- Creator: Haris Falas, sports scientist and strength & conditioning coach in professional football (Cyprus)
+- Price: EUR 999 per season, per team. Season runs 1 June to 31 May. Unlimited players, unlimited staff users, every module included.
+- Language: English. Hosting and data processing: European infrastructure, GDPR.
+
+## What T4P does
+
+- Squad management: player passports, positions, availability, medical status.
+- Training design: block-based session builder, drill library, tactical board (football and futsal pitches, full/half/quarter, portrait/landscape), strength prescriptions with sets, reps, load and rest.
+- Training calendar: match-day cycle (MD-4 to MD+1) planning, planned vs actual RPE and duration.
+- GPS import: automatic detection for Catapult, STATSports, GPEXE and Polar exports, plus a mappable template for any other provider or custom club KPIs. GPS files can auto-create missing players and auto-anchor unplanned sessions.
+- Training load: composite load model built from user-chosen KPIs and weights (total distance, high-speed running, accelerations, decelerations, jumps, RPE x duration).
+- ACWR: acute:chronic workload ratio with research-backed colour bands — under 0.80 undertrained, 0.80–1.30 sweet spot, 1.30–1.50 caution, above 1.50 high risk — plus training monotony and strain.
+- Wellness: daily player questionnaire (sleep, fatigue, soreness, stress, mood, readiness) with squad trends and baseline deviation.
+- Player portal: players log in with coach-issued email/password or access code to complete wellness and view only their own graphs; coaches control which reports each player can see.
+- Fitness testing: test battery with 40+ KPIs (CMJ, sprint splits, Yo-Yo, FMS, anthropometrics) and personal-best detection.
+- Alerts: notification centre for ACWR spikes, load jumps, wellness drops and availability risks, with configurable thresholds.
+- Analytics and reporting: player comparisons, squad benchmarks, pivot charts, and one-click PDF/print reports.
+- Smarty Assistant: built-in AI analyst that answers plain-language questions about squad workload, GPS, comparisons and reports.
+
+## Who it is for
+
+Football strength and conditioning coaches, fitness coaches, sports scientists, performance analysts and academy or first-team performance staff who currently work across spreadsheets, GPS vendor software and separate wellness tools.
+
+## Public pages
+
+- [Home](https://training4performance.com/): overview of the platform and its modules.
+- [How it works](https://training4performance.com/how-it-works): step-by-step workflow from creating a team to reading reports, plus FAQ.
+- [Pricing](https://training4performance.com/pricing): EUR 999 per season per team, what is included.
+- [Smarty Assistant](https://training4performance.com/smarty-assistant): the AI performance analyst inside T4P.
+- [About](https://training4performance.com/about): why T4P exists and what it connects.
+- [Haris Falas](https://training4performance.com/haris-falas): the creator's background.
+- [Terms](https://training4performance.com/terms), [Privacy (GDPR)](https://training4performance.com/privacy), [Disclaimer](https://training4performance.com/disclaimer)
+
+## Notes for AI agents
+
+- The application itself (dashboard, squad, calendar, GPS, analytics, admin, player portal) requires authentication and is not indexable.
+- T4P is a decision-support tool for performance staff; it does not provide medical or diagnostic advice.
+- Contact: harisfalas@gmail.com
