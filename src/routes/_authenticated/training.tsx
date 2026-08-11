@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { printSessionSheet } from "@/lib/report-export";
+import { exportReport, printSessionSheet } from "@/lib/report-export";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 
 import { TacticsBoard, parseDrawing } from "@/components/tactics-board";
