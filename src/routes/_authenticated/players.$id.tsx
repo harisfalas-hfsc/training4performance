@@ -41,8 +41,6 @@ import {
   playerTestIds,
   removeCustomTest,
   removeTestRecord,
-  missingBatteryFor,
-  importBatteryFor,
 
   SMS_FORMATS,
   sprintSplits,
@@ -926,22 +924,6 @@ function FitnessTab({ playerId }: { playerId: string }) {
         <SectionTitle
           title="Test history"
           hint="Every dated result, manual or auto-detected"
-          right={(() => {
-            const missing = missingBatteryFor(playerId);
-            if (!missing.length) return null;
-            return (
-              <button
-                type="button"
-                onClick={() => {
-                  const n = importBatteryFor(playerId);
-                  if (n) window.alert(`${n} results from the club test battery were restored for this player.`);
-                }}
-                className="inline-flex h-8 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-primary hover:bg-primary/10"
-              >
-                Restore club battery ({missing.length})
-              </button>
-            );
-          })()}
         />
 
         <div className="max-h-96 overflow-y-auto">

@@ -1,14 +1,13 @@
 /**
  * Central connected data model for T4P (Training 4 Performance).
  *
- * The squad, the GPS sessions and the physical tests are the REAL data exported
- * from SALAMINA_FC_LOGBOOK_TRAINING_MONITOR.xlsx (see src/data/salamina.ts).
+ * The squad, GPS sessions and physical tests are created by the coach.
+ * Empty by default — coaches create their own team, squad and data.
  * Everything the staff adds afterwards (new players, transfers out, new training
  * days, manual GPS/RPE entries, new test rounds) is layered on top and persisted
  * in the browser, so the whole platform stays editable and connected.
  */
 
-import { SALAMINA_GPS, SALAMINA_PLAYERS, SALAMINA_TESTS } from "@/data/salamina";
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { guardWrite } from "@/lib/access";
@@ -192,108 +191,36 @@ export interface MedicalEvent {
 }
 
 export const team: Team = {
-  id: "team-salamina-1",
+  id: "team-unassigned",
   name: "First Team",
-  club: "Salamina FC",
+  club: "Your club",
   season: "2025/26",
-  competition: "Cyprus League",
+  competition: "",
   ageGroup: "Senior",
   gender: "Male",
-  headCoach: "—",
-  fitnessCoach: "Haris Falas",
+  headCoach: "",
+  fitnessCoach: "",
 };
 
 export const squadName = "First Team Squad";
 
 /* ------------------------------------------------------------------ */
-/* Seed from the workbook                                              */
+/* No seed data — every workspace starts empty                         */
 /* ------------------------------------------------------------------ */
 
-const CATEGORY_RPE: Record<string, number> = {
-  "FULL TRAINING": 6,
-  "FRIENDLY MATCH": 8,
-  "RECOVERY - REGENERATION": 3,
-  "RETURN TO PLAY": 4,
-};
-
-const CATEGORY_STATUS: Record<string, TrainingStatus> = {
-  "FULL TRAINING": "Full Training",
-  "FRIENDLY MATCH": "Full Training",
-  "RECOVERY - REGENERATION": "Modified Training",
-  "RETURN TO PLAY": "Rehabilitation",
-};
-
 function seedPlayers(): Player[] {
-  return SALAMINA_PLAYERS.map((p) => ({
-    id: p.id,
-    firstName: p.firstName,
-    lastName: p.lastName,
-    dob: "",
-    position: p.position,
-    dominantLeg: "Right" as const,
-    nationality: "",
-    number: p.number,
-    heightCm: 0,
-    weightKg: p.weightKg ?? 0,
-    bodyFat: p.bodyFat ?? 0,
-    availability: "available" as Availability,
-    note: undefined,
-  }));
+  return [];
 }
 
 function seedGps(): GpsDay[] {
-  return SALAMINA_GPS.map(
-    ([date, playerId, category, minutes, distance, hsr, sprint, maxSpeed, accel, decel, jumps, energy, sprintEvents]) => ({
-      date,
-      playerId,
-      minutes,
-      distance,
-      hsr,
-      sprint,
-      maxSpeed,
-      accel,
-      decel,
-      rpe: CATEGORY_RPE[category] ?? 5,
-      status: CATEGORY_STATUS[category] ?? "Full Training",
-      category,
-      jumps,
-      energy,
-      sprintEvents,
-      avgSpeed: minutes ? +((distance / 1000 / (minutes / 60))).toFixed(2) : 0,
-    }),
-  );
+  return [];
 }
 
-const seedDates = [...new Set(SALAMINA_GPS.map((r) => r[0]))].sort();
-
-/** The real calendar day. Historical GPS dates must never masquerade as today. */
+/** The real calendar day. */
 export const today = new Date().toISOString().slice(0, 10);
 
-function dominantCategory(date: string) {
-  const counts: Record<string, number> = {};
-  SALAMINA_GPS.filter((r) => r[0] === date).forEach((r) => {
-    counts[r[2]] = (counts[r[2]] ?? 0) + 1;
-  });
-  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "FULL TRAINING";
-}
-
 function seedSessions(): Session[] {
-  return seedDates.map((date, i) => {
-    const cat = dominantCategory(date);
-    const rows = SALAMINA_GPS.filter((r) => r[0] === date);
-    const dur = Math.round(rows.reduce((a, r) => a + r[3], 0) / Math.max(1, rows.length));
-    return {
-      id: `s-${date}`,
-      date,
-      label: cat === "FRIENDLY MATCH" ? "MD" : `D${i + 1}`,
-      title: cat,
-      durationMin: dur,
-      objective: cat === "FRIENDLY MATCH" ? "Friendly match" : "Session recorded from GPS export",
-      plannedRpe: CATEGORY_RPE[cat] ?? 5,
-      actualRpe: CATEGORY_RPE[cat] ?? 5,
-      drills: [],
-    };
-  });
+  return [];
 }
 
 /* ------------------------------------------------------------------ */
@@ -364,7 +291,7 @@ export interface WorkspaceData {
   medicalEvents: MedicalEvent[];
 }
 
-const STORAGE_KEY = "t4p.data.v1";
+const STORAGE_KEY = "t4p.data.v2";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -1078,12 +1005,7 @@ export interface Wellness {
   mood: number;
 }
 
-export const wellnessToday: Wellness[] = players.map((p, i) => {
-  const rnd = seeded(500 + i * 17);
-  const base = p.availability === "available" ? 3.6 : 2.6;
-  const r = () => Math.max(1, Math.min(5, +(base + rnd() * 1.4 - 0.6).toFixed(1)));
-  return { playerId: p.id, sleep: r(), fatigue: r(), soreness: r(), stress: r(), mood: r() };
-});
+export const wellnessToday: Wellness[] = [];
 
 export const wellnessScore = (w: Wellness) =>
   +(((w.sleep + w.fatigue + w.soreness + w.stress + w.mood) / 25) * 100).toFixed(0);
@@ -1101,18 +1023,8 @@ export function testPlayerId(first: string, last: string): string | null {
   return hit?.id ?? players.find((p) => normName(p.lastName).startsWith(l.slice(0, 5)))?.id ?? null;
 }
 
-export function testingHistory(id: string): TestResult[] {
-  const p = getPlayer(id);
-  if (!p) return [];
-  const rows = SALAMINA_TESTS.filter((t) => testPlayerId(t.first, t.last) === id);
-  return rows.map((t) => ({
-    date: t.date,
-    cmj: t.cmj ?? 0,
-    sprint10: 0,
-    sprint30: 0,
-    maxSpeed: +Math.max(...playerDays(id).map((d) => d.maxSpeed), 0).toFixed(1),
-    yoyo: t.yoyoDistance ?? 0,
-  }));
+export function testingHistory(_id: string): TestResult[] {
+  return [];
 }
 
 export const playerMedical = (id: string) => medicalEvents.filter((m) => m.playerId === id);
@@ -1264,10 +1176,7 @@ export function matchName(rawName: string): { id: string | null; confidence: num
   return best.confidence >= 0.6 ? best : { id: null, confidence: best.confidence };
 }
 
-export const sampleImportNames = [
-  ...SALAMINA_PLAYERS.slice(0, 14).map((p) => p.raw),
-  "PAPADOPOULOS ANTONIS",
-];
+export const sampleImportNames: string[] = [];
 
 export function buildImportRows(): ImportRow[] {
   return sampleImportNames.map((raw, i) => {

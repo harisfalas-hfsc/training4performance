@@ -282,7 +282,7 @@ export const LIFT_PATTERNS: LiftPattern[] = [
 /* Custom (user) library, persisted locally                            */
 /* ------------------------------------------------------------------ */
 
-const KEY = "t4p.library.v1";
+const KEY = "t4p.library.v2";
 
 /** A saved block: the block name plus every drill/exercise inside it. */
 export interface SavedBlock {

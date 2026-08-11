@@ -114,7 +114,7 @@ function Account() {
                 className="control"
                 value={clubName}
                 onChange={(e) => setClubName(e.target.value)}
-                placeholder="e.g. Salamina FC — first team"
+                placeholder="e.g. Your club — first team"
               />
             </label>
           </div>
