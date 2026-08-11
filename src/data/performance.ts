@@ -1007,6 +1007,13 @@ export interface Wellness {
 
 export const wellnessToday: Wellness[] = [];
 
+/** Replaces today's wellness snapshot (fed by the wellness store). */
+export function setWellnessToday(list: Wellness[]) {
+  wellnessToday.splice(0, wellnessToday.length, ...list);
+  version++;
+  listeners.forEach((l) => l());
+}
+
 export const wellnessScore = (w: Wellness) =>
   +(((w.sleep + w.fatigue + w.soreness + w.stress + w.mood) / 25) * 100).toFixed(0);
 
