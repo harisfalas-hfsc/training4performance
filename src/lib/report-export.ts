@@ -269,3 +269,91 @@ export function exportReport(format: string, payload: ReportPayload) {
         : "Pop-up blocked, printable HTML downloaded instead.";
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Training session sheet (A4 portrait, print-to-PDF)                  */
+/* ------------------------------------------------------------------ */
+
+export interface SessionSheetPayload {
+  club: string;
+  date: string;
+  label: string;
+  type: string;
+  group: string;
+  objective: string;
+  minutes: number;
+  rpe: number;
+  load: number;
+  blocks: Array<{
+    name: string;
+    minutes: number;
+    items: Array<{ drill: string; detail: string }>;
+  }>;
+}
+
+export function sessionSheetHtml(s: SessionSheetPayload) {
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(s.type)} — ${esc(s.date)}</title>
+<style>
+@page{size:A4 portrait;margin:12mm}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#111;margin:0}
+header{display:flex;align-items:center;gap:14px;border-bottom:3px solid ${BRAND};padding:14px 18px}
+.mark{width:42px;height:42px;border-radius:10px;background:${BRAND};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+h1{font-size:19px;margin:0}
+p.sub{color:#555;margin:3px 0 0;font-size:12px}
+.wrap{padding:14px 18px}
+.cards{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.card{border:1px solid #e2e2e2;border-top:3px solid ${BRAND};border-radius:8px;padding:8px 12px;min-width:120px}
+.card span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666}
+.card strong{font-size:18px}
+.block{border:1px solid #e6e6e6;border-radius:8px;padding:10px 12px;margin-bottom:10px;page-break-inside:avoid}
+.block h2{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:${BRAND};margin:0 0 6px;display:flex;justify-content:space-between}
+.block li{font-size:12px;margin-bottom:4px}
+.block li em{display:block;font-style:normal;color:#666;font-size:11px}
+.empty{font-size:11px;color:#999}
+.note{font-size:10.5px;color:#666;border-top:1px solid #eee;padding-top:8px;margin-top:10px;line-height:1.5}
+footer{font-size:10px;color:#888;display:flex;justify-content:space-between;margin-top:14px;border-top:1px solid #eee;padding-top:8px}
+</style></head><body>
+<header><div class="mark">T4P</div><div>
+<h1>${esc(s.type)} — ${esc(s.label)}</h1>
+<p class="sub">${esc(s.club)} · ${esc(s.date)} · ${esc(s.group)}${s.objective ? ` · ${esc(s.objective)}` : ""}</p>
+</div></header>
+<div class="wrap">
+<div class="cards">
+<div class="card"><span>Duration</span><strong>${s.minutes} min</strong></div>
+<div class="card"><span>Planned RPE</span><strong>${s.rpe || "—"}</strong></div>
+<div class="card"><span>Planned load</span><strong>${s.load} AU</strong></div>
+<div class="card"><span>Blocks</span><strong>${s.blocks.length}</strong></div>
+</div>
+${s.blocks
+    .map(
+      (b, i) => `<div class="block"><h2><span>${i + 1}. ${esc(b.name)}</span><span>${b.minutes} min</span></h2>
+${
+        b.items.length
+          ? `<ol>${b.items.map((it) => `<li>${esc(it.drill)}<em>${esc(it.detail)}</em></li>`).join("")}</ol>`
+          : `<p class="empty">Nothing planned in this block yet.</p>`
+      }</div>`,
+    )
+    .join("")}
+<p class="note"><strong>How the numbers are calculated.</strong> Duration = the sum of the minutes of every item you placed in the blocks (if no item has minutes yet, the duration saved on the day is used).
+RPE = the duration-weighted average of the RPE you set per item (session RPE, Borg CR10 0–10 scale).
+Load = RPE × duration, expressed in AU (Arbitrary Units, the standard session-RPE training-load unit). A 66-minute session at RPE 6 = 396 AU.
+Load is 0 only when neither an RPE nor minutes have been entered on the items.</p>
+<footer><span>Training 4 Performance · training4performance.com</span><span>Generated ${esc(stamp())}</span></footer>
+</div></body></html>`;
+}
+
+/** Opens the session sheet in a new tab and triggers print-to-PDF. */
+export function printSessionSheet(s: SessionSheetPayload) {
+  const html = sessionSheetHtml(s);
+  const w = window.open("", "_blank");
+  if (!w) {
+    saveBlob(new Blob([html], { type: "text/html" }), `${slug(s.type)}-${s.date}.html`);
+    return false;
+  }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 400);
+  return true;
+}
