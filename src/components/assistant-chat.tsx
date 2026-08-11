@@ -173,7 +173,7 @@ function detectChartRequest(text: string): { player: string | undefined; metric:
 }
 
 function buildFallbackChart(
-  request: { player?: string; metric?: string; kind: ChartKind },
+  request: { player: string | undefined; metric: string | undefined; kind: ChartKind },
   ctx: AssistantWorkspaceContext | null,
 ): ChartSpec | undefined {
   if (!ctx || ctx.playerDateMetrics.length === 0) return undefined;
