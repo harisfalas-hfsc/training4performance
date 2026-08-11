@@ -11,6 +11,7 @@ import {
   type Session,
   type Team,
 } from "@/data/performance";
+import { applyTestRecords, testRecordsSnapshot, type TestRecord } from "@/data/testing";
 import type { Json } from "@/integrations/supabase/types";
 import { canWrite } from "@/lib/access";
 import { getWorkspaceScope } from "@/lib/workspace-scope";
@@ -21,7 +22,7 @@ export async function hydrateWorkspace(userId: string) {
   activeWorkspaceUser = userId;
   const { data, error } = await supabase
     .from("workspace_data")
-    .select("team,players,sessions,gps_history,gps_blocks,rpe_entries,manual_tests,medical_events")
+    .select("team,players,sessions,gps_history,gps_blocks,rpe_entries,manual_tests,medical_events,test_records")
     .eq("user_id", userId)
     .maybeSingle();
   if (error || activeWorkspaceUser !== userId) return;
@@ -48,6 +49,8 @@ export async function hydrateWorkspace(userId: string) {
     manualTests: data.manual_tests as unknown as ManualTest[],
     medicalEvents: data.medical_events as unknown as MedicalEvent[],
   });
+  const cloudTests = (data.test_records ?? []) as unknown as TestRecord[];
+  if (Array.isArray(cloudTests) && cloudTests.length) applyTestRecords(cloudTests);
 }
 
 export async function syncWorkspace(userId: string) {
@@ -66,6 +69,7 @@ export async function syncWorkspace(userId: string) {
       rpe_entries: toJson(data.rpeEntries),
       manual_tests: toJson(data.manualTests),
       medical_events: toJson(data.medicalEvents),
+      test_records: toJson(testRecordsSnapshot()),
     },
     { onConflict: "user_id" },
   );
