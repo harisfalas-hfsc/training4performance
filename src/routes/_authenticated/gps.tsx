@@ -441,12 +441,12 @@ function GpsPage() {
       subtitle={
         session
           ? `${session.date} · ${session.label} — ${session.title}${parsed ? ` · file: ${parsed.fileName}` : ""}`
-          : "Select a training session to import into"
+          : `No calendar entry — an empty session will be created for ${targetDate}${parsed ? ` · file: ${parsed.fileName}` : ""}`
       }
       actions={
         <button
           onClick={runImport}
-          disabled={needsConfirm > 0 || uploading || !session || !matched || !can("importGps")}
+          disabled={needsConfirm > 0 || uploading || !matched || !can("importGps")}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           <Upload className="size-4" /> Import {matched} rows
@@ -456,13 +456,13 @@ function GpsPage() {
       <section className="panel mb-4 p-4">
         <SectionTitle
           title="Associate this file with a training"
-          hint="GPS data is always written into a specific session — that is what drives load, alerts, reports and the logbook"
+          hint="GPS data is always written into a session — if there is no entry for that day, one is created automatically and you can design it later"
         />
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="field sm:col-span-2">
             <span className="field-label">Training session</span>
             <select className="control" value={sessionId} onChange={(e) => setSessionId(e.target.value)}>
-              {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
+              <option value={AUTO_SESSION}>No calendar entry — create an empty session for {targetDate}</option>
               {sessions.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.date} · {s.label} — {s.title} ({sessionStatus(s)})
@@ -481,11 +481,15 @@ function GpsPage() {
           </label>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          {session?.plan?.length
-            ? `This session has ${session.plan.length} planned block(s) — totals are split across them automatically.`
-            : "This session has no planned blocks — the file is stored as one whole-session record."}{" "}
+          {autoMode
+            ? `No training was designed for ${targetDate} — T4P creates an empty "Unplanned activity" session, stores the file in it and counts the load in ACWR. Open it later in the Training Designer to add the blocks you actually ran.`
+            : session?.plan?.length
+              ? `This session has ${session.plan.length} planned block(s) — totals are split across them automatically.`
+              : "This session has no planned blocks — the file is stored as one whole-session record."}{" "}
           If the file has its own date column, that date is used per row.
         </p>
+      </section>
+
       </section>
 
       <section className="panel p-4">
