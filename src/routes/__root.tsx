@@ -14,6 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RoleProvider } from "../lib/roles";
 import { AuthProvider } from "../lib/auth";
 import { Toaster } from "../components/ui/sonner";
+import { jsonLd, SITE_NAME, SITE_URL } from "../lib/seo";
+
 
 
 function NotFoundComponent() {
