@@ -98,14 +98,31 @@ function parseChartTag(text: string): { text: string; tag?: { player: string; me
   };
 }
 
+function findPlayerByName(name: string, ctx: AssistantWorkspaceContext | null) {
+  if (!ctx) return undefined;
+  const lower = name.toLowerCase();
+  // Exact/substring match either direction.
+  let player = ctx.playerDateMetrics.find(
+    (p) => p.playerName.toLowerCase().includes(lower) || lower.includes(p.playerName.toLowerCase()),
+  );
+  if (player) return player;
+  // Last-name heuristic: match last token.
+  const lastToken = lower.split(/\s+/).pop();
+  if (lastToken) {
+    player = ctx.playerDateMetrics.find((p) => {
+      const tokens = p.playerName.toLowerCase().split(/\s+/);
+      return tokens.some((t) => t === lastToken || t.startsWith(lastToken));
+    });
+  }
+  return player;
+}
+
 function buildChartFromTag(
   tag: { player: string; metric: string; kind: ChartKind },
   ctx: AssistantWorkspaceContext | null,
 ): ChartSpec | undefined {
   if (!ctx) return undefined;
-  const player = ctx.playerDateMetrics.find((p) =>
-    p.playerName.toLowerCase().includes(tag.player.toLowerCase()),
-  );
+  const player = findPlayerByName(tag.player, ctx);
   if (!player) return undefined;
   const metric = tag.metric;
   const label = CHART_METRIC_LABELS[metric] ?? metric;
