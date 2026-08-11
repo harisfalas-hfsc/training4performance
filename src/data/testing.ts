@@ -193,31 +193,9 @@ export function useTestVersion() {
 
 const rid = () => `tr-${Math.random().toString(36).slice(2, 10)}`;
 
-/** Seed the battery recorded in the club workbook. */
+/** No historical seed data — every workspace starts empty. */
 function seed(): TestRecord[] {
-  const out: TestRecord[] = [];
-  for (const t of SALAMINA_TESTS) {
-    const pid = testPlayerId(t.first, t.last);
-    if (!pid) continue;
-    const push = (testId: string, value: number | null | undefined) => {
-      if (value === null || value === undefined) return;
-      out.push({ id: rid(), playerId: pid, testId, date: t.date, value, source: "manual" });
-    };
-    push("weight", t.weight);
-    push("bodyFat", t.bf);
-    push("fmsOhs", t.ohs);
-    push("fmsAslR", t.aslR);
-    push("fmsAslL", t.aslL);
-    push("fmsHurdleR", t.hsR);
-    push("fmsHurdleL", t.hsL);
-    push("sj", t.sj);
-    push("sjR", t.sjR);
-    push("sjL", t.sjL);
-    push("cmj", t.cmj);
-    push("yoyoDistance", t.yoyoDistance);
-    push("yoyoMas", t.yoyoMas);
-  }
-  return out;
+  return [];
 }
 
 /* ------------------------------------------------------------------ */
