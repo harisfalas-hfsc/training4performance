@@ -200,29 +200,30 @@ function ReportsPage() {
     setToast(`Scheduled “${active.name}” · ${cadence} · ${format} → ${recipients}`);
   };
 
-  const sendNow = () => {
-    setToast(`“${active.name}” exported as ${format} for ${from} → ${to} and sent to ${recipients}.`);
-    setGenerated(true);
-  };
+  const sendNow = () => runExport(format);
 
   return (
     <AppShell
       title="Reports"
       subtitle={`Templates, audiences and scheduled exports · ${def.label} view`}
       actions={
-        <div className="flex gap-2">
-          <button onClick={duplicate} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
+        <div className="flex flex-wrap gap-2">
+          <button onClick={duplicate} className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-xs font-medium sm:flex-none sm:text-sm">
             <Plus className="size-4" /> New template
           </button>
           <button
-            onClick={() => setGenerated(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => {
+              setGenerated(true);
+              document.getElementById("report-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground sm:flex-none sm:text-sm"
           >
             Generate report
           </button>
         </div>
       }
     >
+
       {toast && (
         <div className="mb-4 rounded-md border border-success/40 bg-success/10 p-3 text-sm text-success">{toast}</div>
       )}
