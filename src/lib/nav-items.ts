@@ -3,6 +3,7 @@ import {
   BellRing,
   CalendarDays,
   ClipboardPen,
+  HeartPulse,
   LayoutDashboard,
   Building2,
   Calculator,
@@ -16,6 +17,7 @@ export const platformNav = [
   { to: "/team", label: "Team & players", icon: Building2, color: "#0f766e" },
   { to: "/calendar", label: "Calendar", icon: CalendarDays, color: "#0891b2" },
   { to: "/training", label: "Training Designer", icon: ClipboardPen, color: "#7c3aed" },
+  { to: "/wellness", label: "Wellness", icon: HeartPulse, color: "#db2777" },
   { to: "/alerts", label: "Alerts", icon: BellRing, color: "#dc2626" },
   { to: "/analytics", label: "Analytics & Reports", icon: BarChart3, color: "#4f46e5" },
 ] as const;
