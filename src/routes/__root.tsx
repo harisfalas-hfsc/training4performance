@@ -117,7 +117,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/site.webmanifest" },
     ],
+    scripts: [
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: SITE_NAME,
+        alternateName: "T4P",
+        url: `${SITE_URL}/`,
+        logo: `${SITE_URL}/logo-t4p.png`,
+        description:
+          "Training 4 Performance (T4P) is a football sports science platform for strength and conditioning coaches: squad management, GPS training load, ACWR, fitness testing, wellness and reporting.",
+        email: "harisfalas@gmail.com",
+        founder: {
+          "@type": "Person",
+          name: "Haris Falas",
+          jobTitle: "Sports Scientist & Strength and Conditioning Coach",
+          url: `${SITE_URL}/haris-falas`,
+        },
+        sameAs: [`${SITE_URL}/about`, `${SITE_URL}/haris-falas`],
+      }),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: SITE_NAME,
+        alternateName: "T4P",
+        url: `${SITE_URL}/`,
+        inLanguage: "en",
+        publisher: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
+      }),
+    ],
   }),
+
 
   shellComponent: RootShell,
   component: RootComponent,
