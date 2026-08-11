@@ -50,8 +50,9 @@ export function SiteHeader() {
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
             <div ref={avatarRef} className="relative shrink-0">
+              <button
+                onClick={() => setAvatar((v) => !v)}
 
-              onClick={() => setAvatar((v) => !v)}
               aria-label="Account menu"
               className="grid size-9 place-items-center rounded-full border border-border bg-surface-2 text-xs font-semibold uppercase"
             >
