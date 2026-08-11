@@ -28,12 +28,12 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
+      <header className="sticky top-0 z-30 bg-background/90 backdrop-blur">
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-1 sm:px-5">
           <DiscoverMenu platformItems={platformNav} />
 
           <Link to="/" className="flex min-w-0 items-center justify-center" aria-label="Training 4 Performance home">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-14 shrink-0 object-contain sm:size-16" />
+            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-12 shrink-0 object-contain" />
           </Link>
 
 
@@ -43,9 +43,9 @@ export function SiteHeader() {
                 onClick={() => setAvatar((v) => !v)}
 
               aria-label="Account menu"
-              className="grid size-9 place-items-center rounded-full border-2 border-primary bg-primary/10 text-xs font-semibold uppercase text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+              className="grid size-12 place-items-center rounded-full text-sm font-semibold uppercase text-primary transition-opacity hover:opacity-70"
             >
-              {session ? initials : <User className="size-4" />}
+              {session ? initials : <User className="size-6" />}
             </button>
             {avatar ? (
               <div className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-panel">
