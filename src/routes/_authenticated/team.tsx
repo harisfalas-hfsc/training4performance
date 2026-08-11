@@ -166,7 +166,7 @@ function TeamPage() {
           />
           <form onSubmit={submit} className="mt-3 grid gap-3 sm:grid-cols-2">
             <Field label="Club *">
-              <input className="inp" value={form.club} onChange={set("club")} placeholder="e.g. Salamina FC" />
+              <input className="inp" value={form.club} onChange={set("club")} placeholder="e.g. Your club" />
             </Field>
             <Field label="Team *">
               <input className="inp" value={form.name} onChange={set("name")} placeholder="e.g. First Team" />
