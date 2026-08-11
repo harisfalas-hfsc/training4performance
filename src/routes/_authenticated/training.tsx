@@ -415,7 +415,19 @@ function TrainingPage() {
     }
   };
 
+  /** Delete the day and move the selection to a neighbouring day. */
+  const deleteDay = () => {
+    if (!session) return;
+    if (!window.confirm(`Delete ${session.date} — ${session.title}? This cannot be undone.`)) return;
+    const rest = sessionCalendar.filter((s) => s.id !== session.id);
+    removeSession(session.id);
+    setSelectedId(rest[rest.length - 1]?.id ?? "");
+    setStep(1);
+    flash("Training day deleted");
+  };
+
   const counts = STATUS.map((s) => ({ s, n: Object.values(participation).filter((v) => v === s).length }));
+
 
   if (!session) {
     return (
