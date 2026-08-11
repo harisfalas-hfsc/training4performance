@@ -56,7 +56,7 @@ const nav = [
   { to: "/ai", label: "AI Assistant", icon: BrainCircuit, color: "#9333ea" },
   { to: "/reports", label: "Reports", icon: FileText, color: "#ea580c" },
   { to: "/manual", label: "Manual", icon: LifeBuoy, color: "#0d9488" },
-  { to: "/smarty-assistant", label: "Smarty Assistant", icon: Sparkles, color: "#3B82F6" },
+  { to: "/assistant", label: "Smarty Assistant", icon: Sparkles, color: "#3B82F6" },
 ] as const;
 
 
