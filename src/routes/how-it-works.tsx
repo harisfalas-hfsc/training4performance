@@ -208,6 +208,38 @@ const faq = [
   },
 ];
 
+/** Plain-text mirror of the FAQ above, used only for FAQPage JSON-LD. */
+const faqSchema = [
+  {
+    q: "What does the subscription cost and what does it cover?",
+    a: "\u20ac999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
+  },
+  {
+    q: "Do I need a GPS system to use T4P?",
+    a: "No. RPE, duration, participation, wellness and test data alone already produce load, ACWR, monotony and strain. GPS simply adds resolution.",
+  },
+  {
+    q: "Which GPS providers are supported?",
+    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template \u2014 including your own club KPIs.",
+  },
+  {
+    q: "Can I change the ACWR formula?",
+    a: "Yes. You pick the KPIs and their weights, so the composite load \u2014 and therefore the acute to chronic workload ratio \u2014 reflects your own methodology rather than a fixed formula.",
+  },
+  {
+    q: "Can I edit or delete data after saving?",
+    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
+  },
+  {
+    q: "Can I browse before I subscribe?",
+    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
+  },
+  {
+    q: "Is my data protected?",
+    a: "Each account is fully isolated \u2014 you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
+  },
+];
+
 function HowItWorks() {
   return (
     <MarketingPage>
