@@ -8,7 +8,7 @@ import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/
 /* Test catalogue — every KPI the fitness coach can record             */
 /* ------------------------------------------------------------------ */
 
-export type TestGroup = "Anthropometry" | "FMS" | "Jump" | "Speed" | "Endurance" | "Strength";
+export type TestGroup = "Anthropometry" | "FMS" | "Screen" | "Jump" | "Speed" | "Endurance" | "Strength" | "Custom";
 
 export interface TestDef {
   id: string;
@@ -24,9 +24,12 @@ export interface TestDef {
   /** left/right pair partner, used for asymmetry */
   pairWith?: string;
   side?: "L" | "R";
+  /** built by the coach in the custom test builder */
+  custom?: boolean;
 }
 
-export const TEST_CATALOG: TestDef[] = [
+const BASE_TEST_CATALOG: TestDef[] = [
+
   { id: "weight", name: "Body weight", group: "Anthropometry", unit: "kg", higher: false },
   { id: "bodyFat", name: "Body fat", group: "Anthropometry", unit: "%", higher: false },
   { id: "leanMass", name: "Lean mass", group: "Anthropometry", unit: "kg", higher: true },
@@ -45,6 +48,15 @@ export const TEST_CATALOG: TestDef[] = [
   { id: "fmsTrunk", name: "Trunk stability push-up", group: "FMS", unit: "score", higher: true, score: true },
   { id: "fmsRotary", name: "Rotary stability", group: "FMS", unit: "score", higher: true, score: true },
 
+  // Screen (SMS) — usable as a 3-movement or 5-movement battery
+  { id: "smsSquat", name: "SMS · Squat pattern", group: "Screen", unit: "score", higher: true, score: true },
+  { id: "smsLunge", name: "SMS · Lunge pattern", group: "Screen", unit: "score", higher: true, score: true },
+  { id: "smsHinge", name: "SMS · Hinge pattern", group: "Screen", unit: "score", higher: true, score: true },
+  { id: "smsPush", name: "SMS · Push / pull pattern", group: "Screen", unit: "score", higher: true, score: true },
+  { id: "smsRotation", name: "SMS · Rotation / anti-rotation", group: "Screen", unit: "score", higher: true, score: true },
+  { id: "smsTotal", name: "SMS · Total score", group: "Screen", unit: "score", higher: true },
+
+
   { id: "sj", name: "Squat jump — two legs", group: "Jump", unit: "cm", higher: true },
   { id: "sjR", name: "Squat jump — right leg", group: "Jump", unit: "cm", higher: true, side: "R", pairWith: "sjL" },
   { id: "sjL", name: "Squat jump — left leg", group: "Jump", unit: "cm", higher: true, side: "L", pairWith: "sjR" },
@@ -56,6 +68,8 @@ export const TEST_CATALOG: TestDef[] = [
 
   { id: "sprint5", name: "5 m sprint", group: "Speed", unit: "s", higher: false },
   { id: "sprint10", name: "10 m sprint", group: "Speed", unit: "s", higher: false },
+  { id: "sprint15", name: "15 m sprint", group: "Speed", unit: "s", higher: false },
+
   { id: "sprint20", name: "20 m sprint", group: "Speed", unit: "s", higher: false },
   { id: "sprint30", name: "30 m sprint", group: "Speed", unit: "s", higher: false },
   { id: "maxSpeed", name: "Maximum speed", group: "Speed", unit: "km/h", higher: true },
@@ -87,11 +101,45 @@ export const TEST_CATALOG: TestDef[] = [
   { id: "pushPress", name: "Push press", group: "Strength", unit: "kg", higher: true, strength: true },
 ];
 
-export const TEST_GROUPS: TestGroup[] = ["Anthropometry", "FMS", "Jump", "Speed", "Endurance", "Strength"];
+export const TEST_GROUPS: TestGroup[] = [
+  "Anthropometry",
+  "FMS",
+  "Screen",
+  "Jump",
+  "Speed",
+  "Endurance",
+  "Strength",
+  "Custom",
+];
+
+/** The three-movement and five-movement SMS presets. */
+export const SMS_FORMATS = {
+  3: ["smsSquat", "smsLunge", "smsHinge"],
+  5: ["smsSquat", "smsLunge", "smsHinge", "smsPush", "smsRotation"],
+} as const;
+
+/** Sprint gates in metres, used for split-speed maths. */
+export const SPRINT_GATES: Array<{ testId: string; metres: number }> = [
+  { testId: "sprint5", metres: 5 },
+  { testId: "sprint10", metres: 10 },
+  { testId: "sprint15", metres: 15 },
+  { testId: "sprint20", metres: 20 },
+  { testId: "sprint30", metres: 30 },
+];
+
+/**
+ * Coach-defined tests. They live alongside the presets and behave exactly the
+ * same way everywhere: history, trends, personal bests, asymmetry, reports.
+ */
+export const customTests: TestDef[] = [];
+
+/** Presets + the coach's own tests. Rebuilt whenever the library changes. */
+export const TEST_CATALOG: TestDef[] = [...BASE_TEST_CATALOG];
 
 export const getTestDef = (id: string) => TEST_CATALOG.find((t) => t.id === id);
 export const testLabel = (id: string) => getTestDef(id)?.name ?? id;
 export const testUnit = (id: string) => getTestDef(id)?.unit ?? "";
+
 
 /* ------------------------------------------------------------------ */
 /* Records store                                                       */
@@ -172,9 +220,116 @@ function seed(): TestRecord[] {
   return out;
 }
 
+/* ------------------------------------------------------------------ */
+/* Custom test builder                                                 */
+/* ------------------------------------------------------------------ */
+
+const CUSTOM_KEY = "t4p.customtests.v1";
+
+/** What kind of number the coach records for a custom test. */
+export type CustomTestKind = "number" | "time" | "score" | "strength";
+
+export interface CustomTestInput {
+  name: string;
+  /** free text unit — cm, s, kg, reps, score, m/s… */
+  unit: string;
+  kind: CustomTestKind;
+  /** true = a bigger number is a better result */
+  higher: boolean;
+  /** record left and right separately and derive asymmetry */
+  sided: boolean;
+}
+
+function rebuildCatalog() {
+  TEST_CATALOG.splice(0, TEST_CATALOG.length, ...BASE_TEST_CATALOG, ...customTests);
+}
+
+function persistCustomTests() {
+  if (typeof window === "undefined") return;
+  const key = scopedStorageKey(CUSTOM_KEY);
+  try {
+    if (key) window.localStorage.setItem(key, JSON.stringify(customTests));
+  } catch {
+    /* quota */
+  }
+}
+
+function hydrateCustomTests(userId: string | null) {
+  customTests.splice(0, customTests.length);
+  if (typeof window !== "undefined" && userId) {
+    try {
+      const key = scopedStorageKey(CUSTOM_KEY, userId);
+      const raw = key ? window.localStorage.getItem(key) : null;
+      const parsed = raw ? (JSON.parse(raw) as TestDef[]) : null;
+      if (Array.isArray(parsed)) customTests.push(...parsed.map((d) => ({ ...d, custom: true as const })));
+    } catch {
+      /* corrupt */
+    }
+  }
+  rebuildCatalog();
+}
+
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .slice(0, 32) || "test";
+
+/**
+ * Creates a coach-defined test. When `sided` is set two linked definitions are
+ * produced (left / right) so asymmetry works out of the box.
+ */
+export function addCustomTest(input: CustomTestInput): TestDef[] {
+  if (!guardWrite()) return [];
+  const base = `custom-${slug(input.name)}`;
+  const unique = customTests.some((t) => t.id === base || t.id === `${base}-r`)
+    ? `${base}-${Math.random().toString(36).slice(2, 6)}`
+    : base;
+  const shared = {
+    group: "Custom" as const,
+    unit: input.unit || (input.kind === "time" ? "s" : input.kind === "strength" ? "kg" : "score"),
+    higher: input.kind === "time" ? false : input.higher,
+    ...(input.kind === "score" ? { score: true } : {}),
+    ...(input.kind === "strength" ? { strength: true } : {}),
+    custom: true as const,
+  };
+  const created: TestDef[] = input.sided
+    ? [
+        { ...shared, id: `${unique}-r`, name: `${input.name} — right`, side: "R", pairWith: `${unique}-l` },
+        { ...shared, id: `${unique}-l`, name: `${input.name} — left`, side: "L", pairWith: `${unique}-r` },
+      ]
+    : [{ ...shared, id: unique, name: input.name }];
+  customTests.push(...created);
+  persistCustomTests();
+  rebuildCatalog();
+  emit();
+  return created;
+}
+
+/** Removes a coach-defined test and every result recorded against it. */
+export function removeCustomTest(id: string) {
+  if (!guardWrite()) return;
+  const def = customTests.find((t) => t.id === id);
+  if (!def) return;
+  const ids = [id, ...(def.pairWith ? [def.pairWith] : [])];
+  for (const tid of ids) {
+    const i = customTests.findIndex((t) => t.id === tid);
+    if (i >= 0) customTests.splice(i, 1);
+    for (let r = testRecords.length - 1; r >= 0; r--) {
+      if (testRecords[r]!.testId === tid) testRecords.splice(r, 1);
+    }
+  }
+  persistCustomTests();
+  rebuildCatalog();
+  emit();
+}
+
 function hydrate(userId: string | null, migrateLegacy: boolean) {
   testRecords.splice(0, testRecords.length);
+  hydrateCustomTests(userId);
   if (typeof window === "undefined" || !userId) return;
+
   try {
     const key = scopedStorageKey(STORAGE_KEY, userId);
     if (!key) return;
@@ -262,6 +417,48 @@ export function testSeries(playerId: string, testId: string) {
     oneRm: def?.strength ? oneRepMax(r.value, r.reps ?? 1) : undefined,
   }));
 }
+
+/**
+ * Sprint gates recorded on a date, converted into split times and split
+ * speeds between consecutive gates (5→10 m, 10→15 m, …). The coach types the
+ * cumulative gate times only; every derived number comes from here.
+ */
+export function sprintSplits(playerId: string, date?: string) {
+  const gates = SPRINT_GATES.map((g) => {
+    const rows = playerRecords(playerId, g.testId);
+    const row = date ? rows.filter((r) => r.date === date).pop() : rows[rows.length - 1];
+    return row ? { ...g, time: row.value, date: row.date } : null;
+  }).filter((g): g is { testId: string; metres: number; time: number; date: string } => !!g && g.time > 0);
+
+  return gates.map((g, i) => {
+    const prev = gates[i - 1];
+    const dMetres = g.metres - (prev?.metres ?? 0);
+    const dTime = g.time - (prev?.time ?? 0);
+    const splitSpeed = dTime > 0 ? dMetres / dTime : 0;
+    return {
+      testId: g.testId,
+      label: prev ? `${prev.metres}–${g.metres} m` : `0–${g.metres} m`,
+      metres: g.metres,
+      date: g.date,
+      cumulativeTime: +g.time.toFixed(3),
+      splitTime: +dTime.toFixed(3),
+      splitSpeed: +splitSpeed.toFixed(2),
+      splitKmh: +(splitSpeed * 3.6).toFixed(2),
+      averageSpeed: +(g.metres / g.time).toFixed(2),
+    };
+  });
+}
+
+/** Dates on which at least one sprint gate was recorded. */
+export const sprintTestDates = (playerId: string) =>
+  Array.from(
+    new Set(
+      testRecords
+        .filter((r) => r.playerId === playerId && SPRINT_GATES.some((g) => g.testId === r.testId))
+        .map((r) => r.date),
+    ),
+  ).sort();
+
 
 export function squadTestRanking(testId: string) {
   const def = getTestDef(testId);

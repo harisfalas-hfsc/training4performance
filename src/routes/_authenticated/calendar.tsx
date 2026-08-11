@@ -1,20 +1,27 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Star, Trash2 } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, FileDown, Plus, Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import {
   addSession,
+  fullName,
+  players,
   removeSession,
   sessionCalendar,
   sessionStatus,
   setSessionStatus,
+  team,
   today,
   toggleSessionFavorite,
   useDataVersion,
   type SessionStatus,
 } from "@/data/performance";
+import { compositeAcwr, logbookRows } from "@/data/logbook";
+import { exportReport, type ReportPayload } from "@/lib/report-export";
 import { DAY_DESCRIPTIONS, SESSION_TYPES, sessionTypeOf } from "@/data/presets";
+
 
 
 export const Route = createFileRoute("/_authenticated/calendar")({
@@ -56,7 +63,89 @@ function CalendarPage() {
   const [cursor, setCursor] = useState(() => new Date(`${base.slice(0, 7)}-01T00:00:00`));
   const [filter, setFilter] = useState<"all" | SessionStatus | "favorite">("all");
   const [creating, setCreating] = useState<string | null>(null);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+  const [rangeFrom, setRangeFrom] = useState("");
+  const [rangeTo, setRangeTo] = useState("");
   const navigate = useNavigate();
+
+  const toggleDate = (date: string) =>
+    setSelectedDates((prev) => (prev.includes(date) ? prev.filter((d) => d !== date) : [...prev, date].sort()));
+
+  const togglePlayer = (id: string) =>
+    setSelectedPlayers((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
+
+  const addRange = () => {
+    if (!rangeFrom || !rangeTo) return;
+    const [a, b] = rangeFrom <= rangeTo ? [rangeFrom, rangeTo] : [rangeTo, rangeFrom];
+    const dates = [...new Set(sessionCalendar.map((s) => s.date))].filter((d) => d >= a && d <= b);
+    if (!dates.length) {
+      toast.error("No sessions in that range");
+      return;
+    }
+    setSelectedDates((prev) => [...new Set([...prev, ...dates])].sort());
+    toast.success(`Added ${dates.length} day(s) to the selection`);
+  };
+
+  /** One combined report over every selected day and player. */
+  const combinedPayload = (): ReportPayload => {
+    const dates = selectedDates;
+    const ids = selectedPlayers.length ? selectedPlayers : players.map((p) => p.id);
+    const rows = logbookRows.filter((r) => dates.includes(r.date) && ids.includes(r.playerId));
+    const asOf = dates[dates.length - 1] ?? today;
+    const byPlayer = ids
+      .map((id) => {
+        const mine = rows.filter((r) => r.playerId === id);
+        const p = players.find((x) => x.id === id);
+        if (!p || !mine.length) return null;
+        const sum = (f: (r: (typeof mine)[number]) => number) => Math.round(mine.reduce((a, r) => a + f(r), 0));
+        const load = compositeAcwr(id, undefined, 7, 28, asOf);
+        return [
+          fullName(p),
+          mine.length,
+          sum((r) => r.minutes),
+          sum((r) => r.distance).toLocaleString(),
+          sum((r) => r.hsr),
+          sum((r) => r.sprintDistance),
+          sum((r) => r.accel),
+          sum((r) => r.decel),
+          Math.max(...mine.map((r) => r.maxSpeed)).toFixed(1),
+          sum((r) => r.minutes * r.rpe),
+          load.acwr || "—",
+        ];
+      })
+      .filter((r): r is Array<string | number> => r !== null);
+
+    const totalDistance = rows.reduce((a, r) => a + r.distance, 0);
+    return {
+      title: "Combined session report",
+      club: `${team.club || "T4P"} · ${team.name || ""}`.trim(),
+      subtitle: `${dates.length} day(s) · ${byPlayer.length} player(s) · ${dates[0] ?? "—"} → ${dates[dates.length - 1] ?? "—"}`,
+      headline: [
+        { label: "Days", value: String(dates.length) },
+        { label: "Players", value: String(byPlayer.length) },
+        { label: "Records", value: String(rows.length) },
+        { label: "Total distance", value: `${Math.round(totalDistance).toLocaleString()} m` },
+      ],
+      columns: ["Player", "Sessions", "Minutes", "Distance", "HSR", "Sprint", "Accel", "Decel", "Max spd", "sRPE", "ACWR"],
+      rows: byPlayer,
+      observations: [
+        `Selected days: ${dates.join(", ") || "none"}.`,
+        `${rows.length} athlete-session records combined into one report.`,
+        `Mean distance per athlete-session: ${rows.length ? Math.round(totalDistance / rows.length).toLocaleString() : 0} m.`,
+      ],
+    };
+  };
+
+  const runCombined = (fmt: string) => {
+    if (!selectedDates.length) {
+      toast.error("Select at least one day first");
+      return;
+    }
+    toast.success(exportReport(fmt, combinedPayload()));
+  };
+
+
 
 
   const year = cursor.getFullYear();
@@ -144,10 +233,26 @@ function CalendarPage() {
               <div
                 key={date}
                 className={`min-h-24 rounded-md border p-1.5 ${
-                  date === today ? "border-primary bg-primary/5" : "border-border bg-surface-2"
+                  selectedDates.includes(date)
+                    ? "border-primary bg-primary/10"
+                    : date === today
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-surface-2"
                 }`}
               >
-                <p className="text-[0.68rem] text-muted-foreground">{Number(date.slice(-2))}</p>
+                <label className="flex items-center justify-between text-[0.68rem] text-muted-foreground">
+                  <span>{Number(date.slice(-2))}</span>
+                  {sessionCalendar.some((s) => s.date === date) ? (
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${date} for a combined report`}
+                      checked={selectedDates.includes(date)}
+                      onChange={() => toggleDate(date)}
+                      className="size-3.5 accent-[var(--color-primary)]"
+                    />
+                  ) : null}
+                </label>
+
                 <div className="mt-1 space-y-1">
                   {match(date).map((s) => {
                     const st = sessionStatus(s);
@@ -180,6 +285,78 @@ function CalendarPage() {
           )}
         </div>
       </section>
+
+      <section className="panel mt-4 p-4">
+        <SectionTitle
+          title="Combined report"
+          hint="Tick any days above — or add a whole date range — pick the players you want, and export one report for the lot."
+          right={
+            selectedDates.length ? (
+              <button onClick={() => setSelectedDates([])} className="text-xs text-muted-foreground underline">
+                Clear {selectedDates.length} day(s)
+              </button>
+            ) : undefined
+          }
+        />
+        <div className="grid gap-3 sm:grid-cols-4">
+          <label className="field">
+            <span className="field-label">Range from</span>
+            <input className="control" type="date" value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)} />
+          </label>
+          <label className="field">
+            <span className="field-label">Range to</span>
+            <input className="control" type="date" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} />
+          </label>
+          <div className="flex items-end gap-2">
+            <button onClick={addRange} className="rounded-md border border-border px-3 py-2 text-sm font-medium">
+              Add range
+            </button>
+            <button
+              onClick={() => setSelectedDates([...new Set(monthSessions.map((s) => s.date))].sort())}
+              className="rounded-md border border-border px-3 py-2 text-sm font-medium"
+            >
+              Whole month
+            </button>
+          </div>
+          <div className="flex items-end text-xs text-muted-foreground">
+            {selectedDates.length ? `${selectedDates.length} day(s) selected` : "No days selected yet"}
+          </div>
+        </div>
+
+        <p className="eyebrow mt-4">Players ({selectedPlayers.length || players.length} of {players.length})</p>
+        <div className="mt-1 flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setSelectedPlayers([])}
+            className={`rounded-full border px-2.5 py-1 text-xs ${selectedPlayers.length === 0 ? "border-primary bg-primary/10 text-primary" : "border-border"}`}
+          >
+            Whole squad
+          </button>
+          {players.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => togglePlayer(p.id)}
+              className={`rounded-full border px-2.5 py-1 text-xs ${selectedPlayers.includes(p.id) ? "border-primary bg-primary/10 text-primary" : "border-border"}`}
+            >
+              {fullName(p)}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {["PDF", "Excel", "CSV", "PNG"].map((f) => (
+            <button
+              key={f}
+              onClick={() => runCombined(f)}
+              disabled={!selectedDates.length}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              <FileDown className="size-4" /> {f}
+            </button>
+          ))}
+        </div>
+      </section>
+
+
 
       <section className="panel mt-4 p-4">
         <SectionTitle title="Month list" hint="Change the state of a day without opening it" />

@@ -28,16 +28,22 @@ import {
   type Position,
 } from "@/data/performance";
 import {
+  addCustomTest,
   addTestRecord,
   asymmetry,
   autoFindings,
   bestRecord,
+  customTests,
   getTestDef,
   latestRecord,
   oneRepMax,
   playerRecords,
   playerTestIds,
+  removeCustomTest,
   removeTestRecord,
+  SMS_FORMATS,
+  sprintSplits,
+  sprintTestDates,
   squadTestAverage,
   strengthPrescription,
   STRENGTH_GOALS,
@@ -47,9 +53,11 @@ import {
   testSeries,
   testUnit,
   useTestVersion,
+  type CustomTestKind,
   type StrengthGoal,
   type TestGroup,
 } from "@/data/testing";
+
 
 export const Route = createFileRoute("/_authenticated/players/$id")({
   loader: ({ params }) => {
@@ -562,7 +570,273 @@ function AddTestForm({ playerId, only }: { playerId: string; only?: TestGroup[] 
   );
 }
 
+/** Build a test that does not exist in the preset battery. */
+function CustomTestBuilder() {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [unit, setUnit] = useState("");
+  const [kind, setKind] = useState<CustomTestKind>("number");
+  const [higher, setHigher] = useState(true);
+  const [sided, setSided] = useState(false);
+
+  const create = () => {
+    if (!name.trim()) return;
+    const made = addCustomTest({ name: name.trim(), unit: unit.trim(), kind, higher, sided });
+    if (made.length) {
+      setName("");
+      setUnit("");
+      setSided(false);
+      setOpen(false);
+    }
+  };
+
+  return (
+    <div className="panel p-4 xl:col-span-2">
+      <SectionTitle
+        title="My own tests"
+        hint="Anything you build here behaves exactly like a preset test — history, trend, best, asymmetry"
+        right={
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+          >
+            {open ? <X className="size-3.5" /> : <Plus className="size-3.5" />} {open ? "Close" : "New test"}
+          </button>
+        }
+      />
+
+      {open ? (
+        <div className="mb-3 grid gap-2 rounded-md border border-border bg-surface-2 p-3 sm:grid-cols-2 xl:grid-cols-6">
+          <label className="field xl:col-span-2">
+            <span className="field-label">Test name</span>
+            <input className="control" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Isometric hip adduction" />
+          </label>
+          <label className="field">
+            <span className="field-label">What is recorded</span>
+            <select className="control" value={kind} onChange={(e) => setKind(e.target.value as CustomTestKind)}>
+              <option value="number">Number (distance, height, reps…)</option>
+              <option value="time">Time (lower is better)</option>
+              <option value="score">Score (0–3 screen style)</option>
+              <option value="strength">Load + reps (derives 1RM)</option>
+            </select>
+          </label>
+          <label className="field">
+            <span className="field-label">Unit</span>
+            <input className="control" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="cm, s, kg, N, reps" />
+          </label>
+          <label className="field">
+            <span className="field-label">Better result</span>
+            <select
+              className="control"
+              value={higher ? "higher" : "lower"}
+              disabled={kind === "time"}
+              onChange={(e) => setHigher(e.target.value === "higher")}
+            >
+              <option value="higher">Higher is better</option>
+              <option value="lower">Lower is better</option>
+            </select>
+          </label>
+          <label className="field">
+            <span className="field-label">Sides</span>
+            <select className="control" value={sided ? "sided" : "single"} onChange={(e) => setSided(e.target.value === "sided")}>
+              <option value="single">One value</option>
+              <option value="sided">Left &amp; right separately</option>
+            </select>
+          </label>
+          <div className="xl:col-span-6">
+            <button
+              type="button"
+              onClick={create}
+              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              <Check className="size-4" /> Save to my test library
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {customTests.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No custom tests yet. Everything in the preset battery is already available above — build your own only when you
+          measure something we do not ship.
+        </p>
+      ) : (
+        <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {customTests
+            .filter((t) => t.side !== "L")
+            .map((t) => (
+              <li key={t.id} className="flex items-center justify-between rounded-md border border-border bg-surface-2 px-3 py-2 text-sm">
+                <span>
+                  {t.side === "R" ? t.name.replace(/ — right$/, "") : t.name}
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {t.unit}
+                    {t.side === "R" ? " · L/R" : ""}
+                    {t.strength ? " · 1RM" : ""}
+                  </span>
+                </span>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Delete "${t.name}" and every result recorded against it?`)) removeCustomTest(t.id);
+                  }}
+                  aria-label="Delete custom test"
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </li>
+            ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** Movement screen recorded as a 3-movement or 5-movement battery. */
+function SmsScreenPanel({ playerId }: { playerId: string }) {
+  const [format, setFormat] = useState<3 | 5>(3);
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const ids = SMS_FORMATS[format];
+  const [scores, setScores] = useState<Record<string, string>>({});
+  const [saved, setSaved] = useState(false);
+
+  const total = ids.reduce((a, id) => a + (Number(scores[id]) || 0), 0);
+
+  const save = () => {
+    let wrote = false;
+    for (const id of ids) {
+      const v = Number(scores[id]);
+      if (!Number.isFinite(v) || scores[id] === undefined || scores[id] === "") continue;
+      addTestRecord({ playerId, testId: id, date, value: v, source: "manual", note: `SMS ${format}-movement` });
+      wrote = true;
+    }
+    if (wrote) {
+      addTestRecord({ playerId, testId: "smsTotal", date, value: total, source: "manual", note: `SMS ${format}-movement` });
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 1600);
+    }
+  };
+
+  return (
+    <div className="panel p-4">
+      <SectionTitle
+        title="Movement screen (SMS)"
+        hint="Score each movement 0–3 — the total is stored and trended for you"
+        right={
+          <select
+            className="control h-8 w-40 text-xs"
+            value={format}
+            onChange={(e) => setFormat(Number(e.target.value) as 3 | 5)}
+          >
+            <option value={3}>3-movement screen</option>
+            <option value={5}>5-movement screen</option>
+          </select>
+        }
+      />
+      <label className="field mb-2">
+        <span className="field-label">Screen date</span>
+        <input className="control" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      </label>
+      <div className="grid gap-2">
+        {ids.map((id) => {
+          const last = latestRecord(playerId, id);
+          return (
+            <div key={id} className="flex items-center gap-2 rounded-md border border-border bg-surface-2 px-3 py-2">
+              <span className="flex-1 text-sm">{testLabel(id).replace("SMS · ", "")}</span>
+              {last ? <span className="text-xs text-muted-foreground">last {last.value}</span> : null}
+              <div className="flex gap-1">
+                {[0, 1, 2, 3].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setScores((prev) => ({ ...prev, [id]: String(s) }))}
+                    className={`size-7 rounded-md border text-xs font-semibold ${
+                      scores[id] === String(s)
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-surface-1"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={save}
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+        >
+          {saved ? <Check className="size-4" /> : <Save className="size-4" />} Save screen
+        </button>
+        <span className="text-sm text-muted-foreground">
+          Total {total} / {format * 3}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Sprint gates in, split times and split speeds out. */
+function SprintSplitPanel({ playerId }: { playerId: string }) {
+  const dates = sprintTestDates(playerId);
+  const [date, setDate] = useState<string>(() => dates[dates.length - 1] ?? "");
+  const splits = sprintSplits(playerId, date || undefined);
+
+  return (
+    <div className="panel p-4">
+      <SectionTitle
+        title="Sprint splits"
+        hint="Record 5 / 10 / 15 / 20 / 30 m gate times above — split times and speeds are calculated here"
+        right={
+          dates.length ? (
+            <select className="control h-8 w-40 text-xs" value={date} onChange={(e) => setDate(e.target.value)}>
+              {dates.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          ) : undefined
+        }
+      />
+      {splits.length ? (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+              <th className="py-2">Segment</th>
+              <th className="text-right">Gate time</th>
+              <th className="text-right">Split time</th>
+              <th className="text-right">Split speed</th>
+              <th className="text-right">Average</th>
+            </tr>
+          </thead>
+          <tbody>
+            {splits.map((s) => (
+              <tr key={s.testId} className="border-b border-border/60">
+                <td className="py-1.5">{s.label}</td>
+                <td className="text-right tabular-nums">{s.cumulativeTime.toFixed(2)} s</td>
+                <td className="text-right tabular-nums">{s.splitTime.toFixed(2)} s</td>
+                <td className="text-right tabular-nums font-semibold">{s.splitKmh.toFixed(1)} km/h</td>
+                <td className="text-right tabular-nums">{(s.averageSpeed * 3.6).toFixed(1)} km/h</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          No sprint gate times yet. Add a 5, 10, 15, 20 or 30 m sprint above and the splits appear here automatically.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function FitnessTab({ playerId }: { playerId: string }) {
+
   const available = playerTestIds(playerId);
   const [kpi, setKpi] = useState(() => available.find((t) => t === "cmj") ?? available[0] ?? "cmj");
   const [compare, setCompare] = useState<string>("sj");
@@ -589,6 +863,11 @@ function FitnessTab({ playerId }: { playerId: string }) {
         <SectionTitle title="Record a test" hint="Type the number only — 1RM, asymmetry, personal bests and alerts are derived automatically" />
         <AddTestForm playerId={playerId} />
       </div>
+
+      <CustomTestBuilder />
+      <SmsScreenPanel playerId={playerId} />
+      <SprintSplitPanel playerId={playerId} />
+
 
       <div className="panel p-4">
         <SectionTitle
