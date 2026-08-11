@@ -15,6 +15,7 @@ import {
   today,
   updateSession,
   upsertGps,
+  upsertGpsBlock,
   useDataVersion,
 } from "@/data/performance";
 import { applyAutoFindings, detectSpeedPbs, findingPlayerName } from "@/data/testing";
@@ -124,7 +125,27 @@ function buildRows(parsed: ParsedFile, mapping: ColumnMapping[], segmentCol: str
 
 /** One athlete = one imported day. Segment rows are merged into that day. */
 interface AthleteRow extends Row {
-  parts: Array<{ segment: string; block: string; distance: number; minutes: number }>;
+  parts: Array<{
+    segment: string;
+    block: string;
+    distance: number;
+    minutes: number;
+    core: Partial<Record<CoreField, number>>;
+    extra: Record<string, number>;
+    extraLabels: Record<string, string>;
+  }>;
+}
+
+function partOf(r: Row, seg: string, segmentMap: Record<string, string>): AthleteRow["parts"][number] {
+  return {
+    segment: seg,
+    block: segmentMap[seg] ?? seg,
+    distance: r.core.distance ?? 0,
+    minutes: r.core.minutes ?? 0,
+    core: { ...r.core },
+    extra: { ...r.extra },
+    extraLabels: { ...r.extraLabels },
+  };
 }
 
 function groupRows(rows: Row[], combine: boolean, segmentMap: Record<string, string>): AthleteRow[] {
@@ -141,9 +162,7 @@ function groupRows(rows: Row[], combine: boolean, segmentMap: Record<string, str
         core: { ...r.core },
         extra: { ...r.extra },
         extraLabels: { ...r.extraLabels },
-        parts: seg
-          ? [{ segment: seg, block: segmentMap[seg] ?? seg, distance: r.core.distance ?? 0, minutes: r.core.minutes ?? 0 }]
-          : [],
+        parts: seg ? [partOf(r, seg, segmentMap)] : [],
       });
       continue;
     }
@@ -159,7 +178,7 @@ function groupRows(rows: Row[], combine: boolean, segmentMap: Record<string, str
     }
     for (const [k, v] of Object.entries(r.extra)) existing.extra[k] = (existing.extra[k] ?? 0) + v;
     Object.assign(existing.extraLabels, r.extraLabels);
-    if (seg) existing.parts.push({ segment: seg, block: segmentMap[seg] ?? seg, distance: r.core.distance ?? 0, minutes: r.core.minutes ?? 0 });
+    if (seg) existing.parts.push(partOf(r, seg, segmentMap));
   }
   return [...out.values()];
 }
@@ -323,8 +342,30 @@ function GpsPage() {
           extraLabels[mk] = `${p.block} · minutes`;
         }
       }
+      const day = r.date ?? session.date;
+      // one GPS record per block of the training, so the same block can be compared across days
+      for (const p of r.parts) {
+        const c2 = p.core;
+        upsertGpsBlock({
+          date: day,
+          playerId: r.matchedId!,
+          block: p.block,
+          minutes: c2.minutes ?? 0,
+          distance: c2.distance ?? 0,
+          hsr: c2.hsr ?? 0,
+          sprint: c2.sprint ?? 0,
+          maxSpeed: c2.maxSpeed ?? 0,
+          accel: c2.accel ?? 0,
+          decel: c2.decel ?? 0,
+          ...(c2.jumps !== undefined ? { jumps: c2.jumps } : {}),
+          ...(c2.energy !== undefined ? { energy: c2.energy } : {}),
+          ...(c2.avgSpeed !== undefined ? { avgSpeed: c2.avgSpeed } : {}),
+          ...(c2.sprintEvents !== undefined ? { sprintEvents: c2.sprintEvents } : {}),
+          ...(Object.keys(p.extra).length ? { extra: p.extra, extraLabels: p.extraLabels } : {}),
+        });
+      }
       upsertGps({
-        date: r.date ?? session.date,
+        date: day,
         playerId: r.matchedId!,
         minutes,
         distance: c.distance ?? 0,

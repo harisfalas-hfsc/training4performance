@@ -309,8 +309,30 @@ export interface ManualTest {
   value: number;
 }
 
+/** One GPS record for ONE block (part) of one training day, for one athlete. */
+export interface GpsBlockRow {
+  date: string;
+  playerId: string;
+  /** Block name inside the session, e.g. "BLOCK 2" or "SSG 4v4". */
+  block: string;
+  minutes: number;
+  distance: number;
+  hsr: number;
+  sprint: number;
+  maxSpeed: number;
+  accel: number;
+  decel: number;
+  jumps?: number;
+  energy?: number;
+  avgSpeed?: number;
+  sprintEvents?: number;
+  extra?: Record<string, number>;
+  extraLabels?: Record<string, string>;
+}
+
 export const players: Player[] = [];
 export const gpsHistory: GpsDay[] = [];
+export const gpsBlocks: GpsBlockRow[] = [];
 export const sessionCalendar: Session[] = [];
 export const manualTests: ManualTest[] = [];
 export const medicalEvents: MedicalEvent[] = [];
@@ -320,6 +342,7 @@ export interface WorkspaceData {
   players: Player[];
   sessions: Session[];
   gpsHistory: GpsDay[];
+  gpsBlocks: GpsBlockRow[];
   manualTests: ManualTest[];
   medicalEvents: MedicalEvent[];
 }
@@ -340,7 +363,7 @@ function persist() {
   try {
     window.localStorage.setItem(
       key,
-      JSON.stringify({ team, players, gpsHistory, sessionCalendar, manualTests, medicalEvents }),
+      JSON.stringify({ team, players, gpsHistory, gpsBlocks, sessionCalendar, manualTests, medicalEvents }),
     );
   } catch {
     /* quota — ignore */
@@ -359,6 +382,7 @@ export function workspaceSnapshot(): WorkspaceData {
     players: players.map((player) => ({ ...player })),
     sessions: sessionCalendar.map((session) => ({ ...session })),
     gpsHistory: gpsHistory.map((row) => ({ ...row })),
+    gpsBlocks: gpsBlocks.map((row) => ({ ...row })),
     manualTests: manualTests.map((test) => ({ ...test })),
     medicalEvents: medicalEvents.map((event) => ({ ...event })),
   };
@@ -369,6 +393,7 @@ export function applyWorkspaceData(data: Partial<WorkspaceData>) {
   if (data.players) replace(players, data.players);
   if (data.sessions) replace(sessionCalendar, data.sessions);
   if (data.gpsHistory) replace(gpsHistory, data.gpsHistory);
+  if (data.gpsBlocks) replace(gpsBlocks, data.gpsBlocks);
   if (data.manualTests) replace(manualTests, data.manualTests);
   if (data.medicalEvents) replace(medicalEvents, data.medicalEvents);
   emit();
@@ -382,6 +407,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
   if (typeof window === "undefined") return;
   replace(players, []);
   replace(gpsHistory, []);
+  replace(gpsBlocks, []);
   replace(sessionCalendar, []);
   replace(manualTests, []);
   replace(medicalEvents, []);
@@ -420,6 +446,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
       team?: Team;
       players?: Player[];
       gpsHistory?: GpsDay[];
+      gpsBlocks?: GpsBlockRow[];
       sessionCalendar?: Session[];
       manualTests?: ManualTest[];
       medicalEvents?: MedicalEvent[];
@@ -427,6 +454,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
     if (s.team) Object.assign(team, s.team);
     if (s.players?.length) replace(players, s.players);
     if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
+    if (s.gpsBlocks?.length) replace(gpsBlocks, s.gpsBlocks);
     if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
     if (s.manualTests) replace(manualTests, s.manualTests);
     if (s.medicalEvents) replace(medicalEvents, s.medicalEvents);
@@ -548,7 +576,10 @@ export function removeSession(id: string) {
   if (!guardWrite()) return;
   const s = sessionCalendar.find((x) => x.id === id);
   replace(sessionCalendar, sessionCalendar.filter((x) => x.id !== id));
-  if (s) replace(gpsHistory, gpsHistory.filter((g) => g.date !== s.date));
+  if (s) {
+    replace(gpsHistory, gpsHistory.filter((g) => g.date !== s.date));
+    replace(gpsBlocks, gpsBlocks.filter((g) => g.date !== s.date));
+  }
   emit();
 }
 
@@ -585,6 +616,83 @@ export function gpsValue(g: GpsDay, key: string): number {
   if (typeof core === "number") return core;
   return g.extra?.[key] ?? 0;
 }
+
+/* ---------- per-block GPS ---------- */
+
+/** Store (or replace) the GPS record of one block of one training day. */
+export function upsertGpsBlock(entry: GpsBlockRow) {
+  if (!guardWrite()) return;
+  const i = gpsBlocks.findIndex((g) => g.date === entry.date && g.playerId === entry.playerId && g.block === entry.block);
+  if (i >= 0) gpsBlocks[i] = { ...gpsBlocks[i]!, ...entry };
+  else gpsBlocks.push(entry);
+  emit();
+}
+
+/** Remove every block record of a training day (optionally only one athlete). */
+export function removeGpsBlocks(date: string, playerId?: string) {
+  if (!guardWrite()) return;
+  replace(
+    gpsBlocks,
+    gpsBlocks.filter((g) => !(g.date === date && (!playerId || g.playerId === playerId))),
+  );
+  emit();
+}
+
+/** Every block name that has at least one GPS record. */
+export function blocksWithGps(): string[] {
+  return [...new Set(gpsBlocks.map((g) => g.block))].sort((a, b) => a.localeCompare(b));
+}
+
+/** Read any metric — core or club-specific — off a block record. */
+export function gpsBlockValue(g: GpsBlockRow, key: string): number {
+  const core = (g as unknown as Record<string, unknown>)[key];
+  if (typeof core === "number") return core;
+  return g.extra?.[key] ?? 0;
+}
+
+export interface BlockOccurrence {
+  date: string;
+  block: string;
+  athletes: number;
+  /** Squad average of the selected metric. */
+  value: number;
+  /** Squad total of the selected metric. */
+  total: number;
+  minutes: number;
+  sessionTitle?: string;
+}
+
+/**
+ * The same block across every training day it was recorded in — so the coach can
+ * compare how much load the squad produced in the same drill on different days.
+ */
+export function blockOccurrences(block: string, metric: string, playerId?: string): BlockOccurrence[] {
+  const rows = gpsBlocks.filter((g) => g.block === block && (!playerId || g.playerId === playerId));
+  const byDate = new Map<string, GpsBlockRow[]>();
+  for (const r of rows) {
+    const list = byDate.get(r.date) ?? [];
+    list.push(r);
+    byDate.set(r.date, list);
+  }
+  return [...byDate.entries()]
+    .map(([date, list]) => {
+      const total = list.reduce((a, r) => a + gpsBlockValue(r, metric), 0);
+      const session = sessionCalendar.find((s) => s.date === date);
+      return {
+        date,
+        block,
+        athletes: list.length,
+        total: +total.toFixed(1),
+        value: +(total / (list.length || 1)).toFixed(1),
+        minutes: Math.round(list.reduce((a, r) => a + (r.minutes || 0), 0) / (list.length || 1)),
+        ...(session ? { sessionTitle: session.title } : {}),
+      };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** Block records of one training day. */
+export const blockRowsFor = (date: string) => gpsBlocks.filter((g) => g.date === date);
 
 export function removeGps(date: string, playerId: string) {
   if (!guardWrite()) return;
@@ -627,6 +735,7 @@ export function resetToWorkbook() {
   if (!guardWrite()) return;
   replace(players, seedPlayers());
   replace(gpsHistory, seedGps());
+  replace(gpsBlocks, []);
   replace(sessionCalendar, seedSessions());
   replace(manualTests, []);
   replace(medicalEvents, []);
@@ -656,6 +765,7 @@ export function clearWorkspaceRecords() {
   if (!guardWrite()) return false;
   replace(players, []);
   replace(gpsHistory, []);
+  replace(gpsBlocks, []);
   replace(sessionCalendar, []);
   replace(manualTests, []);
   replace(medicalEvents, []);
