@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead, webPageLd, FOUNDER_ID, ORGANIZATION_ID, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { breadcrumbLd, jsonLd, seoHead, webPageLd, FOUNDER_ID, ORGANIZATION_ID, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/haris-falas")({
   head: () => ({
@@ -30,6 +30,7 @@ export const Route = createFileRoute("/haris-falas")({
       jsonLd({
         "@context": "https://schema.org",
         "@type": "Person",
+        "@id": FOUNDER_ID,
         name: "Haris Falas",
         jobTitle: "Sports Scientist & Strength and Conditioning Coach",
         url: `${SITE_URL}/haris-falas`,
@@ -41,8 +42,12 @@ export const Route = createFileRoute("/haris-falas")({
           "Training load monitoring",
           "Acute to chronic workload ratio",
           "Football fitness testing",
+          "Football session design and periodisation",
+          "Player wellness and readiness monitoring",
         ],
-        worksFor: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
+        knowsLanguage: ["English", "Greek"],
+        worksFor: { "@id": ORGANIZATION_ID },
+        mainEntityOfPage: { "@id": `${SITE_URL}/haris-falas#webpage` },
       }),
     ],
   }),
