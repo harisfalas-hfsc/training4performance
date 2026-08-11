@@ -125,7 +125,7 @@ function buildChartFromTag(
   };
 }
 
-function detectChartRequest(text: string): { player?: string; metric?: string; kind: ChartKind } | undefined {
+function detectChartRequest(text: string): { player: string | undefined; metric: string | undefined; kind: ChartKind } | undefined {
   const lower = text.toLowerCase();
   const isChart = /\b(chart|graph|plot|trend|visual|visualize|visualise)\b/.test(lower);
   if (!isChart) return undefined;
