@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Users } from "lucide-react";
+import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Sparkles, Users } from "lucide-react";
+
 import { MarketingPage } from "@/components/marketing";
 
 export const Route = createFileRoute("/about")({
