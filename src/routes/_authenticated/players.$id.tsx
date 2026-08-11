@@ -60,17 +60,13 @@ import {
 
 
 export const Route = createFileRoute("/_authenticated/players/$id")({
-  loader: ({ params }) => {
+  head: ({ params }) => {
     const player = getPlayer(params.id);
-    if (!player) throw notFound();
-    return { name: fullName(player), position: player.position };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!player) {
       return { meta: [{ title: "Player not found — T4P" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.name} — Performance Passport`;
-    const description = `Fitness testing, GPS load, wellness, training participation and medical history for ${loaderData.name} (${loaderData.position}).`;
+    const title = `${fullName(player)} — Performance Passport`;
+    const description = `Fitness testing, GPS load, wellness, training participation and medical history for ${fullName(player)} (${player.position}).`;
     return {
       meta: [
         { title },
