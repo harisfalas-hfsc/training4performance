@@ -490,7 +490,7 @@ function GpsPage() {
         </p>
       </section>
 
-      </section>
+
 
       <section className="panel p-4">
         <SectionTitle
