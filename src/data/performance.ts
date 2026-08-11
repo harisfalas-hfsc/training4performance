@@ -1029,18 +1029,8 @@ export function testPlayerId(first: string, last: string): string | null {
   return hit?.id ?? players.find((p) => normName(p.lastName).startsWith(l.slice(0, 5)))?.id ?? null;
 }
 
-export function testingHistory(id: string): TestResult[] {
-  const p = getPlayer(id);
-  if (!p) return [];
-  const rows = SALAMINA_TESTS.filter((t) => testPlayerId(t.first, t.last) === id);
-  return rows.map((t) => ({
-    date: t.date,
-    cmj: t.cmj ?? 0,
-    sprint10: 0,
-    sprint30: 0,
-    maxSpeed: +Math.max(...playerDays(id).map((d) => d.maxSpeed), 0).toFixed(1),
-    yoyo: t.yoyoDistance ?? 0,
-  }));
+export function testingHistory(_id: string): TestResult[] {
+  return [];
 }
 
 export const playerMedical = (id: string) => medicalEvents.filter((m) => m.playerId === id);
