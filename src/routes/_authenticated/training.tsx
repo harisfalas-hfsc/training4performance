@@ -660,11 +660,11 @@ function TrainingPage() {
           <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               label="Planned duration"
-              value={plan.minutes || session.durationMin}
+              value={plan.minutes}
               unit="min"
               icon={<Timer className="size-4" />}
             />
-            <MetricCard label="Planned RPE" value={plan.plannedRpe || session.plannedRpe} hint="Duration-weighted" />
+            <MetricCard label="Planned RPE" value={plan.plannedRpe} hint="Calculated from added items" />
             <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`${blocks.length} blocks`} />
             <MetricCard
               label="Gym tonnage"
@@ -964,94 +964,6 @@ function TrainingPage() {
 
           </section>
 
-          <section className="panel mt-4 p-5">
-            <SectionTitle
-              title="Your saved blocks & trainings"
-              hint="Reuse anything you saved before — insert a block, or load a whole training into this day"
-            />
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div>
-                <p className="eyebrow mb-2">Saved blocks</p>
-                {savedBlocks().length === 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    Nothing yet — use “Save block” on any block above to reuse it another day.
-                  </p>
-                ) : (
-                  <ul className="space-y-2">
-                    {savedBlocks().map((sb) => (
-                      <li
-                        key={sb.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface-2 p-2.5"
-                      >
-                        <span className="text-sm">
-                          <span className="font-semibold">{sb.name}</span>{" "}
-                          <span className="text-xs text-muted-foreground">
-                            · {sb.items.length} item(s) · {sb.items.reduce((a, i) => a + (i.durationMin || 0), 0)} min
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => insertSavedBlock(sb.id)}
-                            className="h-7 rounded-md bg-primary px-2.5 text-[0.68rem] font-semibold text-primary-foreground"
-                          >
-                            Insert
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeSavedBlock(sb.id)}
-                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
-                          >
-                            Delete
-                          </button>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div>
-                <p className="eyebrow mb-2">Saved trainings</p>
-                {savedSessions().length === 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    Nothing yet — use “Save as template” in the preview step to reuse a whole training.
-                  </p>
-                ) : (
-                  <ul className="space-y-2">
-                    {savedSessions().map((t) => (
-                      <li
-                        key={t.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface-2 p-2.5"
-                      >
-                        <span className="text-sm">
-                          <span className="font-semibold">{t.name}</span>{" "}
-                          <span className="text-xs text-muted-foreground">
-                            · {t.blockNames.length} block(s) · {t.plan.length} item(s)
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => applyTemplate(t.id)}
-                            className="h-7 rounded-md bg-primary px-2.5 text-[0.68rem] font-semibold text-primary-foreground"
-                          >
-                            Load into this day
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeSavedSession(t.id)}
-                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
-                          >
-                            Delete
-                          </button>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </section>
         </>
       )}
 
@@ -1843,8 +1755,8 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
           type: form.type,
           blockNames: ["BLOCK 1"],
           objective: form.objective || `${form.type} session`,
-          durationMin: preset.defaultMinutes,
-          plannedRpe: preset.defaultRpe,
+          durationMin: 0,
+          plannedRpe: 0,
           drills: [],
           plan: [],
           group: form.group,
