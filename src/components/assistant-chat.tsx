@@ -118,7 +118,8 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
       const { threads } = await listThreads();
       const typed = (threads ?? []).map((t) => ({ ...t, title: t.title ?? "Chat" }));
       setThreads(typed);
-      if (typed.length > 0 && !activeThread) setActiveThread(typed[0].id);
+      if (typed.length > 0 && !activeThread) setActiveThread(typed[0]?.id ?? null);
+
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load threads");
     }
