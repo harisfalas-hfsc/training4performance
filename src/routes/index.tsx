@@ -101,14 +101,14 @@ function Home() {
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/40" />
         <div className="relative mx-auto max-w-6xl px-5 py-24 lg:py-36">
           <div className="max-w-3xl">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-white/70">Training 4 Performance</p>
-            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-white lg:text-6xl">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">Training 4 Performance</p>
+            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-foreground lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
-            <p className="mt-5 max-w-2xl text-base text-white/80 lg:text-lg">
+            <p className="mt-5 max-w-2xl text-base text-muted-foreground lg:text-lg">
               T4P is the daily companion for strength &amp; conditioning coaches in football. It brings every player
               record, training session, GPS report, wellness entry, test result and medical note into one connected
               workspace — so you spend less time switching files and more time coaching.
@@ -128,7 +128,8 @@ function Home() {
                 See how it works
               </Link>
             </div>
-            <p className="mt-4 text-xs text-white/60">€999 per season, per team · every module included</p>
+            <p className="mt-4 text-xs text-muted-foreground">€999 per season, per team · every module included</p>
+
           </div>
         </div>
       </section>
