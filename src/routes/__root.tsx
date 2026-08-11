@@ -14,7 +14,22 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RoleProvider } from "../lib/roles";
 import { AuthProvider } from "../lib/auth";
 import { Toaster } from "../components/ui/sonner";
-import { jsonLd, SITE_NAME, SITE_URL } from "../lib/seo";
+import {
+  jsonLd,
+  CONTACT_EMAIL,
+  ENTITY_DESCRIPTION,
+  FOUNDER_ID,
+  LOGO_ID,
+  OG_IMAGE,
+  ORGANIZATION_ID,
+  SITE_NAME,
+  SITE_SHORT_NAME,
+  SITE_URL,
+  SOFTWARE_ID,
+  TOPIC_ENTITIES,
+  WEBSITE_ID,
+} from "../lib/seo";
+
 
 
 
