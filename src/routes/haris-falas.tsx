@@ -83,12 +83,12 @@ function ProfilePage() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/about" className="rounded-md border border-border px-4 py-2 text-sm font-semibold">
+              <Link to="/about" className="rounded-full border-2 border-primary px-5 py-2 text-sm font-semibold text-primary">
                 About T4P
               </Link>
               <Link
                 to="/pricing"
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
               >
                 Pricing
               </Link>

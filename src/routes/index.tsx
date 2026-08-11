@@ -75,13 +75,13 @@ function Home() {
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground"
             >
               Get started <ArrowRight className="size-4" />
             </Link>
             <Link
               to="/how-it-works"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-border text-sm font-semibold"
+              className="inline-flex h-12 items-center justify-center rounded-full border-2 border-primary text-sm font-semibold text-primary"
             >
               See how it works
             </Link>
@@ -117,13 +117,13 @@ function Home() {
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="inline-flex h-12 items-center gap-2 rounded-md bg-primary px-7 text-sm font-semibold text-primary-foreground"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-sm font-semibold text-primary-foreground"
               >
                 Get started <ArrowRight className="size-4" />
               </Link>
               <Link
                 to="/how-it-works"
-                className="inline-flex h-12 items-center gap-2 rounded-md border border-white/40 px-7 text-sm font-semibold text-white"
+                className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-primary px-8 text-sm font-semibold text-primary"
               >
                 See how it works
               </Link>
@@ -254,13 +254,13 @@ function Home() {
           <Link
             to="/auth"
             search={{ mode: "signup" }}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground"
           >
             Get started <ArrowRight className="size-4" />
           </Link>
           <Link
             to="/pricing"
-            className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-3 text-sm font-semibold"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-7 py-3 text-sm font-semibold text-primary"
           >
             View pricing
           </Link>

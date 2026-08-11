@@ -42,7 +42,7 @@ export function SiteHeader() {
           </button>
 
           <Link to="/" className="flex min-w-0 items-center justify-center gap-2.5">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-11 shrink-0 object-contain sm:size-12" />
+            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-11 shrink-0 object-contain sm:size-12" />
             <span className="min-w-0 leading-tight">
               <span className="block font-display text-xl font-semibold uppercase tracking-[0.3em] sm:text-2xl">T4P</span>
             </span>
@@ -133,7 +133,7 @@ export function SiteHeader() {
                 <Link
                   to="/dashboard"
                   onClick={() => setMenu(false)}
-                  className="block rounded-md bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  className="block rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
                 >
                   Go to platform
                 </Link>
@@ -142,7 +142,7 @@ export function SiteHeader() {
                   to="/auth"
                   search={{ mode: "signup" }}
                   onClick={() => setMenu(false)}
-                  className="block rounded-md bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  className="block rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
                 >
                   Get started
                 </Link>
