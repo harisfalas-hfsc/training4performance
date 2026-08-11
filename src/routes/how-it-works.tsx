@@ -11,8 +11,10 @@ import {
   HeartPulse,
   Radar,
   Shield,
+  Sparkles,
   Users,
 } from "lucide-react";
+
 import type { LucideIcon } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 
