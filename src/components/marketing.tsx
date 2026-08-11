@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Compass, LogOut, User, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 import { cn } from "@/lib/utils";
 
 const links = [
