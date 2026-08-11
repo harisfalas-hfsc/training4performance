@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import { T4P } from "@/components/brand-text";
 import { WELLNESS_FIELDS, type WellnessField } from "@/data/wellness";
-import { portalLogin, portalPayload, portalSaveWellness, type PortalPayload } from "@/lib/portal.functions";
+import { portalLogin, portalPayload, portalSaveWellness, portalSignIn, type PortalPayload } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/portal")({
   component: PortalPage,
 });
 
-const CODE_KEY = "t4p.portalCode";
+const CODE_KEY = "t4p.portalToken";
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 type Answers = Record<WellnessField, number> & { sleepHours: number | null; note: string };
@@ -45,42 +45,63 @@ const blankAnswers = (): Answers => ({
 });
 
 function PortalPage() {
-  const [code, setCode] = useState("");
+  const [token, setToken] = useState("");
   const [payload, setPayload] = useState<PortalPayload | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const login = useServerFn(portalLogin);
+  const signIn = useServerFn(portalSignIn);
+  const loginWithCode = useServerFn(portalLogin);
   const fetchPayload = useServerFn(portalPayload);
 
-  const open = useCallback(
-    async (raw: string, quiet = false) => {
-      const value = raw.trim().toUpperCase();
-      if (value.length < 6) return;
+  const openWithToken = useCallback(
+    async (value: string, quiet = false) => {
       setLoading(true);
       try {
-        await login({ data: { code: value } });
         const data = await fetchPayload({ data: { code: value } });
         setPayload(data);
-        setCode(value);
+        setToken(value);
         window.localStorage.setItem(CODE_KEY, value);
       } catch {
         window.localStorage.removeItem(CODE_KEY);
-        if (!quiet) toast.error("That code is not valid. Ask your coach for a new one.");
+        setPayload(null);
+        if (!quiet) toast.error("Your access is not active. Ask your coach.");
       } finally {
         setLoading(false);
       }
     },
-    [login, fetchPayload],
+    [fetchPayload],
   );
 
   useEffect(() => {
     const saved = window.localStorage.getItem(CODE_KEY);
-    if (saved) void open(saved, true);
-  }, [open]);
+    if (saved) void openWithToken(saved, true);
+  }, [openWithToken]);
+
+  const withEmail = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const identity = await signIn({ data: { email, password } });
+      await openWithToken(identity.token);
+    } catch {
+      toast.error("Wrong email or password.");
+      setLoading(false);
+    }
+  };
+
+  const withCode = async (code: string) => {
+    setLoading(true);
+    try {
+      const identity = await loginWithCode({ data: { code: code.trim().toUpperCase() } });
+      await openWithToken(identity.token);
+    } catch {
+      toast.error("That code is not valid. Ask your coach for a new one.");
+      setLoading(false);
+    }
+  };
 
   const refresh = async () => {
-    if (!code) return;
-    const data = await fetchPayload({ data: { code } });
+    if (!token) return;
+    const data = await fetchPayload({ data: { code: token } });
     setPayload(data);
   };
 
@@ -94,7 +115,7 @@ function PortalPage() {
             <div className="min-w-0">
               <p className="text-sm font-semibold leading-tight">Player portal</p>
               <p className="truncate text-xs text-muted-foreground">
-                {payload ? `${payload.identity.playerName}` : "Sign in with your personal code"}
+                {payload ? payload.identity.playerName : "Sign in with the login your coach gave you"}
               </p>
             </div>
           </div>
@@ -105,7 +126,7 @@ function PortalPage() {
               onClick={() => {
                 window.localStorage.removeItem(CODE_KEY);
                 setPayload(null);
-                setCode("");
+                setToken("");
               }}
             >
               <LogOut className="size-3.5" /> Sign out
@@ -116,23 +137,36 @@ function PortalPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-6">
         {!payload ? (
-          <LoginCard loading={loading} onSubmit={(value) => void open(value)} />
+          <LoginCard loading={loading} onEmail={(e, p) => void withEmail(e, p)} onCode={(c) => void withCode(c)} />
         ) : (
-          <PortalHome payload={payload} code={code} onSaved={() => void refresh()} />
+          <PortalHome payload={payload} code={token} onSaved={() => void refresh()} />
         )}
       </main>
     </div>
   );
 }
 
-function LoginCard({ loading, onSubmit }: { loading: boolean; onSubmit: (code: string) => void }) {
-  const [value, setValue] = useState("");
+function LoginCard({
+  loading,
+  onEmail,
+  onCode,
+}: {
+  loading: boolean;
+  onEmail: (email: string, password: string) => void;
+  onCode: (code: string) => void;
+}) {
+  const [mode, setMode] = useState<"password" | "code">("password");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+
   return (
     <form
       className="panel mx-auto max-w-md space-y-4 p-6"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit(value);
+        if (mode === "password") onEmail(email, password);
+        else onCode(code);
       }}
     >
       <div className="flex items-center gap-2 text-primary">
@@ -140,21 +174,55 @@ function LoginCard({ loading, onSubmit }: { loading: boolean; onSubmit: (code: s
         <h1 className="text-lg font-semibold">Sign in to your portal</h1>
       </div>
       <p className="text-sm text-muted-foreground">
-        Your coach gave you a personal code. It only opens your own wellness questionnaire and your own graphs inside <T4P />.
+        Your coach created your login. It only opens your own wellness questionnaire and the reports he shared with you inside <T4P />.
       </p>
-      <input
-        className="control w-full text-center font-mono text-lg tracking-widest"
-        placeholder="ABC-DEF-GHJ"
-        autoCapitalize="characters"
-        value={value}
-        onChange={(e) => setValue(e.target.value.toUpperCase())}
-      />
+
+      {mode === "password" ? (
+        <>
+          <label className="flex flex-col gap-1">
+            <span className="eyebrow">Email</span>
+            <input
+              className="control w-full"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="eyebrow">Password</span>
+            <input
+              className="control w-full"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+        </>
+      ) : (
+        <input
+          className="control w-full text-center font-mono text-lg tracking-widest"
+          placeholder="ABC123DEF"
+          autoCapitalize="characters"
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+        />
+      )}
+
       <button
         type="submit"
         disabled={loading}
         className="w-full rounded-md bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
       >
         {loading ? "Checking…" : "Open my portal"}
+      </button>
+      <button
+        type="button"
+        className="w-full text-xs text-muted-foreground hover:underline"
+        onClick={() => setMode(mode === "password" ? "code" : "password")}
+      >
+        {mode === "password" ? "I only have an access code" : "I have an email and password"}
       </button>
     </form>
   );
