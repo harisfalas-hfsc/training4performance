@@ -34,7 +34,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
 
 interface Message {
   id: string;
@@ -56,6 +55,28 @@ const SUGGESTIONS = [
   "Summarise the last 5 training sessions",
   "What is the squad average wellness today?",
 ];
+
+function formatAnswer(text: string) {
+  return text.split("\n").map((line, i) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("- ")) {
+      return (
+        <li key={i} className="ml-4 list-disc">
+          {trimmed.slice(2)}
+        </li>
+      );
+    }
+    if (/^\d+\.\s/.test(trimmed)) {
+      return (
+        <li key={i} className="ml-4 list-decimal">
+          {trimmed.replace(/^\d+\.\s/, "")}
+        </li>
+      );
+    }
+    if (trimmed === "") return <br key={i} />;
+    return <p key={i}>{line}</p>;
+  });
+}
 
 export function AssistantChat({ onClose }: { onClose: () => void }) {
   const { session } = useAuth();
@@ -94,9 +115,10 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
 
   async function loadThreads() {
     try {
-      const { threads } = await listThreads({ data: {} });
-      setThreads(threads);
-      if (threads.length && !activeThread) setActiveThread(threads[0].id);
+      const { threads } = await listThreads();
+      const typed = (threads ?? []).map((t) => ({ ...t, title: t.title ?? "Chat" }));
+      setThreads(typed);
+      if (typed.length > 0 && !activeThread) setActiveThread(typed[0].id);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load threads");
     }
@@ -105,7 +127,14 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
   async function loadMessages(threadId: string) {
     try {
       const { messages } = await listMessages({ data: { threadId } });
-      setMessages(messages);
+      setMessages(
+        (messages ?? []).map((m) => ({
+          id: m.id,
+          role: (m.role as Message["role"]) ?? "assistant",
+          content: m.content ?? "",
+          created_at: m.created_at,
+        })),
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load messages");
     }
@@ -113,8 +142,8 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
 
   async function loadCredits() {
     try {
-      const { balance } = await getCredits({ data: {} });
-      setCredits(balance);
+      const { balance } = await getCredits();
+      setCredits(balance ?? 0);
     } catch {
       setCredits(0);
     }
@@ -123,8 +152,9 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
   async function handleNewThread() {
     try {
       const { thread } = await createThread({ data: { title: "New chat" } });
-      setThreads((prev) => [thread, ...prev]);
-      setActiveThread(thread.id);
+      const typed = { ...thread, title: thread.title ?? "New chat" };
+      setThreads((prev) => [typed, ...prev]);
+      setActiveThread(typed.id);
       setMessages([]);
       setView("chat");
     } catch (e) {
@@ -141,7 +171,7 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
       try {
         const { thread } = await createThread({ data: { title: input.trim().slice(0, 40) } });
         threadId = thread.id;
-        setThreads((prev) => [thread, ...prev]);
+        setThreads((prev) => [{ ...thread, title: thread.title ?? input.trim().slice(0, 40) }, ...prev]);
         setActiveThread(thread.id);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to start chat");
@@ -338,27 +368,31 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
               {messages.map((m) => (
                 <div key={m.id} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
                   <Avatar className="h-7 w-7 shrink-0">
-                    {m.role === "user" ? <AvatarFallback><User className="h-4 w-4" /></AvatarFallback> : <AvatarFallback className="bg-[#3B82F6] text-white"><Bot className="h-4 w-4" /></AvatarFallback>}
+                    {m.role === "user" ? (
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    ) : (
+                      <AvatarFallback className="bg-[#3B82F6] text-white">
+                        <Bot className="h-4 w-4" />
+                      </AvatarFallback>
+                    )}
                   </Avatar>
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                       m.role === "user" ? "bg-[#3B82F6] text-white" : "bg-slate-100 text-slate-900"
                     }`}
                   >
-                    {m.role === "assistant" ? (
-                      <div className="prose prose-sm max-w-none dark:prose-invert">
-                        <ReactMarkdown>{m.content || (loading ? "Thinking…" : "")}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      m.content
-                    )}
+                    {m.role === "assistant" ? formatAnswer(m.content || (loading ? "Thinking…" : "")) : m.content}
                   </div>
                 </div>
               ))}
               {loading && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex gap-3">
                   <Avatar className="h-7 w-7 shrink-0">
-                    <AvatarFallback className="bg-[#3B82F6] text-white"><Bot className="h-4 w-4" /></AvatarFallback>
+                    <AvatarFallback className="bg-[#3B82F6] text-white">
+                      <Bot className="h-4 w-4" />
+                    </AvatarFallback>
                   </Avatar>
                   <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm">
                     <Loader2 className="h-4 w-4 animate-spin" />
