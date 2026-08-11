@@ -5,7 +5,11 @@ import {
   ClipboardPen,
   LayoutDashboard,
   Building2,
+  Calculator,
+  LayoutGrid,
+  Satellite,
 } from "lucide-react";
+
 
 export const platformNav = [
   { to: "/dashboard", label: "Insights", icon: LayoutDashboard, color: "#2563eb" },
