@@ -94,8 +94,9 @@ const steps: Step[] = [
     icon: Sparkles,
     tone: "blue",
     t: "Ask Smarty Assistant",
-    d: "Click the floating T4P logo or open the Smarty Assistant page. Ask anything — "Who ran the most this week?", "Compare two players", "Give me a workload report" — and get answers, tables and charts from your own data.",
+    d: "Click the floating T4P logo or open the Smarty Assistant page. Ask anything — Who ran the most this week?, Compare two players, Give me a workload report — and get answers, tables and charts from your own data.",
   },
+
   {
     icon: BellRing,
     tone: "red",
