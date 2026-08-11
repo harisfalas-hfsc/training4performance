@@ -37,7 +37,6 @@ import {
   sessionStatus,
   setSessionStatus,
   today,
-  duplicateSession,
   toggleSessionFavorite,
   TRAINING_LOCATIONS,
   updateSession,
