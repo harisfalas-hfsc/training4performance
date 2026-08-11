@@ -126,8 +126,49 @@ function ReportsPage() {
   );
 
 
+  const payload: ReportPayload = useMemo(() => {
+    const kpiLabels = kpiCols.map((k) => pivotMetrics().find((m) => m.key === k)?.label ?? k);
+    return {
+      title: active.name,
+      club: `${team.club || "T4P"} · ${team.name || ""}`.trim(),
+      subtitle: `${active.audience} · ${team.season} · ${from} → ${to}${team.competition ? ` · ${team.competition}` : ""}`,
+      headline: [
+        { label: "Squad size", value: String(players.length) },
+        { label: "Mean HSR 7d", value: `${hsr.mean} m` },
+        { label: "Availability", value: `${availability}%` },
+        { label: "Wellness index", value: `${wellness}%` },
+      ],
+      columns: ["Player", ...kpiLabels, "Acute load", "ACWR", "Availability %"],
+      rows: reportRows.map((r) => [
+        fullName(r.player),
+        ...kpiCols.map((k) => r.values[k] ?? 0),
+        r.load.acute,
+        r.load.acwr || "—",
+        availabilitySummary(r.player.id).availability,
+      ]),
+      medical:
+        canSeeMedical && has("medical")
+          ? medicalEvents.map(
+              (e) =>
+                `${fullName(players.find((p) => p.id === e.playerId)!)} · ${e.type}: ${e.area} · ${e.from} → ${e.to} · ${e.daysLost} days lost · ${e.stage}`,
+            )
+          : [],
+      observations: [
+        `Mean high-speed running of ${hsr.mean} m per player over the last 7 days (sd ${hsr.sd} m).`,
+        `${metrics.filter((m) => m.load.acwr > 1.35).length} players above the upper acute:chronic monitoring threshold.`,
+        `Squad availability at ${availability}% across recorded sessions.`,
+      ],
+    };
+  }, [active, from, to, kpiCols, reportRows, hsr.mean, hsr.sd, availability, wellness, metrics, canSeeMedical]);
+
+  const runExport = (fmt: string) => {
+    setGenerated(true);
+    setToast(exportReport(fmt, payload));
+  };
+
   const update = (patch: Partial<ReportTemplate>) =>
     setTemplates((prev) => prev.map((t) => (t.id === active.id ? { ...t, ...patch } : t)));
+
 
   const toggleSection = (id: SectionId) =>
     update({ sections: active.sections.includes(id) ? active.sections.filter((s) => s !== id) : [...active.sections, id] });
