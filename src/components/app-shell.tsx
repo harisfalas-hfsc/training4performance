@@ -3,6 +3,7 @@ import { SmartyAssistant } from "@/components/smarty-assistant";
 
 
 import {
+  ArrowLeft,
   Activity,
   BarChart3,
   BellRing,
@@ -41,6 +42,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
 import { platformNav } from "@/lib/nav-items";
+import { usePlatformBack } from "@/lib/platform-history";
 
 const nav = platformNav;
 
@@ -58,8 +60,7 @@ export function AppShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { profile, subscription, user } = useAuth();
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
-  const av = squadAvailability();
-  const [open, setOpen] = useState(false);
+  const { canGoBack, goBack } = usePlatformBack();
   const [supportMode, setSupportMode] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -67,7 +68,6 @@ export function AppShell({
   const navItems = nav;
 
   useEffect(() => {
-    setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
     setSupportMode(Boolean(window.sessionStorage.getItem("t4p.adminSession")));
   }, []);
 
@@ -113,101 +113,41 @@ export function AppShell({
     return () => window.clearTimeout(t);
   }, [user?.id, profile?.club_name, subscription?.team_name, version]);
 
-  const toggle = () => {
-    setOpen((v) => {
-      window.localStorage.setItem("t4p.sidebar", v ? "closed" : "open");
-      return !v;
-    });
-  };
 
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      {open && (
-        <button
-          type="button"
-          aria-label="Close menu"
-          onClick={toggle}
-          className="fixed inset-0 z-30 bg-background/60 backdrop-blur-sm"
-        />
-      )}
-
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 flex h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-200",
-          open ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-4">
-          <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-7 shrink-0 object-contain" />
-
-          <div className="min-w-0 leading-tight">
-            <p className="font-display text-sm font-semibold uppercase tracking-widest text-sidebar-foreground">
-              T4P
-            </p>
-            <p className="truncate text-[0.65rem] text-muted-foreground">Training 4 Performance</p>
-          </div>
-        </div>
-
-        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
-          {navItems.map((item) => {
-            const active = pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={toggle}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  active && "bg-sidebar-accent text-primary",
-                )}
-              >
-                <item.icon className="size-4" style={{ color: item.color }} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="m-3 rounded-md border border-sidebar-border bg-sidebar-accent/50 p-3">
-          <p className="eyebrow">Squad status</p>
-          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-            <Row label="Available" value={av.available} tone="text-success" />
-            <Row label="Partial / Individual" value={av.partial + av.individual} tone="text-warning" />
-            <Row label="Injured / Ill / Rehab" value={av.injured + av.ill + av.rehab} tone="text-destructive" />
-          </div>
-        </div>
-      </aside>
-
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
-          <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5 sm:py-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <button
-                type="button"
-                onClick={toggle}
-                aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground"
-              >
-                {open ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
-              </button>
-              <div className="min-w-0">
-              <p className="eyebrow truncate">
-                {clubLabel} · {squadName} · {team.season}
-              </p>
-              <h1 className="truncate text-2xl font-semibold uppercase tracking-wide">{title}</h1>
-              {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
-              </div>
+        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3">
+            <div className="flex shrink-0 items-center gap-2">
+              <DiscoverMenu platformItems={navItems} />
+              {canGoBack ? (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  aria-label="Back"
+                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-primary text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                >
+                  <ArrowLeft className="size-4" />
+                </button>
+              ) : null}
             </div>
-            <div className="flex flex-wrap items-center gap-2 [&>*]:min-h-9">
+
+            <Link to="/dashboard" className="flex min-w-0 items-center justify-center" aria-label="Platform home">
+              <img
+                src="/logo-t4p.png"
+                alt="Training 4 Performance logo"
+                className="t4p-logo size-14 shrink-0 object-contain sm:size-16"
+              />
+            </Link>
+
+            <div className="flex shrink-0 items-center gap-2">
               {supportMode ? (
                 <Button size="sm" onClick={() => void returnToAdmin()}>
-                  <Shield className="size-3.5" /> Return to admin
+                  <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
                 </Button>
               ) : null}
-              <DiscoverMenu platformItems={navItems} />
-
-              {actions}
               <div ref={accountRef} className="relative">
                 <Button
                   type="button"
@@ -239,6 +179,7 @@ export function AppShell({
               </div>
             </div>
           </div>
+
           <div className="flex gap-1 overflow-x-auto border-t border-border px-3 py-2">
             {navItems.map((item) => {
               const active = pathname.startsWith(item.to);
@@ -259,11 +200,23 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="flex-1 p-5">{children}</main>
+        <div className="flex flex-wrap items-end justify-between gap-3 px-4 pt-4 sm:px-5">
+          <div className="min-w-0">
+            <p className="eyebrow truncate">
+              {clubLabel} · {squadName} · {team.season}
+            </p>
+            <h1 className="truncate text-2xl font-semibold uppercase tracking-wide">{title}</h1>
+            {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
+          </div>
+          {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+        </div>
+
+        <main className="flex-1 p-4 sm:p-5">{children}</main>
       </div>
       <SmartyAssistant />
     </div>
   );
+
 }
 
 

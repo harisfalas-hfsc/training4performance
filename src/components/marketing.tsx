@@ -32,11 +32,8 @@ export function SiteHeader() {
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
           <DiscoverMenu platformItems={platformNav} />
 
-          <Link to="/" className="flex min-w-0 items-center justify-center gap-2.5">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-11 shrink-0 object-contain sm:size-12" />
-            <span className="min-w-0 leading-tight">
-              <span className="block font-display text-xl font-semibold uppercase tracking-[0.3em] sm:text-2xl">T4P</span>
-            </span>
+          <Link to="/" className="flex min-w-0 items-center justify-center" aria-label="Training 4 Performance home">
+            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-14 shrink-0 object-contain sm:size-16" />
           </Link>
 
 
