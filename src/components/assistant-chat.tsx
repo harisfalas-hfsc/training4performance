@@ -308,6 +308,13 @@ export function AssistantChat({ onClose }: { onClose: () => void }) {
   }
 
   useEffect(() => {
+    if (workspaceContext) {
+      (window as unknown as { __smartyPlayerNames?: string[] }).__smartyPlayerNames =
+        workspaceContext.playerDateMetrics.map((p) => p.playerName);
+    }
+  }, [workspaceContext]);
+
+  useEffect(() => {
     if (activeThread) {
       void loadMessages(activeThread);
       setView("chat");
