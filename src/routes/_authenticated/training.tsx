@@ -583,6 +583,66 @@ function TrainingPage() {
         </div>
       </section>
 
+      {/* ---------- session actions (available on every session, at every step) ---------- */}
+      <section className="panel mt-3 p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="eyebrow mr-1">This session</span>
+          <select
+            value={state}
+            onChange={(e) => {
+              const next = e.target.value as SessionStatus;
+              setSessionStatus(session.id, next);
+              flash(
+                next === "completed"
+                  ? "Marked as completed"
+                  : next === "pending"
+                    ? "Marked as awaiting data"
+                    : "Marked as scheduled (not completed)",
+              );
+            }}
+            className={`control h-9 w-44 text-xs font-semibold ${
+              state === "completed" ? "text-success" : state === "pending" ? "text-warning" : ""
+            }`}
+          >
+            <option value="scheduled">Scheduled — not completed</option>
+            <option value="pending">Awaiting data</option>
+            <option value="completed">Completed</option>
+          </select>
+          <ActionBtn
+            icon={<Star className={`size-4 ${session.favorite ? "fill-primary text-primary" : ""}`} />}
+            label={session.favorite ? "Favourite" : "Favourite"}
+            onClick={() => {
+              toggleSessionFavorite(session.id);
+              flash(session.favorite ? "Removed from favourites" : "Added to favourites");
+            }}
+          />
+          <ActionBtn icon={<Pencil className="size-4" />} label="Edit blocks" onClick={() => setStep(2)} />
+          <ActionBtn icon={<Copy className="size-4" />} label="Duplicate" onClick={duplicateToDate} />
+          <ActionBtn icon={<Save className="size-4" />} label="Save as template" onClick={saveAsTemplate} />
+          <Link
+            to="/gps"
+            search={{ session: session.id }}
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+          >
+            <Radar className="size-4" /> {hasGps ? "Replace GPS" : "Upload GPS"}
+          </Link>
+          <ActionBtn icon={<Timer className="size-4" />} label="Manual data" onClick={() => setStep(4)} />
+          <ActionBtn icon={<Eye className="size-4" />} label="Session sheet" onClick={() => setShowSheet(true)} />
+          <ActionBtn icon={<Printer className="size-4" />} label="Print / PDF" onClick={printSheet} />
+          <ActionBtn icon={<Download className="size-4" />} label="Excel" onClick={() => exportSession("Excel")} />
+          <ActionBtn icon={<Download className="size-4" />} label="CSV" onClick={() => exportSession("CSV")} />
+          <button
+            type="button"
+            onClick={deleteDay}
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-destructive/40 px-3 text-xs font-semibold text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="size-4" /> Delete
+          </button>
+        </div>
+      </section>
+
+
+
       <StepBar step={step} onStep={setStep} />
 
       {saved ? (
