@@ -37,7 +37,11 @@ import {
   type NotificationCategory,
 } from "@/data/notifications";
 import { useRole } from "@/lib/roles";
+import { scopedStorageKey } from "@/lib/workspace-scope";
 import { T4P } from "@/components/brand-text";
+
+const SETTINGS_KEY = "t4p.alert-settings.v1";
+
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({
