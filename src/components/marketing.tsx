@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Compass, LogOut, User, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 import { cn } from "@/lib/utils";
 
@@ -50,7 +49,6 @@ export function SiteHeader() {
 
 
           <div className="flex shrink-0 items-center gap-2">
-            <ThemeToggle />
             <div ref={avatarRef} className="relative shrink-0">
               <button
                 onClick={() => setAvatar((v) => !v)}
