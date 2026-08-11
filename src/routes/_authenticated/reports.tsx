@@ -40,6 +40,8 @@ import {
   type LoadWeights,
 } from "@/data/logbook";
 import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
+import { exportReport, type ReportPayload } from "@/lib/report-export";
+
 
 
 export const Route = createFileRoute("/_authenticated/reports")({
@@ -124,8 +126,49 @@ function ReportsPage() {
   );
 
 
+  const payload: ReportPayload = useMemo(() => {
+    const kpiLabels = kpiCols.map((k) => pivotMetrics().find((m) => m.key === k)?.label ?? k);
+    return {
+      title: active.name,
+      club: `${team.club || "T4P"} · ${team.name || ""}`.trim(),
+      subtitle: `${active.audience} · ${team.season} · ${from} → ${to}${team.competition ? ` · ${team.competition}` : ""}`,
+      headline: [
+        { label: "Squad size", value: String(players.length) },
+        { label: "Mean HSR 7d", value: `${hsr.mean} m` },
+        { label: "Availability", value: `${availability}%` },
+        { label: "Wellness index", value: `${wellness}%` },
+      ],
+      columns: ["Player", ...kpiLabels, "Acute load", "ACWR", "Availability %"],
+      rows: reportRows.map((r) => [
+        fullName(r.player),
+        ...kpiCols.map((k) => r.values[k] ?? 0),
+        r.load.acute,
+        r.load.acwr || "—",
+        availabilitySummary(r.player.id).availability,
+      ]),
+      medical:
+        canSeeMedical && has("medical")
+          ? medicalEvents.map(
+              (e) =>
+                `${fullName(players.find((p) => p.id === e.playerId)!)} · ${e.type}: ${e.area} · ${e.from} → ${e.to} · ${e.daysLost} days lost · ${e.stage}`,
+            )
+          : [],
+      observations: [
+        `Mean high-speed running of ${hsr.mean} m per player over the last 7 days (sd ${hsr.sd} m).`,
+        `${metrics.filter((m) => m.load.acwr > 1.35).length} players above the upper acute:chronic monitoring threshold.`,
+        `Squad availability at ${availability}% across recorded sessions.`,
+      ],
+    };
+  }, [active, from, to, kpiCols, reportRows, hsr.mean, hsr.sd, availability, wellness, metrics, canSeeMedical]);
+
+  const runExport = (fmt: string) => {
+    setGenerated(true);
+    setToast(exportReport(fmt, payload));
+  };
+
   const update = (patch: Partial<ReportTemplate>) =>
     setTemplates((prev) => prev.map((t) => (t.id === active.id ? { ...t, ...patch } : t)));
+
 
   const toggleSection = (id: SectionId) =>
     update({ sections: active.sections.includes(id) ? active.sections.filter((s) => s !== id) : [...active.sections, id] });
@@ -157,29 +200,30 @@ function ReportsPage() {
     setToast(`Scheduled “${active.name}” · ${cadence} · ${format} → ${recipients}`);
   };
 
-  const sendNow = () => {
-    setToast(`“${active.name}” exported as ${format} for ${from} → ${to} and sent to ${recipients}.`);
-    setGenerated(true);
-  };
+  const sendNow = () => runExport(format);
 
   return (
     <AppShell
       title="Reports"
       subtitle={`Templates, audiences and scheduled exports · ${def.label} view`}
       actions={
-        <div className="flex gap-2">
-          <button onClick={duplicate} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
+        <div className="flex flex-wrap gap-2">
+          <button onClick={duplicate} className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-xs font-medium sm:flex-none sm:text-sm">
             <Plus className="size-4" /> New template
           </button>
           <button
-            onClick={() => setGenerated(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => {
+              setGenerated(true);
+              document.getElementById("report-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground sm:flex-none sm:text-sm"
           >
             Generate report
           </button>
         </div>
       }
     >
+
       {toast && (
         <div className="mb-4 rounded-md border border-success/40 bg-success/10 p-3 text-sm text-success">{toast}</div>
       )}
@@ -463,24 +507,25 @@ function ReportsPage() {
             />
           </label>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
           <button
             onClick={sendNow}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
           >
-            <Send className="size-4" /> Export now
+            <Send className="size-4" /> Download {format} now
           </button>
           <button
             onClick={scheduleExport}
             disabled={!can("scheduleExports")}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm disabled:opacity-40"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm disabled:opacity-40"
           >
             <CalendarClock className="size-4" /> Schedule export
           </button>
         </div>
 
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="scroll-pane mt-5 overflow-x-auto">
+          <table className="w-full min-w-[46rem] text-sm">
+
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <th className="py-2">Template</th>
@@ -529,29 +574,30 @@ function ReportsPage() {
         </div>
       </section>
 
-      <section className="mt-6 panel p-5">
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
-          <div>
+      <section id="report-preview" className="mt-6 panel p-4 sm:p-5">
+        <div className="border-b border-border pb-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-3">
+          <div className="min-w-0">
             <p className="eyebrow">{active.audience} report · {active.name}</p>
-            <h2 className="text-2xl font-semibold uppercase">
+            <h2 className="text-xl font-semibold uppercase sm:text-2xl">
               {team.club} · {team.name}
             </h2>
             <p className="text-sm text-muted-foreground">
               {team.season} · {from} → {to} · {team.competition}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-0 sm:flex">
             {FORMATS.filter((f) => active.formats.includes(f.label)).map((e) => (
               <button
                 key={e.label}
-                onClick={() => setToast(`“${active.name}” exported as ${e.label}.`)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-primary hover:text-primary"
+                onClick={() => runExport(e.label)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border px-2.5 py-2 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary"
               >
                 <e.icon className="size-3.5" /> {e.label}
               </button>
             ))}
           </div>
         </div>
+
 
         {generated ? (
           <div className="mt-4 space-y-6">
@@ -596,8 +642,9 @@ function ReportsPage() {
                 <p className="eyebrow mb-2">
                   Player summary · {from} → {to} · {kpiCols.length} selected KPI(s)
                 </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[40rem] text-sm">
+                <div className="scroll-pane overflow-x-auto">
+                  <table className="w-full min-w-[46rem] whitespace-nowrap text-sm">
+
                     <thead>
                       <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                         <th className="py-2">Player</th>

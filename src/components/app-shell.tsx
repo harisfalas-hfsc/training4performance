@@ -186,7 +186,7 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5 sm:py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
@@ -204,7 +204,7 @@ export function AppShell({
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 [&>*]:min-h-9">
               {supportMode ? (
                 <Button size="sm" onClick={() => void returnToAdmin()}>
                   <Shield className="size-3.5" /> Return to admin
