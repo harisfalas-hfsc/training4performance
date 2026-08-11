@@ -172,31 +172,43 @@ export function exportReportPng(p: ReportPayload) {
   ctx.scale(scale, scale);
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
+  // branded header band
+  ctx.fillStyle = BRAND;
+  ctx.fillRect(0, 0, width, 6);
+  ctx.fillRect(pad, 26, 46, 46);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 16px system-ui, sans-serif";
+  ctx.fillText("T4P", pad + 7, 55);
   ctx.fillStyle = "#111111";
   ctx.font = "bold 26px system-ui, sans-serif";
-  ctx.fillText(`${p.club} — ${p.title}`, pad, 52);
+  ctx.fillText(`${p.club} — ${p.title}`, pad + 62, 52);
   ctx.fillStyle = "#555555";
   ctx.font = "14px system-ui, sans-serif";
-  ctx.fillText(p.subtitle, pad, 76);
+  ctx.fillText(p.subtitle, pad + 62, 74);
 
   let x = pad;
   p.headline.forEach((h) => {
-    ctx.strokeStyle = "#dddddd";
+    ctx.strokeStyle = "#e2e2e2";
     ctx.strokeRect(x, 96, 200, 62);
+    ctx.fillStyle = BRAND;
+    ctx.fillRect(x, 96, 200, 3);
     ctx.fillStyle = "#666666";
     ctx.font = "11px system-ui, sans-serif";
-    ctx.fillText(h.label.toUpperCase(), x + 12, 118);
+    ctx.fillText(h.label.toUpperCase(), x + 12, 122);
     ctx.fillStyle = "#111111";
     ctx.font = "bold 22px system-ui, sans-serif";
-    ctx.fillText(h.value, x + 12, 146);
+    ctx.fillText(h.value, x + 12, 148);
     x += 212;
   });
 
   const colW = (width - pad * 2) / Math.max(p.columns.length, 1);
   let y = 200;
+  ctx.fillStyle = BRAND;
+  ctx.fillRect(pad, y - 16, width - pad * 2, 24);
   ctx.font = "bold 12px system-ui, sans-serif";
-  ctx.fillStyle = "#333333";
-  p.columns.forEach((c, i) => ctx.fillText(String(c).slice(0, 18), pad + i * colW, y));
+  ctx.fillStyle = "#ffffff";
+  p.columns.forEach((c, i) => ctx.fillText(String(c).slice(0, 18), pad + 6 + i * colW, y));
+
   y += 10;
   ctx.strokeStyle = "#cccccc";
   ctx.beginPath();
