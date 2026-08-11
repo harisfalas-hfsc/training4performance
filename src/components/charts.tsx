@@ -48,11 +48,14 @@ export function TrendArea({
   dataKey,
   color = "var(--color-chart-1)",
   height = 200,
+  hideAxisValues = false,
 }: {
   data: Row[];
   dataKey: string;
   color?: string;
   height?: number;
+  /** Player-facing mode: shapes and trends only, no readable numbers. */
+  hideAxisValues?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -65,8 +68,8 @@ export function TrendArea({
         </defs>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="date" {...axis} />
-        <YAxis {...axis} width={46} />
-        <Tooltip {...tooltipStyle} />
+        <YAxis {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} />
+        {hideAxisValues ? null : <Tooltip {...tooltipStyle} />}
         <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} fill={`url(#g-${dataKey})`} />
       </AreaChart>
     </ResponsiveContainer>
@@ -79,20 +82,22 @@ export function TrendBars({
   color = "var(--color-chart-2)",
   height = 200,
   xKey = "date",
+  hideAxisValues = false,
 }: {
   data: Row[];
   dataKey: string;
   color?: string;
   height?: number;
   xKey?: string;
+  hideAxisValues?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey={xKey} {...axis} />
-        <YAxis {...axis} width={46} />
-        <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />
+        <YAxis {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} />
+        {hideAxisValues ? null : <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />}
         <Bar dataKey={dataKey} fill={color} radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
@@ -106,21 +111,23 @@ export function MultiLine({
   xKey = "date",
   height = 220,
   dualAxis = true,
+  hideAxisValues = false,
 }: {
   data: Row[];
   series: Array<{ key: string; color: string; name: string }>;
   xKey?: string;
   height?: number;
   dualAxis?: boolean;
+  hideAxisValues?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey={xKey} {...axis} />
-        <YAxis yAxisId="left" {...axis} width={46} />
-        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={46} /> : null}
-        <Tooltip {...tooltipStyle} />
+        <YAxis yAxisId="left" {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} />
+        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} /> : null}
+        {hideAxisValues ? null : <Tooltip {...tooltipStyle} />}
         <Legend wrapperStyle={{ fontSize: 11 }} />
         {series.map((s, i) => (
           <Line
