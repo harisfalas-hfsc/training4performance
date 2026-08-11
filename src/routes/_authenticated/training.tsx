@@ -37,6 +37,7 @@ import {
   sessionStatus,
   setSessionStatus,
   today,
+  duplicateSession,
   toggleSessionFavorite,
   TRAINING_LOCATIONS,
   updateSession,
@@ -54,6 +55,12 @@ import {
   DAY_DESCRIPTIONS,
   DRILL_PURPOSES,
   LIFT_PATTERNS,
+  removeSavedBlock,
+  removeSavedSession,
+  saveBlockTemplate,
+  savedBlocks,
+  savedSessions,
+  saveSessionTemplate,
   SESSION_TYPES,
   sessionTypeOf,
   TRAINING_GROUPS,
@@ -274,6 +281,58 @@ function TrainingPage() {
     setActiveBlock((b) => (b === old ? name : b));
   };
 
+  const uniqueBlockName = (base: string, existing: string[]) => {
+    let name = base.trim().toUpperCase() || "BLOCK";
+    let n = 2;
+    while (existing.includes(name)) name = `${base.trim().toUpperCase()} (${n++})`;
+    return name;
+  };
+
+  /** Copy a block (name + every drill inside it) into the same training. */
+  const duplicateBlock = (b: string) => {
+    const name = uniqueBlockName(`${b} COPY`, blocks);
+    setBlocks((prev) => [...prev, name]);
+    setItems((prev) => [
+      ...prev,
+      ...prev.filter((i) => (i.block ?? "") === b).map((i) => ({ ...i, block: name })),
+    ]);
+    setActiveBlock(name);
+    flash(`${b} duplicated as ${name}`);
+  };
+
+  /** Copy one drill inside its block. */
+  const duplicateItem = (index: number) => {
+    setItems((prev) => {
+      const it = prev[index];
+      if (!it) return prev;
+      const next = [...prev];
+      next.splice(index + 1, 0, { ...it });
+      return next;
+    });
+  };
+
+  /** Save a block to the library so it can be reused in another training. */
+  const saveBlock = (b: string) => {
+    const blockItems = items.filter((i) => (i.block ?? "") === b);
+    if (!blockItems.length) {
+      flash("Add at least one item to this block first");
+      return;
+    }
+    saveBlockTemplate(b, blockItems);
+    flash(`${b} saved to your library`);
+  };
+
+  /** Insert a saved block (as a new block) into the training being designed. */
+  const insertSavedBlock = (id: string) => {
+    const sb = savedBlocks().find((x) => x.id === id);
+    if (!sb) return;
+    const name = uniqueBlockName(sb.name, blocks);
+    setBlocks((prev) => [...prev, name]);
+    setItems((prev) => [...prev, ...sb.items.map((i) => ({ ...i, block: name }))]);
+    setActiveBlock(name);
+    flash(`${sb.name} inserted as ${name}`);
+  };
+
   const plan = useMemo(() => {
     const minutes = items.reduce((a, i) => a + (i.durationMin || 0), 0);
     const weighted = items.reduce((a, i) => a + (i.rpe || 0) * (i.durationMin || 0), 0);
@@ -313,6 +372,46 @@ function TrainingPage() {
       ...(markStatus ? { status: markStatus } : {}),
     });
     flash(msg);
+  };
+
+  /** Save the whole training (blocks + plan) as a reusable template. */
+  const saveAsTemplate = () => {
+    if (!session) return;
+    const name = window.prompt("Name this training template", `${type} — ${session.title}`);
+    if (name === null) return;
+    saveSessionTemplate({
+      name,
+      type,
+      objective: session.objective,
+      durationMin: plan.minutes || session.durationMin,
+      plannedRpe: plan.plannedRpe || session.plannedRpe,
+      blockNames: blocks,
+      plan: items,
+    });
+    flash("Training saved to your library");
+  };
+
+  /** Load a saved training into the day being designed. */
+  const applyTemplate = (id: string) => {
+    const tpl = savedSessions().find((t) => t.id === id);
+    if (!tpl) return;
+    setType(tpl.type ?? type);
+    setBlocks(tpl.blockNames);
+    setItems(tpl.plan.map((i) => ({ ...i })));
+    setActiveBlock(tpl.blockNames[0] ?? "BLOCK 1");
+    flash(`${tpl.name} loaded — save it to keep it on this day`);
+  };
+
+  /** Copy this whole training onto another date. */
+  const duplicateToDate = () => {
+    if (!session) return;
+    const date = window.prompt("Duplicate this training to which date? (YYYY-MM-DD)", session.date);
+    if (!date) return;
+    const copy = duplicateSession(session.id, date);
+    if (copy) {
+      setSelectedId(copy.id);
+      flash(`Duplicated to ${date}`);
+    }
   };
 
   const counts = STATUS.map((s) => ({ s, n: Object.values(participation).filter((v) => v === s).length }));
@@ -610,10 +709,26 @@ function TrainingPage() {
                   const min = blockItems.reduce((a, x) => a + (x.it.durationMin || 0), 0);
                   return (
                     <div key={b} className="rounded-md border border-border bg-surface-2 p-3">
-                      <p className="eyebrow flex items-center justify-between text-primary">
-                        <span>{b}</span>
-                        <span className="text-muted-foreground">{min} min</span>
-                      </p>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="eyebrow text-primary">{b}</p>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[0.68rem] text-muted-foreground">{min} min</span>
+                          <button
+                            type="button"
+                            onClick={() => saveBlock(b)}
+                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                          >
+                            Save block
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => duplicateBlock(b)}
+                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                          >
+                            Duplicate block
+                          </button>
+                        </div>
+                      </div>
                       <ul className="mt-2 space-y-2">
                         {blockItems.map(({ it, i }) => (
                           <li key={`${b}-${i}`} className="rounded-md border border-border bg-card p-3">
@@ -632,6 +747,12 @@ function TrainingPage() {
                                     {it.drawing ? "Edit drawing" : "Draw on board"}
                                   </button>
                                 ) : null}
+                                <button
+                                  onClick={() => duplicateItem(i)}
+                                  className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                                >
+                                  Duplicate
+                                </button>
                                 <button
                                   onClick={() => removeItem(i)}
                                   className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
@@ -789,6 +910,95 @@ function TrainingPage() {
             />
 
           </section>
+
+          <section className="panel mt-4 p-5">
+            <SectionTitle
+              title="Your saved blocks & trainings"
+              hint="Reuse anything you saved before — insert a block, or load a whole training into this day"
+            />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div>
+                <p className="eyebrow mb-2">Saved blocks</p>
+                {savedBlocks().length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    Nothing yet — use “Save block” on any block above to reuse it another day.
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {savedBlocks().map((sb) => (
+                      <li
+                        key={sb.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface-2 p-2.5"
+                      >
+                        <span className="text-sm">
+                          <span className="font-semibold">{sb.name}</span>{" "}
+                          <span className="text-xs text-muted-foreground">
+                            · {sb.items.length} item(s) · {sb.items.reduce((a, i) => a + (i.durationMin || 0), 0)} min
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => insertSavedBlock(sb.id)}
+                            className="h-7 rounded-md bg-primary px-2.5 text-[0.68rem] font-semibold text-primary-foreground"
+                          >
+                            Insert
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeSavedBlock(sb.id)}
+                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
+                          >
+                            Delete
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <p className="eyebrow mb-2">Saved trainings</p>
+                {savedSessions().length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    Nothing yet — use “Save as template” in the preview step to reuse a whole training.
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {savedSessions().map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface-2 p-2.5"
+                      >
+                        <span className="text-sm">
+                          <span className="font-semibold">{t.name}</span>{" "}
+                          <span className="text-xs text-muted-foreground">
+                            · {t.blockNames.length} block(s) · {t.plan.length} item(s)
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => applyTemplate(t.id)}
+                            className="h-7 rounded-md bg-primary px-2.5 text-[0.68rem] font-semibold text-primary-foreground"
+                          >
+                            Load into this day
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeSavedSession(t.id)}
+                            className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-destructive"
+                          >
+                            Delete
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </section>
         </>
       )}
 
@@ -830,6 +1040,20 @@ function TrainingPage() {
               className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground"
             >
               <CalendarPlus className="size-4" /> Schedule this day
+            </button>
+            <button
+              type="button"
+              onClick={saveAsTemplate}
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              Save as template
+            </button>
+            <button
+              type="button"
+              onClick={duplicateToDate}
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              Duplicate to another date
             </button>
             <button
               type="button"
