@@ -330,9 +330,25 @@ export interface GpsBlockRow {
   extraLabels?: Record<string, string>;
 }
 
+/**
+ * Manual session-RPE load for work that has NO GPS file (strength, indoor,
+ * pool, rehab, classroom). Load = RPE (0-10) x minutes, in AU.
+ */
+export interface RpeEntry {
+  id: string;
+  date: string;
+  playerId: string;
+  /** Block name inside the session. Empty string = whole training. */
+  block: string;
+  rpe: number;
+  minutes: number;
+  note?: string;
+}
+
 export const players: Player[] = [];
 export const gpsHistory: GpsDay[] = [];
 export const gpsBlocks: GpsBlockRow[] = [];
+export const rpeEntries: RpeEntry[] = [];
 export const sessionCalendar: Session[] = [];
 export const manualTests: ManualTest[] = [];
 export const medicalEvents: MedicalEvent[] = [];
@@ -343,6 +359,7 @@ export interface WorkspaceData {
   sessions: Session[];
   gpsHistory: GpsDay[];
   gpsBlocks: GpsBlockRow[];
+  rpeEntries: RpeEntry[];
   manualTests: ManualTest[];
   medicalEvents: MedicalEvent[];
 }
@@ -363,7 +380,7 @@ function persist() {
   try {
     window.localStorage.setItem(
       key,
-      JSON.stringify({ team, players, gpsHistory, gpsBlocks, sessionCalendar, manualTests, medicalEvents }),
+      JSON.stringify({ team, players, gpsHistory, gpsBlocks, rpeEntries, sessionCalendar, manualTests, medicalEvents }),
     );
   } catch {
     /* quota — ignore */
@@ -383,6 +400,7 @@ export function workspaceSnapshot(): WorkspaceData {
     sessions: sessionCalendar.map((session) => ({ ...session })),
     gpsHistory: gpsHistory.map((row) => ({ ...row })),
     gpsBlocks: gpsBlocks.map((row) => ({ ...row })),
+    rpeEntries: rpeEntries.map((row) => ({ ...row })),
     manualTests: manualTests.map((test) => ({ ...test })),
     medicalEvents: medicalEvents.map((event) => ({ ...event })),
   };
@@ -394,6 +412,7 @@ export function applyWorkspaceData(data: Partial<WorkspaceData>) {
   if (data.sessions) replace(sessionCalendar, data.sessions);
   if (data.gpsHistory) replace(gpsHistory, data.gpsHistory);
   if (data.gpsBlocks) replace(gpsBlocks, data.gpsBlocks);
+  if (data.rpeEntries) replace(rpeEntries, data.rpeEntries);
   if (data.manualTests) replace(manualTests, data.manualTests);
   if (data.medicalEvents) replace(medicalEvents, data.medicalEvents);
   emit();
@@ -408,6 +427,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
   replace(players, []);
   replace(gpsHistory, []);
   replace(gpsBlocks, []);
+  replace(rpeEntries, []);
   replace(sessionCalendar, []);
   replace(manualTests, []);
   replace(medicalEvents, []);
@@ -447,6 +467,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
       players?: Player[];
       gpsHistory?: GpsDay[];
       gpsBlocks?: GpsBlockRow[];
+      rpeEntries?: RpeEntry[];
       sessionCalendar?: Session[];
       manualTests?: ManualTest[];
       medicalEvents?: MedicalEvent[];
@@ -455,6 +476,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
     if (s.players?.length) replace(players, s.players);
     if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
     if (s.gpsBlocks?.length) replace(gpsBlocks, s.gpsBlocks);
+    if (s.rpeEntries?.length) replace(rpeEntries, s.rpeEntries);
     if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
     if (s.manualTests) replace(manualTests, s.manualTests);
     if (s.medicalEvents) replace(medicalEvents, s.medicalEvents);
@@ -579,6 +601,7 @@ export function removeSession(id: string) {
   if (s) {
     replace(gpsHistory, gpsHistory.filter((g) => g.date !== s.date));
     replace(gpsBlocks, gpsBlocks.filter((g) => g.date !== s.date));
+    replace(rpeEntries, rpeEntries.filter((r) => r.date !== s.date));
   }
   emit();
 }
@@ -694,6 +717,113 @@ export function blockOccurrences(block: string, metric: string, playerId?: strin
 /** Block records of one training day. */
 export const blockRowsFor = (date: string) => gpsBlocks.filter((g) => g.date === date);
 
+/* ---------- manual RPE load (sessions/blocks without GPS) ---------- */
+
+/** Save (or replace) one manual RPE record for a player + day + block. */
+export function upsertRpeEntry(entry: Omit<RpeEntry, "id"> & { id?: string }) {
+  if (!guardWrite()) return;
+  const i = rpeEntries.findIndex(
+    (r) => r.date === entry.date && r.playerId === entry.playerId && r.block === entry.block,
+  );
+  if (i >= 0) rpeEntries[i] = { ...rpeEntries[i]!, ...entry, id: rpeEntries[i]!.id };
+  else rpeEntries.push({ ...entry, id: entry.id ?? `rpe-${Math.random().toString(36).slice(2, 9)}` });
+  emit();
+}
+
+/** Apply the same RPE + minutes to a list of athletes in one go. */
+export function bulkRpeEntries(
+  date: string,
+  block: string,
+  playerIds: string[],
+  rpe: number,
+  minutes: number,
+  note?: string,
+) {
+  if (!guardWrite()) return;
+  for (const playerId of playerIds) {
+    const i = rpeEntries.findIndex((r) => r.date === date && r.playerId === playerId && r.block === block);
+    const row: RpeEntry = {
+      id: i >= 0 ? rpeEntries[i]!.id : `rpe-${Math.random().toString(36).slice(2, 9)}`,
+      date,
+      playerId,
+      block,
+      rpe,
+      minutes,
+      ...(note ? { note } : {}),
+    };
+    if (i >= 0) rpeEntries[i] = row;
+    else rpeEntries.push(row);
+  }
+  emit();
+}
+
+export function removeRpeEntry(id: string) {
+  if (!guardWrite()) return;
+  replace(rpeEntries, rpeEntries.filter((r) => r.id !== id));
+  emit();
+}
+
+export function removeRpeEntries(date: string, block?: string) {
+  if (!guardWrite()) return;
+  replace(rpeEntries, rpeEntries.filter((r) => !(r.date === date && (block === undefined || r.block === block))));
+  emit();
+}
+
+export const rpeEntriesFor = (date: string, playerId?: string) =>
+  rpeEntries.filter((r) => r.date === date && (!playerId || r.playerId === playerId));
+
+/** A manual block record is ignored when the same block already has GPS (no double counting). */
+export function rpeEntryCounts(r: RpeEntry) {
+  if (!r.block) return true;
+  return !gpsBlocks.some((g) => g.date === r.date && g.playerId === r.playerId && g.block === r.block);
+}
+
+/** Manual sRPE load (AU) of one athlete on one day. */
+export function manualLoadFor(playerId: string, date: string) {
+  return rpeEntries
+    .filter((r) => r.playerId === playerId && r.date === date && rpeEntryCounts(r))
+    .reduce((a, r) => a + (r.rpe || 0) * (r.minutes || 0), 0);
+}
+
+/** GPS-derived sRPE load (AU) of one athlete on one day. */
+export function gpsLoadFor(playerId: string, date: string) {
+  return gpsHistory
+    .filter((g) => g.playerId === playerId && g.date === date)
+    .reduce((a, g) => a + (g.rpe || 0) * (g.minutes || 0), 0);
+}
+
+export interface DayLoad {
+  date: string;
+  gps: number;
+  manual: number;
+  total: number;
+}
+
+/** GPS load + manual RPE load for a day — the real total the athlete absorbed. */
+export function dayLoad(playerId: string, date: string): DayLoad {
+  const gps = Math.round(gpsLoadFor(playerId, date));
+  const manual = Math.round(manualLoadFor(playerId, date));
+  return { date, gps, manual, total: gps + manual };
+}
+
+/** Every day (GPS or manual) that has load for this athlete, oldest first. */
+export function loadDays(playerId: string): DayLoad[] {
+  const dates = new Set<string>();
+  for (const g of gpsHistory) if (g.playerId === playerId) dates.add(g.date);
+  for (const r of rpeEntries) if (r.playerId === playerId && rpeEntryCounts(r)) dates.add(r.date);
+  return [...dates].sort().map((d) => dayLoad(playerId, d));
+}
+
+/** Squad-wide manual load of a day, for reports. */
+export function manualLoadSummary(date: string) {
+  const rows = rpeEntries.filter((r) => r.date === date && rpeEntryCounts(r));
+  const blocks = [...new Set(rows.map((r) => r.block || "Whole session"))];
+  const athletes = new Set(rows.map((r) => r.playerId)).size;
+  const load = rows.reduce((a, r) => a + r.rpe * r.minutes, 0);
+  const rpe = rows.length ? +(rows.reduce((a, r) => a + r.rpe, 0) / rows.length).toFixed(1) : 0;
+  return { blocks, athletes, load: Math.round(load), rpe, rows };
+}
+
 export function removeGps(date: string, playerId: string) {
   if (!guardWrite()) return;
   replace(gpsHistory, gpsHistory.filter((g) => !(g.date === date && g.playerId === playerId)));
@@ -736,6 +866,7 @@ export function resetToWorkbook() {
   replace(players, seedPlayers());
   replace(gpsHistory, seedGps());
   replace(gpsBlocks, []);
+  replace(rpeEntries, []);
   replace(sessionCalendar, seedSessions());
   replace(manualTests, []);
   replace(medicalEvents, []);
@@ -766,6 +897,7 @@ export function clearWorkspaceRecords() {
   replace(players, []);
   replace(gpsHistory, []);
   replace(gpsBlocks, []);
+  replace(rpeEntries, []);
   replace(sessionCalendar, []);
   replace(manualTests, []);
   replace(medicalEvents, []);
@@ -869,8 +1001,8 @@ export interface LoadSummary {
 }
 
 export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28): LoadSummary {
-  const days = playerDays(id);
-  const sRpe = days.map((d) => ({ date: d.date, load: d.rpe * d.minutes }));
+  const days = loadDays(id);
+  const sRpe = days.map((d) => ({ date: d.date, load: d.total }));
   const acuteDays = sRpe.filter((d) => d.date >= dateNAgo(acuteWindow - 1));
   const chronicDays = sRpe.filter((d) => d.date >= dateNAgo(chronicWindow - 1));
   const acute = sum(acuteDays.map((d) => d.load));

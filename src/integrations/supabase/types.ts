@@ -326,10 +326,12 @@ export type Database = {
       workspace_data: {
         Row: {
           created_at: string
+          gps_blocks: Json
           gps_history: Json
           manual_tests: Json
           medical_events: Json
           players: Json
+          rpe_entries: Json
           sessions: Json
           team: Json
           updated_at: string
@@ -337,10 +339,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          gps_blocks?: Json
           gps_history?: Json
           manual_tests?: Json
           medical_events?: Json
           players?: Json
+          rpe_entries?: Json
           sessions?: Json
           team?: Json
           updated_at?: string
@@ -348,10 +352,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          gps_blocks?: Json
           gps_history?: Json
           manual_tests?: Json
           medical_events?: Json
           players?: Json
+          rpe_entries?: Json
           sessions?: Json
           team?: Json
           updated_at?: string

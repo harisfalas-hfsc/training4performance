@@ -3,6 +3,8 @@ import {
   applyWorkspaceData,
   workspaceSnapshot,
   type GpsDay,
+  type GpsBlockRow,
+  type RpeEntry,
   type ManualTest,
   type MedicalEvent,
   type Player,
@@ -19,7 +21,7 @@ export async function hydrateWorkspace(userId: string) {
   activeWorkspaceUser = userId;
   const { data, error } = await supabase
     .from("workspace_data")
-    .select("team,players,sessions,gps_history,manual_tests,medical_events")
+    .select("team,players,sessions,gps_history,gps_blocks,rpe_entries,manual_tests,medical_events")
     .eq("user_id", userId)
     .maybeSingle();
   if (error || activeWorkspaceUser !== userId) return;
@@ -29,6 +31,8 @@ export async function hydrateWorkspace(userId: string) {
       players: [],
       sessions: [],
       gpsHistory: [],
+      gpsBlocks: [],
+      rpeEntries: [],
       manualTests: [],
       medicalEvents: [],
     });
@@ -39,6 +43,8 @@ export async function hydrateWorkspace(userId: string) {
     players: data.players as unknown as Player[],
     sessions: data.sessions as unknown as Session[],
     gpsHistory: data.gps_history as unknown as GpsDay[],
+    gpsBlocks: (data.gps_blocks ?? []) as unknown as GpsBlockRow[],
+    rpeEntries: (data.rpe_entries ?? []) as unknown as RpeEntry[],
     manualTests: data.manual_tests as unknown as ManualTest[],
     medicalEvents: data.medical_events as unknown as MedicalEvent[],
   });
@@ -56,6 +62,8 @@ export async function syncWorkspace(userId: string) {
       players: toJson(data.players),
       sessions: toJson(data.sessions),
       gps_history: toJson(data.gpsHistory),
+      gps_blocks: toJson(data.gpsBlocks),
+      rpe_entries: toJson(data.rpeEntries),
       manual_tests: toJson(data.manualTests),
       medical_events: toJson(data.medicalEvents),
     },

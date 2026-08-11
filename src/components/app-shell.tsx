@@ -22,6 +22,7 @@ import {
   Shield,
   Sparkles,
   Users,
+  Gauge,
 } from "lucide-react";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -52,6 +53,7 @@ const nav = [
   { to: "/logbook", label: "Logbook", icon: BookOpen, color: "#d97706" },
   { to: "/gps", label: "GPS Import", icon: Radar, color: "#06b6d4" },
   { to: "/blocks", label: "Block comparison", icon: Layers, color: "#0284c7" },
+  { to: "/rpe", label: "Manual RPE load", icon: Gauge, color: "#db2777" },
   { to: "/alerts", label: "Alerts", icon: BellRing, color: "#dc2626" },
   { to: "/analytics", label: "Analytics", icon: BarChart3, color: "#4f46e5" },
   { to: "/compare", label: "Compare & Graphs", icon: GitCompare, color: "#9333ea" },

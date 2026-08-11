@@ -7,6 +7,7 @@ import { MultiLine, TrendBars } from "@/components/charts";
 import {
   availabilitySummary,
   avg,
+  loadDays,
   fullName,
   medicalEvents,
   players,
@@ -120,7 +121,10 @@ function ReportsPage() {
               : Math.round(vals.reduce((a, b) => a + b, 0));
         }
         const load = compositeAcwr(p.id, weights, acuteWindow, chronicWindow, to);
-        return { player: p, values, load };
+        const spread = loadDays(p.id).filter((d) => d.date >= from && d.date <= to);
+        const manual = spread.reduce((a, d) => a + d.manual, 0);
+        const gpsLoad = spread.reduce((a, d) => a + d.gps, 0);
+        return { player: p, values, load, manual, gpsLoad, totalLoad: manual + gpsLoad };
       }),
     [kpiCols, weights, acuteWindow, chronicWindow, from, to],
   );
@@ -138,10 +142,22 @@ function ReportsPage() {
         { label: "Availability", value: `${availability}%` },
         { label: "Wellness index", value: `${wellness}%` },
       ],
-      columns: ["Player", ...kpiLabels, "Acute load", "ACWR", "Availability %"],
+      columns: [
+        "Player",
+        ...kpiLabels,
+        "GPS load (AU)",
+        "Manual RPE load (AU)",
+        "Total load (AU)",
+        "Acute load",
+        "ACWR",
+        "Availability %",
+      ],
       rows: reportRows.map((r) => [
         fullName(r.player),
         ...kpiCols.map((k) => r.values[k] ?? 0),
+        r.gpsLoad,
+        r.manual,
+        r.totalLoad,
         r.load.acute,
         r.load.acwr || "—",
         availabilitySummary(r.player.id).availability,
@@ -157,6 +173,7 @@ function ReportsPage() {
         `Mean high-speed running of ${hsr.mean} m per player over the last 7 days (sd ${hsr.sd} m).`,
         `${metrics.filter((m) => m.load.acwr > 1.35).length} players above the upper acute:chronic monitoring threshold.`,
         `Squad availability at ${availability}% across recorded sessions.`,
+        `Manual RPE load (strength / non-GPS work) added ${reportRows.reduce((a, r) => a + r.manual, 0).toLocaleString()} AU on top of the GPS load in this period.`,
       ],
     };
   }, [active, from, to, kpiCols, reportRows, hsr.mean, hsr.sd, availability, wellness, metrics, canSeeMedical]);
