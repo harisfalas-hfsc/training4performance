@@ -81,7 +81,8 @@ const CHART_METRIC_LABELS: Record<string, string> = {
 };
 
 function parseChartTag(text: string): { text: string; tag?: { player: string; metric: string; kind: ChartKind } } {
-  // Accept [CHART ...] or malformed [ART ...] produced by some models.
+  // Accept [CHART ...] or malformed [ART ...] produced by some models,
+  // but only if it contains both player and metric attributes.
   const match = text.match(/\[(?:CHART|ART)\s+([^\]]+)\]/);
   if (!match || !match[1]) return { text };
   const attrs: Record<string, string> = {};
