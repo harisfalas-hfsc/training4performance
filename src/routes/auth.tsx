@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
@@ -102,7 +103,11 @@ function AuthPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           {isSignup
             ? "Set up the account that will administer your club's teams."
-            : "Access your T4P workspace."}
+            : (
+              <>
+                Access your <T4P /> workspace.
+              </>
+            )}
         </p>
 
         <button

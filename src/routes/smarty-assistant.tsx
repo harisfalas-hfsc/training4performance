@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BarChart3, BrainCircuit, MessageSquare, Shield, Sparkles, Table2, Zap } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P, SmartyAssistant } from "@/components/brand-text";
 
 export const Route = createFileRoute("/smarty-assistant")({
   head: () => ({
@@ -40,12 +41,12 @@ function SmartyAssistantPage() {
           <div className="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-brand-blue/12 text-brand-blue">
             <Sparkles className="size-8" />
           </div>
-          <p className="eyebrow text-brand-blue">Smarty Assistant</p>
+          <p className="eyebrow text-brand-blue"><SmartyAssistant /></p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
-            Ask your squad anything
+            Ask your Assistant anything
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Smarty Assistant is the AI analyst inside T4P. It reads your team, sessions, GPS and wellness data and answers
+            <SmartyAssistant /> is the AI analyst inside <T4P />. It reads your team, sessions, GPS and wellness data and answers
             in plain language — reports, comparisons, workload trends and session ideas.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -115,9 +116,9 @@ function SmartyAssistantPage() {
         </div>
 
         <div className="panel mt-14 border-brand-blue/25 bg-gradient-to-r from-brand-blue/10 to-brand-cyan/10 p-6 text-center">
-          <p className="font-display text-xl font-semibold uppercase tracking-wide">Part of every T4P subscription</p>
+          <p className="font-display text-xl font-semibold uppercase tracking-wide">Part of every <T4P /> subscription</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Smarty Assistant is included in the team plan. Usage is tracked per account and can be topped up from the
+            <SmartyAssistant /> is included in the team plan. Usage is tracked per account and can be topped up from the
             owner panel.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
@@ -128,7 +129,7 @@ function SmartyAssistantPage() {
               View pricing <ArrowRight className="size-4" />
             </Link>
             <Link to="/about" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
-              About T4P
+              About <T4P />
             </Link>
           </div>
         </div>

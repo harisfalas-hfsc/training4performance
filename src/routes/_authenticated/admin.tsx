@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { T4P } from "@/components/brand-text";
 import {
   ArrowLeft,
   Ban,
@@ -122,7 +123,7 @@ function AdminPage() {
         <div className="panel mx-auto max-w-md p-6 text-center">
           <ShieldAlert className="mx-auto size-8 text-destructive" />
           <h2 className="mt-3 text-lg font-semibold">Administrators only</h2>
-          <p className="mt-2 text-sm text-muted-foreground">This area is restricted to the T4P owner account.</p>
+          <p className="mt-2 text-sm text-muted-foreground">This area is restricted to the <T4P /> owner account.</p>
         </div>
       </AdminShell>
     );

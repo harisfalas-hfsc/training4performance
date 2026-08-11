@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Sparkles, Users } from "lucide-react";
 
 import { MarketingPage } from "@/components/marketing";
+import { T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -101,7 +102,7 @@ function About() {
             The football performance system that connects everything
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            T4P (Training 4 Performance) is an integrated football fitness, performance and training management
+            <T4P /> (<Training4Performance />) is an integrated football fitness, performance and training management
             platform for strength &amp; conditioning coaches. One player record sits at the centre, and the squad,
             training sessions, GPS output, RPE, wellness, testing, medical status, alerts and reports all connect to it.
           </p>
@@ -123,7 +124,7 @@ function About() {
           <div className="panel border-brand-green/25 p-6">
             <p className="eyebrow text-brand-green">The answer</p>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              T4P keeps a single source of truth. What the coach sees on the dashboard, what the fitness staff analyse
+              <T4P /> keeps a single source of truth. What the coach sees on the dashboard, what the fitness staff analyse
               in the logbook and what is recorded in the player passport are always the same data — so you always know
               who you have, what you did, how they responded, and what to do tomorrow.
             </p>
@@ -164,10 +165,10 @@ function About() {
             <div className="grid size-10 place-items-center rounded-xl bg-brand-blue/12 text-brand-blue">
               <Sparkles className="size-5" />
             </div>
-            <p className="eyebrow text-brand-blue">Smarty Assistant</p>
+            <p className="eyebrow text-brand-blue"><SmartyAssistant /></p>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Smarty Assistant is the AI analyst inside T4P. It reads your squad, sessions, GPS and wellness data and
+            <SmartyAssistant /> is the AI analyst inside <T4P />. It reads your squad, sessions, GPS and wellness data and
             answers questions like "Who ran the most this week?", "Compare player A and player B", or "Give me a
             workload report". It can suggest session adjustments, explain trends and learn your terminology over time.
           </p>
@@ -185,9 +186,9 @@ function About() {
           <p className="eyebrow text-brand-indigo">Who created it</p>
 
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            T4P was created by <strong className="text-foreground">Haris Falas</strong> — sports scientist, fitness
+            <T4P /> was created by <strong className="text-foreground">Haris Falas</strong> — sports scientist, fitness
             coach and strength &amp; conditioning coach — from more than a decade of daily work inside professional
-            football clubs. Every table, metric and workflow in T4P comes from a real logbook that was used with a real
+            football clubs. Every table, metric and workflow in <T4P /> comes from a real logbook that was used with a real
             squad, not from a product specification.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">

@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import {
@@ -349,7 +350,7 @@ function PlayerProfile() {
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle
                 title="Automatic detections"
-                hint="Every time training beats a recorded test, T4P writes a new dated result"
+                hint={<>Every time training beats a recorded test, <T4P /> writes a new dated result</>}
               />
               <PlayerFindings playerId={id} />
             </div>

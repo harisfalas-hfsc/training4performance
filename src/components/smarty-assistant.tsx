@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { AssistantChat } from "@/components/assistant-chat";
 import { useAuth } from "@/lib/auth";
+import { SmartyAssistant as SmartyAssistantBrand } from "@/components/brand-text";
 
 export function SmartyAssistant() {
   const { session } = useAuth();
@@ -83,7 +84,7 @@ export function SmartyAssistant() {
         >
           <img src="/logo-t4p.png" alt="T4P" className="h-9 w-9 object-contain" />
           <span className="pointer-events-none absolute right-full mr-3 rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap">
-            Smarty Assistant
+            <SmartyAssistantBrand />
           </span>
         </button>
       </div>
@@ -98,7 +99,7 @@ export function SmartyAssistant() {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="w-full sm:max-w-md p-0">
-          <SheetTitle className="sr-only">Smarty Assistant</SheetTitle>
+          <SheetTitle className="sr-only"><SmartyAssistantBrand /></SheetTitle>
           <SheetDescription className="sr-only">Ask Smarty about your squad and training data.</SheetDescription>
           <AssistantChat onClose={() => setOpen(false)} />
         </SheetContent>

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
+import { T4P, Training4Performance } from "@/components/brand-text";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -20,15 +21,15 @@ export const Route = createFileRoute("/privacy")({
     <MarketingPage>
       <Prose title="Privacy Policy" updated="10 August 2026">
         <p>
-          This policy explains how personal data is handled in T4P (Training 4 Performance) in accordance with
+          This policy explains how personal data is handled in <T4P /> (<Training4Performance />) in accordance with
           Regulation (EU) 2016/679 (GDPR).
         </p>
 
         <h2>1. Roles: controller and processor</h2>
         <p>
-          For account data of subscribers and staff users (name, email, club, billing details), T4P is the
+          For account data of subscribers and staff users (name, email, club, billing details), <T4P /> is the
           <strong> controller</strong>. For player and performance data entered by a club, the club is the
-          <strong> controller</strong> and T4P acts as <strong>processor</strong> under Article 28 GDPR.
+          <strong> controller</strong> and <T4P /> acts as <strong>processor</strong> under Article 28 GDPR.
         </p>
 
         <h2>2. Data we process</h2>
@@ -73,8 +74,8 @@ export const Route = createFileRoute("/privacy")({
         <p>
           Data subjects have the right of access, rectification, erasure, restriction, data portability, objection,
           and the right not to be subject to solely automated decision-making with legal or similarly significant
-          effects. T4P does not make such automated decisions; alerts and AI observations are advisory and always
-          reviewed by staff. Requests concerning player data should be addressed to the club as controller; T4P
+          effects. <T4P /> does not make such automated decisions; alerts and AI observations are advisory and always
+          reviewed by staff. Requests concerning player data should be addressed to the club as controller; <T4P />
           assists the club in fulfilling them.
         </p>
 
@@ -88,7 +89,7 @@ export const Route = createFileRoute("/privacy")({
 
         <h2>9. Cookies</h2>
         <p>
-          T4P uses only strictly necessary cookies and local storage for authentication and interface preferences.
+          <T4P /> uses only strictly necessary cookies and local storage for authentication and interface preferences.
           No advertising or third-party tracking cookies are used, so no consent banner is required for these.
         </p>
 

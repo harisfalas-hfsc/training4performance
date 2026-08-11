@@ -16,7 +16,9 @@ import {
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P, SmartyAssistant } from "@/components/brand-text";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -39,7 +41,7 @@ export const Route = createFileRoute("/how-it-works")({
   component: HowItWorks,
 });
 
-type Step = { icon: LucideIcon; t: string; d: string; tone: string };
+type Step = { icon: LucideIcon; t: string; d: ReactNode; tone: string };
 
 const steps: Step[] = [
   {
@@ -58,7 +60,12 @@ const steps: Step[] = [
     icon: ClipboardPen,
     tone: "violet",
     t: "Complete each player profile",
-    d: "Open a player and fill the passport: position, birth date, dominant leg, height, body mass, body fat, availability status and medical notes. Every screen in T4P reads from this single record.",
+    d: (
+      <>
+        Open a player and fill the passport: position, birth date, dominant leg, height, body mass, body fat,
+        availability status and medical notes. Every screen in <T4P /> reads from this single record.
+      </>
+    ),
   },
   {
     icon: HeartPulse,
@@ -82,19 +89,37 @@ const steps: Step[] = [
     icon: Radar,
     tone: "cyan",
     t: "Import the GPS report",
-    d: "After training, upload the export from your GPS system — Catapult, STATSports, GPEXE, Polar or your own spreadsheet. You map your columns to T4P metrics once, unmatched player names come back in a clear report, and every file is attached to a training day, never left standalone.",
+    d: (
+      <>
+        After training, upload the export from your GPS system — Catapult, STATSports, GPEXE, Polar or your own
+        spreadsheet. You map your columns to <T4P /> metrics once, unmatched player names come back in a clear report,
+        and every file is attached to a training day, never left standalone.
+      </>
+    ),
   },
   {
     icon: Activity,
     tone: "teal",
     t: "Everything connects",
-    d: "RPE, duration, participation, GPS output and test results merge on the same player record. You choose which KPIs define load — distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed, sRPE — and their weights, and T4P builds your own composite load, acute, chronic, ACWR, monotony and strain.",
+    d: (
+      <>
+        RPE, duration, participation, GPS output and test results merge on the same player record. You choose which
+        KPIs define load — distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed, sRPE
+        — and their weights, and <T4P /> builds your own composite load, acute, chronic, ACWR, monotony and strain.
+      </>
+    ),
   },
   {
     icon: Sparkles,
     tone: "blue",
     t: "Ask Smarty Assistant",
-    d: "Click the floating T4P logo or open the Smarty Assistant page. Ask anything — Who ran the most this week?, Compare two players, Give me a workload report — and get answers, tables and charts from your own data.",
+    d: (
+      <>
+        Click the floating <T4P /> logo or open the <SmartyAssistant /> page. Ask anything — Who ran the most this
+        week?, Compare two players, Give me a workload report — and get answers, tables and charts from your own
+        data.
+      </>
+    ),
   },
 
   {
@@ -136,12 +161,21 @@ const faq = [
     a: "€999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
   },
   {
-    q: "Do I need a GPS system to use T4P?",
+    q: (
+      <>
+        Do I need a GPS system to use <T4P />?
+      </>
+    ),
     a: "No. RPE, duration, participation, wellness and test data alone already produce load, ACWR, monotony and strain. GPS simply adds resolution.",
   },
   {
     q: "Which GPS providers are supported?",
-    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template — including your own club KPIs.",
+    a: (
+      <>
+        Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped
+        column by column with the <T4P /> template — including your own club KPIs.
+      </>
+    ),
   },
   {
     q: "Can I change the ACWR formula?",
@@ -153,7 +187,7 @@ const faq = [
   },
   {
     q: "Can I browse before I subscribe?",
-    a: "Yes. Any account can open the platform and look at every screen. Creating and editing data requires an active subscription.",
+    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
   },
   {
     q: "Is my data protected?",
@@ -171,7 +205,7 @@ function HowItWorks() {
             Team → squad → players → training → GPS → decisions
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            T4P follows the real order of work in a performance department. You build the team once, then every
+            <T4P /> follows the real order of work in a performance department. You build the team once, then every
             session, GPS file and test result attaches to the same player record — so the analysis is ready before
             you have to make the decision.
           </p>
@@ -207,7 +241,7 @@ function HowItWorks() {
           {faq.map((f, i) => {
             const tone = Object.values(tones)[i % 9]!;
             return (
-              <div key={f.q} className={`panel ${tone.card} p-5`}>
+              <div key={i} className={`panel ${tone.card} p-5`}>
                 <p className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}>{f.q}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
               </div>

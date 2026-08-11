@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CalendarClock, Download, FileSpreadsheet, FileText, Image, Lock, Plus, Send } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { T4P } from "@/components/brand-text";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendBars } from "@/components/charts";
 import {
@@ -733,7 +734,7 @@ function ReportsPage() {
           </div>
         ) : (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            Configure the template, set a date range and press Generate report — or schedule it and T4P sends it automatically.
+            Configure the template, set a date range and press Generate report — or schedule it and <T4P /> sends it automatically.
           </p>
         )}
       </section>
