@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import {
+  dayLoad,
   addSession,
   fullName,
   players,
@@ -111,6 +112,8 @@ function CalendarPage() {
           sum((r) => r.decel),
           Math.max(...mine.map((r) => r.maxSpeed)).toFixed(1),
           sum((r) => r.minutes * r.rpe),
+          dates.reduce((a, d) => a + dayLoad(id, d).manual, 0),
+          dates.reduce((a, d) => a + dayLoad(id, d).total, 0),
           load.acwr || "—",
         ];
       })
@@ -127,7 +130,7 @@ function CalendarPage() {
         { label: "Records", value: String(rows.length) },
         { label: "Total distance", value: `${Math.round(totalDistance).toLocaleString()} m` },
       ],
-      columns: ["Player", "Sessions", "Minutes", "Distance", "HSR", "Sprint", "Accel", "Decel", "Max spd", "sRPE", "ACWR"],
+      columns: ["Player", "Sessions", "Minutes", "Distance", "HSR", "Sprint", "Accel", "Decel", "Max spd", "sRPE", "Manual RPE load", "Total load", "ACWR"],
       rows: byPlayer,
       observations: [
         `Selected days: ${dates.join(", ") || "none"}.`,
