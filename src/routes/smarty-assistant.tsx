@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BarChart3, BrainCircuit, MessageSquare, Shield, Sparkles, Table2, Zap } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant } from "@/components/brand-text";
-import { breadcrumbLd, seoHead } from "@/lib/seo";
+import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/smarty-assistant")({
   head: () => ({
@@ -18,6 +18,13 @@ export const Route = createFileRoute("/smarty-assistant")({
       ],
     }),
     scripts: [
+      webPageLd({
+        path: "/smarty-assistant",
+        name: "Smarty Assistant — AI football performance analyst",
+        description:
+          "Smarty Assistant answers plain-language questions about squad workload, GPS metrics, player comparisons and training reports inside T4P.",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "Smarty Assistant", path: "/smarty-assistant" },

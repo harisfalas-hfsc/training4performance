@@ -19,7 +19,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead } from "@/lib/seo";
+import { breadcrumbLd, jsonLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -36,6 +36,13 @@ export const Route = createFileRoute("/how-it-works")({
       ],
     }),
     scripts: [
+      webPageLd({
+        path: "/how-it-works",
+        name: "How T4P works",
+        description:
+          "The T4P workflow for football performance staff: create a team, build the squad, run fitness tests, design training in blocks, schedule sessions, import GPS data and read load, ACWR, alerts and reports.",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "How it works", path: "/how-it-works" },

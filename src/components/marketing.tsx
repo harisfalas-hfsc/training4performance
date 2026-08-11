@@ -34,7 +34,15 @@ export function SiteHeader() {
           <DiscoverMenu platformItems={platformNav} />
 
           <Link to="/" className="flex min-w-0 items-center justify-center" aria-label="Training 4 Performance home">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="t4p-logo size-12 shrink-0 object-contain" />
+            <img
+              src="/logo-t4p.png"
+              alt="Training 4 Performance logo"
+              width={512}
+              height={512}
+              decoding="async"
+              fetchPriority="high"
+              className="t4p-logo size-12 shrink-0 object-contain"
+            />
           </Link>
 
 

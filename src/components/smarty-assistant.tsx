@@ -82,7 +82,15 @@ export function SmartyAssistant() {
           }`}
           aria-label="Open Smarty Assistant"
         >
-          <img src="/logo-t4p.png" alt="T4P" className="h-9 w-9 object-contain" />
+          <img
+            src="/logo-t4p.png"
+            alt="Smarty Assistant — T4P AI performance analyst"
+            width={512}
+            height={512}
+            loading="lazy"
+            decoding="async"
+            className="h-9 w-9 object-contain"
+          />
           <span className="pointer-events-none absolute right-full mr-3 rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap">
             <SmartyAssistantBrand />
           </span>
@@ -94,7 +102,15 @@ export function SmartyAssistant() {
         className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg ring-2 ring-[#3B82F6]/20 md:hidden"
         aria-label="Open Smarty Assistant"
       >
-        <img src="/logo-t4p.png" alt="T4P" className="h-8 w-8 object-contain" />
+        <img
+          src="/logo-t4p.png"
+          alt="Smarty Assistant — T4P AI performance analyst"
+          width={512}
+          height={512}
+          loading="lazy"
+          decoding="async"
+          className="h-8 w-8 object-contain"
+        />
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>

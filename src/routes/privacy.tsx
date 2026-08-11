@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage, Prose } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
-import { breadcrumbLd, seoHead } from "@/lib/seo";
+import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -13,6 +13,13 @@ export const Route = createFileRoute("/privacy")({
       card: "summary",
     }),
     scripts: [
+      webPageLd({
+        path: "/privacy",
+        name: "Privacy Policy (GDPR)",
+        description:
+          "How T4P collects, processes and protects personal and special-category health data under the EU GDPR.",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "Privacy Policy", path: "/privacy" },

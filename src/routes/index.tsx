@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
-import { jsonLd, seoHead, OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
 
 
 export const Route = createFileRoute("/")({
@@ -25,50 +25,27 @@ export const Route = createFileRoute("/")({
       description:
         "T4P is football S&C software for coaches: GPS training load, ACWR, fitness testing, wellness, squad availability, session design and reports in one connected platform.",
       keywords: [
-        "GPS training data football",
-        "training load monitoring football",
-        "acute to chronic workload ratio calculator",
-        "ACWR football software",
-        "football fitness testing platform",
-        "football tactical board software",
-        "RPE tracking app football",
-        "football performance report generator",
+        "football performance management platform",
+        "football fitness coach software",
+        "football GPS analytics",
+        "football training load monitoring",
+        "ACWR football",
+        "football fitness testing software",
+        "football training session designer",
+        "football player monitoring software",
       ],
     }),
     scripts: [
-      jsonLd({
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        name: "T4P — Training 4 Performance",
-        applicationCategory: "SportsApplication",
-        applicationSubCategory: "BusinessApplication",
-        operatingSystem: "Web",
-        url: `${SITE_URL}/`,
-        image: OG_IMAGE,
+      webPageLd({
+        path: "/",
+        name: "T4P — Football Performance Management Platform",
         description:
-          "Football performance management platform for strength and conditioning coaches: squad availability, block-based session design, tactics board, GPS import from Catapult, STATSports, GPEXE and Polar, composite training load, ACWR, wellness questionnaires, fitness testing and one-click reports.",
-        featureList: [
-          "Squad management and player passports",
-          "Match-day-cycle training calendar",
-          "Football tactical board and session designer",
-          "GPS import and metric mapping",
-          "Composite training load, ACWR, monotony and strain",
-          "Athlete wellness questionnaire and player portal",
-          "Fitness testing battery with personal bests",
-          "Automated workload and availability alerts",
-          "Analytics, comparisons and PDF reports",
-        ],
-        offers: {
-          "@type": "Offer",
-          price: "999",
-          priceCurrency: "EUR",
-          url: `${SITE_URL}/pricing`,
-          availability: "https://schema.org/InStock",
-          category: "Season subscription (1 June – 31 May), one team, unlimited staff",
-        },
-        publisher: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
+          "Home page of T4P (Training 4 Performance): football performance management software for fitness, strength and conditioning coaches and sports scientists.",
+        primaryEntityId: SOFTWARE_ID,
+        about: TOPIC_ENTITIES.slice(0, 12),
       }),
     ],
+
   }),
 
   component: Home,

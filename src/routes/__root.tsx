@@ -14,7 +14,22 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RoleProvider } from "../lib/roles";
 import { AuthProvider } from "../lib/auth";
 import { Toaster } from "../components/ui/sonner";
-import { jsonLd, SITE_NAME, SITE_URL } from "../lib/seo";
+import {
+  jsonLd,
+  CONTACT_EMAIL,
+  ENTITY_DESCRIPTION,
+  FOUNDER_ID,
+  LOGO_ID,
+  OG_IMAGE,
+  ORGANIZATION_ID,
+  SITE_NAME,
+  SITE_SHORT_NAME,
+  SITE_URL,
+  SOFTWARE_ID,
+  TOPIC_ENTITIES,
+  WEBSITE_ID,
+} from "../lib/seo";
+
 
 
 
@@ -122,32 +137,102 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       jsonLd({
         "@context": "https://schema.org",
-        "@type": "Organization",
-        name: SITE_NAME,
-        alternateName: "T4P",
-        url: `${SITE_URL}/`,
-        logo: `${SITE_URL}/logo-t4p.png`,
-        description:
-          "Training 4 Performance (T4P) is a football sports science platform for strength and conditioning coaches: squad management, GPS training load, ACWR, fitness testing, wellness and reporting.",
-        email: "harisfalas@gmail.com",
-        founder: {
-          "@type": "Person",
-          name: "Haris Falas",
-          jobTitle: "Sports Scientist & Strength and Conditioning Coach",
-          url: `${SITE_URL}/haris-falas`,
-        },
-        sameAs: [`${SITE_URL}/about`, `${SITE_URL}/haris-falas`],
-      }),
-      jsonLd({
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: SITE_NAME,
-        alternateName: "T4P",
-        url: `${SITE_URL}/`,
-        inLanguage: "en",
-        publisher: { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` },
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": ORGANIZATION_ID,
+            name: SITE_NAME,
+            alternateName: SITE_SHORT_NAME,
+            url: `${SITE_URL}/`,
+            logo: { "@id": LOGO_ID },
+            image: { "@id": LOGO_ID },
+            description: ENTITY_DESCRIPTION,
+            email: CONTACT_EMAIL,
+            areaServed: "Worldwide",
+            knowsAbout: TOPIC_ENTITIES,
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "customer support",
+              email: CONTACT_EMAIL,
+              availableLanguage: ["English", "Greek"],
+            },
+            founder: { "@id": FOUNDER_ID },
+          },
+          {
+            "@type": "Person",
+            "@id": FOUNDER_ID,
+            name: "Haris Falas",
+            jobTitle: "Sports Scientist & Strength and Conditioning Coach",
+            url: `${SITE_URL}/haris-falas`,
+            worksFor: { "@id": ORGANIZATION_ID },
+          },
+          {
+            "@type": "ImageObject",
+            "@id": LOGO_ID,
+            url: OG_IMAGE,
+            contentUrl: OG_IMAGE,
+            width: 512,
+            height: 512,
+            caption: SITE_NAME,
+          },
+          {
+            "@type": "WebSite",
+            "@id": WEBSITE_ID,
+            name: SITE_NAME,
+            alternateName: SITE_SHORT_NAME,
+            url: `${SITE_URL}/`,
+            inLanguage: "en",
+            description: ENTITY_DESCRIPTION,
+            publisher: { "@id": ORGANIZATION_ID },
+          },
+          {
+            "@type": ["SoftwareApplication", "WebApplication"],
+            "@id": SOFTWARE_ID,
+            name: "T4P — Training 4 Performance",
+            alternateName: SITE_SHORT_NAME,
+            applicationCategory: "SportsApplication",
+            applicationSubCategory: "Football performance management software",
+            operatingSystem: "Web browser",
+            browserRequirements: "Requires a modern web browser with JavaScript enabled",
+            url: `${SITE_URL}/`,
+            image: { "@id": LOGO_ID },
+            description: ENTITY_DESCRIPTION,
+            inLanguage: "en",
+            audience: {
+              "@type": "Audience",
+              audienceType:
+                "Football fitness coaches, strength and conditioning coaches, performance coaches, sports scientists, clubs and academies",
+            },
+            keywords: TOPIC_ENTITIES.join(", "),
+            featureList: [
+              "Squad management, player passports and availability tracking",
+              "Match-day-cycle training calendar and microcycle planning",
+              "Block-based training session designer and interactive football tactical board",
+              "GPS data import from Catapult, STATSports, GPEXE and Polar exports, plus a mappable CSV/Excel template",
+              "GPS metrics: total distance, high-speed running, sprint distance, maximum speed, accelerations and decelerations",
+              "Composite training load, acute:chronic workload ratio, training monotony and strain",
+              "Session RPE entry and planned versus actual load",
+              "Daily wellness and readiness questionnaire with a player portal",
+              "Fitness testing battery with personal-best tracking (CMJ, sprint splits, Yo-Yo, 30-15 IFT, strength)",
+              "Automated workload, wellness and availability alerts",
+              "Player and squad analytics, comparisons and one-click performance reports",
+              "AI performance assistant for plain-language questions about squad data",
+            ],
+            offers: {
+              "@type": "Offer",
+              price: "999",
+              priceCurrency: "EUR",
+              url: `${SITE_URL}/pricing`,
+              availability: "https://schema.org/InStock",
+              category: "Season subscription (1 June – 31 May), one team, unlimited staff users",
+            },
+            publisher: { "@id": ORGANIZATION_ID },
+            isPartOf: { "@id": WEBSITE_ID },
+          },
+        ],
       }),
     ],
+
   }),
 
 

@@ -3,7 +3,17 @@ import { Check, Sparkles } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { currentSeason, useAuth } from "@/lib/auth";
-import { breadcrumbLd, jsonLd, seoHead, OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+import {
+  breadcrumbLd,
+  jsonLd,
+  seoHead,
+  webPageLd,
+  OG_IMAGE,
+  ORGANIZATION_ID,
+  SITE_NAME,
+  SITE_URL,
+  SOFTWARE_ID,
+} from "@/lib/seo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -19,6 +29,13 @@ export const Route = createFileRoute("/pricing")({
       ],
     }),
     scripts: [
+      webPageLd({
+        path: "/pricing",
+        name: "T4P Pricing",
+        description:
+          "T4P pricing: EUR 999 per season for one football team, unlimited players and unlimited staff users, with every module included.",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "Pricing", path: "/pricing" },
@@ -26,11 +43,15 @@ export const Route = createFileRoute("/pricing")({
       jsonLd({
         "@context": "https://schema.org",
         "@type": "Product",
+        "@id": `${SITE_URL}/pricing#product`,
         name: "T4P Team Season Subscription",
+        mainEntityOfPage: { "@id": `${SITE_URL}/pricing#webpage` },
+        category: "Football performance management software",
         description:
           "One season of T4P — Training 4 Performance for one football team: squad management, training design, GPS import, training load and ACWR, wellness, fitness testing, alerts and reports, with unlimited staff users.",
         image: OG_IMAGE,
         brand: { "@type": "Brand", name: SITE_NAME },
+        isRelatedTo: { "@id": SOFTWARE_ID },
         url: `${SITE_URL}/pricing`,
         offers: {
           "@type": "Offer",
@@ -39,6 +60,8 @@ export const Route = createFileRoute("/pricing")({
           url: `${SITE_URL}/pricing`,
           availability: "https://schema.org/InStock",
           category: "Season subscription",
+          priceValidUntil: "2027-05-31",
+          seller: { "@id": ORGANIZATION_ID },
         },
       }),
     ],

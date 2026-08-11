@@ -3,7 +3,7 @@ import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Sparkles, Users
 
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -20,28 +20,18 @@ export const Route = createFileRoute("/about")({
       ],
     }),
     scripts: [
+      webPageLd({
+        path: "/about",
+        name: "About Training 4 Performance",
+        description:
+          "What T4P connects for football performance staff and who built it: squad management, training design, GPS analytics, training load, wellness, testing and reporting.",
+        type: "AboutPage",
+        breadcrumb: true,
+      }),
       breadcrumbLd([
         { name: "Home", path: "/" },
         { name: "About", path: "/about" },
       ]),
-      jsonLd({
-        "@context": "https://schema.org",
-        "@type": "AboutPage",
-        name: "About Training 4 Performance",
-        url: `${SITE_URL}/about`,
-        mainEntity: {
-          "@type": "Organization",
-          name: SITE_NAME,
-          url: `${SITE_URL}/`,
-          logo: `${SITE_URL}/logo-t4p.png`,
-          founder: {
-            "@type": "Person",
-            name: "Haris Falas",
-            jobTitle: "Sports Scientist & Strength and Conditioning Coach",
-            url: `${SITE_URL}/haris-falas`,
-          },
-        },
-      }),
     ],
   }),
 
