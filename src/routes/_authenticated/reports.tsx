@@ -733,7 +733,7 @@ function ReportsPage() {
           </div>
         ) : (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            Configure the template, set a date range and press Generate report — or schedule it and T4P sends it automatically.
+            Configure the template, set a date range and press Generate report — or schedule it and <T4P /> sends it automatically.
           </p>
         )}
       </section>

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
+import { T4P } from "@/components/brand-text";
 
 export const Route = createFileRoute("/_authenticated/manual")({
   head: () => ({
@@ -369,7 +370,7 @@ function ManualPage() {
   return (
     <AppShell
       title="Manual"
-      subtitle="How T4P works, step by step — from an empty squad to daily decisions"
+      subtitle={<>How <T4P /> works, step by step — from an empty squad to daily decisions</>}
     >
       <div className="space-y-6">
         <section className="rounded-lg border border-border bg-card p-5">

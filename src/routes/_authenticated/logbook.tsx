@@ -758,13 +758,13 @@ function LoadModelTab({ weights, setWeights }: { weights: LoadWeights; setWeight
       </div>
 
       <div className="panel p-4">
-        <SectionTitle title="GPS import template" hint="Download it, arrange your provider export to match, and upload it back. Any other layout still works — T4P will ask you to map the columns." />
+        <SectionTitle title="GPS import template" hint={<>Download it, arrange your provider export to match, and upload it back. Any other layout still works — <T4P /> will ask you to map the columns.</>} />
         <button
           type="button"
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           onClick={() => download("T4P_GPS_IMPORT_TEMPLATE.csv", templateCsv())}
         >
-          <Download className="size-4" /> Download T4P template
+          <Download className="size-4" /> Download <T4P /> template
         </button>
       </div>
     </div>

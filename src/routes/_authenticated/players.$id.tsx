@@ -349,7 +349,7 @@ function PlayerProfile() {
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle
                 title="Automatic detections"
-                hint="Every time training beats a recorded test, T4P writes a new dated result"
+                hint={<>Every time training beats a recorded test, <T4P /> writes a new dated result</>}
               />
               <PlayerFindings playerId={id} />
             </div>

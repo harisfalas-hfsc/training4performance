@@ -38,6 +38,7 @@ import {
 } from "@/data/gps-template";
 import { T4P_TEMPLATE_COLUMNS, templateCsv } from "@/data/logbook";
 import { useRole } from "@/lib/roles";
+import { T4P } from "@/components/brand-text";
 
 export const Route = createFileRoute("/_authenticated/gps")({
   head: () => ({
@@ -457,7 +458,7 @@ function GpsPage() {
       <section className="panel p-4">
         <SectionTitle
           title="Upload your own GPS export"
-          hint="Any provider, any columns — T4P reads the real header row of your file"
+          hint={<>Any provider, any columns — <T4P /> reads the real header row of your file</>}
         />
         <div
           onDragOver={(e) => e.preventDefault()}
@@ -534,7 +535,7 @@ function GpsPage() {
         <section className="mt-6 panel p-4">
           <SectionTitle
             title="Column mapping"
-            hint="Tell T4P once what each of your columns means. Anything left as “Club KPI” is stored under its own name and stays available in analytics, alerts and reports."
+            hint={<>Tell <T4P /> once what each of your columns means. Anything left as “Club KPI” is stored under its own name and stays available in analytics, alerts and reports.</>}
             right={
               <span className="flex flex-wrap items-center gap-2">
                 <input
@@ -604,7 +605,7 @@ function GpsPage() {
         <section className="mt-6 panel p-4">
           <SectionTitle
             title="Is this the whole training or separate parts?"
-            hint="Confirm once — T4P then either stores the file as one session total, or merges the parts and keeps the per-block breakdown."
+            hint={<>Confirm once — <T4P /> then either stores the file as one session total, or merges the parts and keeps the per-block breakdown.</>}
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <button

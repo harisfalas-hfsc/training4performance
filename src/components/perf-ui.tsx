@@ -76,7 +76,7 @@ export function AcwrPill({ acwr }: { acwr: number }) {
   );
 }
 
-export function SectionTitle({ title, hint, right }: { title: string; hint?: string; right?: ReactNode }) {
+export function SectionTitle({ title, hint, right }: { title: string; hint?: ReactNode; right?: ReactNode }) {
   return (
     <div className="mb-3 flex items-end justify-between gap-3">
       <div>
