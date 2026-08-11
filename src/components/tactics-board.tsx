@@ -780,11 +780,13 @@ export function TacticsBoard({
         )}
 
         {/* pitch */}
-        <div className="relative overflow-hidden rounded-md border border-border bg-pitch">
+        <div className="relative min-w-0 overflow-hidden rounded-md border border-border bg-pitch">
           <svg
             ref={svgRef}
             viewBox={`${vb.x} ${vb.y} ${w} ${h}`}
-            className="block max-h-[75vh] w-full select-none"
+            preserveAspectRatio="xMidYMid meet"
+            className="block h-auto max-h-[70vh] w-full max-w-full select-none"
+
             style={{
               // Drawing tools need the gesture; otherwise let the page scroll
               // vertically even when the finger starts on the pitch.
