@@ -109,7 +109,14 @@ function PortalPage() {
       <header className="sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-10 object-contain" />
+            <img
+              src="/logo-t4p.png"
+              alt="Training 4 Performance logo"
+              width={512}
+              height={512}
+              decoding="async"
+              className="size-10 object-contain"
+            />
             <div className="min-w-0">
               <p className="text-sm font-semibold leading-tight">Player portal</p>
               <p className="truncate text-xs text-muted-foreground">
