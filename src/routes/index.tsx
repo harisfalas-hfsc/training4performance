@@ -130,7 +130,7 @@ function Home() {
                 </p>
                 <div className="mt-5 flex h-36 items-end gap-2">
                   {[38, 62, 84, 55, 71, 93, 40].map((h, i) => (
-                    <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                    <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
                       <div className="w-full rounded-t bg-primary/85" style={{ height: `${h}%` }} />
                       <span className="font-mono text-[0.6rem] text-muted-foreground">
                         {["MD-4", "MD-3", "MD-2", "MD-1", "MD", "MD+1", "OFF"][i]}
