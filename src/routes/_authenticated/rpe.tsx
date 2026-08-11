@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Gauge, Layers, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
+import { Button } from "@/components/ui/button";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import {
   bulkRpeEntries,
@@ -334,9 +335,9 @@ function RpePage() {
               onChange={(e) => setNote(e.target.value)}
             />
           </label>
-          <button type="button" className="btn-primary inline-flex items-center gap-2" onClick={save}>
+          <Button type="button" onClick={save} className="gap-2">
             <Plus className="size-4" /> Save RPE load
-          </button>
+          </Button>
         </div>
       </section>
 
