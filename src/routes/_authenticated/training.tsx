@@ -1393,6 +1393,7 @@ function SessionSheet({
   minutes,
   plannedRpe,
   load,
+  onEdit,
 }: {
   date: string;
   label: string;
@@ -1404,6 +1405,7 @@ function SessionSheet({
   minutes: number;
   plannedRpe: number;
   load: number;
+  onEdit?: (block?: string) => void;
 }) {
   return (
     <article className="space-y-4">
@@ -1432,6 +1434,17 @@ function SessionSheet({
       </header>
 
       {objective ? <p className="text-sm text-muted-foreground">Objective — {objective}</p> : null}
+
+      <p className="rounded-md border border-border bg-surface-2 p-3 text-xs leading-relaxed text-muted-foreground">
+        <span className="font-semibold text-foreground">How these numbers are produced.</span>{" "}
+        <b>Duration</b> = the minutes of every item you placed in the blocks (if no item has minutes yet, the duration
+        stored on the day is used — that is where 66′ comes from). <b>RPE</b> = the duration-weighted average of the RPE
+        set on each item, on the Borg CR10 0–10 scale. <b>Load</b> = RPE × duration in <b>AU (Arbitrary Units)</b>, the
+        standard session-RPE load unit — 66 min at RPE 6 = 396 AU. It only reads 0 when the blocks contain no items with
+        minutes and RPE. This page is a read-only printout;{" "}
+        {onEdit ? "use Edit blocks to change anything." : "go to step 2 · Build the blocks to change anything."}
+      </p>
+
 
       <div className="grid gap-3 sm:grid-cols-2">
         {blocks.map((b, bi) => {
