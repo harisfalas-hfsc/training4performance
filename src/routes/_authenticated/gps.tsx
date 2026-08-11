@@ -332,11 +332,36 @@ function GpsPage() {
   };
 
   const runImport = () => {
-    if (!session) return;
     const ok = athleteRows.filter((r) => r.matchedId && r.confidence >= 0.95);
+    if (!ok.length) return;
+    // No calendar entry for this day: create an empty session so the load has an anchor.
+    // It can be opened and designed later in the Training Designer.
+    let target = session;
+    if (!target) {
+      const existing = sessionCalendar.find((s) => s.date === fileDate);
+      target =
+        existing ??
+        addSession({
+          date: fileDate,
+          label: "Unplanned",
+          title: "Unplanned activity",
+          durationMin: Math.round(ok.map((r) => r.core.minutes ?? 0).sort((a, b) => a - b)[Math.floor(ok.length / 2)] ?? 0),
+          objective: "Created automatically from a GPS upload — open it to add the blocks you actually ran.",
+          plannedRpe: 0,
+          drills: [],
+          type: "TRAINING",
+        });
+      if (!target) {
+        toast.error("Could not create a session for this file");
+        return;
+      }
+      setSessionId(target.id);
+    }
+    const sessionRef = target;
     for (const r of ok) {
       const c = r.core;
-      const minutes = c.minutes ?? session.durationMin;
+      const minutes = c.minutes ?? sessionRef.durationMin;
+
       const extra = { ...r.extra };
       const extraLabels = { ...r.extraLabels };
       // keep the per-block breakdown alongside the day total
