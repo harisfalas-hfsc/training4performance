@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 const links = [
   { to: "/about", label: "About" },
   { to: "/how-it-works", label: "How it works" },
+  { to: "/smarty-assistant", label: "Smarty Assistant" },
   { to: "/pricing", label: "Pricing" },
 ] as const;
+
 
 export function SiteHeader() {
   const [menu, setMenu] = useState(false);
