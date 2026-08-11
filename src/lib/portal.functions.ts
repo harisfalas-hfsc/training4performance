@@ -1,4 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { Json } from "@/integrations/supabase/types";
+
+type JsonRow = { [key: string]: Json | undefined };
 
 /* Public, code-authenticated endpoints for the player portal.
  * A player never gets a Supabase account: the coach hands out a personal
@@ -27,10 +30,10 @@ export interface PortalWellness {
 
 export interface PortalPayload {
   identity: PortalIdentity;
-  gps: Array<Record<string, unknown>>;
-  sessions: Array<Record<string, unknown>>;
-  tests: Array<Record<string, unknown>>;
-  player: Record<string, unknown> | null;
+  gps: JsonRow[];
+  sessions: JsonRow[];
+  tests: JsonRow[];
+  player: JsonRow | null;
   wellness: PortalWellness[];
 }
 
@@ -95,7 +98,7 @@ export const portalPayload = createServerFn({ method: "POST" })
 
     const team = (ws?.team ?? {}) as { club?: string; name?: string; season?: string };
     const rows = <T,>(value: unknown) => (Array.isArray(value) ? (value as T[]) : []);
-    const mine = (r: Record<string, unknown>) => r["playerId"] === access.player_id;
+    const mine = (r: JsonRow) => r["playerId"] === access.player_id;
 
     return {
       identity: {
@@ -105,11 +108,11 @@ export const portalPayload = createServerFn({ method: "POST" })
         teamName: team.name ?? "",
         season: team.season ?? "",
       },
-      player: rows<Record<string, unknown>>(ws?.players).find((p) => p["id"] === access.player_id) ?? null,
-      gps: rows<Record<string, unknown>>(ws?.gps_history).filter(mine),
-      sessions: rows<Record<string, unknown>>(ws?.sessions),
+      player: rows<JsonRow>(ws?.players).find((p) => p["id"] === access.player_id) ?? null,
+      gps: rows<JsonRow>(ws?.gps_history).filter(mine),
+      sessions: rows<JsonRow>(ws?.sessions),
       tests: [
-        ...rows<Record<string, unknown>>(ws?.test_records).filter(mine),
+        ...rows<JsonRow>(ws?.test_records).filter(mine),
       ],
       wellness: (wellness ?? []).map((w) => ({
         date: String(w.entry_date),
