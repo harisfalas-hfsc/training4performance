@@ -628,7 +628,8 @@ export function TacticsBoard({
             active={tool === t.id && !pending}
             label={t.label}
             onClick={() => {
-              setTool(t.id);
+              // tapping an active tool releases it, so the page can scroll again
+              setTool(tool === t.id && !pending ? "select" : t.id);
               setPending(null);
             }}
           >
@@ -653,7 +654,7 @@ export function TacticsBoard({
         {onSave ? (
           <button
             type="button"
-            onClick={() => onSave({ tokens, shapes, orientation })}
+            onClick={() => onSave({ tokens, shapes, orientation, view, field })}
             className="ml-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
           >
             {saveLabel}
@@ -676,22 +677,58 @@ export function TacticsBoard({
         </span>
       </div>
 
+      {/* pitch setup */}
+      <div className="grid gap-2 border-b border-border px-3 py-2 sm:grid-cols-3">
+        <label className="field">
+          <span className="field-label">Field type</span>
+          <select className="control" value={field} onChange={(e) => setField(e.target.value as FieldType)}>
+            {FIELDS.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span className="field-label">Pitch area</span>
+          <select className="control" value={view} onChange={(e) => setView(e.target.value as PitchView)}>
+            {VIEWS.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span className="field-label">Orientation</span>
+          <select
+            className="control"
+            value={orientation}
+            onChange={(e) => setOrientation(e.target.value as Orientation)}
+          >
+            <option value="portrait">Portrait (vertical)</option>
+            <option value="landscape">Landscape (horizontal)</option>
+          </select>
+        </label>
+      </div>
+
       {/* status line */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs text-muted-foreground">
         <span>
           {pending
             ? `Tap the pitch to place: ${pending.kind}`
             : tool === "select"
-              ? "Drag any item to reposition it"
+              ? "Drag any item to reposition it — the page scrolls normally"
               : tool === "erase"
                 ? "Tap an item or a drawing to remove it"
-                : "Drag on the pitch to draw"}
+                : "Drawing mode: drag on the pitch. Tap the active tool again to release it and scroll."}
         </span>
         <span className="tabular-nums">
           {tokens.filter((t) => t.kind === "player" || t.kind === "keeper").length} players · {tokens.length} items ·{" "}
           {shapes.length} drawings
         </span>
       </div>
+
 
       <div className="grid gap-3 p-3 lg:grid-cols-[170px_1fr]">
         {/* palette */}
