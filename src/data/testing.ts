@@ -381,6 +381,26 @@ export function resetTestRecords() {
   emit();
 }
 
+/** Results from the club workbook that this player is still missing. */
+export function missingBatteryFor(playerId: string) {
+  return seed().filter(
+    (s) =>
+      s.playerId === playerId &&
+      !testRecords.some((r) => r.playerId === playerId && r.testId === s.testId && r.date === s.date),
+  );
+}
+
+/** Re-import the club workbook battery for one player (nothing existing is overwritten). */
+export function importBatteryFor(playerId: string) {
+  if (!guardWrite()) return 0;
+  const missing = missingBatteryFor(playerId);
+  if (!missing.length) return 0;
+  testRecords.push(...missing);
+  emit();
+  return missing.length;
+}
+
+
 /* ------------------------------------------------------------------ */
 /* Queries                                                             */
 /* ------------------------------------------------------------------ */

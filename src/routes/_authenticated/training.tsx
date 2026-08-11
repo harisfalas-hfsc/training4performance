@@ -23,7 +23,9 @@ import {
   X,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { printSessionSheet } from "@/lib/report-export";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
+
 import { TacticsBoard, parseDrawing } from "@/components/tactics-board";
 import {
   addSession,
@@ -429,6 +431,12 @@ function TrainingPage() {
   const state = sessionStatus(session);
   const hasGps = sessionHasGps(session);
   const distribution = hasGps ? blockDistribution({ ...session, plan: items, blockNames: blocks }) : [];
+
+  /** What the sheet shows: fall back to the values stored on the day when the blocks are still empty. */
+  const sheetMinutes = plan.minutes || session.durationMin || 0;
+  const sheetRpe = plan.plannedRpe || session.plannedRpe || 0;
+  const sheetLoad = plan.load || Math.round(sheetMinutes * sheetRpe);
+
 
   return (
     <AppShell
@@ -1026,9 +1034,14 @@ function TrainingPage() {
               objective={session.objective}
               blocks={blocks}
               items={items}
-              minutes={plan.minutes || session.durationMin}
-              plannedRpe={plan.plannedRpe || session.plannedRpe}
-              load={plan.load}
+              minutes={sheetMinutes}
+              plannedRpe={sheetRpe}
+              load={sheetLoad}
+              onEdit={(b) => {
+                if (b) setActiveBlock(b);
+                setStep(2);
+              }}
+
             />
           </div>
 
@@ -1201,15 +1214,21 @@ function TrainingPage() {
       {step === 5 && (
         <>
           <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`RPE ${plan.plannedRpe} × ${plan.minutes} min`} />
+            <MetricCard
+              label="Planned load"
+              value={sheetLoad}
+              unit="AU"
+              hint={`RPE ${sheetRpe} × ${sheetMinutes} min (AU = arbitrary units)`}
+            />
             <MetricCard
               label="Actual load"
               value={plan.actualLoad || (hasGps ? "GPS" : "—")}
               unit={plan.actualLoad ? "AU" : ""}
               hint={hasGps ? "GPS associated with this day" : "From reported RPE"}
-              tone={plan.actualLoad && plan.actualLoad > plan.load * 1.15 ? "warn" : "good"}
+              tone={plan.actualLoad && plan.actualLoad > sheetLoad * 1.15 ? "warn" : "good"}
             />
-            <MetricCard label="Duration" value={plan.minutes || session.durationMin} unit="min" />
+            <MetricCard label="Duration" value={sheetMinutes} unit="min" />
+
             <MetricCard label="Status" value={STATE_LABEL[state]} hint={`${session.date} · ${session.label}`} />
           </section>
 
@@ -1310,16 +1329,57 @@ function TrainingPage() {
 
       {/* ---------- session sheet modal ---------- */}
       {showSheet ? (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/90 p-3">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/95 p-3">
           <div className="mx-auto max-w-3xl">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <p className="font-display text-lg font-semibold">Session sheet</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => {
+                    setShowSheet(false);
+                    setStep(2);
+                  }}
+                  className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground"
+                >
+                  <Pencil className="size-4" /> Edit blocks
+                </button>
+                <button
+                  onClick={() => {
+                    const ok = printSessionSheet({
+                      club: "Training 4 Performance",
+                      date: session.date,
+                      label: session.label,
+                      type,
+                      group: session.group ?? TRAINING_GROUPS[0]!,
+                      objective: session.objective,
+                      minutes: sheetMinutes,
+                      rpe: sheetRpe,
+                      load: sheetLoad,
+                      blocks: blocks.map((b) => {
+                        const bItems = items.filter((i) => (i.block ?? "") === b);
+                        return {
+                          name: b,
+                          minutes: bItems.reduce((a, i) => a + (i.durationMin || 0), 0),
+                          items: bItems.map((it) => ({
+                            drill: it.drill,
+                            detail: it.strength
+                              ? `${it.strength.sets} × ${it.strength.reps}${
+                                  it.strength.weightKg ? ` @ ${it.strength.weightKg} kg` : ""
+                                } · rest ${it.strength.restSec}s`
+                              : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`,
+                          })),
+                        };
+                      }),
+                    });
+                    toast[ok ? "success" : "message"](
+                      ok
+                        ? "Print-ready sheet opened — choose Save as PDF"
+                        : "Pop-up blocked — the printable sheet was downloaded instead",
+                    );
+                  }}
                   className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
                 >
-                  <Printer className="size-4" /> Print
+                  <Printer className="size-4" /> Print / PDF
                 </button>
                 <button
                   onClick={() => setShowSheet(false)}
@@ -1338,14 +1398,20 @@ function TrainingPage() {
                 objective={session.objective}
                 blocks={blocks}
                 items={items}
-                minutes={plan.minutes || session.durationMin}
-                plannedRpe={plan.plannedRpe || session.plannedRpe}
-                load={plan.load}
+                minutes={sheetMinutes}
+                plannedRpe={sheetRpe}
+                load={sheetLoad}
+                onEdit={(b) => {
+                  if (b) setActiveBlock(b);
+                  setShowSheet(false);
+                  setStep(2);
+                }}
               />
             </div>
           </div>
         </div>
       ) : null}
+
 
       {/* ---------- drawing modal ---------- */}
       {drawingIndex !== null && items[drawingIndex] ? (
@@ -1393,6 +1459,7 @@ function SessionSheet({
   minutes,
   plannedRpe,
   load,
+  onEdit,
 }: {
   date: string;
   label: string;
@@ -1404,6 +1471,7 @@ function SessionSheet({
   minutes: number;
   plannedRpe: number;
   load: number;
+  onEdit?: (block?: string) => void;
 }) {
   return (
     <article className="space-y-4">
@@ -1433,17 +1501,39 @@ function SessionSheet({
 
       {objective ? <p className="text-sm text-muted-foreground">Objective — {objective}</p> : null}
 
+      <p className="rounded-md border border-border bg-surface-2 p-3 text-xs leading-relaxed text-muted-foreground">
+        <span className="font-semibold text-foreground">How these numbers are produced.</span>{" "}
+        <b>Duration</b> = the minutes of every item you placed in the blocks (if no item has minutes yet, the duration
+        stored on the day is used — that is where 66′ comes from). <b>RPE</b> = the duration-weighted average of the RPE
+        set on each item, on the Borg CR10 0–10 scale. <b>Load</b> = RPE × duration in <b>AU (Arbitrary Units)</b>, the
+        standard session-RPE load unit — 66 min at RPE 6 = 396 AU. It only reads 0 when the blocks contain no items with
+        minutes and RPE. This page is a read-only printout;{" "}
+        {onEdit ? "use Edit blocks to change anything." : "go to step 2 · Build the blocks to change anything."}
+      </p>
+
+
       <div className="grid gap-3 sm:grid-cols-2">
         {blocks.map((b, bi) => {
           const bItems = items.filter((i) => (i.block ?? "") === b);
           const min = bItems.reduce((a, i) => a + (i.durationMin || 0), 0);
           return (
             <section key={b} className="rounded-md border border-border p-3">
-              <p className="flex items-baseline justify-between">
+              <p className="flex items-baseline justify-between gap-2">
                 <span className="eyebrow text-primary">
                   {bi + 1}. {b}
                 </span>
-                <span className="text-xs text-muted-foreground">{min} min</span>
+                <span className="flex items-baseline gap-2">
+                  <span className="text-xs text-muted-foreground">{min} min</span>
+                  {onEdit ? (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(b)}
+                      className="rounded border border-border px-1.5 text-[0.65rem] font-semibold text-muted-foreground hover:text-primary"
+                    >
+                      Edit
+                    </button>
+                  ) : null}
+                </span>
               </p>
               {bItems.length ? (
                 <ol className="mt-2 space-y-1.5">
@@ -1464,8 +1554,16 @@ function SessionSheet({
                   ))}
                 </ol>
               ) : (
-                <p className="mt-2 text-xs text-muted-foreground">Nothing planned in this block.</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Nothing planned in this block yet.{" "}
+                  {onEdit ? (
+                    <button type="button" onClick={() => onEdit(b)} className="font-semibold text-primary underline">
+                      Add drills
+                    </button>
+                  ) : null}
+                </p>
               )}
+
             </section>
           );
         })}
