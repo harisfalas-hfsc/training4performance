@@ -27,7 +27,7 @@ export type CalculatorSpec = {
   category: "Aerobic" | "Speed & Power" | "Strength" | "Heart rate";
   summary: string;
   fields: CalcField[];
-  compute: (v: Record<string, number>) => CalcResult[];
+  compute: (v: (key: string) => number) => CalcResult[];
   notes?: string[];
 };
 
@@ -56,8 +56,8 @@ export const calculators: CalculatorSpec[] = [
       { key: "t6", label: "Sprint 6", unit: "s", default: 5.62, step: 0.01, min: 1 },
     ],
     compute: (v) => {
-      const times = [v.t1, v.t2, v.t3, v.t4, v.t5, v.t6].filter((t) => t > 0);
-      const powers = times.map((t) => (v.weight * 35 * 35) / (t * t * t));
+      const times = [v("t1"), v("t2"), v("t3"), v("t4"), v("t5"), v("t6")].filter((t) => t > 0);
+      const powers = times.map((t) => (v("weight") * 35 * 35) / (t * t * t));
       const max = Math.max(...powers);
       const min = Math.min(...powers);
       const avg = powers.reduce((a, b) => a + b, 0) / powers.length;
@@ -82,8 +82,8 @@ export const calculators: CalculatorSpec[] = [
       { key: "shuttle", label: "Shuttles in that level", default: 2, step: 1, min: 0, max: 17 },
     ],
     compute: (v) => {
-      const level = Math.floor(v.level);
-      const shuttle = Math.floor(v.shuttle);
+      const level = Math.floor(v("level"));
+      const shuttle = Math.floor(v("shuttle"));
       if (level > 23 || shuttle > 17) return [{ label: "Level or shuttle is incorrect", value: "—" }];
       let total = shuttle;
       for (let i = 0; i < SHUTTLES_PER_LEVEL.length; i += 1) if (level > i + 1) total += SHUTTLES_PER_LEVEL[i];
@@ -107,8 +107,8 @@ export const calculators: CalculatorSpec[] = [
       { key: "maxHr", label: "Maximum heart rate", unit: "bpm", default: 186, step: 1, min: 100 },
     ],
     compute: (v) => {
-      const o2 = 2.917 * v.atSpeed + 0.000617 * v.atSpeed ** 3;
-      const vo2max = (v.maxHr * 16.55 + v.hr17 * 36.07 - v.hr12 * 52.62) / (v.hr17 - v.hr12);
+      const o2 = 2.917 * v("atSpeed") + 0.000617 * v("atSpeed") ** 3;
+      const vo2max = (v("maxHr") * 16.55 + v("hr17") * 36.07 - v("hr12") * 52.62) / (v("hr17") - v("hr12"));
       return [
         { label: "O2 usage at threshold", value: round(o2, 2), unit: "ml/kg/min", emphasis: true },
         { label: "VO2 max", value: round(vo2max, 2), unit: "ml/kg/min", emphasis: true },
@@ -124,7 +124,7 @@ export const calculators: CalculatorSpec[] = [
     summary: "Predicted 150 m, 300 m and 600 m times for a target 400 m time.",
     fields: [{ key: "target", label: "Target 400 m time", unit: "s", default: 48, step: 0.1, min: 35 }],
     compute: (v) => {
-      const t = v.target;
+      const t = v("target");
       return [
         { label: "Predicted 150 m", value: round(-0.131152 + 0.3856481 * t - 0.000985 * t * t, 2), unit: "s", emphasis: true },
         { label: "Predicted 300 m", value: round(-12.83117 + 1.2204958 * t - 0.004695 * t * t, 2), unit: "s", emphasis: true },
@@ -142,9 +142,9 @@ export const calculators: CalculatorSpec[] = [
       { key: "rhr", label: "Resting heart rate", unit: "bpm", default: 55, step: 1, min: 30, max: 120 },
     ],
     compute: (v) => {
-      const mhr = 217 - v.age * 0.85;
-      const whr = mhr - v.rhr;
-      const zone = (p: number) => round(whr * p + v.rhr);
+      const mhr = 217 - v("age") * 0.85;
+      const whr = mhr - v("rhr");
+      const zone = (p: number) => round(whr * p + v("rhr"));
       return [
         { label: "Maximum heart rate", value: round(mhr), unit: "bpm", emphasis: true },
         { label: "Working heart rate", value: round(whr), unit: "bpm" },
@@ -166,8 +166,8 @@ export const calculators: CalculatorSpec[] = [
       { key: "reps", label: "Repetitions", default: 8, step: 1, min: 1, max: 11, hint: "Must be less than 12" },
     ],
     compute: (v) => [
-      { label: "Max load (Brzycki)", value: round(v.weight / (1.0278 - 0.0278 * v.reps), 1), unit: "kg", emphasis: true },
-      { label: "Max load (alternative)", value: round(v.weight * (1 + 0.033 * v.reps), 1), unit: "kg", emphasis: true },
+      { label: "Max load (Brzycki)", value: round(v("weight") / (1.0278 - 0.0278 * v("reps")), 1), unit: "kg", emphasis: true },
+      { label: "Max load (alternative)", value: round(v("weight") * (1 + 0.033 * v("reps")), 1), unit: "kg", emphasis: true },
     ],
   },
   {
@@ -177,7 +177,7 @@ export const calculators: CalculatorSpec[] = [
     summary: "How many repetitions an athlete should manage at a given percentage of 1RM.",
     fields: [{ key: "load", label: "% of 1RM", unit: "%", default: 85, step: 1, min: 30, max: 100 }],
     compute: (v) => {
-      const l = v.load;
+      const l = v("load");
       const reps = 173.525 - 6.31 * l + 0.09576 * l * l - 0.0006742 * l ** 3 + 0.00000175 * l ** 4;
       return [{ label: "Repetitions to failure", value: round(reps, 1), unit: "reps", emphasis: true }];
     },
@@ -189,7 +189,7 @@ export const calculators: CalculatorSpec[] = [
     summary: "Convert a target percentage of VO2 max into a percentage of maximum heart rate.",
     fields: [{ key: "vo2", label: "Target % VO2 max", unit: "%", default: 80, step: 1, min: 30, max: 100 }],
     compute: (v) => [
-      { label: "% of maximum heart rate", value: round(0.64 * v.vo2 + 37, 1), unit: "%", emphasis: true },
+      { label: "% of maximum heart rate", value: round(0.64 * v("vo2") + 37, 1), unit: "%", emphasis: true },
     ],
   },
   {
@@ -199,7 +199,7 @@ export const calculators: CalculatorSpec[] = [
     summary: "From a 6-minute time trial distance: velocity at VO2 max plus ready-made 30-30, 60-60 and vVO2max sessions.",
     fields: [{ key: "distance", label: "Distance covered in 6 minutes", unit: "m", default: 1500, step: 10, min: 300 }],
     compute: (v) => {
-      const d = v.distance;
+      const d = v("distance");
       const run30 = (d * 0.5) / 6;
       return [
         { label: "vVO2 max", value: round(d / 360, 2), unit: "m/s", emphasis: true },
