@@ -1006,12 +1006,7 @@ export interface Wellness {
   mood: number;
 }
 
-export const wellnessToday: Wellness[] = players.map((p, i) => {
-  const rnd = seeded(500 + i * 17);
-  const base = p.availability === "available" ? 3.6 : 2.6;
-  const r = () => Math.max(1, Math.min(5, +(base + rnd() * 1.4 - 0.6).toFixed(1)));
-  return { playerId: p.id, sleep: r(), fatigue: r(), soreness: r(), stress: r(), mood: r() };
-});
+export const wellnessToday: Wellness[] = [];
 
 export const wellnessScore = (w: Wellness) =>
   +(((w.sleep + w.fatigue + w.soreness + w.stress + w.mood) / 25) * 100).toFixed(0);
