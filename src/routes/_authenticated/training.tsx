@@ -753,23 +753,19 @@ function TrainingPage() {
           <StepActions onNext={() => setStep(2)} nextLabel="Build the blocks">
             <button
               type="button"
-              onClick={() => {
-                const d = window.prompt("Copy this session to date (YYYY-MM-DD)", today);
-                if (d) duplicateSession(session.id, d);
-              }}
+              onClick={duplicateToDate}
               className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
             >
               <Copy className="size-4" /> Duplicate day
             </button>
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm(`Delete ${session.date} ${session.title}?`)) removeSession(session.id);
-              }}
+              onClick={deleteDay}
               className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="size-4" /> Delete day
             </button>
+
           </StepActions>
         </section>
       )}
