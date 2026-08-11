@@ -87,7 +87,9 @@ const includes = [
   { t: "Logbook and analytics", d: "Every player-session row, pivot charts, comparisons and the full test battery.", tone: "border-brand-indigo/25", dot: "bg-brand-indigo" },
   { t: "Alerts", d: "Automated thresholds on workload, wellness and availability, each with a suggested adjustment.", tone: "border-brand-red/25", dot: "bg-brand-red" },
   { t: "Reports and export", d: "Configurable templates plus a full workspace download in Excel or ZIP — your data stays yours.", tone: "border-brand-teal/25", dot: "bg-brand-teal" },
+  { t: "Smarty Assistant", d: "Ask questions in plain language, get instant reports and comparisons, and let the AI learn your coaching vocabulary.", tone: "border-brand-blue/25", dot: "bg-brand-blue" },
 ];
+
 
 function About() {
   return (
