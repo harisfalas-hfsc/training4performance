@@ -62,8 +62,10 @@ export function exportReportExcel(p: ReportPayload) {
   const wb = XLSX.utils.book_new();
 
   const summary = [
+    ["T4P · Training 4 Performance"],
     [p.club, p.title],
     [p.subtitle],
+    [`Generated ${new Date().toLocaleString()}`],
     [],
     ...p.headline.map((h) => [h.label, h.value]),
     [],
@@ -71,6 +73,7 @@ export function exportReportExcel(p: ReportPayload) {
     ...p.observations.map((o) => [o]),
     ...(p.medical?.length ? [[], ["Medical & availability"], ...p.medical.map((m) => [m])] : []),
   ];
+
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "Summary");
 
   const table = [p.columns, ...p.rows];
