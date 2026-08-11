@@ -92,26 +92,38 @@ export function exportReportExcel(p: ReportPayload) {
 const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>]/g, (c) => (c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;"));
 
+/** T4P brand blue — kept in sync with the app's primary colour. */
+const BRAND = "#2f9fd4";
+
+const stamp = () => new Date().toLocaleString();
+
 export function reportHtml(p: ReportPayload) {
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(p.club)} — ${esc(p.title)}</title>
 <style>
 @page{size:A4 landscape;margin:12mm}
 *{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#111;margin:0;padding:16px}
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#111;margin:0;padding:0}
+.wrap{padding:0 22px 22px}
+header{display:flex;align-items:center;gap:14px;border-bottom:3px solid ${BRAND};padding:16px 22px;margin-bottom:14px}
+.mark{width:44px;height:44px;border-radius:10px;background:${BRAND};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;letter-spacing:.02em}
 h1{font-size:20px;margin:0}
-h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#555;margin:20px 0 6px}
-p.sub{color:#555;margin:4px 0 0;font-size:12px}
-.cards{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.card{border:1px solid #ddd;border-radius:8px;padding:8px 12px;min-width:120px}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:${BRAND};margin:20px 0 6px;border-bottom:1px solid #e6e6e6;padding-bottom:4px}
+p.sub{color:#555;margin:3px 0 0;font-size:12px}
+.cards{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.card{border:1px solid #e2e2e2;border-top:3px solid ${BRAND};border-radius:8px;padding:8px 12px;min-width:130px}
 .card span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666}
 .card strong{font-size:18px}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th,td{border-bottom:1px solid #e2e2e2;padding:4px 6px;text-align:right}
+th,td{border-bottom:1px solid #ececec;padding:5px 6px;text-align:right}
 th:first-child,td:first-child{text-align:left}
-th{background:#f4f4f4;text-transform:uppercase;font-size:10px;letter-spacing:.05em}
+tbody tr:nth-child(even){background:#fafafa}
+th{background:${BRAND};color:#fff;text-transform:uppercase;font-size:10px;letter-spacing:.05em}
 ul{font-size:12px;color:#333;padding-left:18px;margin:0}
+footer{margin-top:22px;border-top:1px solid #e6e6e6;padding-top:8px;font-size:10px;color:#888;display:flex;justify-content:space-between}
 </style></head><body>
-<h1>${esc(p.club)} — ${esc(p.title)}</h1><p class="sub">${esc(p.subtitle)}</p>
+<header><div class="mark">T4P</div><div>
+<h1>${esc(p.club)} — ${esc(p.title)}</h1><p class="sub">${esc(p.subtitle)}</p></div></header>
+<div class="wrap">
 <div class="cards">${p.headline
     .map((h) => `<div class="card"><span>${esc(h.label)}</span><strong>${esc(h.value)}</strong></div>`)
     .join("")}</div>
@@ -124,8 +136,11 @@ ul{font-size:12px;color:#333;padding-left:18px;margin:0}
   }</tbody></table>
 ${p.medical?.length ? `<h2>Medical &amp; availability</h2><ul>${p.medical.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>` : ""}
 <h2>Key observations</h2><ul>${p.observations.map((o) => `<li>${esc(o)}</li>`).join("")}</ul>
+<footer><span>Training 4 Performance · training4performance.com</span><span>Generated ${esc(stamp())}</span></footer>
+</div>
 </body></html>`;
 }
+
 
 /** Opens a print-ready sheet; the browser's print dialog saves it as PDF. */
 export function exportReportPdf(p: ReportPayload) {
