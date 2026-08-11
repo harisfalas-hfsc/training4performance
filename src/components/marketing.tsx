@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Compass, LogOut, User, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -47,9 +49,12 @@ export function SiteHeader() {
           </Link>
 
 
-          <div ref={avatarRef} className="relative shrink-0">
-            <button
-              onClick={() => setAvatar((v) => !v)}
+          <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle />
+            <div ref={avatarRef} className="relative shrink-0">
+              <button
+                onClick={() => setAvatar((v) => !v)}
+
               aria-label="Account menu"
               className="grid size-9 place-items-center rounded-full border border-border bg-surface-2 text-xs font-semibold uppercase"
             >
@@ -89,10 +94,12 @@ export function SiteHeader() {
                   </>
                 )}
               </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
+
 
       {menu ? (
         <div className="fixed inset-0 z-50 flex">
