@@ -33,6 +33,7 @@ import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gp
 import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
 import { Route as AuthenticatedManualRouteImport } from './routes/_authenticated/manual'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedSmartyAssistantRouteImport } from './routes/_authenticated/smarty-assistant'
 import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
@@ -158,6 +159,12 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSmartyAssistantRoute =
+  AuthenticatedSmartyAssistantRouteImport.update({
+    id: '/smarty-assistant',
+    path: '/smarty-assistant',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSquadRoute = AuthenticatedSquadRouteImport.update({
   id: '/squad',
   path: '/squad',
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/logbook': typeof AuthenticatedLogbookRoute
   '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/smarty-assistant': typeof AuthenticatedSmartyAssistantRoute
   '/squad': typeof AuthenticatedSquadRoute
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/logbook': typeof AuthenticatedLogbookRoute
   '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/smarty-assistant': typeof AuthenticatedSmartyAssistantRoute
   '/squad': typeof AuthenticatedSquadRoute
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -270,6 +279,7 @@ export interface FileRoutesById {
   '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
   '/_authenticated/manual': typeof AuthenticatedManualRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/smarty-assistant': typeof AuthenticatedSmartyAssistantRoute
   '/_authenticated/squad': typeof AuthenticatedSquadRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/logbook'
     | '/manual'
     | '/reports'
+    | '/smarty-assistant'
     | '/squad'
     | '/team'
     | '/training'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/logbook'
     | '/manual'
     | '/reports'
+    | '/smarty-assistant'
     | '/squad'
     | '/team'
     | '/training'
@@ -363,6 +375,7 @@ export interface FileRouteTypes {
     | '/_authenticated/logbook'
     | '/_authenticated/manual'
     | '/_authenticated/reports'
+    | '/_authenticated/smarty-assistant'
     | '/_authenticated/squad'
     | '/_authenticated/team'
     | '/_authenticated/training'
@@ -556,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/smarty-assistant': {
+      id: '/_authenticated/smarty-assistant'
+      path: '/smarty-assistant'
+      fullPath: '/smarty-assistant'
+      preLoaderRoute: typeof AuthenticatedSmartyAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/squad': {
       id: '/_authenticated/squad'
       path: '/squad'
@@ -607,6 +627,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
   AuthenticatedManualRoute: typeof AuthenticatedManualRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedSmartyAssistantRoute: typeof AuthenticatedSmartyAssistantRoute
   AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
@@ -626,6 +647,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,
   AuthenticatedManualRoute: AuthenticatedManualRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedSmartyAssistantRoute: AuthenticatedSmartyAssistantRoute,
   AuthenticatedSquadRoute: AuthenticatedSquadRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
