@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import {

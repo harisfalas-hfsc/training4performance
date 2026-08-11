@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Download, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { T4P } from "@/components/brand-text";
 import { AcwrPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { MultiLine, TrendBars } from "@/components/charts";
 import {
