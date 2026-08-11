@@ -166,8 +166,31 @@ function About() {
           ))}
         </div>
 
+        <div className="panel mt-14 border-brand-blue/25 p-6">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-brand-blue/12 text-brand-blue">
+              <Sparkles className="size-5" />
+            </div>
+            <p className="eyebrow text-brand-blue">Smarty Assistant</p>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Smarty Assistant is the AI analyst inside T4P. It reads your squad, sessions, GPS and wellness data and
+            answers questions like "Who ran the most this week?", "Compare player A and player B", or "Give me a
+            workload report". It can suggest session adjustments, explain trends and learn your terminology over time.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/how-it-works" className="rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground">
+              See how it works
+            </Link>
+            <Link to="/pricing" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+              View pricing
+            </Link>
+          </div>
+        </div>
+
         <div className="panel mt-14 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-pink/10 p-6">
           <p className="eyebrow text-brand-indigo">Who created it</p>
+
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             T4P was created by <strong className="text-foreground">Haris Falas</strong> — sports scientist, fitness
             coach and strength &amp; conditioning coach — from more than a decade of daily work inside professional
