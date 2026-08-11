@@ -41,8 +41,6 @@ import {
   playerTestIds,
   removeCustomTest,
   removeTestRecord,
-  missingBatteryFor,
-  importBatteryFor,
 
   SMS_FORMATS,
   sprintSplits,
