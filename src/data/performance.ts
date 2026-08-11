@@ -949,6 +949,33 @@ export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28): Lo
   };
 }
 
+/** Rolling day-by-day ACWR for the last `days` calendar days. */
+export function acwrSeries(id: string, days = 42, acuteWindow = 7, chronicWindow = 28) {
+  const daily = loadDays(id);
+  const byDate = new Map(daily.map((d) => [d.date, d.total]));
+  const out: Array<{ date: string; acwr: number; acute: number; chronic: number; load: number }> = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const date = dateNAgo(i);
+    const from = (n: number) => {
+      const d = new Date(date);
+      d.setDate(d.getDate() - (n - 1));
+      return d.toISOString().slice(0, 10);
+    };
+    const window = (n: number) =>
+      [...byDate.entries()].filter(([k]) => k >= from(n) && k <= date).reduce((a, [, v]) => a + v, 0);
+    const acute = window(acuteWindow);
+    const chronic = window(chronicWindow) / (chronicWindow / acuteWindow);
+    out.push({
+      date,
+      load: Math.round(byDate.get(date) ?? 0),
+      acute: Math.round(acute),
+      chronic: Math.round(chronic),
+      acwr: chronic ? +(acute / chronic).toFixed(2) : 0,
+    });
+  }
+  return out;
+}
+
 export interface PlayerMetrics {
   player: Player;
   distance7: number;
@@ -1213,7 +1240,7 @@ export const PROVIDER_MAP: Array<{ provider: string; raw: string; internal: stri
 ];
 
 export const acwrStatus = (acwr: number) =>
-  acwr === 0 ? "no-data" : acwr > 1.35 ? "high" : acwr < 0.8 ? "low" : "optimal";
+  acwr === 0 ? "no-data" : acwr > 1.5 ? "high" : acwr > 1.3 ? "caution" : acwr < 0.8 ? "low" : "optimal";
 
 /* ------------------------------------------------------------------ */
 /* Block-level GPS association                                         */

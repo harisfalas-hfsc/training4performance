@@ -19,7 +19,10 @@ import {
   Radar,
   PolarGrid,
   PolarAngleAxis,
+  ReferenceArea,
+  ReferenceLine,
 } from "recharts";
+import { ACWR_BANDS, AcwrLegend } from "@/components/perf-ui";
 
 const axis = {
   stroke: "var(--color-muted-foreground)",
@@ -133,6 +136,55 @@ export function MultiLine({
         ))}
       </LineChart>
     </ResponsiveContainer>
+  );
+}
+
+/**
+ * ACWR over time with the injury-risk colour bands behind the line
+ * (Science for Sport: <0.80 under-training, 0.80-1.30 sweet spot,
+ * 1.30-1.50 caution, >1.50 danger zone).
+ */
+export function AcwrChart({
+  data,
+  height = 240,
+  xKey = "date",
+  dataKey = "acwr",
+  legend = true,
+}: {
+  data: Row[];
+  height?: number;
+  xKey?: string;
+  dataKey?: string;
+  legend?: boolean;
+}) {
+  const max = Math.max(1.8, ...data.map((d) => Number(d[dataKey] ?? 0) + 0.2));
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={height}>
+        <LineChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+          {ACWR_BANDS.map((band) => (
+            <ReferenceArea
+              key={band.id}
+              y1={band.from}
+              y2={band.id === "danger" ? max : band.to}
+              fill={band.color}
+              fillOpacity={0.12}
+              stroke="none"
+              ifOverflow="hidden"
+            />
+          ))}
+          <ReferenceLine y={0.8} stroke="var(--color-border)" strokeDasharray="4 4" />
+          <ReferenceLine y={1.3} stroke="var(--color-border)" strokeDasharray="4 4" />
+          <ReferenceLine y={1.5} stroke="var(--color-border)" strokeDasharray="4 4" />
+          <XAxis dataKey={xKey} {...axis} />
+          <YAxis {...axis} width={46} domain={[0, max]} />
+          <Tooltip {...tooltipStyle} />
+          <Line type="monotone" dataKey={dataKey} name="ACWR" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+      {legend ? <AcwrLegend className="mt-2" /> : null}
+    </div>
   );
 }
 
