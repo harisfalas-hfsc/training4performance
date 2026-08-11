@@ -1,7 +1,7 @@
 /**
  * Central connected data model for T4P (Training 4 Performance).
  *
- * The squad, the GPS sessions and the physical tests are the REAL data exported
+ * The squad, GPS sessions and physical tests are created by the coach.
  * Empty by default — coaches create their own team, squad and data.
  * Everything the staff adds afterwards (new players, transfers out, new training
  * days, manual GPS/RPE entries, new test rounds) is layered on top and persisted

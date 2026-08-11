@@ -3,8 +3,6 @@
  * (Activity logbook / Activity chart / Training logbook / Tests / Data).
  */
 import {
-  SALAMINA_TESTS,
-} from "@/data/salamina";
 import {
   customKpis,
   fullName,
