@@ -241,7 +241,7 @@ function HowItWorks() {
           {faq.map((f, i) => {
             const tone = Object.values(tones)[i % 9]!;
             return (
-              <div key={f.q} className={`panel ${tone.card} p-5`}>
+              <div key={i} className={`panel ${tone.card} p-5`}>
                 <p className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}>{f.q}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
               </div>

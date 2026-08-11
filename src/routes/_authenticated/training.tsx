@@ -26,6 +26,7 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { exportReport, printSessionSheet } from "@/lib/report-export";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
+import { T4P } from "@/components/brand-text";
 
 import { TacticsBoard, parseDrawing } from "@/components/tactics-board";
 import {

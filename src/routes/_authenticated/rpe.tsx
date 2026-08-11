@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Gauge, Layers, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
+import { T4P } from "@/components/brand-text";
 import { Button } from "@/components/ui/button";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import {
