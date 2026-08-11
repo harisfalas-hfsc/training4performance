@@ -134,7 +134,33 @@ const DIMS: Record<Orientation, { w: number; h: number }> = {
   landscape: { w: 1000, h: 680 },
 };
 
-function PitchMarkings({ orientation }: { orientation: Orientation }) {
+export type PitchView = "full" | "half" | "quarter";
+export type FieldType = "football" | "futsal" | "blank";
+
+const VIEWS: { id: PitchView; label: string }[] = [
+  { id: "full", label: "Full pitch" },
+  { id: "half", label: "Half pitch" },
+  { id: "quarter", label: "Quarter pitch" },
+];
+
+const FIELDS: { id: FieldType; label: string }[] = [
+  { id: "football", label: "Football 11v11" },
+  { id: "futsal", label: "Futsal / indoor" },
+  { id: "blank", label: "Blank field" },
+];
+
+/** Visible area of the base pitch for the chosen view. */
+function viewBoxFor(orientation: Orientation, view: PitchView) {
+  const { w, h } = DIMS[orientation];
+  if (view === "full") return { x: 0, y: 0, w, h };
+  if (orientation === "portrait") {
+    return view === "half" ? { x: 0, y: 0, w, h: h / 2 } : { x: 0, y: 0, w: w / 2, h: h / 2 };
+  }
+  return view === "half" ? { x: 0, y: 0, w: w / 2, h } : { x: 0, y: 0, w: w / 2, h: h / 2 };
+}
+
+function PitchMarkings({ orientation, field }: { orientation: Orientation; field: FieldType }) {
+
   const { w, h } = DIMS[orientation];
   const m = 26;
   const line = "var(--color-pitch-line)";
