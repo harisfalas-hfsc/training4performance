@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
