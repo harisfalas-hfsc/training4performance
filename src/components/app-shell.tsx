@@ -3,6 +3,7 @@ import { SmartyAssistant } from "@/components/smarty-assistant";
 
 
 import {
+  ArrowLeft,
   Activity,
   BarChart3,
   BellRing,
@@ -41,6 +42,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
 import { platformNav } from "@/lib/nav-items";
+import { usePlatformBack } from "@/lib/platform-history";
 
 const nav = platformNav;
 
@@ -58,8 +60,7 @@ export function AppShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { profile, subscription, user } = useAuth();
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
-  const av = squadAvailability();
-  const [open, setOpen] = useState(false);
+  const { canGoBack, goBack } = usePlatformBack();
   const [supportMode, setSupportMode] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -67,7 +68,6 @@ export function AppShell({
   const navItems = nav;
 
   useEffect(() => {
-    setOpen(window.localStorage.getItem("t4p.sidebar") === "open");
     setSupportMode(Boolean(window.sessionStorage.getItem("t4p.adminSession")));
   }, []);
 
@@ -113,12 +113,6 @@ export function AppShell({
     return () => window.clearTimeout(t);
   }, [user?.id, profile?.club_name, subscription?.team_name, version]);
 
-  const toggle = () => {
-    setOpen((v) => {
-      window.localStorage.setItem("t4p.sidebar", v ? "closed" : "open");
-      return !v;
-    });
-  };
 
 
   return (
