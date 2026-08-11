@@ -291,7 +291,7 @@ export interface WorkspaceData {
   medicalEvents: MedicalEvent[];
 }
 
-const STORAGE_KEY = "t4p.data.v1";
+const STORAGE_KEY = "t4p.data.v2";
 const listeners = new Set<() => void>();
 let version = 0;
 

@@ -160,7 +160,7 @@ export interface TestRecord {
 
 export const testRecords: TestRecord[] = [];
 
-const STORAGE_KEY = "t4p.tests.v1";
+const STORAGE_KEY = "t4p.tests.v2";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -201,7 +201,7 @@ function seed(): TestRecord[] {
 /* Custom test builder                                                 */
 /* ------------------------------------------------------------------ */
 
-const CUSTOM_KEY = "t4p.customtests.v1";
+const CUSTOM_KEY = "t4p.customtests.v2";
 
 /** What kind of number the coach records for a custom test. */
 export type CustomTestKind = "number" | "time" | "score" | "strength";
