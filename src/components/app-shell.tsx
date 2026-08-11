@@ -37,6 +37,7 @@ import {
 } from "@/data/performance";
 import { useAuth } from "@/lib/auth";
 import { hydrateWorkspace, syncUsageSnapshot } from "@/lib/usage";
+import { clearWellness, loadWellness } from "@/data/wellness";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -93,8 +94,12 @@ export function AppShell({
   };
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      clearWellness();
+      return;
+    }
     void hydrateWorkspace(user.id);
+    void loadWellness(user.id);
   }, [user?.id]);
 
   useEffect(() => {

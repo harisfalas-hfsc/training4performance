@@ -19,7 +19,10 @@ import {
   Radar,
   PolarGrid,
   PolarAngleAxis,
+  ReferenceArea,
+  ReferenceLine,
 } from "recharts";
+import { ACWR_BANDS, AcwrLegend } from "@/components/perf-ui";
 
 const axis = {
   stroke: "var(--color-muted-foreground)",
@@ -45,11 +48,14 @@ export function TrendArea({
   dataKey,
   color = "var(--color-chart-1)",
   height = 200,
+  hideAxisValues = false,
 }: {
   data: Row[];
   dataKey: string;
   color?: string;
   height?: number;
+  /** Player-facing mode: shapes and trends only, no readable numbers. */
+  hideAxisValues?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -62,8 +68,8 @@ export function TrendArea({
         </defs>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="date" {...axis} />
-        <YAxis {...axis} width={46} />
-        <Tooltip {...tooltipStyle} />
+        <YAxis {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} />
+        {hideAxisValues ? null : <Tooltip {...tooltipStyle} />}
         <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} fill={`url(#g-${dataKey})`} />
       </AreaChart>
     </ResponsiveContainer>
@@ -76,20 +82,22 @@ export function TrendBars({
   color = "var(--color-chart-2)",
   height = 200,
   xKey = "date",
+  hideAxisValues = false,
 }: {
   data: Row[];
   dataKey: string;
   color?: string;
   height?: number;
   xKey?: string;
+  hideAxisValues?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey={xKey} {...axis} />
-        <YAxis {...axis} width={46} />
-        <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />
+        <YAxis {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} />
+        {hideAxisValues ? null : <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />}
         <Bar dataKey={dataKey} fill={color} radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
@@ -103,21 +111,23 @@ export function MultiLine({
   xKey = "date",
   height = 220,
   dualAxis = true,
+  hideAxisValues = false,
 }: {
   data: Row[];
   series: Array<{ key: string; color: string; name: string }>;
   xKey?: string;
   height?: number;
   dualAxis?: boolean;
+  hideAxisValues?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey={xKey} {...axis} />
-        <YAxis yAxisId="left" {...axis} width={46} />
-        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={46} /> : null}
-        <Tooltip {...tooltipStyle} />
+        <YAxis yAxisId="left" {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} />
+        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={hideAxisValues ? 8 : 46} tick={!hideAxisValues} /> : null}
+        {hideAxisValues ? null : <Tooltip {...tooltipStyle} />}
         <Legend wrapperStyle={{ fontSize: 11 }} />
         {series.map((s, i) => (
           <Line
@@ -133,6 +143,55 @@ export function MultiLine({
         ))}
       </LineChart>
     </ResponsiveContainer>
+  );
+}
+
+/**
+ * ACWR over time with the injury-risk colour bands behind the line
+ * (Science for Sport: <0.80 under-training, 0.80-1.30 sweet spot,
+ * 1.30-1.50 caution, >1.50 danger zone).
+ */
+export function AcwrChart({
+  data,
+  height = 240,
+  xKey = "date",
+  dataKey = "acwr",
+  legend = true,
+}: {
+  data: Row[];
+  height?: number;
+  xKey?: string;
+  dataKey?: string;
+  legend?: boolean;
+}) {
+  const max = Math.max(1.8, ...data.map((d) => Number(d[dataKey] ?? 0) + 0.2));
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={height}>
+        <LineChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+          {ACWR_BANDS.map((band) => (
+            <ReferenceArea
+              key={band.id}
+              y1={band.from}
+              y2={band.id === "danger" ? max : band.to}
+              fill={band.color}
+              fillOpacity={0.12}
+              stroke="none"
+              ifOverflow="hidden"
+            />
+          ))}
+          <ReferenceLine y={0.8} stroke="var(--color-border)" strokeDasharray="4 4" />
+          <ReferenceLine y={1.3} stroke="var(--color-border)" strokeDasharray="4 4" />
+          <ReferenceLine y={1.5} stroke="var(--color-border)" strokeDasharray="4 4" />
+          <XAxis dataKey={xKey} {...axis} />
+          <YAxis {...axis} width={46} domain={[0, max]} />
+          <Tooltip {...tooltipStyle} />
+          <Line type="monotone" dataKey={dataKey} name="ACWR" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+      {legend ? <AcwrLegend className="mt-2" /> : null}
+    </div>
   );
 }
 

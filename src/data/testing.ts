@@ -333,6 +333,18 @@ subscribeWorkspaceScope(hydrate);
 const initialScope = getWorkspaceScope();
 hydrate(initialScope.userId, initialScope.migrateLegacy);
 
+/** Full copy of the coach's test records (used for cloud sync + player portal). */
+export function testRecordsSnapshot(): TestRecord[] {
+  return testRecords.map((r) => ({ ...r }));
+}
+
+/** Replaces the local test records with the cloud copy. */
+export function applyTestRecords(list: TestRecord[]) {
+  testRecords.splice(0, testRecords.length, ...list);
+  version++;
+  listeners.forEach((l) => l());
+}
+
 export function addTestRecord(input: Omit<TestRecord, "id"> & { id?: string }) {
   if (!guardWrite()) return;
   const rec: TestRecord = { ...input, id: input.id ?? rid() };

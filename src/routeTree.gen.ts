@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as HarisFalasRouteImport } from './routes/haris-falas'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -41,6 +42,7 @@ import { Route as AuthenticatedRpeRouteImport } from './routes/_authenticated/rp
 import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as AuthenticatedWellnessRouteImport } from './routes/_authenticated/wellness'
 import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players.$id'
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 
@@ -81,6 +83,11 @@ const HarisFalasRoute = HarisFalasRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -204,6 +211,11 @@ const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   path: '/training',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWellnessRoute = AuthenticatedWellnessRouteImport.update({
+  id: '/wellness',
+  path: '/wellness',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPlayersIdRoute = AuthenticatedPlayersIdRouteImport.update({
   id: '/players/$id',
   path: '/players/$id',
@@ -223,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -247,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/squad': typeof AuthenticatedSquadRoute
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/wellness': typeof AuthenticatedWellnessRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
@@ -258,6 +272,7 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -282,6 +297,7 @@ export interface FileRoutesByTo {
   '/squad': typeof AuthenticatedSquadRoute
   '/team': typeof AuthenticatedTeamRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/wellness': typeof AuthenticatedWellnessRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
@@ -295,6 +311,7 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -319,6 +336,7 @@ export interface FileRoutesById {
   '/_authenticated/squad': typeof AuthenticatedSquadRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/_authenticated/wellness': typeof AuthenticatedWellnessRoute
   '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
@@ -332,6 +350,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
+    | '/portal'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -356,6 +375,7 @@ export interface FileRouteTypes {
     | '/squad'
     | '/team'
     | '/training'
+    | '/wellness'
     | '/players/$id'
     | '/api/assistant/chat'
   fileRoutesByTo: FileRoutesByTo
@@ -367,6 +387,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
+    | '/portal'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -391,6 +412,7 @@ export interface FileRouteTypes {
     | '/squad'
     | '/team'
     | '/training'
+    | '/wellness'
     | '/players/$id'
     | '/api/assistant/chat'
   id:
@@ -403,6 +425,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
+    | '/portal'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -427,6 +450,7 @@ export interface FileRouteTypes {
     | '/_authenticated/squad'
     | '/_authenticated/team'
     | '/_authenticated/training'
+    | '/_authenticated/wellness'
     | '/_authenticated/players/$id'
     | '/api/assistant/chat'
   fileRoutesById: FileRoutesById
@@ -440,6 +464,7 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   HarisFalasRoute: typeof HarisFalasRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  PortalRoute: typeof PortalRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -504,6 +529,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -674,6 +706,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrainingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/wellness': {
+      id: '/_authenticated/wellness'
+      path: '/wellness'
+      fullPath: '/wellness'
+      preLoaderRoute: typeof AuthenticatedWellnessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/players/$id': {
       id: '/_authenticated/players/$id'
       path: '/players/$id'
@@ -711,6 +750,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
+  AuthenticatedWellnessRoute: typeof AuthenticatedWellnessRoute
   AuthenticatedPlayersIdRoute: typeof AuthenticatedPlayersIdRoute
 }
 
@@ -734,6 +774,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSquadRoute: AuthenticatedSquadRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
+  AuthenticatedWellnessRoute: AuthenticatedWellnessRoute,
   AuthenticatedPlayersIdRoute: AuthenticatedPlayersIdRoute,
 }
 
@@ -749,6 +790,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   HarisFalasRoute: HarisFalasRoute,
   HowItWorksRoute: HowItWorksRoute,
+  PortalRoute: PortalRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,

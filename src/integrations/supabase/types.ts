@@ -162,6 +162,99 @@ export type Database = {
           },
         ]
       }
+      player_access: {
+        Row: {
+          active: boolean
+          coach_id: string
+          code: string
+          created_at: string
+          id: string
+          last_login_at: string | null
+          player_id: string
+          player_name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          coach_id: string
+          code: string
+          created_at?: string
+          id?: string
+          last_login_at?: string | null
+          player_id: string
+          player_name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          coach_id?: string
+          code?: string
+          created_at?: string
+          id?: string
+          last_login_at?: string | null
+          player_id?: string
+          player_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      player_wellness: {
+        Row: {
+          coach_id: string
+          created_at: string
+          entry_date: string
+          fatigue: number
+          hydration: number
+          id: string
+          mood: number
+          note: string | null
+          player_id: string
+          readiness: number
+          sleep: number
+          sleep_hours: number | null
+          soreness: number
+          source: string
+          stress: number
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          entry_date?: string
+          fatigue?: number
+          hydration?: number
+          id?: string
+          mood?: number
+          note?: string | null
+          player_id: string
+          readiness?: number
+          sleep?: number
+          sleep_hours?: number | null
+          soreness?: number
+          source?: string
+          stress?: number
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          entry_date?: string
+          fatigue?: number
+          hydration?: number
+          id?: string
+          mood?: number
+          note?: string | null
+          player_id?: string
+          readiness?: number
+          sleep?: number
+          sleep_hours?: number | null
+          soreness?: number
+          source?: string
+          stress?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           club_name: string | null
@@ -334,6 +427,7 @@ export type Database = {
           rpe_entries: Json
           sessions: Json
           team: Json
+          test_records: Json
           updated_at: string
           user_id: string
         }
@@ -347,6 +441,7 @@ export type Database = {
           rpe_entries?: Json
           sessions?: Json
           team?: Json
+          test_records?: Json
           updated_at?: string
           user_id: string
         }
@@ -360,6 +455,7 @@ export type Database = {
           rpe_entries?: Json
           sessions?: Json
           team?: Json
+          test_records?: Json
           updated_at?: string
           user_id?: string
         }
