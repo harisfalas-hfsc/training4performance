@@ -209,23 +209,21 @@ export function exportReportPng(p: ReportPayload) {
   ctx.fillStyle = "#ffffff";
   p.columns.forEach((c, i) => ctx.fillText(String(c).slice(0, 18), pad + 6 + i * colW, y));
 
-  y += 10;
-  ctx.strokeStyle = "#cccccc";
-  ctx.beginPath();
-  ctx.moveTo(pad, y);
-  ctx.lineTo(width - pad, y);
-  ctx.stroke();
-  y += 20;
+  y += 22;
   ctx.font = "12px system-ui, sans-serif";
-  p.rows.forEach((r) => {
+  p.rows.forEach((r, ri) => {
+    if (ri % 2 === 1) {
+      ctx.fillStyle = "#fafafa";
+      ctx.fillRect(pad, y - 16, width - pad * 2, rowH);
+    }
     ctx.fillStyle = "#111111";
-    r.forEach((c, i) => ctx.fillText(String(c).slice(0, 20), pad + i * colW, y));
+    r.forEach((c, i) => ctx.fillText(String(c).slice(0, 20), pad + 6 + i * colW, y));
     y += rowH;
   });
 
   y += 20;
   ctx.font = "bold 13px system-ui, sans-serif";
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = BRAND;
   ctx.fillText("KEY OBSERVATIONS", pad, y);
   y += 24;
   ctx.font = "13px system-ui, sans-serif";
@@ -235,9 +233,20 @@ export function exportReportPng(p: ReportPayload) {
     y += 24;
   });
 
+  ctx.strokeStyle = "#e6e6e6";
+  ctx.beginPath();
+  ctx.moveTo(pad, height - 44);
+  ctx.lineTo(width - pad, height - 44);
+  ctx.stroke();
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.fillStyle = "#888888";
+  ctx.fillText("Training 4 Performance · training4performance.com", pad, height - 24);
+  ctx.fillText(`Generated ${stamp()}`, width - pad - 220, height - 24);
+
   canvas.toBlob((blob) => {
     if (blob) saveBlob(blob, `${baseName(p)}.png`);
   }, "image/png");
+
 }
 
 export function exportReport(format: string, payload: ReportPayload) {
