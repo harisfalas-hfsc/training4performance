@@ -40,6 +40,8 @@ import {
   type LoadWeights,
 } from "@/data/logbook";
 import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
+import { exportReport, type ReportPayload } from "@/lib/report-export";
+
 
 
 export const Route = createFileRoute("/_authenticated/reports")({
