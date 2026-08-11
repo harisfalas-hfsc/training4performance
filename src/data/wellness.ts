@@ -25,7 +25,7 @@ export interface WellnessEntry {
   mood: number;
   hydration: number;
   readiness: number;
-  note?: string;
+  note?: string | undefined;
   source: "player" | "coach";
 }
 
