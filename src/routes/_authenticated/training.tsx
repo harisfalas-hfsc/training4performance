@@ -1310,16 +1310,57 @@ function TrainingPage() {
 
       {/* ---------- session sheet modal ---------- */}
       {showSheet ? (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/90 p-3">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/95 p-3">
           <div className="mx-auto max-w-3xl">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <p className="font-display text-lg font-semibold">Session sheet</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => {
+                    setShowSheet(false);
+                    setStep(2);
+                  }}
+                  className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground"
+                >
+                  <Pencil className="size-4" /> Edit blocks
+                </button>
+                <button
+                  onClick={() => {
+                    const ok = printSessionSheet({
+                      club: "Training 4 Performance",
+                      date: session.date,
+                      label: session.label,
+                      type,
+                      group: session.group ?? TRAINING_GROUPS[0]!,
+                      objective: session.objective,
+                      minutes: sheetMinutes,
+                      rpe: sheetRpe,
+                      load: sheetLoad,
+                      blocks: blocks.map((b) => {
+                        const bItems = items.filter((i) => (i.block ?? "") === b);
+                        return {
+                          name: b,
+                          minutes: bItems.reduce((a, i) => a + (i.durationMin || 0), 0),
+                          items: bItems.map((it) => ({
+                            drill: it.drill,
+                            detail: it.strength
+                              ? `${it.strength.sets} × ${it.strength.reps}${
+                                  it.strength.weightKg ? ` @ ${it.strength.weightKg} kg` : ""
+                                } · rest ${it.strength.restSec}s`
+                              : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`,
+                          })),
+                        };
+                      }),
+                    });
+                    toast[ok ? "success" : "message"](
+                      ok
+                        ? "Print-ready sheet opened — choose Save as PDF"
+                        : "Pop-up blocked — the printable sheet was downloaded instead",
+                    );
+                  }}
                   className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs text-muted-foreground hover:text-foreground"
                 >
-                  <Printer className="size-4" /> Print
+                  <Printer className="size-4" /> Print / PDF
                 </button>
                 <button
                   onClick={() => setShowSheet(false)}
@@ -1338,14 +1379,20 @@ function TrainingPage() {
                 objective={session.objective}
                 blocks={blocks}
                 items={items}
-                minutes={plan.minutes || session.durationMin}
-                plannedRpe={plan.plannedRpe || session.plannedRpe}
-                load={plan.load}
+                minutes={sheetMinutes}
+                plannedRpe={sheetRpe}
+                load={sheetLoad}
+                onEdit={(b) => {
+                  if (b) setActiveBlock(b);
+                  setShowSheet(false);
+                  setStep(2);
+                }}
               />
             </div>
           </div>
         </div>
       ) : null}
+
 
       {/* ---------- drawing modal ---------- */}
       {drawingIndex !== null && items[drawingIndex] ? (
