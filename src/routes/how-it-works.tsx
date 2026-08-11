@@ -11,8 +11,10 @@ import {
   HeartPulse,
   Radar,
   Shield,
+  Sparkles,
   Users,
 } from "lucide-react";
+
 import type { LucideIcon } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 
@@ -89,11 +91,19 @@ const steps: Step[] = [
     d: "RPE, duration, participation, GPS output and test results merge on the same player record. You choose which KPIs define load — distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed, sRPE — and their weights, and T4P builds your own composite load, acute, chronic, ACWR, monotony and strain.",
   },
   {
+    icon: Sparkles,
+    tone: "blue",
+    t: "Ask Smarty Assistant",
+    d: "Click the floating T4P logo or open the Smarty Assistant page. Ask anything — Who ran the most this week?, Compare two players, Give me a workload report — and get answers, tables and charts from your own data.",
+  },
+
+  {
     icon: BellRing,
     tone: "red",
     t: "Read the alerts",
     d: "Thresholds run automatically on ACWR spikes, weekly load jumps, wellness drops, exposure gaps and availability risk. Each alert names the player, the reason and a concrete suggestion for tomorrow.",
   },
+
   {
     icon: BarChart3,
     tone: "blue",

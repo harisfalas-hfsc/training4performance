@@ -1,4 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { SmartyAssistant } from "@/components/smarty-assistant";
+
 
 import {
   Activity,
@@ -17,8 +19,10 @@ import {
   PanelLeftOpen,
   Radar,
   Shield,
+  Sparkles,
   Users,
 } from "lucide-react";
+
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   team,
@@ -52,7 +56,9 @@ const nav = [
   { to: "/ai", label: "AI Assistant", icon: BrainCircuit, color: "#9333ea" },
   { to: "/reports", label: "Reports", icon: FileText, color: "#ea580c" },
   { to: "/manual", label: "Manual", icon: LifeBuoy, color: "#0d9488" },
+  { to: "/assistant", label: "Smarty Assistant", icon: Sparkles, color: "#3B82F6" },
 ] as const;
+
 
 const adminItem = { to: "/admin", label: "Admin panel", icon: Shield, color: "#111827" } as const;
 
@@ -246,9 +252,11 @@ export function AppShell({
 
         <main className="flex-1 p-5">{children}</main>
       </div>
+      <SmartyAssistant />
     </div>
   );
 }
+
 
 function Row({ label, value, tone }: { label: string; value: number; tone: string }) {
   return (

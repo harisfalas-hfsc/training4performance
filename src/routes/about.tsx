@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Users } from "lucide-react";
+import { Activity, BellRing, CalendarDays, ClipboardList, Radar, Sparkles, Users } from "lucide-react";
+
 import { MarketingPage } from "@/components/marketing";
 
 export const Route = createFileRoute("/about")({
@@ -67,7 +68,15 @@ const questions = [
     chip: "bg-brand-amber/12 text-brand-amber",
     card: "border-brand-amber/25",
   },
+  {
+    icon: Sparkles,
+    q: "Can I just ask?",
+    a: "Smarty Assistant reads your squad data and answers in plain language — reports, comparisons, workload trends and session ideas.",
+    chip: "bg-brand-blue/12 text-brand-blue",
+    card: "border-brand-blue/25",
+  },
 ];
+
 
 const includes = [
   { t: "Team and squad", d: "One team per account, unlimited players, full passports with profile, tests and medical status.", tone: "border-brand-blue/25", dot: "bg-brand-blue" },
@@ -78,7 +87,9 @@ const includes = [
   { t: "Logbook and analytics", d: "Every player-session row, pivot charts, comparisons and the full test battery.", tone: "border-brand-indigo/25", dot: "bg-brand-indigo" },
   { t: "Alerts", d: "Automated thresholds on workload, wellness and availability, each with a suggested adjustment.", tone: "border-brand-red/25", dot: "bg-brand-red" },
   { t: "Reports and export", d: "Configurable templates plus a full workspace download in Excel or ZIP — your data stays yours.", tone: "border-brand-teal/25", dot: "bg-brand-teal" },
+  { t: "Smarty Assistant", d: "Ask questions in plain language, get instant reports and comparisons, and let the AI learn your coaching vocabulary.", tone: "border-brand-blue/25", dot: "bg-brand-blue" },
 ];
+
 
 function About() {
   return (
@@ -155,8 +166,31 @@ function About() {
           ))}
         </div>
 
+        <div className="panel mt-14 border-brand-blue/25 p-6">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-brand-blue/12 text-brand-blue">
+              <Sparkles className="size-5" />
+            </div>
+            <p className="eyebrow text-brand-blue">Smarty Assistant</p>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Smarty Assistant is the AI analyst inside T4P. It reads your squad, sessions, GPS and wellness data and
+            answers questions like "Who ran the most this week?", "Compare player A and player B", or "Give me a
+            workload report". It can suggest session adjustments, explain trends and learn your terminology over time.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/how-it-works" className="rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground">
+              See how it works
+            </Link>
+            <Link to="/pricing" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+              View pricing
+            </Link>
+          </div>
+        </div>
+
         <div className="panel mt-14 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-pink/10 p-6">
           <p className="eyebrow text-brand-indigo">Who created it</p>
+
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             T4P was created by <strong className="text-foreground">Haris Falas</strong> — sports scientist, fitness
             coach and strength &amp; conditioning coach — from more than a decade of daily work inside professional
