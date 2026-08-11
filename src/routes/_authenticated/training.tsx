@@ -142,6 +142,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+/** Small toolbar button used by the per-session action bar. */
+function ActionBtn({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
+    >
+      {icon} {label}
+    </button>
+  );
+}
+
+
+
 function StepBar({ step, onStep }: { step: number; onStep: (n: number) => void }) {
   return (
     <nav className="panel mt-4 overflow-x-auto p-2">
