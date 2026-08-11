@@ -318,20 +318,30 @@ export const savePlayerAccess = createServerFn({ method: "POST" })
       .eq("player_id", data.playerId)
       .maybeSingle();
 
-    const patch: Record<string, unknown> = {
+    const patch: {
+      coach_id: string;
+      player_id: string;
+      player_name: string;
+      active: boolean;
+      code: string;
+      email?: string | null;
+      reports?: Json;
+      password_salt?: string;
+      password_hash?: string;
+    } = {
       coach_id: context.userId,
       player_id: data.playerId,
       player_name: data.playerName,
       active: data.active,
+      code: existing?.code ?? randomHex(5).toUpperCase(),
     };
-    if (data.email !== null) patch["email"] = data.email;
-    if (data.reports) patch["reports"] = data.reports;
+    if (data.email !== null) patch.email = data.email;
+    if (data.reports) patch.reports = data.reports as unknown as Json;
     if (data.password) {
       const salt = randomHex(16);
-      patch["password_salt"] = salt;
-      patch["password_hash"] = await hashPassword(data.password, salt);
+      patch.password_salt = salt;
+      patch.password_hash = await hashPassword(data.password, salt);
     }
-    if (!existing) patch["code"] = randomHex(5).toUpperCase();
 
     const query = existing
       ? context.supabase.from("player_access").update(patch).eq("id", existing.id)
