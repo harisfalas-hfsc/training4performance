@@ -39,12 +39,13 @@ export function SiteHeader() {
             <span className="hidden sm:inline">Discover</span>
           </button>
 
-          <Link to="/" className="flex min-w-0 items-center justify-center gap-2">
-            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-7 shrink-0 object-contain" />
+          <Link to="/" className="flex min-w-0 items-center justify-center gap-2.5">
+            <img src="/logo-t4p.png" alt="Training 4 Performance logo" className="size-11 shrink-0 object-contain sm:size-12" />
             <span className="min-w-0 leading-tight">
-              <span className="block font-display text-sm font-semibold uppercase tracking-[0.35em]">T4P</span>
+              <span className="block font-display text-xl font-semibold uppercase tracking-[0.3em] sm:text-2xl">T4P</span>
             </span>
           </Link>
+
 
           <div ref={avatarRef} className="relative shrink-0">
             <button
