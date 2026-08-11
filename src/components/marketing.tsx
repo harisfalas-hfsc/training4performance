@@ -34,7 +34,7 @@ export function SiteHeader() {
           <button
             onClick={() => setMenu(true)}
             aria-label="Open discovery menu"
-            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border px-3 py-2 text-xs font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border-2 border-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
           >
             <Compass className="size-4" />
             <span className="hidden sm:inline">Discover</span>
@@ -54,9 +54,9 @@ export function SiteHeader() {
                 onClick={() => setAvatar((v) => !v)}
 
               aria-label="Account menu"
-              className="grid size-9 place-items-center rounded-full border border-border bg-surface-2 text-xs font-semibold uppercase"
+              className="grid size-9 place-items-center rounded-full border-2 border-primary bg-primary/10 text-xs font-semibold uppercase text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
             >
-              {session ? initials : <User className="size-4 text-muted-foreground" />}
+              {session ? initials : <User className="size-4" />}
             </button>
             {avatar ? (
               <div className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-panel">
