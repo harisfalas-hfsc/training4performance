@@ -3,6 +3,8 @@ import {
   applyWorkspaceData,
   workspaceSnapshot,
   type GpsDay,
+  type GpsBlockRow,
+  type RpeEntry,
   type ManualTest,
   type MedicalEvent,
   type Player,
