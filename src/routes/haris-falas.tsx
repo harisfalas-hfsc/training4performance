@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketingPage } from "@/components/marketing";
+import { T4P } from "@/components/brand-text";
 
 export const Route = createFileRoute("/haris-falas")({
   head: () => ({
@@ -27,7 +28,7 @@ function ProfilePage() {
   return (
     <MarketingPage>
       <div className="mx-auto max-w-3xl px-5 py-12">
-        <p className="eyebrow">Creator of T4P</p>
+        <p className="eyebrow">Creator of <T4P /></p>
         <h1 className="mt-2 font-display text-3xl font-semibold uppercase tracking-wide">Haris Falas</h1>
 
         <div className="mt-4 space-y-1 text-xs text-muted-foreground">
@@ -52,25 +53,25 @@ function ProfilePage() {
         </p>
 
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          That is where T4P comes from. Haris spent years managing that work by hand and looking for one
+          That is where <T4P /> comes from. Haris spent years managing that work by hand and looking for one
           platform that could hold all of it together — planning and periodisation, the data of every
           session, the reporting to the head coach and to the club, player development, return to play, GPS
           and testing — instead of a folder of spreadsheets, exports and separate tools that never talk to
           each other.
         </p>
 
-        <h2 className="mt-8 font-display text-lg font-semibold">Why T4P was built</h2>
+        <h2 className="mt-8 font-display text-lg font-semibold">Why <T4P /> was built</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          T4P grew directly out of the training monitor logbook Haris built and used with his own squad —
+          <T4P /> grew directly out of the training monitor logbook Haris built and used with his own squad —
           daily training records, session data, RPE, tests and player notes. The spreadsheet worked, but it
           could not scale, could not protect sensitive data, and could not answer a question fast enough on a
-          match-day-minus-one morning. T4P is that logbook rebuilt as one connected platform, so the work is
+          match-day-minus-one morning. <T4P /> is that logbook rebuilt as one connected platform, so the work is
           done faster and the answers are there when the coach asks for them.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link to="/about" className="rounded-full border-2 border-primary px-5 py-2 text-sm font-semibold text-primary">
-            About T4P
+            About <T4P />
           </Link>
           <Link
             to="/pricing"

@@ -17,6 +17,7 @@ import {
 
 import type { LucideIcon } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P, SmartyAssistant } from "@/components/brand-text";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -153,7 +154,7 @@ const faq = [
   },
   {
     q: "Can I browse before I subscribe?",
-    a: "Yes. Any account can open the platform and look at every screen. Creating and editing data requires an active subscription.",
+    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
   },
   {
     q: "Is my data protected?",
@@ -171,7 +172,7 @@ function HowItWorks() {
             Team → squad → players → training → GPS → decisions
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            T4P follows the real order of work in a performance department. You build the team once, then every
+            <T4P /> follows the real order of work in a performance department. You build the team once, then every
             session, GPS file and test result attaches to the same player record — so the analysis is ready before
             you have to make the decision.
           </p>

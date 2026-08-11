@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
+import { T4P, Training4Performance } from "@/components/brand-text";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -54,12 +55,12 @@ function Home() {
       {/* MOBILE hero — centered text */}
       <section className="border-b border-border sm:hidden">
         <div className="px-5 pb-8 pt-5 text-center">
-          <p className="eyebrow">Training 4 Performance</p>
+          <p className="eyebrow"><Training4Performance /></p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
             The football performance system for S&amp;C coaches that connects everything
           </h1>
           <p className="mt-4 text-sm text-muted-foreground">
-            T4P is the daily companion for strength &amp; conditioning coaches in football. It brings every player
+            <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It brings every player
             record, training session, GPS report, wellness entry, test result and medical note into one connected
             workspace.
           </p>
@@ -87,12 +88,12 @@ function Home() {
         <div className="relative mx-auto max-w-7xl px-5 pb-8 pt-6 lg:pb-10 lg:pt-8">
 
           <div className="max-w-3xl">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">Training 4 Performance</p>
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground"><Training4Performance /></p>
             <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-foreground lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
             <p className="mt-5 max-w-2xl text-base text-muted-foreground lg:text-lg">
-              T4P is the daily companion for strength &amp; conditioning coaches in football. It brings every player
+              <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It brings every player
               record, training session, GPS report, wellness entry, test result and medical note into one connected
               workspace — so you spend less time switching files and more time coaching.
             </p>
@@ -206,7 +207,7 @@ function Home() {
       {/* About */}
       <section className="border-y border-border bg-surface-2/40">
         <div className="mx-auto max-w-7xl px-5 py-10">
-          <p className="eyebrow">About Training 4 Performance</p>
+          <p className="eyebrow">About <Training4Performance /></p>
           <div className="mt-6 grid gap-8 lg:grid-cols-3">
             {[
               { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard.", color: "#059669" },
@@ -224,7 +225,7 @@ function Home() {
             to="/about"
             className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline"
           >
-            More about T4P <ArrowRight className="size-4" />
+            More about <T4P /> <ArrowRight className="size-4" />
           </Link>
         </div>
       </section>
