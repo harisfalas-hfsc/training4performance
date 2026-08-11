@@ -11,6 +11,8 @@ import {
   gpsHistory,
   manualTests,
   players,
+  rpeEntries,
+  rpeEntryCounts,
   sessionCalendar,
   subscribeData,
   testPlayerId,
@@ -400,7 +402,7 @@ function manualRows(byId: Map<string, Player>): LogbookRow[] {
       avgSpeed: 0,
       energy: 0,
       rpe: g.minutes ? +(g.load / g.minutes).toFixed(1) : 0,
-      status: "trained",
+      status: "Full Training",
     });
   }
   return rows;
