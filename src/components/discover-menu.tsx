@@ -3,7 +3,9 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
+import { toolsNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
+
 
 export const publicLinks = [
   { to: "/", label: "Home" },
@@ -103,6 +105,27 @@ export function DiscoverMenu({
                 </nav>
               </>
             ) : null}
+
+            {session ? (
+              <>
+                <p className="eyebrow mt-6">Tools</p>
+                <nav className="mt-3 flex flex-col gap-0.5">
+                  {toolsNav.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={close}
+                      className="flex items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      activeProps={{ className: "bg-accent text-primary" }}
+                    >
+                      <item.icon className="size-4" style={{ color: item.color }} />
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              </>
+            ) : null}
+
 
             <div className="mt-auto pt-6">
               {session ? (
