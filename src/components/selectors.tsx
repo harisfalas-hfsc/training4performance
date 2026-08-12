@@ -179,14 +179,17 @@ export function DateRangePicker({
           {preset.label}
         </button>
       ))}
-      <label className="flex flex-col gap-1">
-        <span className="eyebrow">From</span>
-        <input type="date" className="control" value={from} onChange={(event) => onChange(event.target.value, to)} />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="eyebrow">To</span>
-        <input type="date" className="control" value={to} onChange={(event) => onChange(from, event.target.value)} />
-      </label>
+      <div className="flex w-full flex-wrap items-end gap-2 sm:w-auto">
+        <label className="flex min-w-[9.5rem] flex-1 flex-col gap-1 sm:flex-none">
+          <span className="eyebrow">From</span>
+          <input type="date" className="control w-full" value={from} onChange={(event) => onChange(event.target.value, to)} />
+        </label>
+        <label className="flex min-w-[9.5rem] flex-1 flex-col gap-1 sm:flex-none">
+          <span className="eyebrow">To</span>
+          <input type="date" className="control w-full" value={to} onChange={(event) => onChange(from, event.target.value)} />
+        </label>
+      </div>
+
     </div>
   );
 }
