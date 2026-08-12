@@ -410,7 +410,7 @@ function ManualPage() {
           onClick={downloadPdf}
           className="no-print inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-panel transition-opacity hover:opacity-90"
         >
-          <Download className="size-4" /> Download the manual (PDF)
+          <Download className="size-4" /> <span className="hidden sm:inline">Download</span> PDF
         </button>
       }
     >
