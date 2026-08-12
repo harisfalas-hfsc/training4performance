@@ -595,6 +595,21 @@ function ManualPage() {
               ))}
             </ol>
 
+            {c.shots?.length ? (
+              <div
+                className="space-y-3 border-t p-4 sm:p-5"
+                style={{ borderColor: `${c.color}33`, backgroundColor: `${c.color}08` }}
+              >
+                <p className="eyebrow" style={{ color: c.color }}>
+                  What it looks like
+                </p>
+                {c.shots.map((k) => {
+                  const Shot = MANUAL_SHOTS[k];
+                  return <Shot key={k} />;
+                })}
+              </div>
+            ) : null}
+
             {c.tips?.length ? (
               <div className="space-y-2 border-t p-4 sm:p-5" style={{ borderColor: `${c.color}33`, backgroundColor: `${c.color}0d` }}>
                 <p className="eyebrow" style={{ color: c.color }}>
