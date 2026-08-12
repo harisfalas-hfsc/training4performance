@@ -393,6 +393,66 @@ const CHAPTERS: Chapter[] = [
   },
 ];
 
+type WalkStep = { shot: ManualShotKey; title: string; text: string };
+
+const WALKTHROUGH: WalkStep[] = [
+  {
+    shot: "createTeam",
+    title: "Step 1 — create the team",
+    text: "You subscribe, you sign in, you name the club and the team. That is the entire setup; there is one team per account and no other configuration.",
+  },
+  {
+    shot: "addPlayer",
+    title: "Step 2 — add a player (optional, you can skip it)",
+    text: "If you already have the list, type the players in. If you do not, skip this completely — the next step will build the squad for you.",
+  },
+  {
+    shot: "gpsFile",
+    title: "Step 3 — take the file straight out of your GPS software",
+    text: "No reformatting, no template to fill. Catapult, STATSports, GPEXE, Polar or your own club layout: drag the file in as it is.",
+  },
+  {
+    shot: "gpsMatching",
+    title: "Step 4 — the players are matched automatically",
+    text: "Names already in the squad are matched. New names are flagged, and one press of Create missing players adds them with their history attached. Anything the file cannot give you — shirt number, date of birth, height, weight — you add afterwards if and when you want.",
+  },
+  {
+    shot: "calculatedLoad",
+    title: "Step 5 — the training load is calculated for each player",
+    text: "You choose which KPIs count and how much each one weighs. Every player gets his own load from his own numbers, and ACWR, monotony and strain follow instantly.",
+  },
+  {
+    shot: "sessionBlocks",
+    title: "Step 6 — design a session in blocks",
+    text: "Blocks with minutes, planned RPE and a drill tag. Tagging Rondo 5v2 once is what lets you ask, in March, how many times and how many minutes you did it.",
+  },
+  {
+    shot: "strengthSession",
+    title: "Step 7 — the gym session, where there is no GPS",
+    text: "Sets, reps, kilos, rest. Prescribed exactly as you write it on paper, and reusable next week with one duplicate.",
+  },
+  {
+    shot: "manualRpe",
+    title: "Step 8 — rate it afterwards and it stops being invisible",
+    text: "You cannot know the RPE in advance, so you enter it after the session. Duration times a 0-10 rating is the load, shown on screen before you save.",
+  },
+  {
+    shot: "loadAccumulation",
+    title: "Step 9 — GPS load and rated load add up on the same line",
+    text: "Tracked days and rated days sit in one weekly total per player. That total is what drives ACWR, monotony, strain, the alerts and every report — with a GPS system or without one.",
+  },
+  {
+    shot: "whoWhat",
+    title: "Step 10 — ask anything the same way",
+    text: "Who, then what, then the KPI, the dates and the chart type. Every analysis page in the platform, and every player profile, works exactly like this.",
+  },
+  {
+    shot: "drillHistory",
+    title: "Step 11 — the answers a spreadsheet never gave you",
+    text: "How many rondos, how many minutes, how many players exposed, and how it compares with the passing drill. All from tags you added while designing, not from extra typing.",
+  },
+];
+
 type Problem = { q: string; a: string };
 
 const PROBLEMS: Problem[] = [
@@ -534,6 +594,50 @@ function ManualPage() {
             </a>
           </div>
         </section>
+
+        {!q ? (
+          <section id="walkthrough" className="print-block scroll-mt-28 overflow-hidden rounded-2xl border border-brand-green/40 bg-card shadow-panel">
+            <div className="border-b border-brand-green/30 bg-gradient-to-r from-brand-green/12 to-brand-blue/10 p-5">
+              <p className="eyebrow text-brand-green">Worked example</p>
+              <h3 className="font-display text-xl font-semibold uppercase tracking-wide">
+                From an empty account to your first week — screen by screen
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                Follow this once with the fictional Nicosia United FC and you will know the whole platform. Every
+                screen below is a real <T4P /> screen with example data in it.
+              </p>
+            </div>
+            <div className="space-y-5 p-4 sm:p-5">
+              {WALKTHROUGH.map((w, i) => {
+                const Shot = MANUAL_SHOTS[w.shot];
+                return (
+                  <div key={w.shot} className="print-block space-y-2.5">
+                    <div className="flex items-start gap-3">
+                      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-green/15 font-display text-xs font-bold text-brand-green">
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold">{w.title}</p>
+                        <p className="text-sm leading-relaxed text-muted-foreground">{w.text}</p>
+                      </div>
+                    </div>
+                    <div className="sm:pl-10">
+                      <Shot />
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="rounded-xl border border-brand-blue/35 bg-brand-blue/8 p-4">
+                <p className="text-sm font-semibold">That is the whole loop.</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Team → players (typed or created from the file) → sessions → GPS and/or a 0-10 rating → one load
+                  number per player per day → ACWR, alerts, charts and reports that write themselves. Nothing above
+                  was typed twice, and a club with no GPS at all skips only steps 3 and 4.
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {chapters.map((c) => (
           <section
