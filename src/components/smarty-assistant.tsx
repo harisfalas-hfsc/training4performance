@@ -69,7 +69,7 @@ export function SmartyAssistant() {
   return (
     <>
       <div
-        className="fixed right-4 z-50 hidden touch-none select-none md:block"
+        className="no-print fixed right-4 z-50 hidden touch-none select-none md:block"
         style={{ top: position }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -99,7 +99,7 @@ export function SmartyAssistant() {
 
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg ring-2 ring-[#3B82F6]/20 md:hidden"
+        className="no-print fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg ring-2 ring-[#3B82F6]/20 md:hidden"
         aria-label="Open Smarty Assistant"
       >
         <img

@@ -415,12 +415,6 @@ function ManualPage() {
       }
     >
       <div className="space-y-7">
-        {/* Print-only cover line */}
-        <div className="hidden print:block">
-          <p className="eyebrow">Training 4 Performance</p>
-          <h2 className="font-display text-3xl font-semibold uppercase tracking-wide">User manual</h2>
-        </div>
-
         {/* Hero / index */}
         <section className="no-print overflow-hidden rounded-2xl border border-brand-blue/30 bg-gradient-to-br from-brand-blue/10 via-brand-cyan/5 to-brand-green/10 shadow-panel">
           <div className="flex flex-wrap items-start justify-between gap-4 p-6">
