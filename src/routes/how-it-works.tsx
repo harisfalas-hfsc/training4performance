@@ -89,6 +89,20 @@ const steps: Step[] = [
     ),
   },
   {
+    icon: Gauge,
+    tone: "amber",
+    t: "No GPS? Rate the session instead",
+    d: (
+      <>
+        Working without GPS units, or with strength, indoor, pool and rehab blocks that no vest ever sees? After the
+        session, open Manual RPE load, set the duration and a 0-10 rating for the squad or athlete by athlete. <T4P />{" "}
+        turns it into session load (RPE x minutes) and adds it to the same daily total, so load, ACWR, monotony,
+        strain, alerts and reports work exactly the same as with a GPS file.
+      </>
+    ),
+  },
+
+  {
     icon: HeartPulse,
     tone: "pink",
     t: "Collect wellness and act on alerts",
