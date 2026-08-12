@@ -64,8 +64,16 @@ const steps: Step[] = [
   {
     icon: Shield,
     tone: "blue",
-    t: "Create the team or import the squad",
-    d: "Create the team once. Then add players manually or upload the first GPS report and create every detected player in one click — names never need to be typed twice.",
+    t: "Create the team — in any order you like",
+    d: (
+      <>
+        Create the team once. After that there is no right order: add the players by hand, or simply upload the first
+        GPS report and press <strong className="text-foreground">Create missing players</strong> — every name in the
+        file becomes a player in one click. Whatever the file cannot give you (position, shirt number, birth date,
+        height, weight, medical status) you add later, only if you want it. Nothing is compulsory, and no name is ever
+        typed twice.
+      </>
+    ),
   },
   {
     icon: Users,
@@ -112,8 +120,17 @@ const steps: Step[] = [
   {
     icon: BarChart3,
     tone: "blue",
-    t: "Choose, compare and report",
-    d: "In Analytics & Reports choose one player, several players or the whole squad; then choose the KPI and dates. See the chart immediately and export it as PNG, PDF, Excel or CSV.",
+    t: "Ask anything the same way: Who → What",
+    d: (
+      <>
+        Every analysis screen asks the same two questions. <strong className="text-foreground">WHO</strong> — the team,
+        the squad average, one player or several, from a searchable picker.{" "}
+        <strong className="text-foreground">WHAT</strong> — GPS reports, Training &amp; drills, Fitness tests, Wellness
+        or Medical &amp; availability. Then the KPI, the dates and the chart type: line, bar, area, pie or radar. The
+        chart redraws instantly and exports as PNG, PDF, Excel or CSV. The same strip lives inside each player, where
+        WHO is already answered.
+      </>
+    ),
   },
 ];
 
@@ -281,7 +298,7 @@ function HowItWorks() {
                 Every workflow is written down, step by step
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                Inside the platform, <T4P /> ships with a full colour-coded user manual: 13 numbered chapters from an
+                Inside the platform, <T4P /> ships with a full colour-coded user manual: 15 numbered chapters from an
                 empty squad to daily decisions, a chapter explaining exactly how the individual training load and ACWR
                 are calculated, a search box and a troubleshooting section. It is also downloadable as a PDF, exactly
                 as it appears on screen, so you can print it or send it to your staff.
