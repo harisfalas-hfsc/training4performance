@@ -24,7 +24,7 @@ export const Route = createFileRoute("/demo")({
       path: "/demo",
       title: "Live Demo — Try T4P With A Ready-Made Team | T4P",
       description:
-        "Open the T4P demo team: five players, a full training week with four blocks a day, GPS data, manual RPE and fitness tests. Free, no sign-up, nothing to install.",
+        "Open the T4P demo team: five players, seven tagged trainings with tactics-board and strength examples, GPS data, manual RPE and fitness tests.",
       keywords: ["football performance software demo", "GPS training load demo", "athlete monitoring demo"],
     }),
     scripts: [
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/demo")({
 
 const INSIDE = [
   { icon: Users, title: "One team, five players", text: "The T4P demo squad — goalkeeper, defender, midfielder, winger and striker, each with a full passport." },
-  { icon: CalendarDays, title: "A complete training week", text: "Monday to Friday, four blocks a day: warm-up, main block, gym or conditioning, cool-down." },
+  { icon: CalendarDays, title: "Seven complete trainings", text: "Monday to Sunday, four timed blocks a day: recovery, strength, pitch, tactics-board work, match day and individual recovery." },
   { icon: ClipboardPen, title: "Tagged drills", text: "Rondo 5v2, passing drill, SSG 4v4, back squat, Bulgarian split squat — search how often each one was used." },
   { icon: Radar, title: "GPS per session and per block", text: "Distance, HSR, sprints, accelerations, decelerations and jumps, split across every block of the day." },
   { icon: Activity, title: "Manual RPE", text: "Gym blocks have no GPS, so their load comes from RPE × minutes and adds on top of the GPS load." },

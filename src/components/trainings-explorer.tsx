@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
+import { PlayerPicker, type Scope } from "@/components/selectors";
 import { CHART_KINDS, ChartFrame, MultiChart, type ChartKind } from "@/components/charts";
 import {
   blockDistribution,
@@ -13,6 +14,7 @@ import {
   today,
   useDataVersion,
 } from "@/data/performance";
+import { guardDemo } from "@/lib/access";
 
 const CORE_KPIS = [
   { key: "distance", label: "Distance (m)" },
@@ -26,7 +28,6 @@ const CORE_KPIS = [
   { key: "load", label: "s-RPE load (AU)" },
 ] as const;
 
-type Scope = "team" | "average" | "players";
 type View = "days" | "drills";
 
 const round = (n: number) => Math.round(n * 10) / 10;
@@ -38,6 +39,7 @@ function csv(rows: Array<Record<string, string | number>>) {
 }
 
 function download(name: string, text: string) {
+  if (!guardDemo("Exporting training data")) return;
   const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a");
   a.href = url;
@@ -184,38 +186,9 @@ export function TrainingsExplorer() {
         </div>
 
         <p className="eyebrow mt-4">Who</p>
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {([
-            { id: "team", label: "Whole team" },
-            { id: "average", label: "Squad average" },
-            { id: "players", label: "Selected players" },
-          ] as Array<{ id: Scope; label: string }>).map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setScope(s.id)}
-              className={`rounded-full border px-2.5 py-1 text-xs ${scope === s.id ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-            >
-              {s.label}
-            </button>
-          ))}
+        <div className="mt-1">
+          <PlayerPicker scope={scope} onScope={setScope} picked={picked} onPicked={setPicked} />
         </div>
-        {scope === "players" ? (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {players.length ? (
-              players.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => toggle(picked, setPicked, p.id)}
-                  className={`rounded-full border px-2.5 py-1 text-xs ${picked.includes(p.id) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-                >
-                  {fullName(p)}
-                </button>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No players yet — add them in Team &amp; players.</p>
-            )}
-          </div>
-        ) : null}
 
         <p className="eyebrow mt-4">What</p>
         <div className="mt-1 flex flex-wrap gap-1.5">

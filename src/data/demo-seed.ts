@@ -82,6 +82,24 @@ interface DayTemplate {
   }>;
 }
 
+const TACTICS_DRAWING = JSON.stringify({
+  orientation: "landscape",
+  view: "half",
+  field: "football",
+  tokens: [
+    { id: "demo-home-1", kind: "player", x: 220, y: 220, color: "#3b82f6", label: "8" },
+    { id: "demo-home-2", kind: "player", x: 360, y: 160, color: "#3b82f6", label: "10" },
+    { id: "demo-home-3", kind: "player", x: 360, y: 300, color: "#3b82f6", label: "9" },
+    { id: "demo-away-1", kind: "player", x: 500, y: 190, color: "#ef4444", label: "4" },
+    { id: "demo-away-2", kind: "player", x: 500, y: 290, color: "#ef4444", label: "5" },
+    { id: "demo-ball", kind: "ball", x: 390, y: 230, color: "#f8fafc" },
+  ],
+  shapes: [
+    { id: "demo-run", tool: "arrow", color: "#facc15", points: [{ x: 370, y: 160 }, { x: 570, y: 105 }] },
+    { id: "demo-pass", tool: "dashed", color: "#f8fafc", points: [{ x: 235, y: 220 }, { x: 370, y: 165 }] },
+  ],
+});
+
 const WEEK: DayTemplate[] = [
   {
     offset: 0,
@@ -153,6 +171,34 @@ const WEEK: DayTemplate[] = [
       { name: "BLOCK 4", label: "Set piece walkthrough", minutes: 10, rpe: 2, tags: ["Set pieces"], purpose: "Final reminders before the match." },
     ],
   },
+  {
+    offset: 5,
+    type: "GAME",
+    title: "Saturday — match day",
+    objective: "Execute the weekly game plan and capture the full match load.",
+    intensity: 1,
+    gps: true,
+    blocks: [
+      { name: "BLOCK 1", label: "Match warm-up", minutes: 25, rpe: 5, tags: ["Match day", "Warm-up"], purpose: "Progressive mobility, passing and accelerations." },
+      { name: "BLOCK 2", label: "First half", minutes: 45, rpe: 9, tags: ["Match", "Competition"], purpose: "Competitive match exposure." },
+      { name: "BLOCK 3", label: "Second half", minutes: 45, rpe: 9, tags: ["Match", "Competition"], purpose: "Competitive match exposure." },
+      { name: "BLOCK 4", label: "Post-match recovery", minutes: 10, rpe: 2, tags: ["Recovery", "Cool-down"], purpose: "Walk, mobility and refuelling routine." },
+    ],
+  },
+  {
+    offset: 6,
+    type: "RECOVERY",
+    title: "Sunday — individual recovery",
+    objective: "Restore the squad after match day and prepare for the next microcycle.",
+    intensity: 0.35,
+    gps: false,
+    blocks: [
+      { name: "BLOCK 1", label: "Bike flush", minutes: 15, rpe: 2, tags: ["Recovery", "Bike"], purpose: "Low-intensity aerobic recovery.", gym: true },
+      { name: "BLOCK 2", label: "Mobility flow", minutes: 15, rpe: 2, tags: ["Recovery", "Mobility"], purpose: "Restore hip, ankle and thoracic range.", gym: true },
+      { name: "BLOCK 3", label: "Individual prehab", minutes: 15, rpe: 3, tags: ["Prehab", "Individual"], purpose: "Player-specific corrective programme.", gym: true },
+      { name: "BLOCK 4", label: "Wellness review", minutes: 10, rpe: 1, tags: ["Wellness", "Review"], purpose: "Review soreness, sleep and readiness." },
+    ],
+  },
 ];
 
 const WEEK_OFFSETS = [-21, -14, -7, 0];
@@ -186,6 +232,7 @@ function buildSessions(monday: Date, weekShift: number): Session[] {
         block: b.name,
         location: b.gym ? "Gym" : "Pitch",
         ...(b.strength ? { strength: b.strength } : {}),
+        ...(/pressing|set pieces|finishing|SSG|passing drill/i.test(b.label) ? { drawing: TACTICS_DRAWING } : {}),
       })),
     } satisfies Session;
   });
