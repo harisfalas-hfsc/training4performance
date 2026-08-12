@@ -8,6 +8,8 @@ import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, SERIES_COLORS, ty
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
 import { TrainingExplorer } from "@/components/training-explorer";
 import { TestsExplorer } from "@/components/tests-explorer";
+import { WellnessExplorer } from "@/components/wellness-explorer";
+import { MedicalExplorer } from "@/components/medical-explorer";
 
 import {
   customKpis,
@@ -55,6 +57,8 @@ const SOURCES = [
   { id: "gps", label: "GPS reports" },
   { id: "training", label: "Training & drills" },
   { id: "tests", label: "Fitness tests" },
+  { id: "wellness", label: "Wellness" },
+  { id: "medical", label: "Medical & availability" },
 ] as const;
 type SourceId = (typeof SOURCES)[number]["id"];
 
@@ -194,7 +198,7 @@ function AnalyticsPage() {
       </section>
 
       <section className="panel mb-4 p-4">
-        <SectionTitle title="2. What do you want to see for them?" hint="GPS reports, training & drills, or fitness tests — then combine them" />
+        <SectionTitle title="2. What do you want to see for them?" hint="GPS reports, training & drills, fitness tests, wellness or medical & availability" />
         <div className="flex flex-wrap gap-1">
           {SOURCES.map((s) => (
             <button
@@ -224,6 +228,8 @@ function AnalyticsPage() {
 
       {source === "training" ? <TrainingExplorer playerIds={activeIds} from={from} to={to} /> : null}
       {source === "tests" ? <TestsExplorer playerIds={activeIds} from={from} to={to} /> : null}
+      {source === "wellness" ? <WellnessExplorer playerIds={activeIds} from={from} to={to} /> : null}
+      {source === "medical" ? <MedicalExplorer playerIds={activeIds} from={from} to={to} /> : null}
 
       {source !== "gps" ? null : (
       <>
