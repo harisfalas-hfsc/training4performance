@@ -351,12 +351,15 @@ function GpsPage() {
     }
     setRows((prev) =>
       prev.map((r) =>
-        !r.matchedId && created[r.raw.toLowerCase()]
-          ? { ...r, matchedId: created[r.raw.toLowerCase()]!, confidence: 1 }
+        !r.matchedId && created[r.raw.trim().toLowerCase()]
+          ? { ...r, matchedId: created[r.raw.trim().toLowerCase()]!, confidence: 1 }
           : r,
       ),
     );
-    toast.success(`${count} player(s) added to your squad from the file`);
+    toast.success(`${count} player(s) added to your squad from the file`, {
+      description: "Now press “Import into the session” to save their GPS records.",
+    });
+
   };
 
   const persistTemplate = () => {
