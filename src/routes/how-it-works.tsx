@@ -148,6 +148,21 @@ const tones: Record<string, { chip: string; card: string; num: string }> = {
 
 const faq = [
   {
+    q: "Do I have to add the players before I upload GPS?",
+    a: (
+      <>
+        No. The two orders are equally valid. Upload the file first and <T4P /> creates every detected player for you;
+        or build the squad first and the file matches the names it finds. Anything the GPS export does not contain —
+        position, birth date, height, weight, RPE, medical status, test results — you add manually whenever you want,
+        and only for the fields you actually care about.
+      </>
+    ),
+  },
+  {
+    q: "How much typing does this really save?",
+    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
+  },
+  {
     q: "What does the subscription cost and what does it cover?",
     a: "€999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
   },
@@ -198,6 +213,14 @@ const faq = [
 
 /** Plain-text mirror of the FAQ above, used only for FAQPage JSON-LD. */
 const faqSchema = [
+  {
+    q: "Do I have to add the players before I upload GPS?",
+    a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain \u2014 position, birth date, height, weight, RPE, medical status, test results \u2014 you add manually whenever you want, and only for the fields you actually care about.",
+  },
+  {
+    q: "How much typing does this really save?",
+    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
+  },
   {
     q: "What does the subscription cost and what does it cover?",
     a: "\u20ac999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
@@ -286,6 +309,31 @@ function HowItWorks() {
             );
           })}
         </div>
+
+        <section className="mt-14">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            What you stop doing on day one
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            The job of a strength &amp; conditioning coach is the performance of the players — not data entry.{" "}
+            <T4P /> takes the admin off your desk so the only thing left for you is the decision.
+          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["No re-typing names", "The squad is built from your GPS file, or once by hand. Every screen reuses the same player record."],
+              ["No copying between files", "Import once, or rate the session once. Charts, tables, ACWR and reports update themselves."],
+              ["No manual formulas", "Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives."],
+              ["No scanning 27 players", "Thresholds watch workload, wellness and availability and tell you who needs attention."],
+              ["No building the coach's report", "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV."],
+              ["No lost season history", "Every session, file, test, injury and rating stays in one place until you delete it."],
+            ].map(([t, d]) => (
+              <div key={t} className="panel border-brand-green/25 p-5">
+                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">{t}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <div className="panel mt-14 overflow-hidden border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-blue/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
