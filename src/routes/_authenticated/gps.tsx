@@ -478,13 +478,16 @@ function GpsPage() {
 
   return (
     <AppShell
-      title="GPS Import"
+      title="GPS reports"
       subtitle={
-        session
+        tab === "reports"
+          ? "Choose who, choose the KPI, choose the chart — the rows are underneath"
+          : session
           ? `${session.date} · ${session.label} — ${session.title}${parsed ? ` · file: ${parsed.fileName}` : ""}`
           : `No calendar entry — an empty session will be created for ${targetDate}${parsed ? ` · file: ${parsed.fileName}` : ""}`
       }
       actions={
+        tab === "import" ? (
         <button
           onClick={runImport}
           disabled={needsConfirm > 0 || uploading || !matched || !can("importGps")}
@@ -492,6 +495,7 @@ function GpsPage() {
         >
           <Upload className="size-4" /> Import {matched} rows
         </button>
+        ) : null
       }
     >
       <div className="mb-4 flex flex-wrap gap-2">
