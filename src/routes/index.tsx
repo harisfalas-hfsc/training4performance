@@ -126,7 +126,7 @@ function Home() {
       {/* MOBILE hero — centered text */}
       <section className="border-b border-border sm:hidden">
         <div className="px-5 pb-8 pt-5 text-center">
-          <p className="eyebrow"><Training4Performance /></p>
+          <p className="page-eyebrow"><Training4Performance /></p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
             The football performance system for S&amp;C coaches that connects everything
           </h1>
@@ -156,11 +156,11 @@ function Home() {
 
       {/* DESKTOP HERO — clean text */}
       <section className="relative hidden overflow-hidden border-b border-border sm:block">
-        <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-10 text-center lg:pb-14 lg:pt-14">
+        <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-14 text-center">
 
           <div className="mx-auto max-w-4xl">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground"><Training4Performance /></p>
-            <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-foreground lg:text-6xl">
+            <p className="page-eyebrow"><Training4Performance /></p>
+            <h1 className="mt-3 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-foreground lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
             <p className="mx-auto mt-5 max-w-3xl text-base text-muted-foreground lg:text-lg">

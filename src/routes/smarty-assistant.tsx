@@ -47,12 +47,9 @@ function SmartyAssistantPage() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-cyan/8">
-        <div className="mx-auto max-w-5xl px-5 py-10 text-center">
-          <div className="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-brand-blue/12 text-brand-blue">
-            <Sparkles className="size-8" />
-          </div>
-          <p className="eyebrow text-brand-blue"><SmartyAssistant /></p>
-          <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
+        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+          <p className="page-eyebrow"><SmartyAssistant /></p>
+          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Ask your Assistant anything
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">

@@ -548,7 +548,7 @@ function ManualPage() {
         <section className="no-print overflow-hidden rounded-2xl border border-brand-blue/30 bg-gradient-to-br from-brand-blue/10 via-brand-cyan/5 to-brand-green/10 shadow-panel">
           <div className="flex flex-wrap items-start justify-between gap-4 p-6">
             <div className="max-w-2xl space-y-2">
-              <p className="eyebrow text-brand-blue">User manual</p>
+              <p className="page-eyebrow">Platform manual</p>
               <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
                 The whole logic of the platform, chapter by chapter
               </h2>

@@ -118,9 +118,7 @@ function DemoPage() {
     <MarketingPage>
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-5xl px-5 py-14 text-center">
-          <p className="eyebrow inline-flex items-center justify-center gap-2 text-primary">
-            <FlaskConical className="size-4" aria-hidden /> Live demo
-          </p>
+          <p className="page-eyebrow">Live demo</p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase tracking-wide sm:text-4xl">
             Try <T4P /> with a team that is already set up
           </h1>

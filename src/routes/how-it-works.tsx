@@ -260,9 +260,9 @@ function HowItWorks() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
-        <div className="mx-auto max-w-5xl px-5 py-10 text-center">
-          <p className="eyebrow text-brand-blue">How it works</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
+        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+          <p className="page-eyebrow">How it works</p>
+          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Create → import → review → decide → report
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">

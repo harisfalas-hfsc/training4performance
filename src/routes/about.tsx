@@ -224,8 +224,8 @@ function About() {
     <MarketingPage>
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-brand-green/12 via-background to-brand-blue/14">
         <div className="relative mx-auto max-w-5xl px-5 py-14 text-center">
-          <p className="eyebrow text-brand-green">About</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
+          <p className="page-eyebrow">About</p>
+          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             The football performance system that connects everything
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
