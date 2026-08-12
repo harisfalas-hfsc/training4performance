@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
-import { Download, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Download, MoveHorizontal, Trash2 } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
 import { CHART_KINDS, ChartFrame, MultiChart, type ChartKind } from "@/components/charts";
+import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
 import {
   customKpis,
   fullName,
@@ -14,14 +15,14 @@ import {
 } from "@/data/performance";
 
 const CORE_KPIS = [
-  { key: "distance", label: "Distance (m)" },
-  { key: "hsr", label: "High speed running (m)" },
-  { key: "sprint", label: "Sprint distance (m)" },
-  { key: "maxSpeed", label: "Max speed (km/h)" },
-  { key: "accel", label: "Accelerations" },
-  { key: "decel", label: "Decelerations" },
-  { key: "minutes", label: "Minutes" },
-  { key: "rpe", label: "RPE" },
+  { key: "distance", label: "Distance", unit: "m" },
+  { key: "hsr", label: "High speed running", unit: "m" },
+  { key: "sprint", label: "Sprint distance", unit: "m" },
+  { key: "maxSpeed", label: "Max speed", unit: "km/h" },
+  { key: "accel", label: "Accelerations", unit: "n" },
+  { key: "decel", label: "Decelerations", unit: "n" },
+  { key: "minutes", label: "Minutes", unit: "min" },
+  { key: "rpe", label: "RPE", unit: "0-10" },
 ] as const;
 
 const num = (v: number) => Math.round(v).toLocaleString();
@@ -41,7 +42,7 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-type Scope = "team" | "average" | "players";
+const PAGE = 50;
 
 /**
  * One place to answer: who (team / average / chosen players), what KPI(s),
@@ -53,12 +54,26 @@ export function GpsExplorer() {
   const [scope, setScope] = useState<Scope>("team");
   const [picked, setPicked] = useState<string[]>([]);
   const [kpis, setKpis] = useState<string[]>(["distance"]);
-  const [kind, setKind] = useState<ChartKind>("line");
-  const [from, setFrom] = useState(dates[0] ?? today);
+  const [kind, setKind] = useState<ChartKind>("bar");
+  const [from, setFrom] = useState(dates.at(-1) ?? today);
   const [to, setTo] = useState(dates.at(-1) ?? today);
+  const [limit, setLimit] = useState(PAGE);
+
+  /** Default to the last 28 days of real data as soon as history is available. */
+  useEffect(() => {
+    if (!dates.length) return;
+    const last = dates.at(-1)!;
+    const start = new Date(last);
+    start.setDate(start.getDate() - 28);
+    setFrom(start.toISOString().slice(0, 10));
+    setTo(last);
+  }, [dates.length]);
 
   const allKpis = useMemo(
-    () => [...CORE_KPIS.map((k) => ({ key: k.key as string, label: k.label })), ...customKpis()],
+    () => [
+      ...CORE_KPIS.map((k) => ({ key: k.key as string, label: k.label, unit: k.unit as string })),
+      ...customKpis().map((k) => ({ key: k.key, label: k.label, unit: "" })),
+    ],
     [gpsHistory.length],
   );
 
@@ -71,6 +86,8 @@ export function GpsExplorer() {
         .sort((a, b) => (a.date === b.date ? a.playerId.localeCompare(b.playerId) : b.date.localeCompare(a.date))),
     [from, to, activeIds.join(","), gpsHistory.length],
   );
+
+  useEffect(() => setLimit(PAGE), [from, to, activeIds.join(",")]);
 
   const perPlayerSeries = scope === "players" && picked.length > 1 && kpis.length === 1;
 
@@ -107,28 +124,49 @@ export function GpsExplorer() {
 
   const chip = (active: boolean) =>
     `rounded-md border px-3 py-1.5 text-xs font-semibold ${
-      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
+      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
     }`;
+
+  const kpiNames = kpis.map((k) => allKpis.find((m) => m.key === k)?.label ?? k);
+  const unit = kpis.length === 1 ? (allKpis.find((m) => m.key === kpis[0])?.unit ?? "") : "";
+  const whoLabel =
+    scope === "team" ? "whole squad (sum of all players)" : scope === "average" ? "squad average per player" : `${picked.length} selected player(s)`;
+  const caption = perPlayerSeries
+    ? `Each colour is one player · ${kpiNames[0]} per training day`
+    : `Each colour is one KPI (${kpiNames.join(", ") || "none selected"}) · ${whoLabel} · one point per training day`;
+
+  /** Extra KPI columns imported from the coach's own GPS export. */
+  const extraColumns = useMemo(() => customKpis(), [gpsHistory.length]);
+
+  const exportRows = () =>
+    download(
+      "t4p-gps-rows.csv",
+      csv(
+        rows.map((r) => {
+          const p = players.find((x) => x.id === r.playerId);
+          const base: Record<string, string | number> = {
+            date: r.date,
+            player: p ? fullName(p) : r.playerId,
+            minutes: r.minutes,
+            distance: r.distance,
+            hsr: r.hsr,
+            sprint: r.sprint,
+            maxSpeed: r.maxSpeed,
+            accel: r.accel,
+            decel: r.decel,
+            rpe: r.rpe,
+          };
+          for (const column of extraColumns) base[column.label] = gpsValue(r, column.key);
+          return base;
+        }),
+      ),
+    );
 
   return (
     <div className="space-y-4">
       <section className="panel p-4">
-        <SectionTitle title="1. Who?" hint="The whole team, the squad average, or the players you choose" />
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className={chip(scope === "team")} onClick={() => setScope("team")}>Whole team (total)</button>
-          <button type="button" className={chip(scope === "average")} onClick={() => setScope("average")}>Squad average</button>
-          <button type="button" className={chip(scope === "players")} onClick={() => setScope("players")}>Selected players</button>
-        </div>
-        {scope === "players" && (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {players.map((p) => (
-              <button key={p.id} type="button" className={chip(picked.includes(p.id))} onClick={() => toggle(picked, setPicked, p.id)}>
-                {fullName(p)}
-              </button>
-            ))}
-            {!players.length && <p className="text-sm text-muted-foreground">No players yet — import a GPS file first.</p>}
-          </div>
-        )}
+        <SectionTitle title="1. Who?" hint="The whole squad, the squad average, or players you pick from the list" />
+        <PlayerPicker scope={scope} onScope={setScope} picked={picked} onPicked={setPicked} />
       </section>
 
       <section className="panel p-4">
@@ -136,80 +174,73 @@ export function GpsExplorer() {
         <div className="flex flex-wrap gap-1">
           {allKpis.map((k) => (
             <button key={k.key} type="button" className={chip(kpis.includes(k.key))} onClick={() => toggle(kpis, setKpis, k.key)}>
-              {k.label}
+              {k.label}{k.unit ? ` (${k.unit})` : ""}
             </button>
           ))}
         </div>
-        <div className="mt-3 flex flex-wrap items-end gap-3">
-          <div className="flex flex-wrap gap-1">
-            {CHART_KINDS.filter((c) => ["line", "bar", "pie"].includes(c.id)).map((c) => (
-              <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
-                {c.label}
-              </button>
-            ))}
-          </div>
-          <label className="flex flex-col gap-1">
-            <span className="eyebrow">From</span>
-            <input type="date" className="control" value={from} onChange={(e) => setFrom(e.target.value)} />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="eyebrow">To</span>
-            <input type="date" className="control" value={to} onChange={(e) => setTo(e.target.value)} />
-          </label>
-          <button
-            type="button"
-            className="ml-auto inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary"
-            onClick={() =>
-              download(
-                "t4p-gps-rows.csv",
-                csv(
-                  rows.map((r) => ({
-                    date: r.date,
-                    player: fullName(players.find((p) => p.id === r.playerId)!) ?? r.playerId,
-                    minutes: r.minutes,
-                    distance: r.distance,
-                    hsr: r.hsr,
-                    sprint: r.sprint,
-                    maxSpeed: r.maxSpeed,
-                    accel: r.accel,
-                    decel: r.decel,
-                    rpe: r.rpe,
-                  })),
-                ),
-              )
-            }
-          >
-            <Download className="size-4" /> Export rows
-          </button>
+        <div className="mt-3 flex flex-wrap gap-1">
+          {CHART_KINDS.filter((c) => ["line", "bar", "stacked", "area", "pie"].includes(c.id)).map((c) => (
+            <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3">
+          <p className="eyebrow mb-1">Dates</p>
+          <DateRangePicker
+            from={from}
+            to={to}
+            onChange={(a, b) => { setFrom(a); setTo(b); }}
+            earliest={dates[0]}
+            latest={dates.at(-1)}
+          />
         </div>
       </section>
 
       <section className="panel p-4">
-        <ChartFrame title="GPS report">
-          <MultiChart data={chartData} kind={kind} series={series} height={320} />
+        <ChartFrame title={`GPS report — ${kpiNames.join(", ") || "no KPI"}`}>
+          <MultiChart data={chartData} kind={kind} series={series} height={320} unit={unit} />
         </ChartFrame>
+        <p className="mt-2 text-xs text-muted-foreground">{caption}. Hover any bar or point to read the exact number.</p>
       </section>
 
       <section className="panel p-0">
-        <div className="p-4 pb-0">
-          <SectionTitle title="3. The rows behind the graph" hint="Newest first — delete anything that was imported by mistake" />
+        <div className="flex flex-wrap items-center justify-between gap-2 p-4 pb-2">
+          <SectionTitle
+            title="3. The rows behind the graph"
+            hint={`${rows.length} row(s) between ${from} and ${to} — newest first`}
+          />
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary"
+            onClick={exportRows}
+          >
+            <Download className="size-4" /> Export rows
+          </button>
         </div>
+        <p className="flex items-center gap-1 px-4 pb-2 text-xs text-muted-foreground">
+          <MoveHorizontal className="size-3.5" /> Swipe or scroll sideways to see every KPI column.
+        </p>
         <div className="scroll-pane max-h-[60vh] overflow-auto">
-          <table className="w-full min-w-[820px] text-sm">
+          <table className="w-full min-w-[980px] text-sm">
             <thead className="sticky top-0 z-10 border-b border-border bg-surface-1 text-left text-xs uppercase text-muted-foreground">
               <tr>
-                {["Date", "Player", "Min", "Distance", "HSR", "Sprint", "Max speed", "Acc", "Dec", "RPE", ""].map((h) => (
-                  <th key={h} className="px-3 py-2 font-medium">{h}</th>
+                {["Date", "Player", "Min", "Distance (m)", "HSR (m)", "Sprint (m)", "Max speed (km/h)", "Acc", "Dec", "RPE"].map((h) => (
+                  <th key={h} className="px-3 py-2 font-medium whitespace-nowrap">{h}</th>
                 ))}
+                {extraColumns.map((column) => (
+                  <th key={column.key} className="px-3 py-2 font-medium whitespace-nowrap">{column.label}</th>
+                ))}
+                <th className="px-3 py-2" />
               </tr>
             </thead>
             <tbody>
-              {rows.slice(0, 400).map((r) => {
+              {rows.slice(0, limit).map((r) => {
                 const p = players.find((x) => x.id === r.playerId);
                 return (
                   <tr key={`${r.date}-${r.playerId}`} className="border-b border-border/50 last:border-0">
-                    <td className="px-3 py-1.5 tabular-nums">{r.date}</td>
-                    <td className="px-3 py-1.5">{p ? fullName(p) : r.playerId}</td>
+                    <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">{r.date}</td>
+                    <td className="px-3 py-1.5 whitespace-nowrap">{p ? fullName(p) : r.playerId}</td>
                     <td className="px-3 py-1.5 tabular-nums">{r.minutes}</td>
                     <td className="px-3 py-1.5 tabular-nums">{num(r.distance)}</td>
                     <td className="px-3 py-1.5 tabular-nums">{num(r.hsr)}</td>
@@ -218,6 +249,9 @@ export function GpsExplorer() {
                     <td className="px-3 py-1.5 tabular-nums">{r.accel}</td>
                     <td className="px-3 py-1.5 tabular-nums">{r.decel}</td>
                     <td className="px-3 py-1.5 tabular-nums">{r.rpe || "—"}</td>
+                    {extraColumns.map((column) => (
+                      <td key={column.key} className="px-3 py-1.5 tabular-nums">{num(gpsValue(r, column.key)) || "—"}</td>
+                    ))}
                     <td className="px-3 py-1.5 text-right">
                       <button
                         type="button"
@@ -234,6 +268,17 @@ export function GpsExplorer() {
             </tbody>
           </table>
         </div>
+        {rows.length > limit && (
+          <div className="border-t border-border p-3 text-center">
+            <button
+              type="button"
+              className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary"
+              onClick={() => setLimit((value) => value + PAGE)}
+            >
+              Show {Math.min(PAGE, rows.length - limit)} more of {rows.length}
+            </button>
+          </div>
+        )}
         {!rows.length && (
           <p className="p-4 text-sm text-muted-foreground">No GPS rows for this selection. Change the dates or import a file.</p>
         )}
