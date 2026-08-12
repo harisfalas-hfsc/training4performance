@@ -281,7 +281,7 @@ function AnalyticsPage() {
           <p className="mb-2 text-xs text-muted-foreground">
             Period A = the older half of your date range, Period B = the newer half. Δ is the change in %.
           </p>
-          <div className="overflow-x-auto">
+          <div className="scroll-pane overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
@@ -326,17 +326,17 @@ function AnalyticsPage() {
               </select>
             </label>
           </div>
-          <div className="overflow-x-auto">
+          <div className="scroll-pane overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                   <th className="py-2">Player</th>
-                  <th className="text-right whitespace-nowrap">Distance 7d (m)</th>
-                  <th className="text-right whitespace-nowrap">HSR 7d (m)</th>
-                  <th className="text-right whitespace-nowrap">Sprint 7d (m)</th>
+                   <th className="text-right whitespace-nowrap">Distance selected dates (m)</th>
+                   <th className="text-right whitespace-nowrap">HSR selected dates (m)</th>
+                   <th className="text-right whitespace-nowrap">Sprint selected dates (m)</th>
                   <th className="text-right whitespace-nowrap">Max speed (km/h)</th>
                   <th className="text-right">RPE</th>
-                  <th className="text-right">Acute</th>
+                   <th className="text-right whitespace-nowrap">Selected load (AU)</th>
                   <th className="text-right">ACWR</th>
                 </tr>
               </thead>
