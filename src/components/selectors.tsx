@@ -156,8 +156,8 @@ export function DateRangePicker({
   from: string;
   to: string;
   onChange: (from: string, to: string) => void;
-  earliest?: string;
-  latest?: string;
+  earliest?: string | undefined;
+  latest?: string | undefined;
 }) {
   const end = latest ?? new Date().toISOString().slice(0, 10);
   const presets: Array<{ label: string; from: string; to: string }> = [

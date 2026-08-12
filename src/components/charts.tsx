@@ -299,9 +299,8 @@ export function MultiChart({
   const colored = series.map((s, i) => ({ ...s, color: s.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }));
   const compact = (value: number) => (Math.abs(value) >= 10000 ? `${Math.round(value / 1000)}k` : `${Math.round(value)}`);
   const withValues = showValues && data.length <= 14 && colored.length <= 3;
-  const yLabel = unit
-    ? { value: unit, angle: -90, position: "insideLeft" as const, fill: "var(--color-muted-foreground)", fontSize: 11 }
-    : undefined;
+  const yLabel: { value: string; angle: number; position: "insideLeft"; fill: string; fontSize: number } | string =
+    unit ? { value: unit, angle: -90, position: "insideLeft", fill: "var(--color-muted-foreground)", fontSize: 11 } : "";
   if (!colored.length || !data.length) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Select at least one KPI to draw the chart.</p>;
   }
