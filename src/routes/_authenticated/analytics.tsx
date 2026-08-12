@@ -50,12 +50,22 @@ const METRICS = [
 
 type MetricKey = string;
 
+/** The three families of data every page follows: people → what about them. */
+const SOURCES = [
+  { id: "gps", label: "GPS reports" },
+  { id: "training", label: "Training & drills" },
+  { id: "tests", label: "Fitness tests" },
+] as const;
+type SourceId = (typeof SOURCES)[number]["id"];
+
 const daysBetween = (from: string, to: string) =>
   Math.max(7, Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000) || 28);
 
 function AnalyticsPage() {
   useDataVersion();
+  const [source, setSource] = useState<SourceId>("gps");
   const [kpis, setKpis] = useState<MetricKey[]>(["distance"]);
+
   const [kind, setKind] = useState<ChartKind>("bar");
   const [devKey, setDevKey] = useState<MetricKey>("hsr");
   const [scope, setScope] = useState<Scope>("team");
