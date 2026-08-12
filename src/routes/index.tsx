@@ -345,6 +345,17 @@ function Home() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-border bg-surface-2/60 px-3 py-1 text-xs font-medium text-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
                 </div>
               </div>
             ))}
