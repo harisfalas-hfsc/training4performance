@@ -4,10 +4,15 @@ import {
   BellRing,
   BookOpen,
   CalendarDays,
+  Check,
   ClipboardList,
+  Clock,
   Gauge,
   HeartPulse,
+  PencilLine,
   Radar,
+  Satellite,
+  ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -22,14 +27,16 @@ export const Route = createFileRoute("/about")({
       path: "/about",
       title: "About T4P — Football Sports Science Platform for Coaches",
       description:
-        "T4P connects squad availability, player passports, session design, GPS import, composite load and ACWR, wellness, testing and reports — built by sports scientist Haris Falas.",
+        "T4P connects squad availability, player passports, session design, GPS import, composite load and ACWR, wellness, testing and reports — and works fully manually for coaches with no GPS system. Built by sports scientist Haris Falas.",
       keywords: [
         "football sports science platform",
+        "training load without GPS",
         "sports scientist football platform",
         "academy fitness coach software",
         "first team performance staff software",
       ],
     }),
+
     scripts: [
       webPageLd({
         path: "/about",
@@ -127,9 +134,89 @@ const includes = [
 const facts = [
   { k: "€999", v: "per season, per team" },
   { k: "Unlimited", v: "players and staff users" },
-  { k: "13", v: "manual chapters, downloadable" },
+  { k: "No GPS?", v: "the full system still works" },
   { k: "GDPR", v: "European infrastructure" },
 ];
+
+/** The two equally complete ways of feeding the platform. */
+const routes = [
+  {
+    icon: PencilLine,
+    color: "green",
+    eyebrow: "Without a GPS system",
+    title: "Pen, stopwatch and RPE — nothing else",
+    body: "You do not need a single GPS unit to run the whole platform. Record the session and its blocks, the duration and a 0–10 RPE after training, and T4P turns it into session load exactly as Foster describes it: RPE × minutes. Strength work, indoor sessions, pool, rehab and gym are all counted the same way.",
+    points: [
+      "Session or block RPE for the whole squad in one screen, or athlete by athlete",
+      "Load, acute vs chronic, ACWR, monotony and strain calculated from it",
+      "Wellness, availability, testing, alerts and every report work identically",
+      "Same PDF, PNG, Excel and CSV exports for the head coach",
+    ],
+  },
+  {
+    icon: Satellite,
+    color: "cyan",
+    eyebrow: "With a GPS system",
+    title: "Your export, your KPIs, your formula",
+    body: "If you do have GPS, the same structure simply gets more resolution. Import from Catapult, STATSports, GPEXE, Polar or your own spreadsheet, and T4P builds an individual training load from the KPIs and weights you choose — even when the file has no load column at all.",
+    points: [
+      "Distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed",
+      "Your own club KPIs recognised from your own file",
+      "Individual load per player, not a squad average",
+      "GPS days and manually rated days add up into one true daily load",
+    ],
+  },
+];
+
+/** Why the coach's working week changes. */
+const benefits = [
+  {
+    icon: Clock,
+    color: "blue",
+    t: "Your evening back",
+    d: "No more copying rows between four spreadsheets after training. Import once, or type the RPE once, and every chart, table and report is already updated.",
+  },
+  {
+    icon: ShieldCheck,
+    color: "green",
+    t: "Fewer avoidable injuries",
+    d: "Spikes in load, low wellness, exposure gaps and availability risk are flagged the moment they appear — with a concrete suggestion for tomorrow's session, not just a red number.",
+  },
+  {
+    icon: ClipboardList,
+    color: "amber",
+    t: "Credibility with the head coach",
+    d: "Walk into the meeting with a clean one-page report built from real data. Every recommendation you make can be shown on a chart in five seconds.",
+  },
+  {
+    icon: Users,
+    color: "pink",
+    t: "The players on your side",
+    d: "Each player has his own login, fills in his wellness in thirty seconds and sees his own progress. Buy-in comes from letting them see the numbers, not from asking them to fill in a form.",
+  },
+  {
+    icon: Gauge,
+    color: "violet",
+    t: "Your own methodology, not ours",
+    d: "You decide which KPIs define load and how much each one weighs. T4P does the arithmetic; the sports science stays yours.",
+  },
+  {
+    icon: BookOpen,
+    color: "teal",
+    t: "A season that is written down",
+    d: "Every session, test, injury and export stays in one place. At the end of the season you have a complete record — and a starting point for the next one.",
+  },
+];
+
+/** A realistic week, so the coach can picture himself using it. */
+const week = [
+  { d: "Sunday night", t: "Plan the microcycle", b: "Lay MD-4 to MD+1 on the calendar and duplicate the blocks that worked last week." },
+  { d: "Before training", t: "Check who you have", b: "Availability, wellness responses and the alerts that came in overnight — one screen, thirty seconds." },
+  { d: "After training", t: "Record what happened", b: "Import the GPS file, or rate the session 0–10 and enter the minutes. Both end in the same training load." },
+  { d: "Midweek", t: "Read the response", b: "ACWR, monotony and strain per player, plus who is drifting away from his position group." },
+  { d: "Match week", t: "Report and decide", b: "Export the PDF for the head coach and adjust tomorrow's block before it is delivered, not after." },
+];
+
 
 function About() {
   return (
@@ -198,6 +285,94 @@ function About() {
             );
           })}
         </div>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            Two ways to work — both complete
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            A GPS system is a luxury, not a requirement. <T4P /> was built so that a coach with nothing but a
+            stopwatch and his players' feedback gets the same monitoring, the same graphs and the same reports as a
+            department with twenty vests. Only the resolution of the data changes — never the workflow.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {routes.map((r) => {
+              const Icon = r.icon;
+              const t = tone[r.color]!;
+              return (
+                <div key={r.eyebrow} className={`panel ${t.card} p-6`} style={{ borderTopWidth: 4 }}>
+                  <div className="flex items-center gap-3">
+                    <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${t.chip}`}>
+                      <Icon className="size-5" />
+                    </span>
+                    <div>
+                      <p className={`eyebrow ${t.text}`}>{r.eyebrow}</p>
+                      <p className="font-display text-base font-semibold uppercase tracking-wide">{r.title}</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+                  <ul className="mt-4 space-y-2">
+                    {r.points.map((p) => (
+                      <li key={p} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
+                        <Check className={`mt-0.5 size-4 shrink-0 ${t.text}`} aria-hidden />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-4 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
+            <strong className="text-foreground">And you can mix the two on the same day.</strong> If the pitch session
+            was tracked but the gym block was not, rate the gym block manually — <T4P /> adds GPS load and manual load
+            into one daily total per player, and never counts the same block twice.
+          </p>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            Why a fitness coach needs it
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Not because it produces more numbers. Because it gives you back the two things the job never leaves you:
+            time, and the confidence to defend a decision.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {benefits.map((b) => {
+              const Icon = b.icon;
+              const t = tone[b.color]!;
+              return (
+                <div key={b.t} className={`panel ${t.card} p-5 transition-transform hover:-translate-y-0.5`}>
+                  <div className={`grid size-11 place-items-center rounded-2xl ${t.chip}`}>
+                    <Icon className="size-5" />
+                  </div>
+                  <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">{b.t}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{b.d}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">A week inside the platform</h2>
+          <ol className="mt-6 space-y-3 border-l-2 border-brand-blue/25 pl-5">
+            {week.map((w) => (
+              <li key={w.d} className="relative">
+                <span
+                  className="absolute -left-[27px] top-1.5 size-3 rounded-full border-2 border-background bg-brand-blue"
+                  aria-hidden
+                />
+                <p className="eyebrow text-brand-blue">{w.d}</p>
+                <p className="font-display text-sm font-semibold uppercase tracking-wide">{w.t}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{w.b}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+
 
         <h2 className="mt-16 font-display text-2xl font-semibold uppercase tracking-wide">What it includes</h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
