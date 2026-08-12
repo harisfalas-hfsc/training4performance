@@ -138,8 +138,10 @@ export function MultiLine({
             dataKey={s.key}
             name={s.name}
             stroke={s.color}
-            strokeWidth={2}
-            dot={false}
+            strokeWidth={3}
+            strokeDasharray={i % 3 === 1 ? "8 4" : i % 3 === 2 ? "3 3" : undefined}
+            dot={{ r: 2.5, fill: s.color }}
+            connectNulls={false}
           />
         ))}
       </LineChart>
@@ -205,6 +207,9 @@ export function HBar({
   unit,
   signColors = false,
   zeroLine = false,
+  categoryColors = false,
+  benchmark,
+  benchmarkLabel = "Squad average",
 }: {
   data: Row[];
   dataKey: string;
@@ -216,6 +221,11 @@ export function HBar({
   /** Green when below zero, amber when above — used for deviation charts. */
   signColors?: boolean;
   zeroLine?: boolean;
+  /** Give each athlete a stable, visibly different colour. */
+  categoryColors?: boolean;
+  /** Optional vertical comparison line, normally the squad average. */
+  benchmark?: number;
+  benchmarkLabel?: string;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -229,6 +239,9 @@ export function HBar({
           formatter={(v: number, n: string) => [`${Number(v).toLocaleString()}${unit ?? ""}`, n]}
         />
         {zeroLine ? <ReferenceLine x={0} stroke="var(--color-border)" /> : null}
+        {typeof benchmark === "number" ? (
+          <ReferenceLine x={benchmark} stroke="var(--color-foreground)" strokeDasharray="6 4" label={{ value: benchmarkLabel, fill: "var(--color-muted-foreground)", fontSize: 10 }} />
+        ) : null}
         <Bar dataKey={dataKey} fill={color} radius={[0, 3, 3, 0]}>
           {signColors
             ? data.map((row, index) => (
@@ -237,7 +250,9 @@ export function HBar({
                   fill={Number(row[dataKey] ?? 0) >= 0 ? "var(--color-chart-4)" : "var(--color-chart-2)"}
                 />
               ))
-            : null}
+            : categoryColors
+              ? data.map((_, index) => <Cell key={index} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />)
+              : null}
           <LabelList
             dataKey={dataKey}
             position="right"
@@ -272,7 +287,9 @@ export const SERIES_COLORS = [
   "var(--color-chart-3)",
   "var(--color-chart-4)",
   "var(--color-chart-5)",
-  "var(--color-primary)",
+  "var(--color-brand-violet)",
+  "var(--color-brand-pink)",
+  "var(--color-brand-green)",
 ];
 
 export function MultiChart({
@@ -420,8 +437,10 @@ export function MultiChart({
             dataKey={s.key}
             name={s.name}
             stroke={s.color}
-            strokeWidth={2}
-            dot={false}
+            strokeWidth={3}
+            strokeDasharray={i % 3 === 1 ? "8 4" : i % 3 === 2 ? "3 3" : undefined}
+            dot={{ r: 2.5, fill: s.color }}
+            connectNulls={false}
           />
         ))}
       </LineChart>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Download, MoveHorizontal, Trash2 } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
-import { CHART_KINDS, ChartFrame, MultiChart, type ChartKind } from "@/components/charts";
+import { CHART_KINDS, ChartFrame, HBar, MultiChart, SERIES_COLORS, type ChartKind } from "@/components/charts";
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
 import {
   customKpis,
@@ -100,7 +100,7 @@ export function GpsExplorer() {
         const key = kpis[0]!;
         for (const id of picked) {
           const row = dayRows.find((r) => r.playerId === id);
-          point[id] = row ? gpsValue(row, key) : 0;
+           if (row) point[id] = gpsValue(row, key);
         }
       } else {
         for (const key of kpis) {
@@ -115,7 +115,7 @@ export function GpsExplorer() {
   const series = perPlayerSeries
     ? picked.flatMap((id) => {
         const p = players.find((x) => x.id === id);
-        return p ? [{ key: id, name: fullName(p) }] : [];
+         return p ? [{ key: id, name: fullName(p), color: SERIES_COLORS[picked.indexOf(id) % SERIES_COLORS.length] }] : [];
       })
     : kpis.map((k) => ({ key: k, name: allKpis.find((m) => m.key === k)?.label ?? k }));
 
@@ -134,6 +134,20 @@ export function GpsExplorer() {
   const caption = perPlayerSeries
     ? `Each colour is one player · ${kpiNames[0]} per training day`
     : `Each colour is one KPI (${kpiNames.join(", ") || "none selected"}) · ${whoLabel} · one point per training day`;
+
+  const playerSummary = useMemo(() => {
+    if (!perPlayerSeries) return [];
+    const key = kpis[0];
+    if (!key) return [];
+    return picked.flatMap((id) => {
+      const player = players.find((item) => item.id === id);
+      const playerRows = rows.filter((row) => row.playerId === id);
+      if (!player || !playerRows.length) return [];
+      const values = playerRows.map((row) => gpsValue(row, key));
+      const value = key === "maxSpeed" ? Math.max(...values) : key === "rpe" ? values.reduce((a, b) => a + b, 0) / values.length : values.reduce((a, b) => a + b, 0);
+      return [{ name: fullName(player), value: Math.round(value * 10) / 10 }];
+    });
+  }, [perPlayerSeries, picked.join(","), rows, kpis.join(",")]);
 
   /** Extra KPI columns imported from the coach's own GPS export. */
   const extraColumns = useMemo(() => customKpis(), [gpsHistory.length]);
@@ -198,6 +212,15 @@ export function GpsExplorer() {
       </section>
 
       <section className="panel p-4">
+        {perPlayerSeries && playerSummary.length ? (
+          <div className="mb-5 border-b border-border pb-5">
+            <SectionTitle title="Selected-period comparison" hint="One bar per player. The number is the period total; max speed uses the peak and RPE uses the average." />
+            <ChartFrame title={`${kpiNames[0]} player comparison`}>
+              <HBar data={playerSummary} dataKey="value" labelKey="name" height={Math.max(180, playerSummary.length * 48)} unit={unit ? ` ${unit}` : undefined} categoryColors />
+            </ChartFrame>
+          </div>
+        ) : null}
+        <SectionTitle title={perPlayerSeries ? "Day-by-day comparison" : "GPS trend"} hint={perPlayerSeries ? "Every player has a different colour and line pattern." : undefined} />
         <ChartFrame title={`GPS report — ${kpiNames.join(", ") || "no KPI"}`}>
           <MultiChart data={chartData} kind={kind} series={series} height={320} unit={unit} />
         </ChartFrame>
