@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Download, FileWarning, HelpCircle, Save, Upload, UserPlus, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
@@ -199,6 +199,7 @@ function GpsPage() {
   const [mapping, setMapping] = useState<ColumnMapping[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
   const [segmentCol, setSegmentCol] = useState<string | null>(null);
+  const [openKpis, setOpenKpis] = useState<string | null>(null);
   const [scope, setScope] = useState<"whole" | "segments">("whole");
   const [segmentMap, setSegmentMap] = useState<Record<string, string>>({});
   const [templateName, setTemplateName] = useState("");
