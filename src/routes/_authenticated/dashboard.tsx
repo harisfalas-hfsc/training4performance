@@ -51,6 +51,7 @@ function Dashboard() {
     .filter((a) => a.severity !== "info")
     .slice(0, 8);
   const load7 = Math.round(avg(metrics.map((m) => m.load.acute)));
+  const hasPerformanceData = trend.length > 0;
 
   return (
     <AppShell
@@ -110,19 +111,29 @@ function Dashboard() {
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
         <div className="panel p-4 xl:col-span-2">
           <SectionTitle title="How are they responding?" hint="Squad averages, last 21 days" />
-          <MultiLine
-            data={trend}
-            series={[
-              { key: "distance", color: "var(--color-chart-1)", name: "Distance (m)" },
-              { key: "hsr", color: "var(--color-chart-2)", name: "HSR (m)" },
-              { key: "sprint", color: "var(--color-chart-3)", name: "Sprint (m)" },
-            ]}
-            height={240}
-          />
-          <div className="mt-4">
-            <p className="eyebrow mb-1">Session-RPE load</p>
-            <TrendBars data={trend} dataKey="load" height={130} />
-          </div>
+          {hasPerformanceData ? (
+            <>
+              <MultiLine
+                data={trend}
+                series={[
+                  { key: "distance", color: "var(--color-chart-1)", name: "Distance (m)" },
+                  { key: "hsr", color: "var(--color-chart-2)", name: "HSR (m)" },
+                  { key: "sprint", color: "var(--color-chart-3)", name: "Sprint (m)" },
+                ]}
+                height={240}
+              />
+              <div className="mt-4">
+                <p className="eyebrow mb-1">Session-RPE load</p>
+                <TrendBars data={trend} dataKey="load" height={130} />
+              </div>
+            </>
+          ) : (
+            <div className="rounded-md border border-dashed border-border p-6 text-center">
+              <p className="text-sm font-semibold">No performance data yet</p>
+              <p className="mt-1 text-xs text-muted-foreground">Import a GPS report or record session RPE to populate squad insights.</p>
+              <Link to="/gps" className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Import GPS report</Link>
+            </div>
+          )}
         </div>
 
         <div className="panel p-4">
@@ -198,8 +209,10 @@ function Dashboard() {
             }
           />
           <ul className="space-y-2">
+            {!attention.length ? <li className="rounded-md border border-dashed border-border p-5 text-center text-sm text-muted-foreground">No urgent player issues detected from the available data.</li> : null}
             {attention.map((a, i) => {
-              const p = getPlayer(a.playerId)!;
+              const p = getPlayer(a.playerId);
+              if (!p) return null;
               return (
                 <li key={i} className="flex items-start gap-3 rounded-md border border-border bg-surface-2 p-3">
                   <AlertTriangle

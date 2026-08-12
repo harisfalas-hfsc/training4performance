@@ -68,12 +68,12 @@ const CHAPTERS: Chapter[] = [
     to: "/dashboard",
     linkLabel: "Open dashboard",
     steps: [
-      "Squad — you create the players. Every player has a passport that carries profile, availability, tests and load history.",
-      "Calendar — you plan the days. Each day becomes a session you design, schedule and later mark completed.",
-      "Training Designer — you build the session in blocks (warm-up, gym, conditioning, SSG…) with duration and RPE.",
-      "GPS Import — after the session you drop in the export from your GPS provider and attach it to that session.",
-      "Analytics, Alerts, Compare, Reports — the data is turned into acute/chronic load, ACWR, monotony, alerts and one-click exports.",
-      "AI Assistant — asks and answers questions on top of the same data: who is at risk, what to prescribe tomorrow.",
+      "Create the team once, then add players manually or create the whole squad from the first GPS file.",
+      "Open Team & Players and choose a player. Profile, GPS, tests, training, wellness, medical history, reports and login access are all there.",
+      "Use Calendar and Training Designer to plan the work, blocks, participation and RPE.",
+      "Upload GPS, confirm the player names, create any missing players, then press Import into the session to save the rows.",
+      "Check Insights for the latest squad picture and Wellness & Alerts for anything needing action.",
+      "In Analytics & Reports choose player(s), KPI and dates, see the result immediately, then export it.",
     ],
     tips: [
       "The dashboard is your morning screen: availability, yesterday's load, today's plan and any triggered alerts.",
@@ -90,10 +90,10 @@ const CHAPTERS: Chapter[] = [
     to: "/squad",
     linkLabel: "Open squad",
     steps: [
-      "Go to Squad and press Add player.",
-      "Fill in first and last name exactly as they appear in your GPS export — this is what the importer matches on.",
+      "Fastest method: upload the first GPS report, then press Create missing players. The unique names become the squad in one click.",
+      "Alternative method: go to Squad and press Add player to enter someone manually.",
       "Set position, shirt number, dominant leg, date of birth and availability status (available, partial, individual, injured, ill, rehab).",
-      "Open a player to reach the Player Passport: profile, load, GPS, tests, fitness trends, medical notes.",
+      "Open a player to reach one complete record: overview, GPS reports, fitness tests, training, wellness, medical & illness, reports and player login.",
       "In the passport press Edit profile to record height, weight, body fat and any anthropometric follow-up.",
       "Change availability whenever the status changes — the dashboard and the sidebar squad-status box update instantly.",
       "You can add as many players as you need; there is no squad limit.",
@@ -120,7 +120,7 @@ const CHAPTERS: Chapter[] = [
       "Duplicate a good session onto another date instead of rebuilding it from scratch.",
       "Mark key sessions as favourites so you can reuse them as templates all season.",
     ],
-    tips: ["A session must exist in the calendar before you can attach GPS data to it — always create the day first."],
+    tips: ["A GPS import can create an empty session automatically when the calendar day does not already exist."],
   },
   {
     id: "design",
@@ -175,12 +175,13 @@ const CHAPTERS: Chapter[] = [
     to: "/gps",
     linkLabel: "Open GPS import",
     steps: [
-      "Open GPS Import and choose the session the data belongs to — an import always has to be attached to a session.",
+      "Open GPS Reports. Choose an existing session, or leave automatic session creation selected.",
       "Drag in your CSV or XLSX export (Catapult, STATSports, GPEXE, Polar or your club's own format). Upload progress is shown live.",
       "The provider and the columns are detected automatically. Confirm the mapping: which column is total distance, high-speed running, sprints, accelerations, decelerations, max speed, player load, jumps…",
       "Any column T4P does not recognise is kept as a Club KPI and becomes available in analytics, alerts and reports like any other metric.",
-      "Check the mapping report: player names that could not be matched to the squad are listed. Map them to the correct player, or fix the name in the squad.",
-      "Confirm the import. The rows are stored against that session and each player.",
+      "Check Player matching. If the file contains new names, press Create missing players once; the count is unique players, not file rows.",
+      "Press Import into the session. Save template only remembers the column mapping; it does not save the GPS rows.",
+      "The saved rows appear at the top of GPS Reports, inside every player, and in Analytics & Reports.",
       "If the session was cut into blocks, the load is distributed across the blocks; otherwise it is attached to the whole session.",
     ],
     tips: [
@@ -312,7 +313,7 @@ const PROBLEMS: Problem[] = [
   },
   {
     q: "I cannot import GPS — it asks for a session",
-    a: "Every import must belong to a session so the load lands on the right day. Create the day in Calendar first, then return to GPS Import and select it.",
+    a: "Leave automatic session creation selected. T4P creates an empty activity on the file date, stores the GPS rows there and lets you design the session later.",
   },
   {
     q: "The + button in the drill library seems to do nothing",

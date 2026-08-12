@@ -8,6 +8,8 @@ import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, type ChartKind } 
 import {
   customKpis,
   fullName,
+  gpsHistory,
+  gpsValue,
   players,
   playerMetrics,
   positionAverage,
@@ -66,6 +68,10 @@ function AnalyticsPage() {
   const [kind, setKind] = useState<ChartKind>("line");
   const [devKey, setDevKey] = useState<(typeof DEVIATION_METRICS)[number]["key"]>("hsr7");
   const [selected, setSelected] = useState<string[]>([]);
+  const [compareKpi, setCompareKpi] = useState<MetricKey>("distance");
+  const availableDates = useMemo(() => [...new Set(gpsHistory.map((row) => row.date))].sort(), [gpsHistory.length]);
+  const [from, setFrom] = useState(() => availableDates[0] ?? "");
+  const [to, setTo] = useState(() => availableDates.at(-1) ?? "");
 
   const trend = squadTrend(window);
   const metrics = squadMetrics();
@@ -105,13 +111,36 @@ function AnalyticsPage() {
   const toggle = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : prev.length < 4 ? [...prev, id] : prev));
 
+  const comparisonTrend = useMemo(() => {
+    const dates = [...new Set(gpsHistory.filter((row) => selected.includes(row.playerId) && (!from || row.date >= from) && (!to || row.date <= to)).map((row) => row.date))].sort();
+    return dates.map((date) => {
+      const point: Record<string, string | number> = { date: date.slice(5) };
+      for (const id of selected) {
+        const row = gpsHistory.find((item) => item.playerId === id && item.date === date);
+        point[id] = row ? gpsValue(row, compareKpi) : 0;
+      }
+      return point;
+    });
+  }, [selected, compareKpi, from, to, gpsHistory.length]);
+
   return (
-    <AppShell title="Analytics" subtitle="Choose your KPIs, your window and your chart style">
+    <AppShell title="Analytics & reports" subtitle="Choose players, KPI and dates — then see or export the result">
       <nav className="mb-4 flex flex-wrap gap-2" aria-label="Analytics and reporting tools">
         <Button asChild variant="outline"><Link to="/compare"><GitCompare className="size-4" /> Compare players</Link></Button>
         <Button asChild variant="outline"><Link to="/blocks"><Layers className="size-4" /> Compare blocks</Link></Button>
         <Button asChild variant="outline"><Link to="/reports"><FileText className="size-4" /> Reports & exports</Link></Button>
       </nav>
+      <section className="panel mb-4 p-4">
+        <SectionTitle title="Who do you want to analyse?" hint="Choose one player, several players, or the whole squad" />
+        <div className="mb-3 flex flex-wrap gap-1">
+          <Button type="button" size="sm" variant={selected.length === players.length && players.length ? "default" : "outline"} onClick={() => setSelected(players.map((player) => player.id))}>Whole squad</Button>
+          <Button type="button" size="sm" variant={!selected.length ? "default" : "outline"} onClick={() => setSelected([])}>Squad average</Button>
+          {players.map((player) => (
+            <Button key={player.id} type="button" size="sm" variant={selected.includes(player.id) ? "default" : "outline"} onClick={() => toggle(player.id)}>{fullName(player)}</Button>
+          ))}
+        </div>
+        {!players.length ? <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">No players yet. Import a GPS report or add players in Team & players.</p> : null}
+      </section>
       <section className="panel mb-4 p-4">
         <SectionTitle title="Analysis setup" hint="Pick any combination of KPIs and how you want them drawn" />
         <div className="flex flex-wrap items-center gap-2">
@@ -247,7 +276,7 @@ function AnalyticsPage() {
         </div>
 
         <div className="panel p-4 xl:col-span-2">
-          <SectionTitle title="Player comparison" hint="Select up to four players" />
+          <SectionTitle title="Player comparison" hint="The graph below uses the exact players, KPI and dates you select" />
           <div className="mb-3 flex flex-wrap gap-1">
             {players.map((p) => (
               <button
@@ -260,6 +289,11 @@ function AnalyticsPage() {
                 {p.lastName}
               </button>
             ))}
+          </div>
+          <div className="mb-4 grid gap-3 sm:grid-cols-3">
+            <label><span className="eyebrow">KPI</span><select className="control mt-1 w-full" value={compareKpi} onChange={(event) => setCompareKpi(event.target.value)}>{allMetrics.map((metric) => <option key={metric.key} value={metric.key}>{metric.label}</option>)}</select></label>
+            <label><span className="eyebrow">From</span><input type="date" className="control mt-1 w-full" value={from} onChange={(event) => setFrom(event.target.value)} /></label>
+            <label><span className="eyebrow">To</span><input type="date" className="control mt-1 w-full" value={to} onChange={(event) => setTo(event.target.value)} /></label>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -298,15 +332,19 @@ function AnalyticsPage() {
             </table>
           </div>
           <div className="mt-4">
-            <MultiLine
-              data={trend}
-              series={[
-                { key: "distance", color: "var(--color-chart-1)", name: "Distance" },
-                { key: "hsr", color: "var(--color-chart-2)", name: "HSR" },
-                { key: "sprint", color: "var(--color-chart-3)", name: "Sprint" },
-              ]}
-              height={220}
-            />
+            {selected.length && comparisonTrend.length ? (
+              <ChartFrame title={`${allMetrics.find((item) => item.key === compareKpi)?.label ?? compareKpi} comparison`}>
+                <MultiLine
+                  data={comparisonTrend}
+                  dualAxis={false}
+                  series={selected.flatMap((id, index) => {
+                    const player = players.find((item) => item.id === id);
+                    return player ? [{ key: id, color: `var(--color-chart-${(index % 5) + 1})`, name: fullName(player) }] : [];
+                  })}
+                  height={260}
+                />
+              </ChartFrame>
+            ) : <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Select at least one player with saved GPS data in this date range.</p>}
           </div>
         </div>
       </section>

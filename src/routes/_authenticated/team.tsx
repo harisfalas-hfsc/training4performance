@@ -12,6 +12,7 @@ import {
   Save,
   Shield,
   Trash2,
+  UserRound,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -122,7 +123,7 @@ function TeamPage() {
   ];
 
   return (
-    <AppShell title="Team & data" subtitle="Create your team, follow the setup, export or delete everything">
+    <AppShell title="Team & players" subtitle={`${team.club} · ${team.name} · ${players.length} players`}>
       <div className="space-y-6">
         <section className="flex flex-wrap gap-2" aria-label="Team and player tools">
           <Button asChild>
@@ -131,6 +132,46 @@ function TeamPage() {
           <Button asChild variant="outline">
             <Link to="/logbook"><CheckCircle2 className="size-4" /> Performance tests</Link>
           </Button>
+        </section>
+        <section className="rounded-xl border border-border bg-surface p-4">
+          <SectionTitle
+            title="Squad list"
+            hint="Players imported from a GPS file appear here automatically. Open any player to see his complete record."
+            right={
+              <Button asChild size="sm">
+                <Link to="/squad"><Users className="size-4" /> Manage squad</Link>
+              </Button>
+            }
+          />
+          {players.length ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {players.map((player) => (
+                <Link
+                  key={player.id}
+                  to="/players/$id"
+                  params={{ id: player.id }}
+                  className="flex items-center gap-3 rounded-md border border-border bg-surface-2 p-3 transition-colors hover:border-primary/50"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary">
+                    <UserRound className="size-4" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{player.firstName} {player.lastName}</span>
+                    <span className="block text-xs text-muted-foreground">{player.position} · #{player.number || "—"} · {player.availability}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 rounded-md border border-dashed border-border p-5 text-center">
+              <p className="text-sm font-semibold">No players in this squad</p>
+              <p className="mt-1 text-xs text-muted-foreground">Upload a GPS report to create all detected players at once, or add one manually.</p>
+              <div className="mt-3 flex flex-wrap justify-center gap-2">
+                <Button asChild size="sm"><Link to="/gps"><Radar className="size-4" /> Upload GPS report</Link></Button>
+                <Button asChild size="sm" variant="outline"><Link to="/squad"><Users className="size-4" /> Add manually</Link></Button>
+              </div>
+            </div>
+          )}
         </section>
         <section className="rounded-xl border border-border bg-surface p-4">
           <SectionTitle title="Getting started" hint="Five steps from an empty account to a running season" />

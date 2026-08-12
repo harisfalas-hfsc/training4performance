@@ -1,24 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Activity,
   ArrowRight,
   BarChart3,
-  BellRing,
   CalendarDays,
   ClipboardPen,
-  Dumbbell,
-  FileSpreadsheet,
   HeartPulse,
   Radar,
   Shield,
-  Sparkles,
   Users,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
-import { T4P, SmartyAssistant } from "@/components/brand-text";
+import { T4P } from "@/components/brand-text";
 import { breadcrumbLd, jsonLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
@@ -67,99 +62,42 @@ const steps: Step[] = [
   {
     icon: Shield,
     tone: "blue",
-    t: "Create your team",
-    d: "Start by creating the team: club name, season, category and crest. One account holds one team, and everything you build from here lives inside it — your data, nobody else's.",
+    t: "Create the team or import the squad",
+    d: "Create the team once. Then add players manually or upload the first GPS report and create every detected player in one click — names never need to be typed twice.",
   },
   {
     icon: Users,
     tone: "green",
-    t: "Build the squad",
-    d: "Add your players. At the beginning a name is enough — the squad is unlimited, and you can add, edit or remove players at any time as the season moves.",
+    t: "Work from each player record",
+    d: "Open Team & Players, choose a player, then use the same record for profile, GPS history, fitness tests, training, wellness, medical history, reports and player login access.",
   },
   {
-    icon: ClipboardPen,
-    tone: "violet",
-    t: "Complete each player profile",
+    icon: CalendarDays,
+    tone: "indigo",
+    t: "Plan and record the work",
+    d: "Use Calendar and Training Designer to schedule the day, build blocks, record participation and RPE, and add fitness tests. Everything is dated and attached to the player automatically.",
+  },
+  {
+    icon: Radar,
+    tone: "cyan",
+    t: "Import GPS once",
     d: (
       <>
-        Open a player and fill the passport: position, birth date, dominant leg, height, body mass, body fat,
-        availability status and medical notes. Every screen in <T4P /> reads from this single record.
+        Upload the provider export, confirm player matching and press Import into the session. The rows remain in GPS history and become visible inside each player, Insights, Analytics and Reports.
       </>
     ),
   },
   {
     icon: HeartPulse,
     tone: "pink",
-    t: "Record the fitness tests",
-    d: "Enter your testing battery — CMJ and jumps, sprint splits, Yo-Yo and aerobic tests, strength numbers, FMS and mobility. Results are stored per date, so progress and personal bests are tracked automatically.",
+    t: "Collect wellness and act on alerts",
+    d: "Give a player his own login from his profile. He completes wellness and sees only the reports you allow. The coach sees daily responses and workload, wellness and availability alerts together.",
   },
-  {
-    icon: Dumbbell,
-    tone: "amber",
-    t: "Design the training session",
-    d: "Build the day in blocks — warm-up, activation, strength, technical, tactical, conditioning, speed & power, small-sided games, set pieces, cool-down. Each part has its own minutes, RPE, location and purpose, and you can pull drills from the library, write them manually, or sketch them on the tactics board.",
-  },
-  {
-    icon: CalendarDays,
-    tone: "indigo",
-    t: "Schedule it in the calendar",
-    d: "Assign the session to a date in the match-day cycle and set its state: scheduled, pending or completed. Duplicate a good session onto another day, mark favourites and record who took part.",
-  },
-  {
-    icon: Radar,
-    tone: "cyan",
-    t: "Import the GPS report",
-    d: (
-      <>
-        After training, upload the export from your GPS system — Catapult, STATSports, GPEXE, Polar or your own
-        spreadsheet. You map your columns to <T4P /> metrics once, unmatched player names come back in a clear report,
-        and every file is attached to a training day, never left standalone.
-      </>
-    ),
-  },
-  {
-    icon: Activity,
-    tone: "teal",
-    t: "Everything connects",
-    d: (
-      <>
-        RPE, duration, participation, GPS output and test results merge on the same player record. You choose which
-        KPIs define load — distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed, sRPE
-        — and their weights, and <T4P /> builds your own composite load, acute, chronic, ACWR, monotony and strain.
-      </>
-    ),
-  },
-  {
-    icon: Sparkles,
-    tone: "blue",
-    t: "Ask Smarty Assistant",
-    d: (
-      <>
-        Click the floating <T4P /> logo or open the <SmartyAssistant /> page. Ask anything — Who ran the most this
-        week?, Compare two players, Give me a workload report — and get answers, tables and charts from your own
-        data.
-      </>
-    ),
-  },
-
-  {
-    icon: BellRing,
-    tone: "red",
-    t: "Read the alerts",
-    d: "Thresholds run automatically on ACWR spikes, weekly load jumps, wellness drops, exposure gaps and availability risk. Each alert names the player, the reason and a concrete suggestion for tomorrow.",
-  },
-
   {
     icon: BarChart3,
     tone: "blue",
-    t: "Analyse in the logbook",
-    d: "The logbook holds every player-session row. Pivot any KPI by player, position, date, activity type, MD cycle or drill, aggregate by sum, average, max or count, and chart it the way you want to see it.",
-  },
-  {
-    icon: FileSpreadsheet,
-    tone: "green",
-    t: "Report and export",
-    d: "Build report templates per audience — head coach weekly, load block, return-to-play, club management — and export in one click as PDF, PNG, Excel or CSV. Your whole workspace can also be downloaded as Excel files or a full ZIP backup, any time.",
+    t: "Choose, compare and report",
+    d: "In Analytics & Reports choose one player, several players or the whole squad; then choose the KPI and dates. See the chart immediately and export it as PNG, PDF, Excel or CSV.",
   },
 ];
 
@@ -254,7 +192,7 @@ function HowItWorks() {
         <div className="mx-auto max-w-5xl px-5 py-10 text-center">
           <p className="eyebrow text-brand-blue">How it works</p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
-            Team → squad → players → training → GPS → decisions
+            Create → import → review → decide → report
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             <T4P /> follows the real order of work in a performance department. You build the team once, then every

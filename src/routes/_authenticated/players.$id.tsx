@@ -1,17 +1,22 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { AcwrChart, MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import { PlayerAccessCard } from "@/components/player-access-card";
+import { Button } from "@/components/ui/button";
 import {
+  addMedicalEvent,
   age,
   availabilitySummary,
   bmi,
   fullName,
   getPlayer,
+  gpsHistory,
+  gpsValue,
+  customKpis,
   initials,
   playerMedical,
   acwrSeries,
@@ -19,14 +24,14 @@ import {
   playerMetrics,
   playerTrend,
   playerWellness,
-  positionAverage,
   removePlayer,
+  removeMedicalEvent,
   RTP_STAGES,
-  squadStats,
   updatePlayer,
   useDataVersion,
   wellnessScore,
   type Availability,
+  type MedicalEvent,
   type Player,
   type Position,
 } from "@/data/performance";
@@ -61,6 +66,7 @@ import {
   type StrengthGoal,
   type TestGroup,
 } from "@/data/testing";
+import { entriesFor, entryScore, useWellnessVersion } from "@/data/wellness";
 
 
 export const Route = createFileRoute("/_authenticated/players/$id")({
@@ -83,17 +89,18 @@ export const Route = createFileRoute("/_authenticated/players/$id")({
   component: PlayerProfile,
 });
 
-const TABS = ["Profile", "Fitness", "Strength", "GPS", "Wellness", "Training", "Medical", "Analytics", "Portal access"] as const;
+const TABS = ["Overview", "GPS reports", "Fitness tests", "Training", "Wellness", "Medical & illness", "Reports", "Player login"] as const;
 const POSITIONS: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
 const AVAILABILITY: Availability[] = ["available", "partial", "individual", "rehab", "injured", "ill"];
 
 function PlayerProfile() {
   useDataVersion();
   useTestVersion();
+  useWellnessVersion();
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const player = getPlayer(id);
-  const [tab, setTab] = useState<(typeof TABS)[number]>("Profile");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Overview");
 
   if (!player) {
     return (
@@ -110,8 +117,6 @@ function PlayerProfile() {
   const wellness = playerWellness(id);
   const availability = availabilitySummary(id);
   const medical = playerMedical(id);
-  const hsrSquad = squadStats((x) => x.hsr7).mean;
-  const hsrPos = positionAverage(player.position, (x) => x.hsr7) || 1;
 
   return (
     <AppShell
@@ -150,14 +155,6 @@ function PlayerProfile() {
         </div>
       </div>
 
-      <div className="panel mt-4 p-4">
-        <SectionTitle
-          title="Acute:chronic workload"
-          hint="Rolling 7-day load against the 28-day baseline. The coloured bands are the published injury-risk zones."
-        />
-        <AcwrChart data={acwrSeries(player.id, 42).map((d) => ({ date: d.date.slice(5), acwr: d.acwr }))} />
-      </div>
-
       <div className="mt-4 flex flex-wrap gap-1">
         {TABS.map((t) => (
           <button
@@ -173,86 +170,13 @@ function PlayerProfile() {
       </div>
 
       <div className="mt-4">
-        {tab === "Portal access" && <PlayerAccessCard playerId={player.id} playerName={fullName(player)} />}
-        {tab === "Profile" && <ProfileTab player={player} />}
-        {tab === "Fitness" && <FitnessTab playerId={id} />}
-        {tab === "Strength" && <StrengthTab playerId={id} />}
+        {tab === "Player login" && <PlayerAccessCard playerId={player.id} playerName={fullName(player)} />}
+        {tab === "Overview" && <ProfileTab player={player} />}
+        {tab === "Fitness tests" && <FitnessTab playerId={id} />}
 
-        {tab === "GPS" && (
-          <section className="grid gap-4">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCard label="Distance 7d" value={m.distance7.toLocaleString()} unit="m" />
-              <MetricCard
-                label="HSR 7d"
-                value={m.hsr7}
-                unit="m"
-                hint={`squad ${hsrSquad} m · ${player.position} ${hsrPos} m`}
-                tone={m.hsr7 > hsrPos * 1.25 ? "warn" : "default"}
-              />
-              <MetricCard label="Sprint 7d" value={m.sprint7} unit="m" />
-              <MetricCard label="Max speed 7d" value={m.maxSpeed || "—"} unit="km/h" />
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="28-day GPS trend" />
-              <MultiLine
-                data={trend}
-                series={[
-                  { key: "distance", color: "var(--color-chart-1)", name: "Distance" },
-                  { key: "hsr", color: "var(--color-chart-2)", name: "HSR" },
-                  { key: "sprint", color: "var(--color-chart-3)", name: "Sprint" },
-                ]}
-                height={260}
-              />
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="Deviation from position average" />
-              <p className="text-sm text-muted-foreground">
-                HSR is{" "}
-                <span className={m.hsr7 > hsrPos ? "text-warning" : "text-info"}>
-                  {Math.round(((m.hsr7 - hsrPos) / hsrPos) * 100)}%
-                </span>{" "}
-                versus the {player.position} average and{" "}
-                <span>{Math.round(((m.hsr7 - hsrSquad) / hsrSquad) * 100)}%</span> versus the squad average.
-              </p>
-            </div>
-          </section>
-        )}
+        {tab === "GPS reports" && <PlayerGpsTab playerId={id} />}
 
-        {tab === "Wellness" && (
-          <section className="grid gap-4 xl:grid-cols-2">
-            <div className="panel p-4">
-              <SectionTitle title="Today's readiness" hint={`Overall ${wellnessScore(wellness)}%`} />
-              <ul className="space-y-3">
-                {(
-                  [
-                    ["Sleep", wellness.sleep],
-                    ["Fatigue", wellness.fatigue],
-                    ["Soreness", wellness.soreness],
-                    ["Stress", wellness.stress],
-                    ["Mood", wellness.mood],
-                  ] as const
-                ).map(([label, v]) => (
-                  <li key={label}>
-                    <div className="flex justify-between text-sm">
-                      <span>{label}</span>
-                      <span className="tabular-nums text-muted-foreground">{v}/5</span>
-                    </div>
-                    <div className="mt-1 h-2 rounded-full bg-secondary">
-                      <div
-                        className={`h-2 rounded-full ${v >= 4 ? "bg-success" : v >= 3 ? "bg-warning" : "bg-destructive"}`}
-                        style={{ width: `${(v / 5) * 100}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="RPE response" hint="Daily session RPE, last 28 days" />
-              <TrendBars data={trend} dataKey="rpe" color="var(--color-chart-3)" height={240} />
-            </div>
-          </section>
-        )}
+        {tab === "Wellness" && <PlayerWellnessTab playerId={id} />}
 
         {tab === "Training" && (
           <section className="grid gap-4 xl:grid-cols-3">
@@ -293,16 +217,16 @@ function PlayerProfile() {
           </section>
         )}
 
-        {tab === "Medical" && (
+        {tab === "Medical & illness" && (
           <section className="grid gap-4 xl:grid-cols-3">
             <div className="panel p-4 xl:col-span-2">
-              <SectionTitle title="Injury & illness history" />
+              <SectionTitle title="Injury & illness history" right={<MedicalEventForm playerId={id} />} />
               {medical.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No recorded injuries or illness this season.</p>
               ) : (
                 <ul className="space-y-3">
                   {medical.map((e, i) => (
-                    <li key={i} className="rounded-md border border-border bg-surface-2 p-3">
+                    <li key={`${e.from}-${i}`} className="rounded-md border border-border bg-surface-2 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="font-semibold">
                           {e.type} · {e.area}
@@ -312,6 +236,7 @@ function PlayerProfile() {
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{e.notes}</p>
+                      <button type="button" onClick={() => removeMedicalEvent(id, e.from)} className="mt-2 text-xs text-destructive hover:underline">Delete record</button>
                     </li>
                   ))}
                 </ul>
@@ -340,7 +265,7 @@ function PlayerProfile() {
           </section>
         )}
 
-        {tab === "Analytics" && (
+        {tab === "Reports" && (
           <section className="grid gap-4 xl:grid-cols-2">
             <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-4">
               <MetricCard label="Acute load (7d)" value={m.load.acute} unit="AU" />
@@ -359,6 +284,14 @@ function PlayerProfile() {
               <TrendBars data={trend} dataKey="load" height={240} />
             </div>
             <div className="panel p-4 xl:col-span-2">
+              <SectionTitle title="Acute:chronic workload" hint="7-day load against the 28-day baseline" />
+              <AcwrChart data={acwrSeries(player.id, 42).map((d) => ({ date: d.date.slice(5), acwr: d.acwr }))} />
+            </div>
+            <div className="xl:col-span-2 flex flex-wrap gap-2">
+              <Button asChild><Link to="/reports">Build a player report</Link></Button>
+              <Button asChild variant="outline"><Link to="/analytics"><BarChart3 className="size-4" /> Compare with other players</Link></Button>
+            </div>
+            <div className="panel p-4 xl:col-span-2">
               <SectionTitle
                 title="Automatic detections"
                 hint={<>Every time training beats a recorded test, <T4P /> writes a new dated result</>}
@@ -370,6 +303,109 @@ function PlayerProfile() {
       </div>
     </AppShell>
   );
+}
+
+const GPS_METRICS = [
+  { key: "distance", label: "Distance", unit: "m" },
+  { key: "hsr", label: "High-speed running", unit: "m" },
+  { key: "sprint", label: "Sprint distance", unit: "m" },
+  { key: "maxSpeed", label: "Maximum speed", unit: "km/h" },
+  { key: "accel", label: "Accelerations", unit: "" },
+  { key: "decel", label: "Decelerations", unit: "" },
+  { key: "minutes", label: "Minutes", unit: "min" },
+  { key: "rpe", label: "RPE", unit: "" },
+] as const;
+
+function PlayerGpsTab({ playerId }: { playerId: string }) {
+  const [days, setDays] = useState(28);
+  const [metric, setMetric] = useState<string>("distance");
+  const rows = gpsHistory
+    .filter((row) => row.playerId === playerId)
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const visible = rows.slice(-days).map((row) => ({ date: row.date.slice(5), value: gpsValue(row, metric) }));
+  const choices = [...GPS_METRICS.map((item) => ({ ...item })), ...customKpis().map((item) => ({ ...item, unit: "" }))];
+  const selected = choices.find((item) => item.key === metric) ?? choices[0];
+
+  return (
+    <section className="grid gap-4">
+      <div className="panel flex flex-wrap items-end gap-3 p-4">
+        <label className="min-w-56 flex-1">
+          <span className="eyebrow">KPI</span>
+          <select className="control mt-1 w-full" value={metric} onChange={(event) => setMetric(event.target.value)}>
+            {choices.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
+          </select>
+        </label>
+        <div>
+          <p className="eyebrow mb-1">Period</p>
+          <div className="flex gap-1">
+            {[7, 28, 90].map((value) => (
+              <Button key={value} type="button" size="sm" variant={days === value ? "default" : "outline"} onClick={() => setDays(value)}>{value} days</Button>
+            ))}
+          </div>
+        </div>
+        <Button asChild variant="outline"><Link to="/analytics"><BarChart3 className="size-4" /> Compare player</Link></Button>
+      </div>
+      <div className="panel p-4">
+        <SectionTitle title={`${selected?.label ?? metric} history`} hint={`${rows.length} saved GPS session${rows.length === 1 ? "" : "s"}`} />
+        {visible.length ? <TrendArea data={visible} dataKey="value" height={280} /> : <EmptyData text="No GPS records saved for this player yet." />}
+      </div>
+      <div className="panel overflow-x-auto p-4">
+        <SectionTitle title="Saved GPS sessions" hint="Every import attached to this player, newest first" />
+        {rows.length ? (
+          <table className="w-full min-w-[520px] text-sm">
+            <thead><tr className="border-b border-border text-left text-xs uppercase text-muted-foreground"><th className="py-2">Date</th><th>Category</th><th className="text-right">{selected?.label ?? metric}</th><th className="text-right">Minutes</th><th className="text-right">RPE</th></tr></thead>
+            <tbody>{rows.slice().reverse().map((row) => <tr key={`${row.date}-${row.playerId}`} className="border-b border-border/60"><td className="py-2">{row.date}</td><td>{row.category ?? "Training"}</td><td className="text-right tabular-nums">{gpsValue(row, metric).toLocaleString()} {selected?.unit}</td><td className="text-right tabular-nums">{row.minutes}</td><td className="text-right tabular-nums">{row.rpe || "—"}</td></tr>)}</tbody>
+          </table>
+        ) : <EmptyData text="Upload and import a GPS report to create this history." />}
+      </div>
+    </section>
+  );
+}
+
+function PlayerWellnessTab({ playerId }: { playerId: string }) {
+  const rows = entriesFor(playerId);
+  const trend = rows.slice(-30).map((entry) => ({ date: entry.date.slice(5), score: entryScore(entry) }));
+  return (
+    <section className="grid gap-4">
+      <div className="flex flex-wrap gap-2">
+        <Button asChild><Link to="/wellness">Open squad wellness</Link></Button>
+        <Button type="button" variant="outline" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Player login is in the “Player login” tab</Button>
+      </div>
+      <div className="panel p-4">
+        <SectionTitle title="Wellness history" hint="Daily questionnaire score, last 30 entries" />
+        {trend.length ? <TrendArea data={trend} dataKey="score" height={260} /> : <EmptyData text="No wellness questionnaire has been submitted for this player yet." />}
+      </div>
+      {rows.length ? <div className="panel overflow-x-auto p-4"><table className="w-full min-w-[560px] text-sm"><thead><tr className="border-b border-border text-left text-xs uppercase text-muted-foreground"><th className="py-2">Date</th><th className="text-right">Score</th><th className="text-right">Sleep</th><th className="text-right">Fatigue</th><th className="text-right">Soreness</th><th>Note</th></tr></thead><tbody>{rows.slice().reverse().map((entry) => <tr key={entry.id ?? entry.date} className="border-b border-border/60"><td className="py-2">{entry.date}</td><td className="text-right">{entryScore(entry)}%</td><td className="text-right">{entry.sleep}/5</td><td className="text-right">{entry.fatigue}/5</td><td className="text-right">{entry.soreness}/5</td><td className="pl-3 text-muted-foreground">{entry.note || "—"}</td></tr>)}</tbody></table></div> : null}
+    </section>
+  );
+}
+
+function MedicalEventForm({ playerId }: { playerId: string }) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<Omit<MedicalEvent, "playerId">>({ type: "Injury", area: "", from: new Date().toISOString().slice(0, 10), to: "", daysLost: 0, notes: "", stage: "Injury" });
+  if (!open) return <Button type="button" size="sm" onClick={() => setOpen(true)}><Plus className="size-4" /> Add record</Button>;
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/30 p-4" role="dialog" aria-modal="true" aria-label="Add medical record">
+      <form className="w-full max-w-lg rounded-md border border-border bg-background p-4 shadow-panel" onSubmit={(event) => { event.preventDefault(); if (!form.area.trim()) return; addMedicalEvent({ playerId, ...form }); setOpen(false); }}>
+        <SectionTitle title="Add injury or illness" />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Labeled label="Type"><select className="control" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as MedicalEvent["type"] })}><option>Injury</option><option>Illness</option></select></Labeled>
+          <Labeled label="Area / diagnosis"><input className="control" required value={form.area} onChange={(event) => setForm({ ...form, area: event.target.value })} /></Labeled>
+          <Labeled label="From"><input type="date" className="control" value={form.from} onChange={(event) => setForm({ ...form, from: event.target.value })} /></Labeled>
+          <Labeled label="To"><input type="date" className="control" value={form.to} onChange={(event) => setForm({ ...form, to: event.target.value })} /></Labeled>
+          <Labeled label="Days lost"><input type="number" min={0} className="control" value={form.daysLost} onChange={(event) => setForm({ ...form, daysLost: Number(event.target.value) })} /></Labeled>
+          <Labeled label="Return-to-play stage"><select className="control" value={form.stage} onChange={(event) => setForm({ ...form, stage: event.target.value })}>{RTP_STAGES.map((stage) => <option key={stage}>{stage}</option>)}</select></Labeled>
+          <div className="sm:col-span-2"><Labeled label="Notes"><textarea className="control min-h-20" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></Labeled></div>
+        </div>
+        <div className="mt-4 flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button type="submit"><Save className="size-4" /> Save record</Button></div>
+      </form>
+    </div>
+  );
+}
+
+function EmptyData({ text }: { text: string }) {
+  return <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{text}</p>;
 }
 
 /* ------------------------------------------------------------------ */

@@ -17,6 +17,8 @@ import {
   squadStats,
   squadTrend,
   team,
+  today,
+  useDataVersion,
   wellnessScore,
 } from "@/data/performance";
 import {
@@ -73,14 +75,20 @@ const FORMATS: Array<{ label: ExportFormat; icon: typeof FileText }> = [
 ];
 
 function ReportsPage() {
+  useDataVersion();
   const { can, def } = useRole();
   const [templates, setTemplates] = useState<ReportTemplate[]>(DEFAULT_TEMPLATES);
   const [schedules, setSchedules] = useState<ScheduledExport[]>(DEFAULT_SCHEDULES);
   const [activeId, setActiveId] = useState<string>(DEFAULT_TEMPLATES[0]!.id);
   const [generated, setGenerated] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [from, setFrom] = useState("2026-07-14");
-  const [to, setTo] = useState("2026-08-10");
+  const [from, setFrom] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 27);
+    return date.toISOString().slice(0, 10);
+  });
+  const [to, setTo] = useState(today);
+  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [cadence, setCadence] = useState<Cadence>("Weekly (Mon)");
   const [format, setFormat] = useState<ExportFormat>("PDF");
   const [recipients, setRecipients] = useState("head.coach@t4p.club");
@@ -109,7 +117,7 @@ function ReportsPage() {
 
   const reportRows = useMemo(
     () =>
-      players.map((p) => {
+      players.filter((p) => !selectedPlayers.length || selectedPlayers.includes(p.id)).map((p) => {
         const rows = logbookRows.filter((r) => r.playerId === p.id && r.date >= from && r.date <= to);
         const values: Record<string, number> = {};
         for (const key of kpiCols) {
@@ -127,7 +135,7 @@ function ReportsPage() {
         const gpsLoad = spread.reduce((a, d) => a + d.gps, 0);
         return { player: p, values, load, manual, gpsLoad, totalLoad: manual + gpsLoad };
       }),
-    [kpiCols, weights, acuteWindow, chronicWindow, from, to],
+    [kpiCols, weights, acuteWindow, chronicWindow, from, to, selectedPlayers],
   );
 
 
@@ -245,6 +253,17 @@ function ReportsPage() {
       {toast && (
         <div className="mb-4 rounded-md border border-success/40 bg-success/10 p-3 text-sm text-success">{toast}</div>
       )}
+
+      <section className="panel mb-4 p-4">
+        <SectionTitle title="Who is this report about?" hint="Leave no player selected for the whole squad, or choose any combination" />
+        <div className="flex flex-wrap gap-1">
+          <button type="button" onClick={() => setSelectedPlayers([])} className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${!selectedPlayers.length ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>Whole squad</button>
+          {players.map((player) => {
+            const activePlayer = selectedPlayers.includes(player.id);
+            return <button key={player.id} type="button" onClick={() => setSelectedPlayers((current) => activePlayer ? current.filter((id) => id !== player.id) : [...current, player.id])} className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${activePlayer ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>{fullName(player)}</button>;
+          })}
+        </div>
+      </section>
 
       <section className="grid gap-4 xl:grid-cols-3">
         <div className="panel p-4">
