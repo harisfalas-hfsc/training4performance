@@ -23,10 +23,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { MarketingPage } from "@/components/marketing";
+import { useAuth } from "@/lib/auth";
 import { T4P } from "@/components/brand-text";
 import { MANUAL_SHOTS, type ManualShotKey } from "@/components/manual-examples";
 
-export const Route = createFileRoute("/_authenticated/manual")({
+export const Route = createFileRoute("/manual")({
   head: () => ({
     meta: [
       { title: "User Manual — T4P Training 4 Performance" },
@@ -528,7 +530,7 @@ function ManualPage() {
   };
 
   return (
-    <AppShell
+    <ManualShell
       title="Manual"
       subtitle={<>How <T4P /> works, step by step — from an empty squad to daily decisions</>}
       actions={
@@ -783,6 +785,37 @@ function ManualPage() {
           </button>
         </section>
       </div>
-    </AppShell>
+    </ManualShell>
+  );
+}
+
+function ManualShell({
+  title,
+  subtitle,
+  actions,
+  children,
+}: {
+  title: string;
+  subtitle?: React.ReactNode;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const { session } = useAuth();
+  if (session) {
+    return (
+      <AppShell title={title} subtitle={subtitle} actions={actions}>
+        {children}
+      </AppShell>
+    );
+  }
+  return (
+    <MarketingPage>
+      <div className="mx-auto max-w-7xl px-4 pt-8 text-center sm:px-5">
+        <h1 className="font-display text-3xl font-semibold uppercase tracking-wide">{title}</h1>
+        {subtitle ? <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p> : null}
+        {actions ? <div className="mt-4 flex flex-wrap justify-center gap-2">{actions}</div> : null}
+      </div>
+      <div className="p-4 sm:p-5">{children}</div>
+    </MarketingPage>
   );
 }
