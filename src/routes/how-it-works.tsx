@@ -5,6 +5,7 @@ import {
   BookOpen,
   CalendarDays,
   ClipboardPen,
+  Gauge,
   HeartPulse,
   Radar,
   Shield,
