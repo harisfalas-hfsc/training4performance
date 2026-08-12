@@ -261,3 +261,34 @@ textarea.control {
 @utility t4p-logo {
   filter: none;
 }
+
+/* ---- Manual / document printing (Download as PDF) ---------------------- */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .print-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+  .print-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+  a[href]::after {
+    content: "";
+  }
+}
