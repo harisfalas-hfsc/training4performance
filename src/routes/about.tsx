@@ -4,10 +4,15 @@ import {
   BellRing,
   BookOpen,
   CalendarDays,
+  Check,
   ClipboardList,
+  Clock,
   Gauge,
   HeartPulse,
+  PencilLine,
   Radar,
+  Satellite,
+  ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -22,14 +27,16 @@ export const Route = createFileRoute("/about")({
       path: "/about",
       title: "About T4P — Football Sports Science Platform for Coaches",
       description:
-        "T4P connects squad availability, player passports, session design, GPS import, composite load and ACWR, wellness, testing and reports — built by sports scientist Haris Falas.",
+        "T4P connects squad availability, player passports, session design, GPS import, composite load and ACWR, wellness, testing and reports — and works fully manually for coaches with no GPS system. Built by sports scientist Haris Falas.",
       keywords: [
         "football sports science platform",
+        "training load without GPS",
         "sports scientist football platform",
         "academy fitness coach software",
         "first team performance staff software",
       ],
     }),
+
     scripts: [
       webPageLd({
         path: "/about",
