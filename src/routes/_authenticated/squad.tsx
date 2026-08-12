@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Trash2, UserPlus } from "lucide-react";
+import { BarChart3, Search, Trash2, UserPlus } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { HBar } from "@/components/charts";
@@ -125,11 +125,14 @@ function SquadPage() {
 
   return (
     <AppShell title="Squad" subtitle={`${team.club} · ${squadName} · ${players.length} players`}>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Link to="/team" className="rounded-md border border-border px-3 py-2 text-sm font-medium">Team details</Link>
+        <Link to="/logbook" className="rounded-md border border-border px-3 py-2 text-sm font-medium">Fitness tests</Link>
+        <Link to="/analytics" className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"><BarChart3 className="size-4" /> Compare players</Link>
+      </div>
+      <section className="grid gap-3 sm:grid-cols-2">
         <MetricCard label="Squad size" value={players.length} hint="Registered in this squad" />
-        <MetricCard label="Average age" value={Math.round(players.reduce((a, p) => a + age(p.dob), 0) / players.length)} unit="yrs" />
-        <MetricCard label="Distance 7d (mean)" value={distStats.mean} unit="m" hint={`sd ${distStats.sd}`} />
-        <MetricCard label="HSR 7d (mean)" value={hsrStats.mean} unit="m" hint={`max ${hsrStats.max} · min ${hsrStats.min}`} />
+        <MetricCard label="Average age" value={players.length ? Math.round(players.reduce((a, p) => a + age(p.dob), 0) / players.length) : "—"} unit="yrs" />
       </section>
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
