@@ -85,11 +85,6 @@ function AuthPage() {
     }
   }
 
-  async function google() {
-    setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) setError("Google sign-in failed. Please try again.");
-  }
 
   return (
     <MarketingPage>
