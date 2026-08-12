@@ -69,17 +69,21 @@ const CHAPTERS: Chapter[] = [
     to: "/dashboard",
     linkLabel: "Open dashboard",
     steps: [
-      "Create the team once, then add players manually or create the whole squad from the first GPS file.",
-      "Open Team & Players and choose a player. Profile, GPS, tests, training, wellness, medical history, reports and login access are all there.",
+      "Create the team once. That is the only setup step there is.",
+      "Start in whichever order suits you. Either add the players first, or upload the first GPS report and press Create missing players — the squad is built from the file, so nobody has to be typed in twice.",
+      "Anything the GPS file cannot give you, you add yourself, only if you want it: position, shirt number, date of birth, height, weight, body fat, medical status, test results, RPE. Nothing is compulsory.",
+      "No GPS at all? Nothing above changes. Add the players once, run the session and rate it 0-10 with its duration — the platform produces the same load, ACWR, alerts, charts and reports.",
+      "Open Team & Players and choose a player. Profile, GPS, tests, training, wellness, medical history, reports and login access are all on the same record.",
       "Use Calendar and Training Designer to plan the work, blocks, participation and RPE.",
-      "Upload GPS, confirm the player names, create any missing players, then press Import into the session to save the rows.",
-      "Check Insights for the latest squad picture and Wellness & Alerts for anything needing action.",
-      "In Analytics & Reports choose player(s), KPI and dates, see the result immediately, then export it.",
+      "Check Insights for the latest squad picture and Wellness & alerts for anything needing action.",
+      "In Analytics & Reports (and inside every player) it is always the same two questions: WHO, then WHAT. Then the KPI, the dates and the chart.",
     ],
     tips: [
       "The dashboard is your morning screen: availability, yesterday's load, today's plan and any triggered alerts.",
-      "Nothing has to be perfect on day one. Add players, run one session, import one GPS file — the system starts working immediately.",
+      "The rule of the platform: type once, never re-type. A name, a duration or a rating is entered in one place and every table, chart, alert and report updates itself.",
+      "Nothing has to be perfect on day one. One player, one session, one file — the system starts working immediately.",
     ],
+
   },
   {
     id: "explore",
