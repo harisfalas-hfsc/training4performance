@@ -6,6 +6,7 @@ import { SmartyAssistant } from "@/components/smarty-assistant";
 import { Training4Performance } from "@/components/brand-text";
 
 import { DiscoverMenu } from "@/components/discover-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { platformNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,7 @@ export function SiteHeader() {
 
 
           <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle />
             <div ref={avatarRef} className="relative shrink-0">
               <button
                 onClick={() => setAvatar((v) => !v)}
