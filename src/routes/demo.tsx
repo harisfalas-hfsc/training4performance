@@ -156,7 +156,10 @@ function DemoPage() {
         </h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {INSIDE.map((item) => (
-            <div key={item.title} className="flex flex-col items-center rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              key={item.title}
+              className="flex flex-col items-center rounded-xl border border-border bg-surface p-4 text-center"
+            >
               <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
                 <item.icon className="size-4" aria-hidden />
               </span>

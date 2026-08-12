@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BarChart3, BrainCircuit, MessageSquare, Shield, Sparkles, Table2, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  BrainCircuit,
+  MessageSquare,
+  Shield,
+  Sparkles,
+  Table2,
+  Zap,
+} from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P, SmartyAssistant } from "@/components/brand-text";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
@@ -48,13 +57,16 @@ function SmartyAssistantPage() {
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-cyan/8">
         <div className="mx-auto max-w-5xl px-5 py-14 text-center">
-          <p className="page-eyebrow"><SmartyAssistant /></p>
+          <p className="page-eyebrow">
+            <SmartyAssistant />
+          </p>
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Ask your Assistant anything
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            <SmartyAssistant /> is the AI analyst inside <T4P />. It reads your team, sessions, GPS and wellness data and answers
-            in plain language — reports, comparisons, workload trends and session ideas.
+            <SmartyAssistant /> is the AI analyst inside <T4P />. It reads your team, sessions, GPS
+            and wellness data and answers in plain language — reports, comparisons, workload trends
+            and session ideas.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
@@ -64,7 +76,10 @@ function SmartyAssistantPage() {
             >
               Try it free <ArrowRight className="size-4" />
             </Link>
-            <Link to="/how-it-works" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+            <Link
+              to="/how-it-works"
+              className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold"
+            >
               See how it works
             </Link>
           </div>
@@ -77,7 +92,9 @@ function SmartyAssistantPage() {
             <div className="mx-auto grid size-12 place-items-center rounded-xl bg-brand-blue/12 text-brand-blue">
               <MessageSquare className="size-6" />
             </div>
-            <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">Natural questions</p>
+            <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">
+              Natural questions
+            </p>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               No query builder. Type the way you speak to a colleague and get a clear answer.
             </p>
@@ -86,16 +103,21 @@ function SmartyAssistantPage() {
             <div className="mx-auto grid size-12 place-items-center rounded-xl bg-brand-green/12 text-brand-green">
               <BarChart3 className="size-6" />
             </div>
-            <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">Charts & tables</p>
+            <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">
+              Charts & tables
+            </p>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              The assistant returns numbers, comparisons and visual summaries you can export or share.
+              The assistant returns numbers, comparisons and visual summaries you can export or
+              share.
             </p>
           </div>
           <div className="panel border-brand-violet/25 p-6 text-center">
             <div className="mx-auto grid size-12 place-items-center rounded-xl bg-brand-violet/12 text-brand-violet">
               <Shield className="size-6" />
             </div>
-            <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">Your data only</p>
+            <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">
+              Your data only
+            </p>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               It only reads the workspace you are signed into. Other accounts are never visible.
             </p>
@@ -113,7 +135,9 @@ function SmartyAssistantPage() {
                 key={ex.q}
                 className={`panel flex items-center gap-3 border-brand-${ex.tone}/25 p-4`}
               >
-                <div className={`grid size-9 place-items-center rounded-lg bg-brand-${ex.tone}/12 text-brand-${ex.tone}`}>
+                <div
+                  className={`grid size-9 place-items-center rounded-lg bg-brand-${ex.tone}/12 text-brand-${ex.tone}`}
+                >
                   <Icon className="size-4" />
                 </div>
                 <p className="text-sm font-medium text-foreground">“{ex.q}”</p>
@@ -123,10 +147,12 @@ function SmartyAssistantPage() {
         </div>
 
         <div className="panel mt-14 border-brand-blue/25 bg-gradient-to-r from-brand-blue/10 to-brand-cyan/10 p-6 text-center">
-          <p className="font-display text-xl font-semibold uppercase tracking-wide">Part of every <T4P /> subscription</p>
+          <p className="font-display text-xl font-semibold uppercase tracking-wide">
+            Part of every <T4P /> subscription
+          </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            <SmartyAssistant /> is included in the team plan. Usage is tracked per account and can be topped up from the
-            owner panel.
+            <SmartyAssistant /> is included in the team plan. Usage is tracked per account and can
+            be topped up from the owner panel.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
@@ -135,7 +161,10 @@ function SmartyAssistantPage() {
             >
               View pricing <ArrowRight className="size-4" />
             </Link>
-            <Link to="/about" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+            <Link
+              to="/about"
+              className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold"
+            >
               About <T4P />
             </Link>
           </div>
