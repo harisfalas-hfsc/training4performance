@@ -172,7 +172,8 @@ const faqSchema = [
   },
   {
     q: "Do I need a GPS system to use T4P?",
-    a: "No. RPE, duration, participation, wellness and test data alone already produce load, ACWR, monotony and strain. GPS simply adds resolution.",
+    a: "No \u2014 and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
+
   },
   {
     q: "Which GPS providers are supported?",
