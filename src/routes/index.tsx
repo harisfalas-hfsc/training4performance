@@ -71,8 +71,6 @@ const features = [
 
 const showcase = [
   {
-    icon: Users,
-    color: "#2563eb",
     title: "Squad management",
     text: "Every player in one list: position, availability status and their current acute:chronic ratio, with a full passport one click away.",
     points: [
@@ -83,8 +81,6 @@ const showcase = [
     shot: <ShotSquad />,
   },
   {
-    icon: CalendarDays,
-    color: "#059669",
     title: "Training calendar",
     text: "Plan the week around match day. Each day holds its blocks and drills, and the bar shows the load the day actually produced.",
     points: [
@@ -95,8 +91,6 @@ const showcase = [
     shot: <ShotCalendar />,
   },
   {
-    icon: ClipboardPen,
-    color: "#7c3aed",
     title: "Tactics board",
     text: "Draw the session on a real pitch with players, cones, poles, hurdles, balls and runs — then save the drawing straight onto the training block.",
     points: [
@@ -107,8 +101,6 @@ const showcase = [
     shot: <ShotTacticsBoard />,
   },
   {
-    icon: Radar,
-    color: "#0891b2",
     title: "GPS import",
     text: "Drop the file in. T4P recognises the provider, matches your players and turns the raw KPIs into training load using your own weights.",
     points: [
@@ -276,17 +268,11 @@ function Home() {
             {showcase.map((item, i) => (
               <div
                 key={item.title}
-                className="grid items-center gap-10 lg:grid-cols-[1.35fr_1fr]"
+                className="grid items-start gap-10 lg:grid-cols-[1.35fr_1fr]"
               >
                 <div className={i % 2 === 1 ? "lg:order-2" : undefined}>{item.shot}</div>
                 <div className={i % 2 === 1 ? "lg:order-1" : undefined}>
-                  <span
-                    className="grid size-10 place-items-center rounded-xl"
-                    style={{ background: `${item.color}1a`, color: item.color }}
-                  >
-                    <item.icon className="size-5" />
-                  </span>
-                  <h3 className="mt-4 font-display text-xl font-semibold uppercase tracking-wide">
+                  <h3 className="font-display text-xl font-semibold uppercase tracking-wide">
                     {item.title}
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
