@@ -289,7 +289,7 @@ function TeamPage() {
                   key={sheet.key}
                   type="button"
                   onClick={() => {
-                    downloadSheetXlsx(sheet.key);
+                    if (!downloadSheetXlsx(sheet.key)) return;
                     toast.success(`${sheet.label} exported`, { description: `${sheet.rows.length} rows — Excel file downloading.` });
                   }}
                   className="flex items-start gap-2 rounded-lg border border-border bg-background p-3 text-left transition hover:border-primary/50"
@@ -306,7 +306,7 @@ function TeamPage() {
             <Button
               className="mt-3 gap-2"
               onClick={() => {
-                downloadWorkspaceZip();
+                if (!downloadWorkspaceZip()) return;
                 toast.success("Export ready", { description: "Your ZIP is downloading." });
               }}
             >

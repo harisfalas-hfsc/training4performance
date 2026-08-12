@@ -155,13 +155,15 @@ const WEEK: DayTemplate[] = [
   },
 ];
 
-function buildSessions(monday: Date): Session[] {
+const WEEK_OFFSETS = [-21, -14, -7, 0];
+
+function buildSessions(monday: Date, weekShift: number): Session[] {
   return WEEK.map((day, index) => {
-    const date = iso(monday, day.offset);
+    const date = iso(monday, day.offset + weekShift);
     const totalMin = day.blocks.reduce((sum, b) => sum + b.minutes, 0);
     const plannedRpe = Math.round(day.blocks.reduce((sum, b) => sum + b.rpe * b.minutes, 0) / Math.max(1, totalMin));
     return {
-      id: `demo-s${index + 1}`,
+      id: `demo-s${weekShift}-${index + 1}`,
       date,
       label: day.title.split(" — ")[0] ?? day.title,
       title: day.title,
@@ -189,13 +191,13 @@ function buildSessions(monday: Date): Session[] {
   });
 }
 
-function buildGps(monday: Date): { rows: GpsDay[]; blocks: GpsBlockRow[] } {
+function buildGps(monday: Date, weekShift: number): { rows: GpsDay[]; blocks: GpsBlockRow[] } {
   const rows: GpsDay[] = [];
   const blocks: GpsBlockRow[] = [];
 
   WEEK.forEach((day, dayIndex) => {
     if (!day.gps) return;
-    const date = iso(monday, day.offset);
+    const date = iso(monday, day.offset + weekShift);
 
     DEMO_PLAYERS.forEach((player) => {
       const f = factor(player.id, dayIndex);
@@ -256,10 +258,10 @@ function buildGps(monday: Date): { rows: GpsDay[]; blocks: GpsBlockRow[] } {
   return { rows, blocks };
 }
 
-function buildRpe(monday: Date): RpeEntry[] {
+function buildRpe(monday: Date, weekShift: number): RpeEntry[] {
   const out: RpeEntry[] = [];
   WEEK.forEach((day, dayIndex) => {
-    const date = iso(monday, day.offset);
+    const date = iso(monday, day.offset + weekShift);
     day.blocks
       .filter((b) => b.gym)
       .forEach((b) => {
@@ -281,7 +283,7 @@ function buildRpe(monday: Date): RpeEntry[] {
 }
 
 function buildTests(monday: Date): TestRecord[] {
-  const date = iso(monday, -7);
+  const date = iso(monday, -28);
   const out: TestRecord[] = [];
   const battery: Array<{ testId: string; base: number; spread: number; reps?: number }> = [
     { testId: "weight", base: 76, spread: 8 },
@@ -332,15 +334,26 @@ function buildMedical(monday: Date): MedicalEvent[] {
 /** The complete demo workspace, rebuilt around the current week. */
 export function buildDemoWorkspace(): WorkspaceData {
   const monday = mondayOfThisWeek();
-  const gps = buildGps(monday);
   const manualTests: ManualTest[] = [];
+  // Four identical weeks of history so ACWR, monotony and trends are realistic
+  // from the first second the demo opens.
+  const sessions = WEEK_OFFSETS.flatMap((shift) => buildSessions(monday, shift));
+  const gpsRows: GpsDay[] = [];
+  const gpsBlocks: GpsBlockRow[] = [];
+  const rpeEntries: RpeEntry[] = [];
+  WEEK_OFFSETS.forEach((shift) => {
+    const gps = buildGps(monday, shift);
+    gpsRows.push(...gps.rows);
+    gpsBlocks.push(...gps.blocks);
+    rpeEntries.push(...buildRpe(monday, shift));
+  });
   return {
     team: { ...DEMO_TEAM },
     players: DEMO_PLAYERS.map((p) => ({ ...p })),
-    sessions: buildSessions(monday),
-    gpsHistory: gps.rows,
-    gpsBlocks: gps.blocks,
-    rpeEntries: buildRpe(monday),
+    sessions,
+    gpsHistory: gpsRows,
+    gpsBlocks,
+    rpeEntries,
     manualTests,
     medicalEvents: buildMedical(monday),
   };

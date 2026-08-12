@@ -369,9 +369,10 @@ export function workspaceExportFiles(): Array<{ name: string; content: string | 
   ];
 }
 
-export function downloadWorkspaceZip() {
-  if (!guardDemo("Exporting data")) return;
+export function downloadWorkspaceZip(): boolean {
+  if (!guardDemo("Exporting data")) return false;
   const blob = createZip(workspaceExportFiles());
   saveBlob(blob, `${fileSlug()}-t4p-export-${new Date().toISOString().slice(0, 10)}.zip`);
+  return true;
 }
 
