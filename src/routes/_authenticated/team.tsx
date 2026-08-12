@@ -243,6 +243,10 @@ function TeamPage() {
           </form>
         </section>
 
+        {isAdmin ? <TeamSlots userId={user?.id ?? null} /> : null}
+
+
+
         <section className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-border bg-surface p-4">
             <SectionTitle title="Limits" hint="What one subscription covers" />
