@@ -286,6 +286,94 @@ function About() {
           })}
         </div>
 
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            Two ways to work — both complete
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            A GPS system is a luxury, not a requirement. <T4P /> was built so that a coach with nothing but a
+            stopwatch and his players' feedback gets the same monitoring, the same graphs and the same reports as a
+            department with twenty vests. Only the resolution of the data changes — never the workflow.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {routes.map((r) => {
+              const Icon = r.icon;
+              const t = tone[r.color]!;
+              return (
+                <div key={r.eyebrow} className={`panel ${t.card} p-6`} style={{ borderTopWidth: 4 }}>
+                  <div className="flex items-center gap-3">
+                    <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${t.chip}`}>
+                      <Icon className="size-5" />
+                    </span>
+                    <div>
+                      <p className={`eyebrow ${t.text}`}>{r.eyebrow}</p>
+                      <p className="font-display text-base font-semibold uppercase tracking-wide">{r.title}</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+                  <ul className="mt-4 space-y-2">
+                    {r.points.map((p) => (
+                      <li key={p} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
+                        <Check className={`mt-0.5 size-4 shrink-0 ${t.text}`} aria-hidden />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-4 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
+            <strong className="text-foreground">And you can mix the two on the same day.</strong> If the pitch session
+            was tracked but the gym block was not, rate the gym block manually — <T4P /> adds GPS load and manual load
+            into one daily total per player, and never counts the same block twice.
+          </p>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            Why a fitness coach needs it
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Not because it produces more numbers. Because it gives you back the two things the job never leaves you:
+            time, and the confidence to defend a decision.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {benefits.map((b) => {
+              const Icon = b.icon;
+              const t = tone[b.color]!;
+              return (
+                <div key={b.t} className={`panel ${t.card} p-5 transition-transform hover:-translate-y-0.5`}>
+                  <div className={`grid size-11 place-items-center rounded-2xl ${t.chip}`}>
+                    <Icon className="size-5" />
+                  </div>
+                  <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">{b.t}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{b.d}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">A week inside the platform</h2>
+          <ol className="mt-6 space-y-3 border-l-2 border-brand-blue/25 pl-5">
+            {week.map((w) => (
+              <li key={w.d} className="relative">
+                <span
+                  className="absolute -left-[27px] top-1.5 size-3 rounded-full border-2 border-background bg-brand-blue"
+                  aria-hidden
+                />
+                <p className="eyebrow text-brand-blue">{w.d}</p>
+                <p className="font-display text-sm font-semibold uppercase tracking-wide">{w.t}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{w.b}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+
+
         <h2 className="mt-16 font-display text-2xl font-semibold uppercase tracking-wide">What it includes</h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {includes.map((i, idx) => (
