@@ -197,25 +197,26 @@ export function ShotTacticsBoard() {
 
             {/* rondo grid of cones */}
             <g fill="var(--color-brand-amber)">
-              {[
+              {([
                 [180, 90],
                 [420, 90],
                 [180, 290],
                 [420, 290],
-              ].map(([x, y]) => (
+              ] as [number, number][]).map(([x, y]) => (
                 <path key={`${x}-${y}`} d={`M${x} ${y - 14} L${x + 12} ${y + 10} L${x - 12} ${y + 10} Z`} />
               ))}
             </g>
 
             {/* poles */}
             <g>
-              {[
+              {([
                 [300, 60],
                 [300, 320],
-              ].map(([x, y]) => (
+              ] as [number, number][]).map(([x, y]) => (
                 <rect key={y} x={x - 3} y={y - 22} width="6" height="44" rx="3" fill="var(--color-brand-red)" />
               ))}
             </g>
+
 
             {/* attackers */}
             {[
