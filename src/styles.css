@@ -378,6 +378,13 @@ textarea.control {
   filter: none;
 }
 
+/* Dark mode: swap in the light variant of the mark (white "4", brighter blue
+   arrow) so the logo stays visible — no background plate. */
+.dark img.t4p-logo {
+  content: url("/logo-t4p-dark.png");
+}
+
+
 /* ---- Manual / document printing (Download as PDF) ---------------------- */
 @media print {
   @page {

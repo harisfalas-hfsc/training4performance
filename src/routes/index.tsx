@@ -104,12 +104,15 @@ const features = [
 const showcase = [
   {
     title: "Squad management",
-    text: "Every player in one list: position, availability status and their current acute:chronic ratio, with a full passport one click away.",
+    text: "Every player in one list: position, availability status and their current acute:chronic ratio, with a full passport one click away. Add a squad by hand, or let T4P create the players for you from the names inside your first GPS file.",
     points: [
       "Availability, modified training and rehab at a glance",
-      "Searchable squad — no walls of buttons",
+      "Searchable squad — no walls of buttons, even with 50 players",
+      "ACWR colour-coded against the 0.8–1.3 sweet spot",
       "Player passport: GPS, tests, wellness, medical, reports",
+      "Multiple teams, each one completely separate",
     ],
+    tags: ["Availability", "ACWR", "Player passport", "Auto-created players"],
     shot: <ShotSquad />,
   },
   {
@@ -119,30 +122,41 @@ const showcase = [
       "MD-cycle planning from MD-4 to MD+1",
       "Blocks with times, drills and strength prescriptions",
       "Planned vs actual load side by side",
+      "Duplicate a day or a whole week in one click",
     ],
+    tags: ["MD cycle", "Blocks", "Planned vs actual"],
     shot: <ShotCalendar />,
   },
   {
     title: "Tactics board",
-    text: "Draw the session on a real pitch with players, cones, poles, hurdles, balls and runs — then save the drawing straight onto the training block.",
+    text: "Draw the session on a real pitch with players, cones, poles, hurdles, balls and runs — then save the drawing straight onto the training block, so the coach opens the drill and sees exactly how it is set up.",
     points: [
       "Full, half or quarter pitch · football, futsal or blank",
+      "Portrait or landscape, and it scales to phone, tablet or desktop",
       "Cones, poles, hurdles, balls, zones and run arrows",
+      "Freehand pen, arrows, text labels and an eraser",
       "Every drawing is stored with the session it belongs to",
+      "Export the board as an image for the pre-training briefing",
     ],
+    tags: ["Drag & drop", "Pitch setup", "Saved to the block", "Image export"],
     shot: <ShotTacticsBoard />,
   },
   {
     title: "GPS import",
-    text: "Drop the file in. T4P recognises the provider, matches your players and turns the raw KPIs into training load using your own weights.",
+    text: "Drop the file in. T4P recognises the provider, matches your players and turns the raw KPIs into training load using your own weights — and if you have no GPS at all, manual RPE × duration does the same job.",
     points: [
       "Catapult, STATSports, GPEXE, Polar or your own template",
       "Automatic player matching with a mapping report",
       "Distance, HSR, sprints, accelerations, decelerations, jumps",
+      "Your own weighting per KPI — saved and applied to every future upload",
+      "Unmatched files can create the session for you as an unplanned activity",
+      "Full upload history, so nothing you imported is ever lost",
     ],
+    tags: ["Provider detection", "Player matching", "Composite load", "Manual RPE"],
     shot: <ShotGpsImport />,
   },
 ];
+
 
 function Home() {
   return (
@@ -331,6 +345,17 @@ function Home() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-border bg-surface-2/60 px-3 py-1 text-xs font-medium text-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
                 </div>
               </div>
             ))}
