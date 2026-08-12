@@ -100,11 +100,8 @@ function AuthPage() {
               </>
             )}
         </p>
+        <form onSubmit={submit} className="mt-6 space-y-3">
 
-
-
-
-        <form onSubmit={submit} className="space-y-3">
           {isSignup ? (
             <>
               <Field label="Full name" value={fullName} onChange={setFullName} required />
