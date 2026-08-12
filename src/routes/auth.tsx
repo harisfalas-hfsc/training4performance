@@ -4,7 +4,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
 
@@ -85,11 +84,6 @@ function AuthPage() {
     }
   }
 
-  async function google() {
-    setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) setError("Google sign-in failed. Please try again.");
-  }
 
   return (
     <MarketingPage>
@@ -106,19 +100,8 @@ function AuthPage() {
               </>
             )}
         </p>
+        <form onSubmit={submit} className="mt-6 space-y-3">
 
-        <button
-          onClick={google}
-          className="mt-6 w-full rounded-md border border-border bg-surface-2 px-4 py-2.5 text-sm font-semibold"
-        >
-          Continue with Google
-        </button>
-
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" /> or with email <span className="h-px flex-1 bg-border" />
-        </div>
-
-        <form onSubmit={submit} className="space-y-3">
           {isSignup ? (
             <>
               <Field label="Full name" value={fullName} onChange={setFullName} required />
