@@ -11,6 +11,7 @@ import {
   HeartPulse,
   PencilLine,
   Radar,
+  Compass,
   Satellite,
   ShieldCheck,
   Sparkles,
@@ -328,6 +329,107 @@ function About() {
             was tracked but the gym block was not, rate the gym block manually — <T4P /> adds GPS load and manual load
             into one daily total per player, and never counts the same block twice.
           </p>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            Start in any order — the platform fills itself in
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            There is no long setup and no data-entry weekend. There is one team, and two equally correct ways to
+            begin. Whichever you choose, you never type the same name twice.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="panel border-brand-blue/30 p-6" style={{ borderTopWidth: 4 }}>
+              <p className="eyebrow text-brand-blue">Option A</p>
+              <p className="font-display text-base font-semibold uppercase tracking-wide">Add the players first</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Enter the squad once — a name is enough to start. Position, shirt number, birth date, height, weight
+                and availability can be filled in later, whenever you actually need them. Every GPS file you upload
+                afterwards is matched to those players automatically.
+              </p>
+            </div>
+            <div className="panel border-brand-cyan/30 p-6" style={{ borderTopWidth: 4 }}>
+              <p className="eyebrow text-brand-cyan">Option B</p>
+              <p className="font-display text-base font-semibold uppercase tracking-wide">Upload the GPS file first</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Drop in your export before the squad exists. <T4P /> reads the names, shows you exactly who is
+                missing, and creates the whole squad in one click. The session, the KPIs and the load are saved in the
+                same step — the squad is a by-product of the work you already did.
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
+            <strong className="text-foreground">And whatever the GPS cannot give you, you add by hand — freely.</strong>{" "}
+            A GPS unit does not know how hard the gym block felt, what the player weighs, when he was injured or how
+            he slept. So RPE, body composition, tests, wellness, medical status and any club metric can be entered
+            manually at any moment, for one player or for the whole squad. Teams with no GPS at all simply use that
+            route for everything — and get the identical load, ACWR, alerts, charts and reports.
+          </p>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            One way of asking questions — everywhere
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            There is no menu to learn. Every analysis screen in <T4P /> — and every player record — asks you the same
+            two questions in the same order, then draws the answer.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {[
+              { n: "01", t: "Who", d: "The whole team, the squad average, one player or several — from a searchable picker, never a wall of fifty buttons.", c: "blue" },
+              { n: "02", t: "What", d: "GPS reports · Training & drills · Fitness tests · Wellness · Medical & availability. Every data family the platform holds.", c: "cyan" },
+              { n: "03", t: "How to see it", d: "The KPIs you care about, the dates you choose, and line, bar, area, pie or radar. Exported as PNG, PDF, Excel or CSV.", c: "violet" },
+            ].map((x) => (
+              <div key={x.n} className={`panel ${tone[x.c]!.card} p-5`}>
+                <span className={`grid size-9 place-items-center rounded-xl ${tone[x.c]!.chip} font-display text-xs font-bold`}>
+                  {x.n}
+                </span>
+                <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">{x.t}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{x.d}</p>
+              </div>
+            ))}
+          </div>
+          <div className="panel mt-4 border-brand-teal/30 bg-gradient-to-r from-brand-teal/8 to-brand-blue/8 p-5">
+            <div className="flex flex-wrap items-start gap-4">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-teal/15 text-brand-teal">
+                <Compass className="size-5" />
+              </span>
+              <p className="min-w-0 flex-1 text-sm leading-relaxed text-muted-foreground">
+                Because drills are tagged, the same two questions answer things a spreadsheet never could: how many
+                times did we run <strong className="text-foreground">Rondo 5v2</strong> this season, for how many
+                minutes, which players were exposed to it, and how does it compare with the passing drill — or how many
+                strength sessions this one player actually attended.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            Less typing. More coaching.
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            The reason this platform exists is simple: a strength &amp; conditioning coach should spend his day on the
+            performance of the players, not on writing, organising and re-typing. Everything below stops on the day
+            you start.
+          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["No re-typing names", "The squad is created from your GPS file, or entered once. Every screen reuses the same player record."],
+              ["No four spreadsheets", "Availability, plan, GPS, RPE, wellness, tests and medical live in one connected record."],
+              ["No manual formulas", "Load, acute, chronic, ACWR, monotony and strain are computed per player the moment data arrives."],
+              ["No morning scanning", "Thresholds watch workload, wellness and availability and name the players who need attention."],
+              ["No report night", "Pick the template and the dates, press export: PDF, PNG, Excel or CSV, ready for the head coach."],
+              ["No lost history", "Every session, file, rating, test and injury stays in one place for the whole season."],
+            ].map(([t, d]) => (
+              <div key={t} className="panel border-brand-green/25 p-5">
+                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">{t}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-16">

@@ -64,8 +64,16 @@ const steps: Step[] = [
   {
     icon: Shield,
     tone: "blue",
-    t: "Create the team or import the squad",
-    d: "Create the team once. Then add players manually or upload the first GPS report and create every detected player in one click — names never need to be typed twice.",
+    t: "Create the team — in any order you like",
+    d: (
+      <>
+        Create the team once. After that there is no right order: add the players by hand, or simply upload the first
+        GPS report and press <strong className="text-foreground">Create missing players</strong> — every name in the
+        file becomes a player in one click. Whatever the file cannot give you (position, shirt number, birth date,
+        height, weight, medical status) you add later, only if you want it. Nothing is compulsory, and no name is ever
+        typed twice.
+      </>
+    ),
   },
   {
     icon: Users,
@@ -112,8 +120,17 @@ const steps: Step[] = [
   {
     icon: BarChart3,
     tone: "blue",
-    t: "Choose, compare and report",
-    d: "In Analytics & Reports choose one player, several players or the whole squad; then choose the KPI and dates. See the chart immediately and export it as PNG, PDF, Excel or CSV.",
+    t: "Ask anything the same way: Who → What",
+    d: (
+      <>
+        Every analysis screen asks the same two questions. <strong className="text-foreground">WHO</strong> — the team,
+        the squad average, one player or several, from a searchable picker.{" "}
+        <strong className="text-foreground">WHAT</strong> — GPS reports, Training &amp; drills, Fitness tests, Wellness
+        or Medical &amp; availability. Then the KPI, the dates and the chart type: line, bar, area, pie or radar. The
+        chart redraws instantly and exports as PNG, PDF, Excel or CSV. The same strip lives inside each player, where
+        WHO is already answered.
+      </>
+    ),
   },
 ];
 
@@ -130,6 +147,21 @@ const tones: Record<string, { chip: string; card: string; num: string }> = {
 };
 
 const faq = [
+  {
+    q: "Do I have to add the players before I upload GPS?",
+    a: (
+      <>
+        No. The two orders are equally valid. Upload the file first and <T4P /> creates every detected player for you;
+        or build the squad first and the file matches the names it finds. Anything the GPS export does not contain —
+        position, birth date, height, weight, RPE, medical status, test results — you add manually whenever you want,
+        and only for the fields you actually care about.
+      </>
+    ),
+  },
+  {
+    q: "How much typing does this really save?",
+    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
+  },
   {
     q: "What does the subscription cost and what does it cover?",
     a: "€999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
@@ -181,6 +213,14 @@ const faq = [
 
 /** Plain-text mirror of the FAQ above, used only for FAQPage JSON-LD. */
 const faqSchema = [
+  {
+    q: "Do I have to add the players before I upload GPS?",
+    a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain \u2014 position, birth date, height, weight, RPE, medical status, test results \u2014 you add manually whenever you want, and only for the fields you actually care about.",
+  },
+  {
+    q: "How much typing does this really save?",
+    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
+  },
   {
     q: "What does the subscription cost and what does it cover?",
     a: "\u20ac999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
@@ -270,6 +310,31 @@ function HowItWorks() {
           })}
         </div>
 
+        <section className="mt-14">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+            What you stop doing on day one
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            The job of a strength &amp; conditioning coach is the performance of the players — not data entry.{" "}
+            <T4P /> takes the admin off your desk so the only thing left for you is the decision.
+          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["No re-typing names", "The squad is built from your GPS file, or once by hand. Every screen reuses the same player record."],
+              ["No copying between files", "Import once, or rate the session once. Charts, tables, ACWR and reports update themselves."],
+              ["No manual formulas", "Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives."],
+              ["No scanning 27 players", "Thresholds watch workload, wellness and availability and tell you who needs attention."],
+              ["No building the coach's report", "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV."],
+              ["No lost season history", "Every session, file, test, injury and rating stays in one place until you delete it."],
+            ].map(([t, d]) => (
+              <div key={t} className="panel border-brand-green/25 p-5">
+                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">{t}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="panel mt-14 overflow-hidden border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-blue/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
             <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-amber/15 text-brand-amber">
@@ -281,7 +346,7 @@ function HowItWorks() {
                 Every workflow is written down, step by step
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                Inside the platform, <T4P /> ships with a full colour-coded user manual: 13 numbered chapters from an
+                Inside the platform, <T4P /> ships with a full colour-coded user manual: 15 numbered chapters from an
                 empty squad to daily decisions, a chapter explaining exactly how the individual training load and ACWR
                 are calculated, a search box and a troubleshooting section. It is also downloadable as a PDF, exactly
                 as it appears on screen, so you can print it or send it to your staff.
