@@ -143,6 +143,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         // this class to select the genuine mobile layout without page scaling.
         children: `(function(){try{function apply(){var sw=window.screen.width,sh=window.screen.height;var s=Math.min(sw,sh),l=Math.max(sw,sh);var tablet=s>=600&&s<=1180&&l<=1600;var portrait=window.innerHeight>=window.innerWidth;document.documentElement.classList.toggle('tablet-portrait',tablet&&portrait);}apply();window.addEventListener('resize',apply);window.addEventListener('orientationchange',function(){setTimeout(apply,100);});}catch(e){}})();`,
       },
+      {
+        // Apply the saved colour theme before first paint.
+        children: `(function(){try{if(localStorage.getItem('t4p.theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+      },
+
+
 
       jsonLd({
         "@context": "https://schema.org",

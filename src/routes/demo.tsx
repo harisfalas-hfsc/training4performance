@@ -117,20 +117,20 @@ function DemoPage() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-surface">
-        <div className="mx-auto max-w-5xl px-5 py-14">
-          <p className="eyebrow inline-flex items-center gap-2 text-primary">
+        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+          <p className="eyebrow inline-flex items-center justify-center gap-2 text-primary">
             <FlaskConical className="size-4" aria-hidden /> Live demo
           </p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase tracking-wide sm:text-4xl">
             Try <T4P /> with a team that is already set up
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             No sign-up, no card, nothing to import. One click opens the platform with the demo team{" "}
             <strong className="text-foreground">T4P</strong>: five players, a full week of training
             in blocks, GPS data, manual RPE and a fitness-test battery. Everything is live — change
             the load model, edit a session, add an RPE and see the numbers move.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button size="lg" className="gap-2" onClick={start}>
               <PlayCircle className="size-5" /> Open the demo
             </Button>
@@ -153,12 +153,12 @@ function DemoPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-5 py-12">
-        <h2 className="font-display text-xl font-semibold uppercase tracking-wide">
+        <h2 className="text-center font-display text-xl font-semibold uppercase tracking-wide">
           What is inside
         </h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {INSIDE.map((item) => (
-            <div key={item.title} className="rounded-xl border border-border bg-surface p-4">
+            <div key={item.title} className="flex flex-col items-center rounded-xl border border-border bg-surface p-4 text-center">
               <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
                 <item.icon className="size-4" aria-hidden />
               </span>

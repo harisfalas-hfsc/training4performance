@@ -42,6 +42,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
 import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
@@ -161,6 +162,7 @@ export function AppShell({
                   <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
                 </Button>
               ) : null}
+              <ThemeToggle />
               <div ref={accountRef} className="relative">
                 <Button
                   type="button"

@@ -99,19 +99,19 @@ function Home() {
 
       {/* DESKTOP HERO — clean text */}
       <section className="relative hidden overflow-hidden border-b border-border sm:block">
-        <div className="relative mx-auto max-w-7xl px-5 pb-8 pt-6 lg:pb-10 lg:pt-8">
+        <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-10 text-center lg:pb-14 lg:pt-14">
 
-          <div className="max-w-3xl">
+          <div className="mx-auto max-w-4xl">
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground"><Training4Performance /></p>
             <h1 className="mt-4 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-foreground lg:text-6xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
-            <p className="mt-5 max-w-2xl text-base text-muted-foreground lg:text-lg">
+            <p className="mx-auto mt-5 max-w-3xl text-base text-muted-foreground lg:text-lg">
               <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It brings every player
               record, training session, GPS report, wellness entry, test result and medical note into one connected
               workspace — so you spend less time switching files and more time coaching.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
@@ -137,8 +137,8 @@ function Home() {
       {/* Platform preview */}
       <section className="border-b border-border bg-surface-2/40">
         <div className="mx-auto max-w-7xl px-5 py-10">
-          <p className="eyebrow">Inside the platform</p>
-          <h2 className="mt-3 max-w-2xl font-display text-2xl font-semibold uppercase tracking-wide">
+          <p className="eyebrow text-center">Inside the platform</p>
+          <h2 className="mx-auto mt-3 max-w-3xl text-center font-display text-2xl font-semibold uppercase tracking-wide">
             One workspace, from session design to the weekly report
           </h2>
           <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-background shadow-panel">
@@ -205,11 +205,11 @@ function Home() {
 
       {/* Capabilities */}
       <section className="mx-auto max-w-7xl px-5 py-10">
-        <p className="eyebrow">Capabilities</p>
-        <h2 className="mt-3 font-display text-2xl font-semibold uppercase tracking-wide">What's inside</h2>
+        <p className="eyebrow text-center">Capabilities</p>
+        <h2 className="mt-3 text-center font-display text-2xl font-semibold uppercase tracking-wide">What's inside</h2>
         <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
-            <div key={f.title} className="bg-background p-5 transition-colors hover:bg-surface-2/60">
+            <div key={f.title} className="flex flex-col items-center bg-background p-5 text-center transition-colors hover:bg-surface-2/60">
               <f.icon className="size-5" style={{ color: f.color }} />
               <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">{f.title}</p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{f.text}</p>
@@ -221,14 +221,14 @@ function Home() {
       {/* About */}
       <section className="border-y border-border bg-surface-2/40">
         <div className="mx-auto max-w-7xl px-5 py-10">
-          <p className="eyebrow">About <Training4Performance /></p>
+          <p className="eyebrow text-center">About <Training4Performance /></p>
           <div className="mt-6 grid gap-8 lg:grid-cols-3">
             {[
               { icon: Activity, t: "Built by practitioners", d: "Designed by a sports scientist and strength & conditioning coach from real daily club workflow — not a generic dashboard.", color: "#059669" },
               { icon: ShieldCheck, t: "One workspace", d: "Your whole staff works on the same squad, calendar and data — no per-user fees, no separate tiers.", color: "#2563eb" },
               { icon: BarChart3, t: "Your own load model", d: "Choose the KPIs and weights that build training load, and drive ACWR, monotony and strain from your data.", color: "#d97706" },
             ].map((b) => (
-              <div key={b.t}>
+              <div key={b.t} className="flex flex-col items-center text-center">
                 <b.icon className="size-5" style={{ color: b.color }} />
                 <p className="mt-3 font-display text-lg font-semibold uppercase tracking-wide">{b.t}</p>
                 <p className="mt-2 text-sm text-muted-foreground">{b.d}</p>
@@ -237,7 +237,7 @@ function Home() {
           </div>
           <Link
             to="/about"
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline"
+            className="mx-auto mt-8 flex w-fit items-center gap-2 text-sm font-semibold text-foreground hover:underline"
           >
             More about <T4P /> <ArrowRight className="size-4" />
           </Link>

@@ -18,6 +18,7 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as HarisFalasRouteImport } from './routes/haris-falas'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as ManualRouteImport } from './routes/manual'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -38,7 +39,6 @@ import { Route as AuthenticatedCompareRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gps'
 import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
-import { Route as AuthenticatedManualRouteImport } from './routes/_authenticated/manual'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedRpeRouteImport } from './routes/_authenticated/rpe'
 import { Route as AuthenticatedSquadRouteImport } from './routes/_authenticated/squad'
@@ -91,6 +91,11 @@ const HarisFalasRoute = HarisFalasRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManualRoute = ManualRouteImport.update({
+  id: '/manual',
+  path: '/manual',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalRoute = PortalRouteImport.update({
@@ -194,11 +199,6 @@ const AuthenticatedLogbookRoute = AuthenticatedLogbookRouteImport.update({
   path: '/logbook',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedManualRoute = AuthenticatedManualRouteImport.update({
-  id: '/manual',
-  path: '/manual',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -254,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/manual': typeof ManualRoute
   '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -274,7 +275,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
   '/logbook': typeof AuthenticatedLogbookRoute
-  '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rpe': typeof AuthenticatedRpeRoute
   '/squad': typeof AuthenticatedSquadRoute
@@ -294,6 +294,7 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/manual': typeof ManualRoute
   '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -314,7 +315,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
   '/logbook': typeof AuthenticatedLogbookRoute
-  '/manual': typeof AuthenticatedManualRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rpe': typeof AuthenticatedRpeRoute
   '/squad': typeof AuthenticatedSquadRoute
@@ -336,6 +336,7 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/manual': typeof ManualRoute
   '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -356,7 +357,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/gps': typeof AuthenticatedGpsRoute
   '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
-  '/_authenticated/manual': typeof AuthenticatedManualRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rpe': typeof AuthenticatedRpeRoute
   '/_authenticated/squad': typeof AuthenticatedSquadRoute
@@ -378,6 +378,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
+    | '/manual'
     | '/portal'
     | '/pricing'
     | '/privacy'
@@ -398,7 +399,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/gps'
     | '/logbook'
-    | '/manual'
     | '/reports'
     | '/rpe'
     | '/squad'
@@ -418,6 +418,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
+    | '/manual'
     | '/portal'
     | '/pricing'
     | '/privacy'
@@ -438,7 +439,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/gps'
     | '/logbook'
-    | '/manual'
     | '/reports'
     | '/rpe'
     | '/squad'
@@ -459,6 +459,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
+    | '/manual'
     | '/portal'
     | '/pricing'
     | '/privacy'
@@ -479,7 +480,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/gps'
     | '/_authenticated/logbook'
-    | '/_authenticated/manual'
     | '/_authenticated/reports'
     | '/_authenticated/rpe'
     | '/_authenticated/squad'
@@ -501,6 +501,7 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   HarisFalasRoute: typeof HarisFalasRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  ManualRoute: typeof ManualRoute
   PortalRoute: typeof PortalRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -574,6 +575,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manual': {
+      id: '/manual'
+      path: '/manual'
+      fullPath: '/manual'
+      preLoaderRoute: typeof ManualRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal': {
@@ -716,13 +724,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLogbookRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/manual': {
-      id: '/_authenticated/manual'
-      path: '/manual'
-      fullPath: '/manual'
-      preLoaderRoute: typeof AuthenticatedManualRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
       path: '/reports'
@@ -803,7 +804,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGpsRoute: typeof AuthenticatedGpsRoute
   AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
-  AuthenticatedManualRoute: typeof AuthenticatedManualRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRpeRoute: typeof AuthenticatedRpeRoute
   AuthenticatedSquadRoute: typeof AuthenticatedSquadRoute
@@ -828,7 +828,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGpsRoute: AuthenticatedGpsRoute,
   AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,
-  AuthenticatedManualRoute: AuthenticatedManualRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRpeRoute: AuthenticatedRpeRoute,
   AuthenticatedSquadRoute: AuthenticatedSquadRoute,
@@ -852,6 +851,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   HarisFalasRoute: HarisFalasRoute,
   HowItWorksRoute: HowItWorksRoute,
+  ManualRoute: ManualRoute,
   PortalRoute: PortalRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
