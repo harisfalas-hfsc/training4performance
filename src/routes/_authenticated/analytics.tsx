@@ -181,7 +181,42 @@ function AnalyticsPage() {
       </section>
 
       <section className="panel mb-4 p-4">
-        <SectionTitle title="2. Which KPIs, which dates, drawn how?" hint="Everything below follows these choices" />
+        <SectionTitle title="2. What do you want to see for them?" hint="GPS reports, training & drills, or fitness tests — then combine them" />
+        <div className="flex flex-wrap gap-1">
+          {SOURCES.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setSource(s.id)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                source === s.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3">
+          <span className="eyebrow">Dates</span>
+          <div className="mt-1">
+            <DateRangePicker
+              from={from}
+              to={to}
+              onChange={(a, b) => { setFrom(a); setTo(b); }}
+              earliest={availableDates[0]}
+              latest={availableDates.at(-1)}
+            />
+          </div>
+        </div>
+      </section>
+
+      {source === "training" ? <TrainingExplorer playerIds={activeIds} from={from} to={to} /> : null}
+      {source === "tests" ? <TestsExplorer playerIds={activeIds} from={from} to={to} /> : null}
+
+      {source !== "gps" ? null : (
+      <>
+      <section className="panel mb-4 p-4">
+        <SectionTitle title="3. Which KPIs, which dates, drawn how?" hint="Everything below follows these choices" />
+
         <div className="flex flex-wrap items-center gap-1">
           <span className="eyebrow w-full sm:w-auto">KPIs</span>
           {allMetrics.map((m) => (
