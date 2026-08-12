@@ -22,7 +22,12 @@ import { T4P } from "@/components/brand-text";
 /** Re-render whenever the stored load model changes. */
 export function useLoadModel(): LoadModel {
   const [model, setModel] = useState<LoadModel>(() => getLoadModel());
-  useEffect(() => subscribeLoadModel(() => setModel({ ...getLoadModel() })), []);
+  useEffect(() => {
+    const off = subscribeLoadModel(() => setModel({ ...getLoadModel() }));
+    return () => {
+      off();
+    };
+  }, []);
   return model;
 }
 
@@ -49,11 +54,14 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
     return estimateLoadRows(gpsHistory.filter((r) => r.date === last), model)
       .sort((a, b) => b.load - a.load)
       .slice(0, 5)
-      .map(({ row, load }) => ({
-        name: fullName(players.find((p) => p.id === row.playerId) ?? { firstName: "", lastName: row.playerId }) || row.playerId,
+      .map(({ row, load }) => {
+        const player = players.find((p) => p.id === row.playerId);
+        return {
+        name: player ? fullName(player) : row.playerId,
         date: row.date,
         load,
-      }));
+      };
+      });
   }, [model, gpsHistory.length]);
 
   return (
