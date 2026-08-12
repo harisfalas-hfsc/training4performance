@@ -15,6 +15,8 @@ import {
   LayoutDashboard,
   LifeBuoy,
   Radar,
+  Compass,
+  HeartPulse,
   Search,
   Users,
   type LucideIcon,
@@ -80,8 +82,31 @@ const CHAPTERS: Chapter[] = [
     ],
   },
   {
-    id: "squad",
+    id: "explore",
     n: 2,
+    title: "Who \u2192 What \u2014 the one question pattern",
+    why: "Every analysis page in T4P asks you the same two questions in the same order, so there is nothing new to learn from page to page.",
+    icon: Compass,
+    color: "#0ea5e9",
+    to: "/analytics",
+    linkLabel: "Open analytics",
+    steps: [
+      "WHO \u2014 choose the whole team, the squad average, one player or several players. It is a searchable picker, so 50 players never become 50 buttons.",
+      "WHAT \u2014 choose the source you want to look at: GPS reports, Training & drills, Fitness tests, Wellness, or Medical & availability.",
+      "Then choose the KPIs, the date range and the chart type (line, bar, area, pie, radar). The result is drawn immediately \u2014 no Apply button, no reload.",
+      "Every source obeys the same three steps, so once you have done it once you can do it everywhere.",
+      "The same Who \u2192 What strip lives inside a player: open a player and press the Explore tab. WHO is already that player, so you only choose WHAT.",
+      "Export whatever is on screen as PNG, PDF, Excel or CSV without rebuilding anything.",
+    ],
+    tips: [
+      "Training & drills answers the questions a spreadsheet cannot: how many times did we do 'Rondo 5v2', how many minutes in total, which players were exposed to it, and how does it compare with 'Passing drill'.",
+      "Tag your drills in the Training Designer once and they stay searchable for the whole season.",
+      "Any new kind of data added to the platform later appears as another WHAT source \u2014 the pattern never changes.",
+    ],
+  },
+  {
+    id: "squad",
+    n: 3,
     title: "Build your squad",
     why: "The squad is the backbone. GPS rows, tests and load are matched to players by name, so getting names right here saves work later.",
     icon: Users,
@@ -104,7 +129,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "calendar",
-    n: 3,
+    n: 4,
     title: "Plan the microcycle in the calendar",
     why: "The calendar is where the week takes shape — matchday minus days, sessions, states and duplicates.",
     icon: CalendarDays,
@@ -123,7 +148,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "design",
-    n: 4,
+    n: 5,
     title: "Design a session step by step",
     why: "Blocks let you plan and later measure load per part of the session instead of one blurred total.",
     icon: ClipboardPen,
@@ -147,7 +172,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "board",
-    n: 5,
+    n: 6,
     title: "Use the tactics board",
     why: "A drawn drill is understood in two seconds; a written one is not.",
     icon: Activity,
@@ -166,7 +191,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "gps",
-    n: 6,
+    n: 7,
     title: "Import GPS data (any provider)",
     why: "T4P does not force you into one GPS system. You upload your own export and teach the platform your columns once.",
     icon: Radar,
@@ -190,7 +215,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "load",
-    n: 7,
+    n: 8,
     title: "Training load — with or without GPS",
     why: "You do not need a GPS system. With GPS, T4P builds an individual load from the KPIs you choose; without GPS, a 0-10 rating and the duration produce the same load, ACWR, monotony and strain.",
     icon: Radar,
@@ -225,7 +250,7 @@ const CHAPTERS: Chapter[] = [
 
   {
     id: "analyse",
-    n: 8,
+    n: 9,
     title: "Analyse the GPS and the workload",
     why: "Raw numbers are not information. Acute, chronic, ACWR, monotony and strain tell you what to do tomorrow.",
     icon: BarChart3,
@@ -247,7 +272,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "tests",
-    n: 9,
+    n: 10,
     title: "Fitness testing and tracking",
     why: "Testing turns opinion into evidence, and repeated testing shows whether your programme worked.",
     icon: GitCompare,
@@ -266,8 +291,30 @@ const CHAPTERS: Chapter[] = [
     tips: ["Test reports can be exported per player or per battery from Reports."],
   },
   {
+    id: "wellness",
+    n: 11,
+    title: "Wellness and the player\u2019s own login",
+    why: "The cheapest daily data in football is how the player feels \u2014 and the player can type it himself, so you do not have to.",
+    icon: HeartPulse,
+    color: "#db2777",
+    to: "/wellness",
+    linkLabel: "Open wellness",
+    steps: [
+      "Open a player, go to the Player login tab and give him access. He signs in to his own portal and sees only his own data.",
+      "The player answers the daily questionnaire in about thirty seconds: sleep, fatigue, soreness, stress and mood, which produce a readiness score.",
+      "You see the squad responses of the day in Wellness & alerts, colour-coded, with the players who did not answer clearly marked.",
+      "A wellness drop against the player\u2019s own baseline raises an alert automatically \u2014 you do not have to scan the table.",
+      "Wellness is a full WHAT source in analytics: pick players, pick wellness KPIs, pick dates and compare them with load.",
+      "You can also record injuries and illness in the Medical & illness tab; days lost and availability appear in analytics as their own source.",
+    ],
+    tips: [
+      "If the players cannot use the portal, you can enter wellness for them \u2014 the rest of the system behaves identically.",
+      "Wellness plus load is what turns a red ACWR into a decision: high load with dropping readiness is the case to act on.",
+    ],
+  },
+  {
     id: "alerts",
-    n: 10,
+    n: 12,
     title: "Alerts — let the system watch for you",
     why: "You cannot manually scan 27 players every morning. The thresholds do it for you.",
     icon: BellRing,
@@ -285,7 +332,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "ai",
-    n: 11,
+    n: 13,
     title: "Ask the AI assistant",
     why: "The assistant reads the same data you do, so you can ask instead of digging.",
     icon: BrainCircuit,
@@ -301,7 +348,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "reports",
-    n: 12,
+    n: 14,
     title: "Reports and one-click exports",
     why: "The head coach, the medical staff and the board each need a different page, not the same page.",
     icon: FileText,
@@ -318,7 +365,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "logbook",
-    n: 13,
+    n: 15,
     title: "The logbook — your season record",
     why: "One scrollable record of every session, RPE and load, so nothing is lost when the season ends.",
     icon: BookOpen,
