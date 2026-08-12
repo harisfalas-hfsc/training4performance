@@ -146,6 +146,9 @@ export interface SessionPlanItem {
   rpe: number;
   /** RPE actually reported after the session (manual load entry when there is no GPS). */
   actualRpe?: number;
+  /** Searchable labels, e.g. "Rondo 5v2", "Passing drill", "Bulgarian split squat". */
+  tags?: string[];
+
 
   block?: TrainingBlock;
   location?: TrainingLocation;

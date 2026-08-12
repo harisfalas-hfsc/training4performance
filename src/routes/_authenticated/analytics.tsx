@@ -6,6 +6,9 @@ import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, SERIES_COLORS, type ChartKind } from "@/components/charts";
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
+import { TrainingExplorer } from "@/components/training-explorer";
+import { TestsExplorer } from "@/components/tests-explorer";
+
 import {
   customKpis,
   fullName,
@@ -47,12 +50,22 @@ const METRICS = [
 
 type MetricKey = string;
 
+/** The three families of data every page follows: people → what about them. */
+const SOURCES = [
+  { id: "gps", label: "GPS reports" },
+  { id: "training", label: "Training & drills" },
+  { id: "tests", label: "Fitness tests" },
+] as const;
+type SourceId = (typeof SOURCES)[number]["id"];
+
 const daysBetween = (from: string, to: string) =>
   Math.max(7, Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000) || 28);
 
 function AnalyticsPage() {
   useDataVersion();
+  const [source, setSource] = useState<SourceId>("gps");
   const [kpis, setKpis] = useState<MetricKey[]>(["distance"]);
+
   const [kind, setKind] = useState<ChartKind>("bar");
   const [devKey, setDevKey] = useState<MetricKey>("hsr");
   const [scope, setScope] = useState<Scope>("team");
@@ -181,7 +194,42 @@ function AnalyticsPage() {
       </section>
 
       <section className="panel mb-4 p-4">
-        <SectionTitle title="2. Which KPIs, which dates, drawn how?" hint="Everything below follows these choices" />
+        <SectionTitle title="2. What do you want to see for them?" hint="GPS reports, training & drills, or fitness tests — then combine them" />
+        <div className="flex flex-wrap gap-1">
+          {SOURCES.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setSource(s.id)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                source === s.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3">
+          <span className="eyebrow">Dates</span>
+          <div className="mt-1">
+            <DateRangePicker
+              from={from}
+              to={to}
+              onChange={(a, b) => { setFrom(a); setTo(b); }}
+              earliest={availableDates[0]}
+              latest={availableDates.at(-1)}
+            />
+          </div>
+        </div>
+      </section>
+
+      {source === "training" ? <TrainingExplorer playerIds={activeIds} from={from} to={to} /> : null}
+      {source === "tests" ? <TestsExplorer playerIds={activeIds} from={from} to={to} /> : null}
+
+      {source !== "gps" ? null : (
+      <>
+      <section className="panel mb-4 p-4">
+        <SectionTitle title="3. Which KPIs, which dates, drawn how?" hint="Everything below follows these choices" />
+
         <div className="flex flex-wrap items-center gap-1">
           <span className="eyebrow w-full sm:w-auto">KPIs</span>
           {allMetrics.map((m) => (
@@ -386,6 +434,9 @@ function AnalyticsPage() {
           </div>
         </div>
       </section>
+      </>
+      )}
     </AppShell>
+
   );
 }
