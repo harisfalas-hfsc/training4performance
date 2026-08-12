@@ -1,17 +1,22 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { AcwrChart, MultiLine, TrendArea, TrendBars } from "@/components/charts";
 import { PlayerAccessCard } from "@/components/player-access-card";
+import { Button } from "@/components/ui/button";
 import {
+  addMedicalEvent,
   age,
   availabilitySummary,
   bmi,
   fullName,
   getPlayer,
+  gpsHistory,
+  gpsValue,
+  customKpis,
   initials,
   playerMedical,
   acwrSeries,
@@ -21,12 +26,14 @@ import {
   playerWellness,
   positionAverage,
   removePlayer,
+  removeMedicalEvent,
   RTP_STAGES,
   squadStats,
   updatePlayer,
   useDataVersion,
   wellnessScore,
   type Availability,
+  type MedicalEvent,
   type Player,
   type Position,
 } from "@/data/performance";
@@ -61,6 +68,7 @@ import {
   type StrengthGoal,
   type TestGroup,
 } from "@/data/testing";
+import { entriesFor, entryScore, useWellnessVersion } from "@/data/wellness";
 
 
 export const Route = createFileRoute("/_authenticated/players/$id")({
@@ -83,17 +91,18 @@ export const Route = createFileRoute("/_authenticated/players/$id")({
   component: PlayerProfile,
 });
 
-const TABS = ["Profile", "Fitness", "Strength", "GPS", "Wellness", "Training", "Medical", "Analytics", "Portal access"] as const;
+const TABS = ["Overview", "GPS reports", "Fitness tests", "Training", "Wellness", "Medical & illness", "Reports", "Player login"] as const;
 const POSITIONS: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
 const AVAILABILITY: Availability[] = ["available", "partial", "individual", "rehab", "injured", "ill"];
 
 function PlayerProfile() {
   useDataVersion();
   useTestVersion();
+  useWellnessVersion();
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const player = getPlayer(id);
-  const [tab, setTab] = useState<(typeof TABS)[number]>("Profile");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Overview");
 
   if (!player) {
     return (
@@ -150,14 +159,6 @@ function PlayerProfile() {
         </div>
       </div>
 
-      <div className="panel mt-4 p-4">
-        <SectionTitle
-          title="Acute:chronic workload"
-          hint="Rolling 7-day load against the 28-day baseline. The coloured bands are the published injury-risk zones."
-        />
-        <AcwrChart data={acwrSeries(player.id, 42).map((d) => ({ date: d.date.slice(5), acwr: d.acwr }))} />
-      </div>
-
       <div className="mt-4 flex flex-wrap gap-1">
         {TABS.map((t) => (
           <button
@@ -173,86 +174,13 @@ function PlayerProfile() {
       </div>
 
       <div className="mt-4">
-        {tab === "Portal access" && <PlayerAccessCard playerId={player.id} playerName={fullName(player)} />}
-        {tab === "Profile" && <ProfileTab player={player} />}
-        {tab === "Fitness" && <FitnessTab playerId={id} />}
-        {tab === "Strength" && <StrengthTab playerId={id} />}
+        {tab === "Player login" && <PlayerAccessCard playerId={player.id} playerName={fullName(player)} />}
+        {tab === "Overview" && <ProfileTab player={player} />}
+        {tab === "Fitness tests" && <FitnessTab playerId={id} />}
 
-        {tab === "GPS" && (
-          <section className="grid gap-4">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCard label="Distance 7d" value={m.distance7.toLocaleString()} unit="m" />
-              <MetricCard
-                label="HSR 7d"
-                value={m.hsr7}
-                unit="m"
-                hint={`squad ${hsrSquad} m · ${player.position} ${hsrPos} m`}
-                tone={m.hsr7 > hsrPos * 1.25 ? "warn" : "default"}
-              />
-              <MetricCard label="Sprint 7d" value={m.sprint7} unit="m" />
-              <MetricCard label="Max speed 7d" value={m.maxSpeed || "—"} unit="km/h" />
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="28-day GPS trend" />
-              <MultiLine
-                data={trend}
-                series={[
-                  { key: "distance", color: "var(--color-chart-1)", name: "Distance" },
-                  { key: "hsr", color: "var(--color-chart-2)", name: "HSR" },
-                  { key: "sprint", color: "var(--color-chart-3)", name: "Sprint" },
-                ]}
-                height={260}
-              />
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="Deviation from position average" />
-              <p className="text-sm text-muted-foreground">
-                HSR is{" "}
-                <span className={m.hsr7 > hsrPos ? "text-warning" : "text-info"}>
-                  {Math.round(((m.hsr7 - hsrPos) / hsrPos) * 100)}%
-                </span>{" "}
-                versus the {player.position} average and{" "}
-                <span>{Math.round(((m.hsr7 - hsrSquad) / hsrSquad) * 100)}%</span> versus the squad average.
-              </p>
-            </div>
-          </section>
-        )}
+        {tab === "GPS reports" && <PlayerGpsTab playerId={id} />}
 
-        {tab === "Wellness" && (
-          <section className="grid gap-4 xl:grid-cols-2">
-            <div className="panel p-4">
-              <SectionTitle title="Today's readiness" hint={`Overall ${wellnessScore(wellness)}%`} />
-              <ul className="space-y-3">
-                {(
-                  [
-                    ["Sleep", wellness.sleep],
-                    ["Fatigue", wellness.fatigue],
-                    ["Soreness", wellness.soreness],
-                    ["Stress", wellness.stress],
-                    ["Mood", wellness.mood],
-                  ] as const
-                ).map(([label, v]) => (
-                  <li key={label}>
-                    <div className="flex justify-between text-sm">
-                      <span>{label}</span>
-                      <span className="tabular-nums text-muted-foreground">{v}/5</span>
-                    </div>
-                    <div className="mt-1 h-2 rounded-full bg-secondary">
-                      <div
-                        className={`h-2 rounded-full ${v >= 4 ? "bg-success" : v >= 3 ? "bg-warning" : "bg-destructive"}`}
-                        style={{ width: `${(v / 5) * 100}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="panel p-4">
-              <SectionTitle title="RPE response" hint="Daily session RPE, last 28 days" />
-              <TrendBars data={trend} dataKey="rpe" color="var(--color-chart-3)" height={240} />
-            </div>
-          </section>
-        )}
+        {tab === "Wellness" && <PlayerWellnessTab playerId={id} />}
 
         {tab === "Training" && (
           <section className="grid gap-4 xl:grid-cols-3">
@@ -293,16 +221,16 @@ function PlayerProfile() {
           </section>
         )}
 
-        {tab === "Medical" && (
+        {tab === "Medical & illness" && (
           <section className="grid gap-4 xl:grid-cols-3">
             <div className="panel p-4 xl:col-span-2">
-              <SectionTitle title="Injury & illness history" />
+              <SectionTitle title="Injury & illness history" right={<MedicalEventForm playerId={id} />} />
               {medical.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No recorded injuries or illness this season.</p>
               ) : (
                 <ul className="space-y-3">
                   {medical.map((e, i) => (
-                    <li key={i} className="rounded-md border border-border bg-surface-2 p-3">
+                    <li key={`${e.from}-${i}`} className="rounded-md border border-border bg-surface-2 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="font-semibold">
                           {e.type} · {e.area}
@@ -312,6 +240,7 @@ function PlayerProfile() {
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{e.notes}</p>
+                      <button type="button" onClick={() => removeMedicalEvent(id, e.from)} className="mt-2 text-xs text-destructive hover:underline">Delete record</button>
                     </li>
                   ))}
                 </ul>
@@ -340,7 +269,7 @@ function PlayerProfile() {
           </section>
         )}
 
-        {tab === "Analytics" && (
+        {tab === "Reports" && (
           <section className="grid gap-4 xl:grid-cols-2">
             <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-4">
               <MetricCard label="Acute load (7d)" value={m.load.acute} unit="AU" />
@@ -357,6 +286,14 @@ function PlayerProfile() {
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle title="Load trend" hint="Session-RPE load, 28 days" />
               <TrendBars data={trend} dataKey="load" height={240} />
+            </div>
+            <div className="panel p-4 xl:col-span-2">
+              <SectionTitle title="Acute:chronic workload" hint="7-day load against the 28-day baseline" />
+              <AcwrChart data={acwrSeries(player.id, 42).map((d) => ({ date: d.date.slice(5), acwr: d.acwr }))} />
+            </div>
+            <div className="xl:col-span-2 flex flex-wrap gap-2">
+              <Button asChild><Link to="/reports">Build a player report</Link></Button>
+              <Button asChild variant="outline"><Link to="/analytics"><BarChart3 className="size-4" /> Compare with other players</Link></Button>
             </div>
             <div className="panel p-4 xl:col-span-2">
               <SectionTitle
