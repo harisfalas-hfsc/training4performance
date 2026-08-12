@@ -335,15 +335,15 @@ function GpsPage() {
 
   /** Create squad members straight from the file, so a coach never types the names twice. */
   const createMissingPlayers = () => {
-    const missing = athleteRows.filter((r) => !r.matchedId);
-    if (!missing.length) return;
+    if (!unmatchedNames.length) return;
     const created: Record<string, string> = {};
-    for (const r of missing) {
-      const parts = r.raw.trim().split(/[\s,]+/).filter(Boolean);
+    for (const raw of unmatchedNames) {
+      const parts = raw.trim().split(/[\s,]+/).filter(Boolean);
       const last = parts.length > 1 ? parts.slice(1).join(" ") : "";
-      const player = addPlayer({ firstName: parts[0] ?? r.raw, lastName: last, position: "CM" });
-      if (player) created[r.raw.toLowerCase()] = player.id;
+      const player = addPlayer({ firstName: parts[0] ?? raw, lastName: last, position: "CM" });
+      if (player) created[raw.toLowerCase()] = player.id;
     }
+
     const count = Object.keys(created).length;
     if (!count) {
       toast.error("A team subscription is needed to add players.");
