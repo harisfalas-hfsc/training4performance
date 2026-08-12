@@ -17,16 +17,32 @@ import { canWrite } from "@/lib/access";
 import { getWorkspaceScope } from "@/lib/workspace-scope";
 
 let activeWorkspaceUser: string | null = null;
+/** Cloud hydration must happen once per signed-in user, never on every page change. */
+let hydratedUser: string | null = null;
 
 export async function hydrateWorkspace(userId: string) {
+  if (hydratedUser === userId) return;
+  hydratedUser = userId;
   activeWorkspaceUser = userId;
   const { data, error } = await supabase
     .from("workspace_data")
     .select("team,players,sessions,gps_history,gps_blocks,rpe_entries,manual_tests,medical_events,test_records")
     .eq("user_id", userId)
     .maybeSingle();
-  if (error || activeWorkspaceUser !== userId) return;
+  if (error || activeWorkspaceUser !== userId) {
+    if (error) hydratedUser = null;
+    return;
+  }
+  const local = workspaceSnapshot();
+  const localHasData =
+    local.players.length > 0 || local.sessions.length > 0 || local.gpsHistory.length > 0 || local.manualTests.length > 0;
   if (!data) {
+    // Nothing in the cloud yet: never wipe what is already in this browser —
+    // push it up instead so the next device gets it.
+    if (localHasData) {
+      void syncWorkspace(userId);
+      return;
+    }
     applyWorkspaceData({
       team: { id: `team-${userId}`, name: "First Team", club: "Your club", season: "2025/26", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "" },
       players: [],
@@ -39,9 +55,18 @@ export async function hydrateWorkspace(userId: string) {
     });
     return;
   }
+  const cloudPlayers = (data.players ?? []) as unknown as Player[];
+  const cloudEmpty =
+    (!Array.isArray(cloudPlayers) || cloudPlayers.length === 0) &&
+    !((data.sessions as unknown as Session[])?.length) &&
+    !((data.gps_history as unknown as GpsDay[])?.length);
+  if (cloudEmpty && localHasData) {
+    void syncWorkspace(userId);
+    return;
+  }
   applyWorkspaceData({
     team: data.team as unknown as Team,
-    players: data.players as unknown as Player[],
+    players: cloudPlayers,
     sessions: data.sessions as unknown as Session[],
     gpsHistory: data.gps_history as unknown as GpsDay[],
     gpsBlocks: (data.gps_blocks ?? []) as unknown as GpsBlockRow[],
@@ -52,6 +77,13 @@ export async function hydrateWorkspace(userId: string) {
   const cloudTests = (data.test_records ?? []) as unknown as TestRecord[];
   if (Array.isArray(cloudTests) && cloudTests.length) applyTestRecords(cloudTests);
 }
+
+/** Called on sign-out / account switch so the next user hydrates cleanly. */
+export function resetWorkspaceHydration() {
+  hydratedUser = null;
+  activeWorkspaceUser = null;
+}
+
 
 export async function syncWorkspace(userId: string) {
   const scope = getWorkspaceScope();
