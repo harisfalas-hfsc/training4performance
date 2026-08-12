@@ -102,16 +102,8 @@ function AuthPage() {
             )}
         </p>
 
-        <button
-          onClick={google}
-          className="mt-6 w-full rounded-md border border-border bg-surface-2 px-4 py-2.5 text-sm font-semibold"
-        >
-          Continue with Google
-        </button>
 
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" /> or with email <span className="h-px flex-1 bg-border" />
-        </div>
+
 
         <form onSubmit={submit} className="space-y-3">
           {isSignup ? (
