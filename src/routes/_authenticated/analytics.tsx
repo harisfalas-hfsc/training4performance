@@ -421,6 +421,9 @@ function AnalyticsPage() {
           </div>
         </div>
       </section>
+      </>
+      )}
     </AppShell>
+
   );
 }
