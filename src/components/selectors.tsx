@@ -47,7 +47,7 @@ export function PlayerPicker({
     picked.length === 0
       ? "Choose players…"
       : picked.length === 1
-        ? fullName(players.find((p) => p.id === picked[0]) ?? ({ firstName: "", lastName: picked[0] } as Player))
+        ? (() => { const p = players.find((x) => x.id === picked[0]); return p ? fullName(p) : "1 player selected"; })()
         : `${picked.length} players selected`;
 
   return (
