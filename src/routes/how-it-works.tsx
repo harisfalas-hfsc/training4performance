@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BarChart3,
+  BookOpen,
   CalendarDays,
   ClipboardPen,
   HeartPulse,
@@ -148,6 +149,15 @@ const faq = [
     a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
   },
   {
+    q: "Is there a manual?",
+    a: (
+      <>
+        Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a search box,
+        troubleshooting and a one-click PDF download of the whole document.
+      </>
+    ),
+  },
+  {
     q: "Is my data protected?",
     a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
   },
@@ -178,6 +188,10 @@ const faqSchema = [
   {
     q: "Can I browse before I subscribe?",
     a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
+  },
+  {
+    q: "Is there a manual?",
+    a: "Yes \u2014 a full illustrated user manual lives inside the platform, with numbered chapters, a search box, troubleshooting and a one-click PDF download of the whole document.",
   },
   {
     q: "Is my data protected?",
@@ -237,6 +251,50 @@ function HowItWorks() {
               </div>
             );
           })}
+        </div>
+
+        <div className="panel mt-14 overflow-hidden border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-blue/10 p-6">
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-amber/15 text-brand-amber">
+              <BookOpen className="size-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow text-brand-amber">The manual</p>
+              <h2 className="mt-1 font-display text-2xl font-semibold uppercase tracking-wide">
+                Every workflow is written down, step by step
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                Inside the platform, <T4P /> ships with a full colour-coded user manual: 13 numbered chapters from an
+                empty squad to daily decisions, a chapter explaining exactly how the individual training load and ACWR
+                are calculated, a search box and a troubleshooting section. It is also downloadable as a PDF, exactly
+                as it appears on screen, so you can print it or send it to your staff.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {[
+                  ["01", "Numbered chapters", "Squad, calendar, designer, GPS, load, analytics, tests, alerts, reports."],
+                  ["02", "Searchable", "Type a word and only the matching chapters and answers stay on screen."],
+                  ["03", "Downloadable PDF", "One button prints or saves the whole manual exactly as displayed."],
+                ].map(([n, t, d]) => (
+                  <div key={n} className="rounded-xl border border-brand-amber/30 bg-card p-3">
+                    <p className="font-display text-xs font-bold text-brand-amber">{n}</p>
+                    <p className="mt-0.5 font-display text-sm font-semibold uppercase tracking-wide">{t}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{d}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  to="/manual"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
+                >
+                  Open the manual <ArrowRight className="size-4" />
+                </Link>
+                <Link to="/auth" search={{ mode: "signup" }} className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+                  Create an account to read it
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="panel mt-12 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-cyan/10 p-6 text-center">
