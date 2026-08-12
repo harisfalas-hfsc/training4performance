@@ -234,7 +234,7 @@ function AnalyticsPage() {
       {source !== "gps" ? null : (
       <>
       <section className="panel mb-4 p-4">
-        <SectionTitle title="3. Which KPIs, which dates, drawn how?" hint="Everything below follows these choices" />
+        <SectionTitle title="3. Which KPIs, drawn how?" hint={`Everything below follows these choices · dates: ${from || "start"} → ${to || "today"}`} />
 
         <div className="flex flex-wrap items-center gap-1">
           <span className="eyebrow w-full sm:w-auto">KPIs</span>
