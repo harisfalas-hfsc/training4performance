@@ -193,12 +193,13 @@ export function loadFormulaText(m: LoadModel = model): string {
   if (m.method === "srpe") return "Load (AU) = RPE (0-10) x session duration (min)";
   const parts = activeLoadKpis(m).map(
     ({ key, weight }) =>
-      `${weight} x (${loadKpiOptions().find((o) => o.key === key)?.label ?? key} / squad average)`,
+      `${weight} x (player's ${loadKpiOptions().find((o) => o.key === key)?.label ?? key} / team reference)`,
   );
   if (!parts.length) return "No KPI selected yet — pick at least one metric.";
   const wsum = activeLoadKpis(m).reduce((a, b) => a + b.weight, 0);
   return `Load (AU) = 100 x [ ${parts.join(" + ")} ] / ${wsum}`;
 }
+
 
 /** Does the coach's own export already contain a load column? */
 export function importedLoadColumns(): Array<{ key: string; label: string }> {
