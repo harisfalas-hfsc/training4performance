@@ -2,6 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, BarChart3, Check, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { TrainingExplorer } from "@/components/training-explorer";
+import { TestsExplorer } from "@/components/tests-explorer";
+import { WellnessExplorer } from "@/components/wellness-explorer";
+import { MedicalExplorer } from "@/components/medical-explorer";
+import { DateRangePicker } from "@/components/selectors";
 import { T4P } from "@/components/brand-text";
 import { AcwrPill, AvailabilityPill, MetricCard, SectionTitle } from "@/components/perf-ui";
 import { AcwrChart, MultiLine, TrendArea, TrendBars } from "@/components/charts";
@@ -89,7 +94,7 @@ export const Route = createFileRoute("/_authenticated/players/$id")({
   component: PlayerProfile,
 });
 
-const TABS = ["Overview", "GPS reports", "Fitness tests", "Training", "Wellness", "Medical & illness", "Reports", "Player login"] as const;
+const TABS = ["Overview", "Explore", "GPS reports", "Fitness tests", "Training", "Wellness", "Medical & illness", "Reports", "Player login"] as const;
 const POSITIONS: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
 const AVAILABILITY: Availability[] = ["available", "partial", "individual", "rehab", "injured", "ill"];
 
@@ -172,6 +177,7 @@ function PlayerProfile() {
       <div className="mt-4">
         {tab === "Player login" && <PlayerAccessCard playerId={player.id} playerName={fullName(player)} />}
         {tab === "Overview" && <ProfileTab player={player} />}
+        {tab === "Explore" && <PlayerExplore playerId={id} />}
         {tab === "Fitness tests" && <FitnessTab playerId={id} />}
 
         {tab === "GPS reports" && <PlayerGpsTab playerId={id} />}
@@ -1145,6 +1151,64 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
     <div>
       <p className="eyebrow">{label}</p>
       <div className="mt-0.5 text-sm font-medium">{value}</div>
+    </div>
+  );
+}
+
+/** Same Who → What logic as Analytics, with "who" already fixed to this athlete. */
+const PLAYER_SOURCES = [
+  { id: "gps", label: "GPS reports" },
+  { id: "training", label: "Training & drills" },
+  { id: "tests", label: "Fitness tests" },
+  { id: "wellness", label: "Wellness" },
+  { id: "medical", label: "Medical & availability" },
+] as const;
+
+function PlayerExplore({ playerId }: { playerId: string }) {
+  useDataVersion();
+  const [source, setSource] = useState<(typeof PLAYER_SOURCES)[number]["id"]>("gps");
+  const dates = useMemo(() => [...new Set(gpsHistory.map((r) => r.date))].sort(), [gpsHistory.length]);
+  const [from, setFrom] = useState(() => {
+    const last = dates.at(-1);
+    if (!last) return "";
+    const start = new Date(last);
+    start.setDate(start.getDate() - 28);
+    return start.toISOString().slice(0, 10);
+  });
+  const [to, setTo] = useState(() => dates.at(-1) ?? "");
+  const ids = [playerId];
+
+  return (
+    <div className="space-y-4">
+      <section className="panel p-4">
+        <SectionTitle title="What do you want to see for this athlete?" hint="GPS, training & drills, fitness tests, wellness or medical & availability" />
+        <div className="flex flex-wrap gap-1">
+          {PLAYER_SOURCES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setSource(s.id)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                source === s.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3">
+          <span className="eyebrow">Dates</span>
+          <div className="mt-1">
+            <DateRangePicker from={from} to={to} onChange={(a, b) => { setFrom(a); setTo(b); }} earliest={dates[0]} latest={dates.at(-1)} />
+          </div>
+        </div>
+      </section>
+
+      {source === "gps" ? <PlayerGpsTab playerId={playerId} /> : null}
+      {source === "training" ? <TrainingExplorer playerIds={ids} from={from} to={to} /> : null}
+      {source === "tests" ? <TestsExplorer playerIds={ids} from={from} to={to} /> : null}
+      {source === "wellness" ? <WellnessExplorer playerIds={ids} from={from} to={to} /> : null}
+      {source === "medical" ? <MedicalExplorer playerIds={ids} from={from} to={to} /> : null}
     </div>
   );
 }
