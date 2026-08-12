@@ -831,8 +831,13 @@ function GpsPage() {
                 {athleteRows.map((r, i) => {
                   const p = r.matchedId ? getPlayer(r.matchedId) : null;
                   const certain = r.confidence >= 0.95;
+                  const rowKey = `${r.raw}-${i}`;
+                  const kpiKeys = Object.keys(r.extra);
+                  const open = openKpis === rowKey;
+                  const cols = combine ? 8 : 7;
                   return (
-                    <tr key={`${r.raw}-${i}`} className="border-b border-border/60">
+                    <Fragment key={rowKey}>
+                    <tr className="border-b border-border/60">
                       <td className="py-2 font-mono text-xs">{r.raw}</td>
                       <td>
                         {p && certain ? (
@@ -866,7 +871,19 @@ function GpsPage() {
                       <td className="text-right tabular-nums">{(r.core.distance ?? 0).toLocaleString()}</td>
                       <td className="text-right tabular-nums">{r.core.hsr ?? 0}</td>
                       <td className="text-right tabular-nums">{r.core.maxSpeed ?? 0}</td>
-                      <td className="text-right tabular-nums">{Object.keys(r.extra).length}</td>
+                      <td className="text-right tabular-nums">
+                        {kpiKeys.length ? (
+                          <button
+                            type="button"
+                            onClick={() => setOpenKpis(open ? null : rowKey)}
+                            className="font-semibold text-primary underline-offset-2 hover:underline"
+                          >
+                            {kpiKeys.length}
+                          </button>
+                        ) : (
+                          0
+                        )}
+                      </td>
                       <td className="py-2 text-right">
                         {p && !certain ? (
                           <span className="inline-flex gap-1">
@@ -888,8 +905,25 @@ function GpsPage() {
                         ) : null}
                       </td>
                     </tr>
+                    {open && kpiKeys.length ? (
+                      <tr className="border-b border-border/60 bg-surface-2">
+                        <td colSpan={cols} className="p-3">
+                          <p className="eyebrow mb-2">Club KPIs kept for {r.raw}</p>
+                          <div className="grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                            {kpiKeys.map((k) => (
+                              <div key={k} className="flex justify-between gap-3">
+                                <span className="truncate text-muted-foreground">{r.extraLabels[k] ?? k}</span>
+                                <span className="tabular-nums">{r.extra[k]?.toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                    </Fragment>
                   );
                 })}
+
 
               </tbody>
             </table>
