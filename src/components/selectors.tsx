@@ -139,8 +139,8 @@ export function PlayerPicker({
   );
 }
 
-const shift = (days: number) => {
-  const date = new Date();
+const shiftFrom = (anchor: string, days: number) => {
+  const date = new Date(`${anchor}T12:00:00`);
   date.setDate(date.getDate() - days);
   return date.toISOString().slice(0, 10);
 };
@@ -161,10 +161,10 @@ export function DateRangePicker({
 }) {
   const end = latest ?? new Date().toISOString().slice(0, 10);
   const presets: Array<{ label: string; from: string; to: string }> = [
-    { label: "Last 7 days", from: shift(7), to: end },
-    { label: "Last 28 days", from: shift(28), to: end },
-    { label: "Last 90 days", from: shift(90), to: end },
-    { label: "All data", from: earliest ?? shift(365), to: end },
+    { label: "Last 7 days", from: shiftFrom(end, 6), to: end },
+    { label: "Last 28 days", from: shiftFrom(end, 27), to: end },
+    { label: "Last 90 days", from: shiftFrom(end, 89), to: end },
+    { label: "All data", from: earliest ?? shiftFrom(end, 365), to: end },
   ];
 
   return (

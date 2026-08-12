@@ -4,7 +4,7 @@ import { FileText, GitCompare, Layers } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
-import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, type ChartKind } from "@/components/charts";
+import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, SERIES_COLORS, type ChartKind } from "@/components/charts";
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
 import {
   customKpis,
@@ -12,13 +12,7 @@ import {
   gpsHistory,
   gpsValue,
   players,
-  playerMetrics,
-  positionAverage,
-  squadMetrics,
-  squadStats,
-  squadTrend,
   useDataVersion,
-  type Position,
 } from "@/data/performance";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
@@ -52,14 +46,6 @@ const METRICS = [
 
 type MetricKey = string;
 
-const DEVIATION_METRICS = [
-  { key: "hsr7", label: "HSR last 7 days" },
-  { key: "distance7", label: "Distance last 7 days" },
-  { key: "sprint7", label: "Sprint last 7 days" },
-] as const;
-
-const positions: Position[] = ["GK", "CB", "FB", "CM", "AM", "W", "ST"];
-
 const daysBetween = (from: string, to: string) =>
   Math.max(7, Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000) || 28);
 
@@ -67,7 +53,7 @@ function AnalyticsPage() {
   useDataVersion();
   const [kpis, setKpis] = useState<MetricKey[]>(["distance"]);
   const [kind, setKind] = useState<ChartKind>("bar");
-  const [devKey, setDevKey] = useState<(typeof DEVIATION_METRICS)[number]["key"]>("hsr7");
+  const [devKey, setDevKey] = useState<MetricKey>("hsr");
   const [scope, setScope] = useState<Scope>("team");
   const [selected, setSelected] = useState<string[]>([]);
   const [compareKpi, setCompareKpi] = useState<MetricKey>("distance");
@@ -86,9 +72,38 @@ function AnalyticsPage() {
   }, [availableDates.length]);
 
   const window = daysBetween(from, to);
-  const trend = squadTrend(window);
-  const metrics = squadMetrics();
-  const hsr = squadStats((m) => m.hsr7);
+  const rangeRows = useMemo(
+    () => gpsHistory.filter((row) => (!from || row.date >= from) && (!to || row.date <= to)),
+    [from, to, gpsHistory.length],
+  );
+  const activeIds = scope === "players" ? selected : players.map((player) => player.id);
+  const selectedRows = useMemo(() => rangeRows.filter((row) => activeIds.includes(row.playerId)), [rangeRows, activeIds.join(",")]);
+
+  const trend = useMemo(() => {
+    const dates = [...new Set(selectedRows.map((row) => row.date))].sort();
+    return dates.map((date) => {
+      const dayRows = selectedRows.filter((row) => row.date === date);
+      const point: Record<string, string | number> = { date: date.slice(5) };
+      for (const metric of [...METRICS, ...customKpis().map((item) => ({ ...item, unit: "" }))]) {
+        const values = dayRows.map((row) => metric.key === "load" ? row.rpe * row.minutes : gpsValue(row, metric.key));
+        if (metric.key === "maxSpeed") point[metric.key] = values.length ? Math.max(...values) : 0;
+        else if (scope === "team") point[metric.key] = Math.round(values.reduce((a, b) => a + b, 0));
+        else point[metric.key] = values.length ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10 : 0;
+      }
+      return point;
+    });
+  }, [selectedRows, scope]);
+
+  const selectedHsr = useMemo(() => {
+    const byPlayer = activeIds.map((id) => selectedRows.filter((row) => row.playerId === id).reduce((sum, row) => sum + row.hsr, 0)).filter((value) => value > 0);
+    const mean = byPlayer.length ? byPlayer.reduce((a, b) => a + b, 0) / byPlayer.length : 0;
+    const sorted = [...byPlayer].sort((a, b) => a - b);
+    return {
+      mean: Math.round(mean), median: Math.round(sorted[Math.floor(sorted.length / 2)] ?? 0),
+      min: Math.round(sorted[0] ?? 0), max: Math.round(sorted.at(-1) ?? 0),
+      sd: Math.round(Math.sqrt(byPlayer.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (byPlayer.length || 1))),
+    };
+  }, [selectedRows, activeIds.join(",")]);
 
   /** Core KPIs plus whatever club-specific KPIs the coach's own GPS export brought in. */
   const allMetrics = useMemo(
@@ -97,7 +112,7 @@ function AnalyticsPage() {
       ...customKpis().map((m) => ({ key: m.key, label: m.label, unit: "" })),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [trend],
+    [gpsHistory.length],
   );
 
   const half = Math.floor(trend.length / 2);
@@ -106,21 +121,28 @@ function AnalyticsPage() {
   const mean = (rows: typeof trend, key: MetricKey) =>
     Math.round(rows.reduce((a, r) => a + Number((r as Record<string, unknown>)[key] ?? 0), 0) / (rows.length || 1));
 
-  const devLabel = DEVIATION_METRICS.find((d) => d.key === devKey)?.label ?? devKey;
+  const devLabel = allMetrics.find((d) => d.key === devKey)?.label ?? devKey;
 
   const deviations = useMemo(
     () =>
-      [...metrics]
-        .map((m) => {
-          const norm = positionAverage(m.player.position, (x) => Number(x[devKey])) || 1;
+      activeIds
+        .map((id) => {
+          const player = players.find((item) => item.id === id);
+          if (!player) return null;
+          const peers = players.filter((item) => item.position === player.position).map((item) => item.id);
+          const playerValues = rangeRows.filter((row) => row.playerId === id).map((row) => gpsValue(row, devKey));
+          const peerTotals = peers.map((peerId) => rangeRows.filter((row) => row.playerId === peerId).reduce((sum, row) => sum + gpsValue(row, devKey), 0)).filter((value) => value > 0);
+          const value = playerValues.reduce((a, b) => a + b, 0);
+          const norm = peerTotals.length ? peerTotals.reduce((a, b) => a + b, 0) / peerTotals.length : 0;
           return {
-            name: m.player.lastName,
-            deviation: Math.round(((Number(m[devKey]) - norm) / norm) * 100),
+            name: player.lastName,
+            deviation: norm ? Math.round(((value - norm) / norm) * 100) : 0,
           };
         })
+        .filter((row): row is { name: string; deviation: number } => row !== null)
         .sort((a, b) => b.deviation - a.deviation)
         .slice(0, 12),
-    [metrics, devKey],
+    [rangeRows, activeIds.join(","), devKey],
   );
 
   const toggleKpi = (key: MetricKey) =>
@@ -131,8 +153,8 @@ function AnalyticsPage() {
     return dates.map((date) => {
       const point: Record<string, string | number> = { date: date.slice(5) };
       for (const id of selected) {
-        const row = gpsHistory.find((item) => item.playerId === id && item.date === date);
-        point[id] = row ? gpsValue(row, compareKpi) : 0;
+         const row = gpsHistory.find((item) => item.playerId === id && item.date === date);
+         if (row) point[id] = compareKpi === "load" ? row.rpe * row.minutes : gpsValue(row, compareKpi);
       }
       return point;
     });
@@ -202,10 +224,10 @@ function AnalyticsPage() {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Squad mean HSR 7d" value={hsr.mean} unit="m" />
-        <MetricCard label="Median" value={hsr.median} unit="m" />
-        <MetricCard label="Standard deviation" value={hsr.sd} unit="m" />
-        <MetricCard label="Range" value={`${hsr.min}–${hsr.max}`} unit="m" />
+        <MetricCard label="Mean HSR in selected dates" value={selectedHsr.mean} unit="m" />
+        <MetricCard label="Median" value={selectedHsr.median} unit="m" />
+        <MetricCard label="Standard deviation" value={selectedHsr.sd} unit="m" />
+        <MetricCard label="Range" value={`${selectedHsr.min}–${selectedHsr.max}`} unit="m" />
       </section>
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
@@ -236,7 +258,7 @@ function AnalyticsPage() {
                 value={devKey}
                 onChange={(e) => setDevKey(e.target.value as typeof devKey)}
               >
-                {DEVIATION_METRICS.map((d) => (
+                {allMetrics.filter((metric) => metric.key !== "load" && metric.key !== "rpe").map((d) => (
                   <option key={d.key} value={d.key}>
                     {d.label}
                   </option>
@@ -245,8 +267,7 @@ function AnalyticsPage() {
             }
           />
           <p className="mb-2 text-xs text-muted-foreground">
-            Each bar is one player: how far his <strong>{devLabel}</strong> is above (amber, doing more) or below (blue, doing less)
-            the average of players in the <strong>same position</strong>. 0% = exactly on his position average.
+             Each bar is one player’s selected-period <strong>{devLabel}</strong> versus players in the <strong>same position</strong>. Right of 0 means more; left means less. This is workload context, not a good/bad score.
           </p>
           <ChartFrame title={`Deviation from position average — ${devLabel}`}>
             <HBar data={deviations} dataKey="deviation" labelKey="name" height={340} unit="%" signColors zeroLine />
@@ -260,7 +281,7 @@ function AnalyticsPage() {
           <p className="mb-2 text-xs text-muted-foreground">
             Period A = the older half of your date range, Period B = the newer half. Δ is the change in %.
           </p>
-          <div className="overflow-x-auto">
+          <div className="scroll-pane overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
@@ -290,15 +311,6 @@ function AnalyticsPage() {
               </tbody>
             </table>
           </div>
-          <p className="eyebrow mt-4">Position averages · HSR 7d</p>
-          <ul className="mt-2 space-y-1 text-sm">
-            {positions.map((p) => (
-              <li key={p} className="flex justify-between">
-                <span className="text-muted-foreground">{p}</span>
-                <span className="tabular-nums">{positionAverage(p, (m) => m.hsr7)} m</span>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div className="panel p-4 xl:col-span-2">
@@ -314,36 +326,42 @@ function AnalyticsPage() {
               </select>
             </label>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
+          <div className="scroll-pane overflow-x-auto">
+             <table className="w-full min-w-[1050px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                   <th className="py-2">Player</th>
-                  <th className="text-right whitespace-nowrap">Distance 7d (m)</th>
-                  <th className="text-right whitespace-nowrap">HSR 7d (m)</th>
-                  <th className="text-right whitespace-nowrap">Sprint 7d (m)</th>
+                   <th className="text-right whitespace-nowrap">Distance selected dates (m)</th>
+                   <th className="text-right whitespace-nowrap">HSR selected dates (m)</th>
+                   <th className="text-right whitespace-nowrap">Sprint selected dates (m)</th>
                   <th className="text-right whitespace-nowrap">Max speed (km/h)</th>
-                  <th className="text-right">RPE</th>
-                  <th className="text-right">Acute</th>
-                  <th className="text-right">ACWR</th>
+                   <th className="text-right whitespace-nowrap">Average RPE</th>
+                   <th className="text-right whitespace-nowrap">Selected load (AU)</th>
+                   <th className="text-right whitespace-nowrap">ACWR</th>
                 </tr>
               </thead>
               <tbody>
                 {selected.map((id) => {
                   const p = players.find((x) => x.id === id);
                   if (!p) return null;
-                  const m = playerMetrics(p);
+                   const playerRows = rangeRows.filter((row) => row.playerId === id);
+                   const total = (key: string) => playerRows.reduce((sum, row) => sum + gpsValue(row, key), 0);
+                   const rpes = playerRows.filter((row) => row.rpe > 0).map((row) => row.rpe);
+                   const acute = playerRows.reduce((sum, row) => sum + row.rpe * row.minutes, 0);
+                   const chronicDays = Math.max(28, window);
+                   const chronicRows = gpsHistory.filter((row) => row.playerId === id && row.date <= to && row.date >= new Date(new Date(`${to}T12:00:00`).getTime() - (chronicDays - 1) * 86_400_000).toISOString().slice(0, 10));
+                   const chronic = chronicRows.reduce((sum, row) => sum + row.rpe * row.minutes, 0) / (chronicDays / window);
 
                   return (
                     <tr key={id} className="border-b border-border/60">
                       <td className="py-2 whitespace-nowrap">{fullName(p)}</td>
-                      <td className="text-right tabular-nums">{m.distance7.toLocaleString()}</td>
-                      <td className="text-right tabular-nums">{m.hsr7}</td>
-                      <td className="text-right tabular-nums">{m.sprint7}</td>
-                      <td className="text-right tabular-nums">{m.maxSpeed || "—"}</td>
-                      <td className="text-right tabular-nums">{m.rpe7 || "—"}</td>
-                      <td className="text-right tabular-nums">{m.load.acute}</td>
-                      <td className="text-right tabular-nums">{m.load.acwr || "—"}</td>
+                       <td className="text-right tabular-nums">{Math.round(total("distance")).toLocaleString()}</td>
+                       <td className="text-right tabular-nums">{Math.round(total("hsr"))}</td>
+                       <td className="text-right tabular-nums">{Math.round(total("sprint"))}</td>
+                       <td className="text-right tabular-nums">{playerRows.length ? Math.max(...playerRows.map((row) => row.maxSpeed)).toFixed(1) : "—"}</td>
+                       <td className="text-right tabular-nums">{rpes.length ? (rpes.reduce((a, b) => a + b, 0) / rpes.length).toFixed(1) : "—"}</td>
+                       <td className="text-right tabular-nums">{Math.round(acute)}</td>
+                       <td className="text-right tabular-nums">{chronic ? (acute / chronic).toFixed(2) : "—"}</td>
                     </tr>
                   );
                 })}
@@ -358,7 +376,7 @@ function AnalyticsPage() {
                   dualAxis={false}
                   series={selected.flatMap((id, index) => {
                     const player = players.find((item) => item.id === id);
-                    return player ? [{ key: id, color: `var(--color-chart-${(index % 5) + 1})`, name: fullName(player) }] : [];
+                     return player ? [{ key: id, color: SERIES_COLORS[index % SERIES_COLORS.length]!, name: fullName(player) }] : [];
                   })}
                   height={260}
                 />
