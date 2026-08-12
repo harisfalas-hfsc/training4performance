@@ -67,11 +67,12 @@ const steps: Step[] = [
     t: "Create the team — in any order you like",
     d: (
       <>
-        Create the team once. After that there is no right order: add the players by hand, or simply upload the first
-        GPS report and press <strong className="text-foreground">Create missing players</strong> — every name in the
-        file becomes a player in one click. Whatever the file cannot give you (position, shirt number, birth date,
-        height, weight, medical status) you add later, only if you want it. Nothing is compulsory, and no name is ever
-        typed twice.
+        Create the team once. After that there is no right order: add the players by hand, or simply
+        upload the first GPS report and press{" "}
+        <strong className="text-foreground">Create missing players</strong> — every name in the file
+        becomes a player in one click. Whatever the file cannot give you (position, shirt number,
+        birth date, height, weight, medical status) you add later, only if you want it. Nothing is
+        compulsory, and no name is ever typed twice.
       </>
     ),
   },
@@ -93,7 +94,9 @@ const steps: Step[] = [
     t: "Import GPS once",
     d: (
       <>
-        Upload the provider export, confirm player matching and press Import into the session. The rows remain in GPS history and become visible inside each player, Insights, Analytics and Reports.
+        Upload the provider export, confirm player matching and press Import into the session. The
+        rows remain in GPS history and become visible inside each player, Insights, Analytics and
+        Reports.
       </>
     ),
   },
@@ -103,10 +106,11 @@ const steps: Step[] = [
     t: "No GPS? Rate the session instead",
     d: (
       <>
-        Working without GPS units, or with strength, indoor, pool and rehab blocks that no vest ever sees? After the
-        session, open Manual RPE load, set the duration and a 0-10 rating for the squad or athlete by athlete. <T4P />{" "}
-        turns it into session load (RPE x minutes) and adds it to the same daily total, so load, ACWR, monotony,
-        strain, alerts and reports work exactly the same as with a GPS file.
+        Working without GPS units, or with strength, indoor, pool and rehab blocks that no vest ever
+        sees? After the session, open Manual RPE load, set the duration and a 0-10 rating for the
+        squad or athlete by athlete. <T4P /> turns it into session load (RPE x minutes) and adds it
+        to the same daily total, so load, ACWR, monotony, strain, alerts and reports work exactly
+        the same as with a GPS file.
       </>
     ),
   },
@@ -123,27 +127,64 @@ const steps: Step[] = [
     t: "Ask anything the same way: Who → What",
     d: (
       <>
-        Every analysis screen asks the same two questions. <strong className="text-foreground">WHO</strong> — the team,
-        the squad average, one player or several, from a searchable picker.{" "}
-        <strong className="text-foreground">WHAT</strong> — GPS reports, Training &amp; drills, Fitness tests, Wellness
-        or Medical &amp; availability. Then the KPI, the dates and the chart type: line, bar, area, pie or radar. The
-        chart redraws instantly and exports as PNG, PDF, Excel or CSV. The same strip lives inside each player, where
-        WHO is already answered.
+        Every analysis screen asks the same two questions.{" "}
+        <strong className="text-foreground">WHO</strong> — the team, the squad average, one player
+        or several, from a searchable picker. <strong className="text-foreground">WHAT</strong> —
+        GPS reports, Training &amp; drills, Fitness tests, Wellness or Medical &amp; availability.
+        Then the KPI, the dates and the chart type: line, bar, area, pie or radar. The chart redraws
+        instantly and exports as PNG, PDF, Excel or CSV. The same strip lives inside each player,
+        where WHO is already answered.
       </>
     ),
   },
 ];
 
 const tones: Record<string, { chip: string; card: string; num: string }> = {
-  blue: { chip: "bg-brand-blue/12 text-brand-blue", card: "border-brand-blue/25", num: "text-brand-blue" },
-  green: { chip: "bg-brand-green/12 text-brand-green", card: "border-brand-green/25", num: "text-brand-green" },
-  violet: { chip: "bg-brand-violet/12 text-brand-violet", card: "border-brand-violet/25", num: "text-brand-violet" },
-  pink: { chip: "bg-brand-pink/12 text-brand-pink", card: "border-brand-pink/25", num: "text-brand-pink" },
-  amber: { chip: "bg-brand-amber/12 text-brand-amber", card: "border-brand-amber/25", num: "text-brand-amber" },
-  indigo: { chip: "bg-brand-indigo/12 text-brand-indigo", card: "border-brand-indigo/25", num: "text-brand-indigo" },
-  cyan: { chip: "bg-brand-cyan/12 text-brand-cyan", card: "border-brand-cyan/25", num: "text-brand-cyan" },
-  teal: { chip: "bg-brand-teal/12 text-brand-teal", card: "border-brand-teal/25", num: "text-brand-teal" },
-  red: { chip: "bg-brand-red/12 text-brand-red", card: "border-brand-red/25", num: "text-brand-red" },
+  blue: {
+    chip: "bg-brand-blue/12 text-brand-blue",
+    card: "border-brand-blue/25",
+    num: "text-brand-blue",
+  },
+  green: {
+    chip: "bg-brand-green/12 text-brand-green",
+    card: "border-brand-green/25",
+    num: "text-brand-green",
+  },
+  violet: {
+    chip: "bg-brand-violet/12 text-brand-violet",
+    card: "border-brand-violet/25",
+    num: "text-brand-violet",
+  },
+  pink: {
+    chip: "bg-brand-pink/12 text-brand-pink",
+    card: "border-brand-pink/25",
+    num: "text-brand-pink",
+  },
+  amber: {
+    chip: "bg-brand-amber/12 text-brand-amber",
+    card: "border-brand-amber/25",
+    num: "text-brand-amber",
+  },
+  indigo: {
+    chip: "bg-brand-indigo/12 text-brand-indigo",
+    card: "border-brand-indigo/25",
+    num: "text-brand-indigo",
+  },
+  cyan: {
+    chip: "bg-brand-cyan/12 text-brand-cyan",
+    card: "border-brand-cyan/25",
+    num: "text-brand-cyan",
+  },
+  teal: {
+    chip: "bg-brand-teal/12 text-brand-teal",
+    card: "border-brand-teal/25",
+    num: "text-brand-teal",
+  },
+  red: {
+    chip: "bg-brand-red/12 text-brand-red",
+    card: "border-brand-red/25",
+    num: "text-brand-red",
+  },
 };
 
 const faq = [
@@ -151,10 +192,11 @@ const faq = [
     q: "Do I have to add the players before I upload GPS?",
     a: (
       <>
-        No. The two orders are equally valid. Upload the file first and <T4P /> creates every detected player for you;
-        or build the squad first and the file matches the names it finds. Anything the GPS export does not contain —
-        position, birth date, height, weight, RPE, medical status, test results — you add manually whenever you want,
-        and only for the fields you actually care about.
+        No. The two orders are equally valid. Upload the file first and <T4P /> creates every
+        detected player for you; or build the squad first and the file matches the names it finds.
+        Anything the GPS export does not contain — position, birth date, height, weight, RPE,
+        medical status, test results — you add manually whenever you want, and only for the fields
+        you actually care about.
       </>
     ),
   },
@@ -179,8 +221,8 @@ const faq = [
     q: "Which GPS providers are supported?",
     a: (
       <>
-        Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped
-        column by column with the <T4P /> template — including your own club KPIs.
+        Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system
+        can be mapped column by column with the <T4P /> template — including your own club KPIs.
       </>
     ),
   },
@@ -200,8 +242,8 @@ const faq = [
     q: "Is there a manual?",
     a: (
       <>
-        Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a search box,
-        troubleshooting and a one-click PDF download of the whole document.
+        Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a
+        search box, troubleshooting and a one-click PDF download of the whole document.
       </>
     ),
   },
@@ -228,7 +270,6 @@ const faqSchema = [
   {
     q: "Do I need a GPS system to use T4P?",
     a: "No \u2014 and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
-
   },
   {
     q: "Which GPS providers are supported?",
@@ -260,15 +301,15 @@ function HowItWorks() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
-        <div className="mx-auto max-w-5xl px-5 py-10 text-center">
-          <p className="eyebrow text-brand-blue">How it works</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
+        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+          <p className="page-eyebrow">How it works</p>
+          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Create → import → review → decide → report
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            <T4P /> follows the real order of work in a performance department. You build the team once, then every
-            session, GPS file and test result attaches to the same player record — so the analysis is ready before
-            you have to make the decision.
+            <T4P /> follows the real order of work in a performance department. You build the team
+            once, then every session, GPS file and test result attaches to the same player record —
+            so the analysis is ready before you have to make the decision.
           </p>
         </div>
       </section>
@@ -288,7 +329,9 @@ function HowItWorks() {
                     <span className={`font-display text-sm font-semibold ${tone.num}`}>
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="font-display text-lg font-semibold uppercase tracking-wide">{s.t}</span>
+                    <span className="font-display text-lg font-semibold uppercase tracking-wide">
+                      {s.t}
+                    </span>
                   </p>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.d}</p>
                 </div>
@@ -297,13 +340,19 @@ function HowItWorks() {
           })}
         </ol>
 
-        <h2 className="mt-14 font-display text-2xl font-semibold uppercase tracking-wide">Questions</h2>
+        <h2 className="mt-14 font-display text-2xl font-semibold uppercase tracking-wide">
+          Questions
+        </h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {faq.map((f, i) => {
             const tone = Object.values(tones)[i % 9]!;
             return (
               <div key={i} className={`panel ${tone.card} p-5`}>
-                <p className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}>{f.q}</p>
+                <p
+                  className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}
+                >
+                  {f.q}
+                </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
               </div>
             );
@@ -315,20 +364,41 @@ function HowItWorks() {
             What you stop doing on day one
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            The job of a strength &amp; conditioning coach is the performance of the players — not data entry.{" "}
-            <T4P /> takes the admin off your desk so the only thing left for you is the decision.
+            The job of a strength &amp; conditioning coach is the performance of the players — not
+            data entry. <T4P /> takes the admin off your desk so the only thing left for you is the
+            decision.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              ["No re-typing names", "The squad is built from your GPS file, or once by hand. Every screen reuses the same player record."],
-              ["No copying between files", "Import once, or rate the session once. Charts, tables, ACWR and reports update themselves."],
-              ["No manual formulas", "Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives."],
-              ["No scanning 27 players", "Thresholds watch workload, wellness and availability and tell you who needs attention."],
-              ["No building the coach's report", "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV."],
-              ["No lost season history", "Every session, file, test, injury and rating stays in one place until you delete it."],
+              [
+                "No re-typing names",
+                "The squad is built from your GPS file, or once by hand. Every screen reuses the same player record.",
+              ],
+              [
+                "No copying between files",
+                "Import once, or rate the session once. Charts, tables, ACWR and reports update themselves.",
+              ],
+              [
+                "No manual formulas",
+                "Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives.",
+              ],
+              [
+                "No scanning 27 players",
+                "Thresholds watch workload, wellness and availability and tell you who needs attention.",
+              ],
+              [
+                "No building the coach's report",
+                "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV.",
+              ],
+              [
+                "No lost season history",
+                "Every session, file, test, injury and rating stays in one place until you delete it.",
+              ],
             ].map(([t, d]) => (
               <div key={t} className="panel border-brand-green/25 p-5">
-                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">{t}</p>
+                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">
+                  {t}
+                </p>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
               </div>
             ))}
@@ -346,20 +416,35 @@ function HowItWorks() {
                 Every workflow is written down, step by step
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                Inside the platform, <T4P /> ships with a full colour-coded user manual: 15 numbered chapters from an
-                empty squad to daily decisions, a chapter explaining exactly how the individual training load and ACWR
-                are calculated, a search box and a troubleshooting section. It is also downloadable as a PDF, exactly
-                as it appears on screen, so you can print it or send it to your staff.
+                Inside the platform, <T4P /> ships with a full colour-coded user manual: 15 numbered
+                chapters from an empty squad to daily decisions, a chapter explaining exactly how
+                the individual training load and ACWR are calculated, a search box and a
+                troubleshooting section. It is also downloadable as a PDF, exactly as it appears on
+                screen, so you can print it or send it to your staff.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-3">
                 {[
-                  ["01", "Numbered chapters", "Squad, calendar, designer, GPS, load, analytics, tests, alerts, reports."],
-                  ["02", "Searchable", "Type a word and only the matching chapters and answers stay on screen."],
-                  ["03", "Downloadable PDF", "One button prints or saves the whole manual exactly as displayed."],
+                  [
+                    "01",
+                    "Numbered chapters",
+                    "Squad, calendar, designer, GPS, load, analytics, tests, alerts, reports.",
+                  ],
+                  [
+                    "02",
+                    "Searchable",
+                    "Type a word and only the matching chapters and answers stay on screen.",
+                  ],
+                  [
+                    "03",
+                    "Downloadable PDF",
+                    "One button prints or saves the whole manual exactly as displayed.",
+                  ],
                 ].map(([n, t, d]) => (
                   <div key={n} className="rounded-xl border border-brand-amber/30 bg-card p-3">
                     <p className="font-display text-xs font-bold text-brand-amber">{n}</p>
-                    <p className="mt-0.5 font-display text-sm font-semibold uppercase tracking-wide">{t}</p>
+                    <p className="mt-0.5 font-display text-sm font-semibold uppercase tracking-wide">
+                      {t}
+                    </p>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{d}</p>
                   </div>
                 ))}
@@ -371,7 +456,11 @@ function HowItWorks() {
                 >
                   Open the manual <ArrowRight className="size-4" />
                 </Link>
-                <Link to="/auth" search={{ mode: "signup" }} className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+                <Link
+                  to="/auth"
+                  search={{ mode: "signup" }}
+                  className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold"
+                >
                   Create an account to read it
                 </Link>
               </div>
@@ -380,7 +469,9 @@ function HowItWorks() {
         </div>
 
         <div className="panel mt-12 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-cyan/10 p-6 text-center">
-          <p className="font-display text-xl font-semibold uppercase tracking-wide">Ready to set up your team?</p>
+          <p className="font-display text-xl font-semibold uppercase tracking-wide">
+            Ready to set up your team?
+          </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Create an account, browse everything, and subscribe when you want to start building.
           </p>
@@ -392,7 +483,10 @@ function HowItWorks() {
             >
               Create your account <ArrowRight className="size-4" />
             </Link>
-            <Link to="/pricing" className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold">
+            <Link
+              to="/pricing"
+              className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold"
+            >
               See pricing
             </Link>
           </div>

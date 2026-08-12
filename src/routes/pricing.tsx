@@ -85,10 +85,30 @@ const included = [
 ];
 
 const notes = [
-  { t: "One team per account", d: "One subscription = one account = one team. The coach who subscribes owns the workspace and every record in it.", tone: "border-brand-blue/25", label: "text-brand-blue" },
-  { t: "Browse before you buy", d: "Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.", tone: "border-brand-green/25", label: "text-brand-green" },
-  { t: "Season-based billing", d: "A subscription covers one full season from 1 June to 31 May, regardless of when you join. Prices are in euro and exclude VAT where applicable.", tone: "border-brand-amber/25", label: "text-brand-amber" },
-  { t: "Export any time", d: "Download your team, squad, GPS, calendar, training designs, tests and medical data as Excel files or one ZIP backup — subscribed or not.", tone: "border-brand-teal/25", label: "text-brand-teal" },
+  {
+    t: "One team per account",
+    d: "One subscription = one account = one team. The coach who subscribes owns the workspace and every record in it.",
+    tone: "border-brand-blue/25",
+    label: "text-brand-blue",
+  },
+  {
+    t: "Browse before you buy",
+    d: "Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
+    tone: "border-brand-green/25",
+    label: "text-brand-green",
+  },
+  {
+    t: "Season-based billing",
+    d: "A subscription covers one full season from 1 June to 31 May, regardless of when you join. Prices are in euro and exclude VAT where applicable.",
+    tone: "border-brand-amber/25",
+    label: "text-brand-amber",
+  },
+  {
+    t: "Export any time",
+    d: "Download your team, squad, GPS, calendar, training designs, tests and medical data as Excel files or one ZIP backup — subscribed or not.",
+    tone: "border-brand-teal/25",
+    label: "text-brand-teal",
+  },
 ];
 
 function Pricing() {
@@ -98,13 +118,14 @@ function Pricing() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-indigo/10 via-background to-brand-cyan/10">
-        <div className="mx-auto max-w-6xl px-5 py-10 text-center">
-          <p className="eyebrow text-brand-indigo">Pricing</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">
+        <div className="mx-auto max-w-6xl px-5 py-14 text-center">
+          <p className="page-eyebrow">Pricing</p>
+          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             One price, one season, one team
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
-            The <T4P /> season runs from <strong className="text-foreground">1 June to 31 May</strong>. Current season:{" "}
+            The <T4P /> season runs from{" "}
+            <strong className="text-foreground">1 June to 31 May</strong>. Current season:{" "}
             {season.label} ({season.start} → {season.end}).
           </p>
         </div>
@@ -117,11 +138,20 @@ function Pricing() {
               <Sparkles className="size-3.5" /> Team subscription
             </span>
             <p className="mt-4 font-display text-6xl font-semibold leading-none">€999</p>
-            <p className="mt-2 text-sm text-muted-foreground">per season, per team — every module included</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              per season, per team — every module included
+            </p>
             <ul className="mt-5 space-y-1.5 text-sm text-muted-foreground">
-              <li className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-brand-green" /> Unlimited players</li>
-              <li className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-brand-green" /> Unlimited staff users</li>
-              <li className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-brand-green" /> No add-ons, no per-user fees</li>
+              <li className="flex gap-2">
+                <Check className="mt-0.5 size-4 shrink-0 text-brand-green" /> Unlimited players
+              </li>
+              <li className="flex gap-2">
+                <Check className="mt-0.5 size-4 shrink-0 text-brand-green" /> Unlimited staff users
+              </li>
+              <li className="flex gap-2">
+                <Check className="mt-0.5 size-4 shrink-0 text-brand-green" /> No add-ons, no
+                per-user fees
+              </li>
             </ul>
             <Link
               to={session ? "/account" : "/auth"}
@@ -154,7 +184,11 @@ function Pricing() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {notes.map((n) => (
             <div key={n.t} className={`panel ${n.tone} p-5`}>
-              <p className={`font-display text-base font-semibold uppercase tracking-wide ${n.label}`}>{n.t}</p>
+              <p
+                className={`font-display text-base font-semibold uppercase tracking-wide ${n.label}`}
+              >
+                {n.t}
+              </p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{n.d}</p>
             </div>
           ))}

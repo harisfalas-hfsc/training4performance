@@ -32,7 +32,13 @@ export function Frame({
   );
 }
 
-function Pill({ children, tone = "muted" }: { children: ReactNode; tone?: "muted" | "ok" | "warn" | "bad" }) {
+function Pill({
+  children,
+  tone = "muted",
+}: {
+  children: ReactNode;
+  tone?: "muted" | "ok" | "warn" | "bad";
+}) {
   const tones = {
     muted: "bg-muted text-muted-foreground",
     ok: "bg-success/15 text-success",
@@ -40,7 +46,9 @@ function Pill({ children, tone = "muted" }: { children: ReactNode; tone?: "muted
     bad: "bg-destructive/15 text-destructive",
   } as const;
   return (
-    <span className={`inline-block rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${tones[tone]}`}>
+    <span
+      className={`inline-block rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${tones[tone]}`}
+    >
       {children}
     </span>
   );
@@ -79,9 +87,13 @@ export function ShotSquad() {
         <tbody>
           {players.map((p) => (
             <tr key={p[0]}>
-              <td className="border-b border-border/60 px-4 py-2.5 font-mono text-muted-foreground">{p[0]}</td>
+              <td className="border-b border-border/60 px-4 py-2.5 font-mono text-muted-foreground">
+                {p[0]}
+              </td>
               <td className="border-b border-border/60 px-4 py-2.5 font-semibold">{p[1]}</td>
-              <td className="border-b border-border/60 px-4 py-2.5 text-muted-foreground">{p[2]}</td>
+              <td className="border-b border-border/60 px-4 py-2.5 text-muted-foreground">
+                {p[2]}
+              </td>
               <td className="border-b border-border/60 px-4 py-2.5">
                 <Pill tone={p[4] as "ok" | "warn" | "bad"}>{p[3]}</Pill>
               </td>
@@ -111,7 +123,9 @@ export function ShotCalendar() {
         {days.map((day) => (
           <div key={day.d} className="bg-background p-3">
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-xs font-semibold uppercase tracking-wide">{day.d}</span>
+              <span className="font-display text-xs font-semibold uppercase tracking-wide">
+                {day.d}
+              </span>
               <span className="font-mono text-[0.6rem] text-muted-foreground">{day.md}</span>
             </div>
             <div className="mt-2 space-y-1">
@@ -127,10 +141,15 @@ export function ShotCalendar() {
             <div className="mt-3 h-14 rounded bg-surface-2/60 p-1">
               <div
                 className="w-full rounded-sm bg-primary/80"
-                style={{ height: `${Math.round((day.load / 910) * 100)}%`, marginTop: `${100 - Math.round((day.load / 910) * 100)}%` }}
+                style={{
+                  height: `${Math.round((day.load / 910) * 100)}%`,
+                  marginTop: `${100 - Math.round((day.load / 910) * 100)}%`,
+                }}
               />
             </div>
-            <p className="mt-1 text-center font-mono text-[0.6rem] text-muted-foreground">{day.load} AU</p>
+            <p className="mt-1 text-center font-mono text-[0.6rem] text-muted-foreground">
+              {day.load} AU
+            </p>
           </div>
         ))}
       </div>
@@ -167,7 +186,12 @@ export function ShotTacticsBoard() {
             <rect x="10.5" y="3" width="3" height="18" rx="1.5" fill="var(--color-brand-red)" />
           </ToolIcon>
           <ToolIcon label="Hurdle">
-            <path d="M4 20V9h16v11M4 9l8-5 8 5" fill="none" stroke="var(--color-brand-violet)" strokeWidth="2" />
+            <path
+              d="M4 20V9h16v11M4 9l8-5 8 5"
+              fill="none"
+              stroke="var(--color-brand-violet)"
+              strokeWidth="2"
+            />
           </ToolIcon>
           <ToolIcon label="Ball">
             <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -180,10 +204,23 @@ export function ShotTacticsBoard() {
         </div>
 
         <div className="min-w-0 flex-1 overflow-hidden rounded-xl">
-          <svg viewBox="0 0 600 380" className="block w-full" role="img" aria-label="Tactics board with a rondo drill">
+          <svg
+            viewBox="0 0 600 380"
+            className="block w-full"
+            role="img"
+            aria-label="Tactics board with a rondo drill"
+          >
             <rect width="600" height="380" fill="var(--color-pitch)" />
             {[0, 1, 2, 3, 4, 5].map((i) => (
-              <rect key={i} x={i * 100} y="0" width="50" height="380" fill="#ffffff" opacity="0.04" />
+              <rect
+                key={i}
+                x={i * 100}
+                y="0"
+                width="50"
+                height="380"
+                fill="#ffffff"
+                opacity="0.04"
+              />
             ))}
             <g stroke="var(--color-pitch-line)" strokeWidth="2.5" fill="none">
               <rect x="16" y="16" width="568" height="348" />
@@ -197,26 +234,40 @@ export function ShotTacticsBoard() {
 
             {/* rondo grid of cones */}
             <g fill="var(--color-brand-amber)">
-              {([
-                [180, 90],
-                [420, 90],
-                [180, 290],
-                [420, 290],
-              ] as [number, number][]).map(([x, y]) => (
-                <path key={`${x}-${y}`} d={`M${x} ${y - 14} L${x + 12} ${y + 10} L${x - 12} ${y + 10} Z`} />
+              {(
+                [
+                  [180, 90],
+                  [420, 90],
+                  [180, 290],
+                  [420, 290],
+                ] as [number, number][]
+              ).map(([x, y]) => (
+                <path
+                  key={`${x}-${y}`}
+                  d={`M${x} ${y - 14} L${x + 12} ${y + 10} L${x - 12} ${y + 10} Z`}
+                />
               ))}
             </g>
 
             {/* poles */}
             <g>
-              {([
-                [300, 60],
-                [300, 320],
-              ] as [number, number][]).map(([x, y]) => (
-                <rect key={y} x={x - 3} y={y - 22} width="6" height="44" rx="3" fill="var(--color-brand-red)" />
+              {(
+                [
+                  [300, 60],
+                  [300, 320],
+                ] as [number, number][]
+              ).map(([x, y]) => (
+                <rect
+                  key={y}
+                  x={x - 3}
+                  y={y - 22}
+                  width="6"
+                  height="44"
+                  rx="3"
+                  fill="var(--color-brand-red)"
+                />
               ))}
             </g>
-
 
             {/* attackers */}
             {[
@@ -273,7 +324,14 @@ export function ShotTacticsBoard() {
               <path d="M292 288 L300 306 L308 288" />
             </g>
 
-            <circle cx="240" cy="140" r="7" fill="#ffffff" stroke="var(--color-pitch)" strokeWidth="2" />
+            <circle
+              cx="240"
+              cy="140"
+              r="7"
+              fill="#ffffff"
+              stroke="var(--color-pitch)"
+              strokeWidth="2"
+            />
           </svg>
         </div>
       </div>
@@ -310,7 +368,10 @@ export function ShotGpsImport() {
         <thead>
           <tr className="text-[0.55rem] uppercase tracking-widest text-muted-foreground">
             {["Player", "Min", "Distance", "HSR", "Sprints", "Acc", "Dec", "Load"].map((h) => (
-              <th key={h} className="whitespace-nowrap border-b border-border px-3 py-2 font-semibold">
+              <th
+                key={h}
+                className="whitespace-nowrap border-b border-border px-3 py-2 font-semibold"
+              >
                 {h}
               </th>
             ))}

@@ -548,7 +548,7 @@ function ManualPage() {
         <section className="no-print overflow-hidden rounded-2xl border border-brand-blue/30 bg-gradient-to-br from-brand-blue/10 via-brand-cyan/5 to-brand-green/10 shadow-panel">
           <div className="flex flex-wrap items-start justify-between gap-4 p-6">
             <div className="max-w-2xl space-y-2">
-              <p className="eyebrow text-brand-blue">User manual</p>
+              <p className="eyebrow text-brand-blue">Chapters</p>
               <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
                 The whole logic of the platform, chapter by chapter
               </h2>
@@ -810,8 +810,9 @@ function ManualShell({
   }
   return (
     <MarketingPage>
-      <div className="mx-auto max-w-7xl px-4 pt-8 text-center sm:px-5">
-        <h1 className="font-display text-3xl font-semibold uppercase tracking-wide">{title}</h1>
+      <div className="mx-auto max-w-7xl px-4 py-14 text-center sm:px-5">
+        <p className="page-eyebrow">Platform manual</p>
+        <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">{title}</h1>
         {subtitle ? <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p> : null}
         {actions ? <div className="mt-4 flex flex-wrap justify-center gap-2">{actions}</div> : null}
       </div>

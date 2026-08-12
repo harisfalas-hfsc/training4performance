@@ -118,9 +118,7 @@ function DemoPage() {
     <MarketingPage>
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-5xl px-5 py-14 text-center">
-          <p className="eyebrow inline-flex items-center justify-center gap-2 text-primary">
-            <FlaskConical className="size-4" aria-hidden /> Live demo
-          </p>
+          <p className="page-eyebrow">Live demo</p>
           <h1 className="mt-3 font-display text-3xl font-semibold uppercase tracking-wide sm:text-4xl">
             Try <T4P /> with a team that is already set up
           </h1>
@@ -158,7 +156,10 @@ function DemoPage() {
         </h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {INSIDE.map((item) => (
-            <div key={item.title} className="flex flex-col items-center rounded-xl border border-border bg-surface p-4 text-center">
+            <div
+              key={item.title}
+              className="flex flex-col items-center rounded-xl border border-border bg-surface p-4 text-center"
+            >
               <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
                 <item.icon className="size-4" aria-hidden />
               </span>

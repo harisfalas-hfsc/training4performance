@@ -286,6 +286,19 @@
   color: var(--color-muted-foreground);
 }
 
+/* Consistent page kicker above every page H1 — same font, size, colour and
+   position on every public page. No icons, no backgrounds. */
+@utility page-eyebrow {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  color: var(--color-primary);
+}
+
 @utility control {
   display: block;
   width: 100%;
