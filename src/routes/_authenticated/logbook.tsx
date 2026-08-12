@@ -4,6 +4,7 @@ import { Download, Plus, Printer, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { ChartFrame, HBar, MultiChart, CHART_KINDS, type ChartKind } from "@/components/charts";
+import { PlayerPicker, type Scope } from "@/components/selectors";
 import { fullName, players, today, useDataVersion } from "@/data/performance";
 import {
   TEST_CATALOG,
@@ -98,11 +99,13 @@ function SquadTable() {
   const tests = usableTests();
   const [testId, setTestId] = useState(tests[0]?.id ?? "");
   const [showAdd, setShowAdd] = useState(false);
+  const [scope, setScope] = useState<Scope>("team");
+  const [selected, setSelected] = useState<string[]>([]);
   const def = getTestDef(testId);
 
   const rows = useMemo(
     () =>
-      players
+      players.filter((player) => scope !== "players" || selected.includes(player.id))
         .map((p) => {
           const last = latestRecord(p.id, testId);
           const best = bestRecord(p.id, testId);
@@ -113,7 +116,7 @@ function SquadTable() {
           const bv = b.last?.value ?? (def?.higher === false ? Infinity : -Infinity);
           return def?.higher === false ? av - bv : bv - av;
         }),
-    [testId, testRecords.length, players.length, def?.higher],
+    [testId, testRecords.length, players.length, def?.higher, scope, selected.join(",")],
   );
 
   const withValue = rows.filter((r) => r.last);
@@ -172,6 +175,11 @@ function SquadTable() {
         </button>
       </div>
 
+      <section className="panel p-4">
+        <SectionTitle title="Who do you want to compare?" hint="Use the whole squad or pick any two, three, or more players. The ranking bars and table update together." />
+        <PlayerPicker scope={scope} onScope={setScope} picked={selected} onPicked={setSelected} />
+      </section>
+
       {showAdd && <AddResultForm defaultTest={testId} onDone={() => setShowAdd(false)} />}
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -188,7 +196,7 @@ function SquadTable() {
         <div className="panel p-4">
           <SectionTitle title={testLabel(testId)} hint={`${def?.higher === false ? "lower is better" : "higher is better"} · ${testUnit(testId)}`} />
           <ChartFrame title={`${testLabel(testId)} squad ranking`}>
-            <HBar data={chart} dataKey="value" labelKey="name" height={Math.max(220, chart.length * 26)} />
+            <HBar data={chart} dataKey="value" labelKey="name" height={Math.max(220, chart.length * 34)} unit={` ${testUnit(testId)}`} categoryColors benchmark={average} />
           </ChartFrame>
         </div>
       ) : null}

@@ -216,7 +216,7 @@ export function GpsExplorer() {
           <div className="mb-5 border-b border-border pb-5">
             <SectionTitle title="Selected-period comparison" hint="One bar per player. The number is the period total; max speed uses the peak and RPE uses the average." />
             <ChartFrame title={`${kpiNames[0]} player comparison`}>
-              <HBar data={playerSummary} dataKey="value" labelKey="name" height={Math.max(180, playerSummary.length * 48)} unit={unit ? ` ${unit}` : undefined} categoryColors />
+              <HBar data={playerSummary} dataKey="value" labelKey="name" height={Math.max(180, playerSummary.length * 48)} {...(unit ? { unit: ` ${unit}` } : {})} categoryColors />
             </ChartFrame>
           </div>
         ) : null}
