@@ -1,3 +1,4 @@
+import { guardDemo } from "@/lib/access";
 /**
  * Full data export. Everything a coach creates in T4P is his own property, so
  * he can download his whole workspace at any time — subscription or not —
@@ -312,6 +313,7 @@ function saveBlob(blob: Blob, filename: string) {
 
 /** Download one dataset as its own Excel file. */
 export function downloadSheetXlsx(key: string) {
+  if (!guardDemo("Exporting data")) return false;
   const sheet = workspaceSheets().find((s) => s.key === key);
   if (!sheet) return false;
   const bytes = sheetToXlsx(sheet);
@@ -367,8 +369,10 @@ export function workspaceExportFiles(): Array<{ name: string; content: string | 
   ];
 }
 
-export function downloadWorkspaceZip() {
+export function downloadWorkspaceZip(): boolean {
+  if (!guardDemo("Exporting data")) return false;
   const blob = createZip(workspaceExportFiles());
   saveBlob(blob, `${fileSlug()}-t4p-export-${new Date().toISOString().slice(0, 10)}.zip`);
+  return true;
 }
 

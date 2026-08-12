@@ -10,7 +10,7 @@
 
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
-import { guardWrite } from "@/lib/access";
+import { guardDemo, guardWrite } from "@/lib/access";
 import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
@@ -479,6 +479,7 @@ export function nextPlayerId() {
 }
 
 export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
+  if (!guardDemo("Adding players to the demo squad")) return false as never;
   if (!guardWrite()) return;
   const p: Player = {
     id: input.id ?? nextPlayerId(),
@@ -510,6 +511,7 @@ export function updatePlayer(id: string, patch: Partial<Player>) {
 
 /** Transfer out / release: removes the player and all of their records. */
 export function removePlayer(id: string) {
+  if (!guardDemo("Removing demo players")) return false as never;
   if (!guardWrite()) return;
   replace(players, players.filter((p) => p.id !== id));
   replace(gpsHistory, gpsHistory.filter((g) => g.playerId !== id));
@@ -578,6 +580,7 @@ export function removeSession(id: string) {
 
 /** Add or replace one athlete row for one day. */
 export function upsertGps(entry: GpsDay) {
+  if (!guardDemo("Editing the demo GPS report")) return false as never;
   if (!guardWrite()) return;
   const i = gpsHistory.findIndex((g) => g.date === entry.date && g.playerId === entry.playerId);
   if (i >= 0) {
@@ -614,6 +617,7 @@ export function gpsValue(g: GpsDay, key: string): number {
 
 /** Store (or replace) the GPS record of one block of one training day. */
 export function upsertGpsBlock(entry: GpsBlockRow) {
+  if (!guardDemo("Editing the demo GPS report")) return false as never;
   if (!guardWrite()) return;
   const i = gpsBlocks.findIndex((g) => g.date === entry.date && g.playerId === entry.playerId && g.block === entry.block);
   if (i >= 0) gpsBlocks[i] = { ...gpsBlocks[i]!, ...entry };
@@ -623,6 +627,7 @@ export function upsertGpsBlock(entry: GpsBlockRow) {
 
 /** Remove every block record of a training day (optionally only one athlete). */
 export function removeGpsBlocks(date: string, playerId?: string) {
+  if (!guardDemo("Deleting the demo GPS report")) return false as never;
   if (!guardWrite()) return;
   replace(
     gpsBlocks,
@@ -795,6 +800,7 @@ export function manualLoadSummary(date: string) {
 }
 
 export function removeGps(date: string, playerId: string) {
+  if (!guardDemo("Deleting the demo GPS report")) return false as never;
   if (!guardWrite()) return;
   replace(gpsHistory, gpsHistory.filter((g) => !(g.date === date && g.playerId === playerId)));
   emit();
@@ -832,6 +838,7 @@ export function removeMedicalEvent(playerId: string, from: string) {
 
 /** Wipe every local change and go back to the imported workbook. */
 export function resetToWorkbook() {
+  if (!guardDemo("Resetting the workspace")) return false as never;
   if (!guardWrite()) return;
   replace(players, seedPlayers());
   replace(gpsHistory, seedGps());
@@ -852,6 +859,7 @@ export function isTeamConfigured() {
 
 /** Create or update the single team of this workspace. */
 export function saveTeam(patch: Partial<Team>) {
+  if (!guardDemo("Changing the demo team")) return false as never;
   if (!guardWrite()) return false;
   Object.assign(team, patch, {
     configured: true,
@@ -863,6 +871,7 @@ export function saveTeam(patch: Partial<Team>) {
 
 /** Delete every record (players, GPS, sessions, tests, medical) but keep the team. */
 export function clearWorkspaceRecords() {
+  if (!guardDemo("Deleting demo records")) return false as never;
   if (!guardWrite()) return false;
   replace(players, []);
   replace(gpsHistory, []);
@@ -877,6 +886,7 @@ export function clearWorkspaceRecords() {
 
 /** Delete the team and everything attached to it, so a new team can be created. */
 export function deleteTeamAndData() {
+  if (!guardDemo("Deleting the demo team")) return false as never;
   if (!guardWrite()) return false;
   clearWorkspaceRecords();
   Object.assign(team, {

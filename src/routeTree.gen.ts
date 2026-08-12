@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as HarisFalasRouteImport } from './routes/haris-falas'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -69,6 +70,11 @@ const AccountRoute = AccountRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisclaimerRoute = DisclaimerRouteImport.update({
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/demo': typeof DemoRoute
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/demo': typeof DemoRoute
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/demo': typeof DemoRoute
   '/disclaimer': typeof DisclaimerRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/auth'
+    | '/demo'
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/auth'
+    | '/demo'
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
@@ -433,6 +444,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/auth'
+    | '/demo'
     | '/disclaimer'
     | '/haris-falas'
     | '/how-it-works'
@@ -473,6 +485,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
+  DemoRoute: typeof DemoRoute
   DisclaimerRoute: typeof DisclaimerRoute
   HarisFalasRoute: typeof HarisFalasRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -521,6 +534,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disclaimer': {
@@ -807,6 +827,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
+  DemoRoute: DemoRoute,
   DisclaimerRoute: DisclaimerRoute,
   HarisFalasRoute: HarisFalasRoute,
   HowItWorksRoute: HowItWorksRoute,
@@ -822,3 +843,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

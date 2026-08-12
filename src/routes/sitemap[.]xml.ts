@@ -15,6 +15,7 @@ const entries: SitemapEntry[] = [
   { path: "/how-it-works", changefreq: "monthly", priority: "0.9" },
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
   { path: "/smarty-assistant", changefreq: "monthly", priority: "0.8" },
+  { path: "/demo", changefreq: "monthly", priority: "0.8" },
   { path: "/about", changefreq: "monthly", priority: "0.7" },
   { path: "/haris-falas", changefreq: "yearly", priority: "0.5" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },

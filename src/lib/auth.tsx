@@ -5,6 +5,8 @@ import { isAdminEmail } from "@/lib/admin";
 import { setWriteAccess } from "@/lib/access";
 import { setWorkspaceScope } from "@/lib/workspace-scope";
 import { resetWorkspaceHydration } from "@/lib/usage";
+import { isDemoActive } from "@/lib/demo";
+import { activeScopeFor } from "@/lib/teams";
 
 export interface Profile {
   id: string;
@@ -56,14 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   const load = useCallback(async (uid: string | undefined, email?: string | null) => {
+    // The public demo owns the workspace scope while it is running.
+    const demo = isDemoActive();
     if (!uid) {
-      setWorkspaceScope(null);
+      if (!demo) setWorkspaceScope(null);
       setProfile(null);
       setIsAdmin(false);
       setSubscription(null);
       return;
     }
-    setWorkspaceScope(uid, isAdminEmail(email));
+    if (!demo) setWorkspaceScope(activeScopeFor(uid), isAdminEmail(email));
     const [{ data: prof }, { data: sub }] = await Promise.all([
       supabase.from("profiles").select("id,email,full_name,club_name").eq("id", uid).maybeSingle(),
       supabase
@@ -115,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Browsing is always allowed; writing needs an active subscription.
+    if (isDemoActive()) return;
     setWriteAccess(value.hasAccess);
   }, [value.hasAccess]);
 

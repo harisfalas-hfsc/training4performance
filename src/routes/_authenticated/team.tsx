@@ -35,6 +35,15 @@ import { testRecords, useTestVersion } from "@/data/testing";
 import { downloadSheetXlsx, downloadWorkspaceZip, workspaceSheets } from "@/lib/workspace-export";
 import { clearRemoteWorkspace } from "@/lib/usage";
 import { useAuth } from "@/lib/auth";
+import {
+  PRIMARY_SLOT,
+  addTeamSlot,
+  activeSlotId,
+  listTeamSlots,
+  removeTeamSlot,
+  renameTeamSlot,
+  switchTeamSlot,
+} from "@/lib/teams";
 
 export const Route = createFileRoute("/_authenticated/team")({
   head: () => ({
@@ -57,7 +66,7 @@ export const Route = createFileRoute("/_authenticated/team")({
 function TeamPage() {
   useDataVersion();
   useTestVersion();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const configured = isTeamConfigured();
 
@@ -243,6 +252,10 @@ function TeamPage() {
           </form>
         </section>
 
+        {isAdmin ? <TeamSlots userId={user?.id ?? null} /> : null}
+
+
+
         <section className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-border bg-surface p-4">
             <SectionTitle title="Limits" hint="What one subscription covers" />
@@ -276,7 +289,7 @@ function TeamPage() {
                   key={sheet.key}
                   type="button"
                   onClick={() => {
-                    downloadSheetXlsx(sheet.key);
+                    if (!downloadSheetXlsx(sheet.key)) return;
                     toast.success(`${sheet.label} exported`, { description: `${sheet.rows.length} rows — Excel file downloading.` });
                   }}
                   className="flex items-start gap-2 rounded-lg border border-border bg-background p-3 text-left transition hover:border-primary/50"
@@ -293,7 +306,7 @@ function TeamPage() {
             <Button
               className="mt-3 gap-2"
               onClick={() => {
-                downloadWorkspaceZip();
+                if (!downloadWorkspaceZip()) return;
                 toast.success("Export ready", { description: "Your ZIP is downloading." });
               }}
             >
@@ -391,5 +404,91 @@ function Limit({ label, value, note }: { label: string; value: string; note: str
       </span>
       <span className="shrink-0 text-sm font-bold tabular-nums">{value}</span>
     </li>
+  );
+}
+
+/**
+ * Administrator only: several teams inside the same account. Each team keeps
+ * its own squad, GPS, sessions and tests in a separate workspace.
+ */
+function TeamSlots({ userId }: { userId: string | null }) {
+  const [, bump] = useState(0);
+  const [label, setLabel] = useState("");
+  if (!userId) return null;
+  const slots = listTeamSlots(userId);
+  const active = activeSlotId(userId);
+
+  return (
+    <section className="rounded-xl border border-primary/40 bg-primary/5 p-4">
+      <SectionTitle
+        title="Your teams (administrator)"
+        hint="Add as many teams as you need. Switching keeps every squad, GPS file and session completely separate."
+      />
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {slots.map((slot) => (
+          <div
+            key={slot.id}
+            className={`rounded-lg border p-3 ${slot.id === active ? "border-primary bg-surface" : "border-border bg-surface-2"}`}
+          >
+            <input
+              className="inp"
+              value={slot.label}
+              onChange={(e) => {
+                renameTeamSlot(userId, slot.id, e.target.value);
+                bump((n) => n + 1);
+              }}
+            />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {slot.id === active ? (
+                <span className="rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">Open now</span>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    switchTeamSlot(userId, slot.id);
+                    bump((n) => n + 1);
+                    toast.success(`Switched to ${slot.label}`);
+                  }}
+                >
+                  Open
+                </Button>
+              )}
+              {slot.id !== PRIMARY_SLOT ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    if (!window.confirm(`Remove ${slot.label}? Its records stay in this browser but the team is unlisted.`)) return;
+                    removeTeamSlot(userId, slot.id);
+                    bump((n) => n + 1);
+                  }}
+                >
+                  <Trash2 className="size-4" /> Remove
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap items-end gap-2">
+        <input
+          className="inp max-w-[220px]"
+          value={label}
+          placeholder="New team name (e.g. U19)"
+          onChange={(e) => setLabel(e.target.value)}
+        />
+        <Button
+          onClick={() => {
+            const slot = addTeamSlot(userId, label);
+            setLabel("");
+            bump((n) => n + 1);
+            toast.success(`${slot.label} created — set it up below`);
+          }}
+        >
+          Add team
+        </Button>
+      </div>
+    </section>
   );
 }
