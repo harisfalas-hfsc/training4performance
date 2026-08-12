@@ -15,6 +15,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  LabelList,
   RadarChart,
   Radar,
   PolarGrid,
@@ -201,21 +202,50 @@ export function HBar({
   labelKey,
   color = "var(--color-chart-1)",
   height = 420,
+  unit,
+  signColors = false,
+  zeroLine = false,
 }: {
   data: Row[];
   dataKey: string;
   labelKey: string;
   color?: string;
   height?: number;
+  /** Unit appended to the printed value, e.g. "%" or "m". */
+  unit?: string;
+  /** Green when below zero, amber when above — used for deviation charts. */
+  signColors?: boolean;
+  zeroLine?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, bottom: 0, left: 8 }}>
+      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 34, bottom: 0, left: 8 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" horizontal={false} />
-        <XAxis type="number" {...axis} />
+        <XAxis type="number" {...axis} tickFormatter={(v: number) => `${Math.round(Number(v))}${unit ?? ""}`} />
         <YAxis type="category" dataKey={labelKey} {...axis} width={120} />
-        <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />
-        <Bar dataKey={dataKey} fill={color} radius={[0, 3, 3, 0]} />
+        <Tooltip
+          {...tooltipStyle}
+          cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }}
+          formatter={(v: number, n: string) => [`${Number(v).toLocaleString()}${unit ?? ""}`, n]}
+        />
+        {zeroLine ? <ReferenceLine x={0} stroke="var(--color-border)" /> : null}
+        <Bar dataKey={dataKey} fill={color} radius={[0, 3, 3, 0]}>
+          {signColors
+            ? data.map((row, index) => (
+                <Cell
+                  key={index}
+                  fill={Number(row[dataKey] ?? 0) >= 0 ? "var(--color-chart-4)" : "var(--color-chart-2)"}
+                />
+              ))
+            : null}
+          <LabelList
+            dataKey={dataKey}
+            position="right"
+            fontSize={10}
+            fill="var(--color-muted-foreground)"
+            formatter={(v: number) => `${Math.round(Number(v))}${unit ?? ""}`}
+          />
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
@@ -252,6 +282,8 @@ export function MultiChart({
   xKey = "date",
   height = 260,
   dualAxis = false,
+  unit,
+  showValues = true,
 }: {
   data: Row[];
   series: Array<{ key: string; name: string; color?: string }>;
@@ -259,8 +291,16 @@ export function MultiChart({
   xKey?: string;
   height?: number;
   dualAxis?: boolean;
+  /** Unit shown on the value axis, e.g. "m" or "AU". */
+  unit?: string;
+  /** Print the number on top of each bar/point when the chart is not crowded. */
+  showValues?: boolean;
 }) {
   const colored = series.map((s, i) => ({ ...s, color: s.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }));
+  const compact = (value: number) => (Math.abs(value) >= 10000 ? `${Math.round(value / 1000)}k` : `${Math.round(value)}`);
+  const withValues = showValues && data.length <= 14 && colored.length <= 3;
+  const yLabel: { value: string; angle: number; position: "insideLeft"; fill: string; fontSize: number } | string =
+    unit ? { value: unit, angle: -90, position: "insideLeft", fill: "var(--color-muted-foreground)", fontSize: 11 } : "";
   if (!colored.length || !data.length) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Select at least one KPI to draw the chart.</p>;
   }
@@ -276,7 +316,14 @@ export function MultiChart({
         <PieChart>
           <Tooltip {...tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Pie data={rows} dataKey="value" nameKey="name" outerRadius={height / 3} label={false}>
+          <Pie
+            data={rows}
+            dataKey="value"
+            nameKey="name"
+            outerRadius={height / 3}
+            label={(entry: { name?: string; value?: number }) => `${entry.name}: ${compact(Number(entry.value ?? 0))}`}
+            labelLine={false}
+          >
             {rows.map((_, i) => (
               <Cell key={i} fill={SERIES_COLORS[i % SERIES_COLORS.length]} />
             ))}
@@ -308,8 +355,8 @@ export function MultiChart({
         <AreaChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
           <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey={xKey} {...axis} />
-          <YAxis {...axis} width={46} />
-          <Tooltip {...tooltipStyle} />
+          <YAxis {...axis} width={54} tickFormatter={(v: number) => compact(Number(v))} label={yLabel} />
+          <Tooltip {...tooltipStyle} formatter={(v: number, n: string) => [`${Number(v).toLocaleString()}${unit ? ` ${unit}` : ""}`, n]} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {colored.map((s) => (
             <Area
@@ -334,8 +381,8 @@ export function MultiChart({
         <BarChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
           <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey={xKey} {...axis} />
-          <YAxis {...axis} width={46} />
-          <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.35 }} />
+          <YAxis {...axis} width={54} tickFormatter={(v: number) => compact(Number(v))} label={yLabel} />
+          <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.35 }} formatter={(v: number, n: string) => [`${Number(v).toLocaleString()}${unit ? ` ${unit}` : ""}`, n]} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {colored.map((s) => (
             <Bar
@@ -345,7 +392,11 @@ export function MultiChart({
               fill={s.color}
               {...(kind === "stacked" ? { stackId: "a" } : {})}
               radius={[3, 3, 0, 0]}
-            />
+            >
+              {withValues ? (
+                <LabelList dataKey={s.key} position="top" fontSize={10} fill="var(--color-muted-foreground)" formatter={(v: number) => compact(Number(v))} />
+              ) : null}
+            </Bar>
           ))}
         </BarChart>
       </ResponsiveContainer>
@@ -357,9 +408,9 @@ export function MultiChart({
       <LineChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: -18 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey={xKey} {...axis} />
-        <YAxis yAxisId="left" {...axis} width={46} />
-        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={46} /> : null}
-        <Tooltip {...tooltipStyle} />
+        <YAxis yAxisId="left" {...axis} width={54} tickFormatter={(v: number) => compact(Number(v))} label={yLabel} />
+        {dualAxis ? <YAxis yAxisId="right" orientation="right" {...axis} width={54} tickFormatter={(v: number) => compact(Number(v))} /> : null}
+        <Tooltip {...tooltipStyle} formatter={(v: number, n: string) => [`${Number(v).toLocaleString()}${unit ? ` ${unit}` : ""}`, n]} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
         {colored.map((s, i) => (
           <Line
