@@ -18,6 +18,7 @@ import {
   Compass,
   HeartPulse,
   Search,
+  Sparkles,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -566,6 +567,15 @@ function ManualPage() {
           </div>
 
           <div className="grid gap-2 border-t border-border/60 bg-background/60 p-4 sm:grid-cols-2 lg:grid-cols-3">
+            <a
+              href="#walkthrough"
+              className="group flex items-center gap-3 rounded-xl border border-brand-green/45 bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
+            >
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-green/12 text-brand-green">
+                <Sparkles className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1 truncate text-sm font-semibold">Worked example (start here)</span>
+            </a>
             {CHAPTERS.map((c) => (
               <a
                 key={c.id}
