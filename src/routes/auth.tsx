@@ -4,7 +4,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
 
