@@ -177,6 +177,66 @@
   --sidebar-ring: oklch(0.46 0.17 258);
 }
 
+.dark {
+  --background: oklch(0.17 0.012 250);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.21 0.014 250);
+  --card-foreground: oklch(0.96 0 0);
+  --surface-2: oklch(0.235 0.014 250);
+
+  --brand-blue: oklch(0.68 0.15 258);
+  --brand-green: oklch(0.72 0.14 155);
+  --brand-violet: oklch(0.7 0.17 293);
+  --brand-cyan: oklch(0.74 0.12 240);
+  --brand-amber: oklch(0.78 0.14 65);
+  --brand-red: oklch(0.68 0.18 25);
+  --brand-indigo: oklch(0.66 0.15 266);
+  --brand-pink: oklch(0.72 0.17 353);
+  --brand-teal: oklch(0.72 0.1 190);
+
+  --popover: oklch(0.21 0.014 250);
+  --popover-foreground: oklch(0.96 0 0);
+
+  --primary: oklch(0.66 0.16 258);
+  --primary-foreground: oklch(0.15 0.01 250);
+  --secondary: oklch(0.26 0.014 250);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.26 0.014 250);
+  --muted-foreground: oklch(0.75 0.01 250);
+  --accent: oklch(0.28 0.03 258);
+  --accent-foreground: oklch(0.9 0.05 258);
+
+  --destructive: oklch(0.62 0.19 27);
+  --destructive-foreground: oklch(0.15 0.01 250);
+  --success: oklch(0.68 0.14 155);
+  --success-foreground: oklch(0.15 0.01 250);
+  --warning: oklch(0.75 0.14 65);
+  --warning-foreground: oklch(0.15 0.01 250);
+  --info: oklch(0.66 0.16 258);
+
+  --pitch: oklch(0.42 0.08 152);
+  --pitch-line: oklch(0.95 0 0 / 70%);
+
+  --border: oklch(0.34 0.012 250);
+  --input: oklch(0.38 0.012 250);
+  --ring: oklch(0.66 0.16 258);
+
+  --chart-1: oklch(0.92 0 0);
+  --chart-2: oklch(0.68 0.15 258);
+  --chart-3: oklch(0.78 0.14 65);
+  --chart-4: oklch(0.68 0.18 27);
+  --chart-5: oklch(0.72 0.1 190);
+
+  --sidebar: oklch(0.2 0.014 250);
+  --sidebar-foreground: oklch(0.96 0 0);
+  --sidebar-primary: oklch(0.66 0.16 258);
+  --sidebar-primary-foreground: oklch(0.15 0.01 250);
+  --sidebar-accent: oklch(0.28 0.03 258);
+  --sidebar-accent-foreground: oklch(0.9 0.05 258);
+  --sidebar-border: oklch(0.34 0.012 250);
+  --sidebar-ring: oklch(0.66 0.16 258);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -186,7 +246,12 @@
     color-scheme: light;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
+
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
