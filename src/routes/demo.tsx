@@ -25,7 +25,11 @@ export const Route = createFileRoute("/demo")({
       title: "Live Demo — Try T4P With A Ready-Made Team | T4P",
       description:
         "Open the T4P demo team: five players, seven tagged trainings with tactics-board and strength examples, GPS data, manual RPE and fitness tests.",
-      keywords: ["football performance software demo", "GPS training load demo", "athlete monitoring demo"],
+      keywords: [
+        "football performance software demo",
+        "GPS training load demo",
+        "athlete monitoring demo",
+      ],
     }),
     scripts: [
       webPageLd({
@@ -45,14 +49,46 @@ export const Route = createFileRoute("/demo")({
 });
 
 const INSIDE = [
-  { icon: Users, title: "One team, five players", text: "The T4P demo squad — goalkeeper, defender, midfielder, winger and striker, each with a full passport." },
-  { icon: CalendarDays, title: "Seven complete trainings", text: "Monday to Sunday, four timed blocks a day: recovery, strength, pitch, tactics-board work, match day and individual recovery." },
-  { icon: ClipboardPen, title: "Tagged drills", text: "Rondo 5v2, passing drill, SSG 4v4, back squat, Bulgarian split squat — search how often each one was used." },
-  { icon: Radar, title: "GPS per session and per block", text: "Distance, HSR, sprints, accelerations, decelerations and jumps, split across every block of the day." },
-  { icon: Activity, title: "Manual RPE", text: "Gym blocks have no GPS, so their load comes from RPE × minutes and adds on top of the GPS load." },
-  { icon: Gauge, title: "Training load & ACWR", text: "The load model is already switched on: change the KPI weights and watch every chart recalculate." },
-  { icon: BarChart3, title: "Analytics & reports", text: "Ask the same question everywhere: who (team or players) → what (training, tests, GPS) → KPIs and dates." },
-  { icon: FlaskConical, title: "Fitness tests", text: "A pre-season battery: CMJ, 10 m and 30 m sprint, max speed, Yo-Yo, squat and split squat." },
+  {
+    icon: Users,
+    title: "One team, five players",
+    text: "The T4P demo squad — goalkeeper, defender, midfielder, winger and striker, each with a full passport.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Seven complete trainings",
+    text: "Monday to Sunday, four timed blocks a day: recovery, strength, pitch, tactics-board work, match day and individual recovery.",
+  },
+  {
+    icon: ClipboardPen,
+    title: "Tagged drills",
+    text: "Rondo 5v2, passing drill, SSG 4v4, back squat, Bulgarian split squat — search how often each one was used.",
+  },
+  {
+    icon: Radar,
+    title: "GPS per session and per block",
+    text: "Distance, HSR, sprints, accelerations, decelerations and jumps, split across every block of the day.",
+  },
+  {
+    icon: Activity,
+    title: "Manual RPE",
+    text: "Gym blocks have no GPS, so their load comes from RPE × minutes and adds on top of the GPS load.",
+  },
+  {
+    icon: Gauge,
+    title: "Training load & ACWR",
+    text: "The load model is already switched on: change the KPI weights and watch every chart recalculate.",
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics & reports",
+    text: "Ask the same question everywhere: who (team or players) → what (training, tests, GPS) → KPIs and dates.",
+  },
+  {
+    icon: FlaskConical,
+    title: "Fitness tests",
+    text: "A pre-season battery: CMJ, 10 m and 30 m sprint, max speed, Yo-Yo, squat and split squat.",
+  },
 ];
 
 const ALLOWED = [
@@ -90,9 +126,9 @@ function DemoPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             No sign-up, no card, nothing to import. One click opens the platform with the demo team{" "}
-            <strong className="text-foreground">T4P</strong>: five players, a full week of training in blocks, GPS
-            data, manual RPE and a fitness-test battery. Everything is live — change the load model, edit a session,
-            add an RPE and see the numbers move.
+            <strong className="text-foreground">T4P</strong>: five players, a full week of training
+            in blocks, GPS data, manual RPE and a fitness-test battery. Everything is live — change
+            the load model, edit a session, add an RPE and see the numbers move.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button size="lg" className="gap-2" onClick={start}>
@@ -117,7 +153,9 @@ function DemoPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-5 py-12">
-        <h2 className="font-display text-xl font-semibold uppercase tracking-wide">What is inside</h2>
+        <h2 className="font-display text-xl font-semibold uppercase tracking-wide">
+          What is inside
+        </h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {INSIDE.map((item) => (
             <div key={item.title} className="rounded-xl border border-border bg-surface p-4">
@@ -134,7 +172,9 @@ function DemoPage() {
       <section className="border-y border-border bg-surface">
         <div className="mx-auto grid max-w-5xl gap-4 px-5 py-12 md:grid-cols-2">
           <div className="rounded-xl border border-border bg-background p-5">
-            <h2 className="font-display text-lg font-semibold uppercase tracking-wide">You can do all of this</h2>
+            <h2 className="font-display text-lg font-semibold uppercase tracking-wide">
+              You can do all of this
+            </h2>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               {ALLOWED.map((line) => (
                 <li key={line} className="flex gap-2">
@@ -151,22 +191,29 @@ function DemoPage() {
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               {BLOCKED.map((line) => (
                 <li key={line} className="flex gap-2">
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted-foreground/50" aria-hidden />
+                  <span
+                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted-foreground/50"
+                    aria-hidden
+                  />
                   {line}
                 </li>
               ))}
             </ul>
             <p className="mt-4 text-xs text-muted-foreground">
-              They all work normally on a subscription — €999 for the season, one team, unlimited players.
+              They all work normally on a subscription — €999 for the season, one team, unlimited
+              players.
             </p>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-5xl px-5 py-12 text-center">
-        <h2 className="font-display text-xl font-semibold uppercase tracking-wide">Ready when you are</h2>
+        <h2 className="font-display text-xl font-semibold uppercase tracking-wide">
+          Ready when you are
+        </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-          Open the demo, spend ten minutes inside it, and you will know exactly how your own season would look.
+          Open the demo, spend ten minutes inside it, and you will know exactly how your own season
+          would look.
         </p>
         <Button size="lg" className="mt-5 gap-2" onClick={start}>
           <PlayCircle className="size-5" /> Open the demo

@@ -12,7 +12,6 @@ import {
   Satellite,
 } from "lucide-react";
 
-
 export const platformNav = [
   { to: "/dashboard", label: "Insights", icon: LayoutDashboard, color: "#2563eb" },
   { to: "/team", label: "Team & players", icon: Building2, color: "#0f766e" },
