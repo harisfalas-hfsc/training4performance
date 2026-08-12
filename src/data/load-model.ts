@@ -18,7 +18,7 @@
  * 2. "srpe" — Foster's session RPE:  load = RPE (0-10) x  duration (min).
  */
 
-import { customKpis, gpsHistory, gpsValue, subscribeData, type GpsDay } from "@/data/performance";
+import { customKpis, gpsHistory, gpsValue, type GpsDay } from "@/data/performance";
 import { scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 export type LoadMethod = "ratio" | "srpe";
@@ -206,5 +206,3 @@ export function importedLoadColumns(): Array<{ key: string; label: string }> {
   return customKpis().filter((k) => /load|trimp|impulse/i.test(k.label) || /load|trimp|impulse/i.test(k.key));
 }
 
-/** Re-emit when squad data changes, so charts pick up new squad averages. */
-if (typeof window !== "undefined") subscribeData(() => emit());

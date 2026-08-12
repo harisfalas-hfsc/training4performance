@@ -4,6 +4,7 @@
  * the real workspace data, never from the model guessing.
  */
 
+import { gpsRowLoad } from "@/data/performance";
 import type {
   GpsDay,
   ManualTest,
@@ -111,10 +112,10 @@ export function buildAssistantContext(
     const sprint7 = Math.round(sum(d7.map((g) => g.sprint)));
     const maxSpeed = +Math.max(...d7.map((g) => g.maxSpeed), 0).toFixed(1);
 
-    const acute = sum(d7.map((g) => g.rpe * g.minutes));
+    const acute = sum(d7.map((g) => gpsRowLoad(g)));
     const chronic28 = days
       .filter((g) => g.date >= nDaysAgo(28))
-      .map((g) => g.rpe * g.minutes);
+      .map((g) => gpsRowLoad(g));
     const chronic = chronic28.length ? sum(chronic28) / 4 : 0;
     const acwr = chronic ? +(acute / chronic).toFixed(2) : 0;
 
