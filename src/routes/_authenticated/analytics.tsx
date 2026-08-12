@@ -275,7 +275,7 @@ function AnalyticsPage() {
       </section>
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
-        <div className="panel p-4 xl:col-span-2">
+        <div className="panel min-w-0 p-4 xl:col-span-2">
           <SectionTitle
             title="Squad trend"
             hint={`${kpiNames.join(", ") || "no KPI"} · ${whoLabel} · last ${window} days${kind === "pie" ? " · pie uses the first KPI" : ""}`}
@@ -293,7 +293,7 @@ function AnalyticsPage() {
             One bar/point per training day. Each colour is one KPI — hover to read the exact number{unit ? ` in ${unit}` : ""}.
           </p>
         </div>
-        <div className="panel p-4">
+        <div className="panel min-w-0 p-4">
           <SectionTitle
             title="Who is above or below his position group?"
             right={
@@ -320,7 +320,7 @@ function AnalyticsPage() {
       </section>
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
-        <div className="panel p-4">
+        <div className="panel min-w-0 p-4">
           <SectionTitle title="Period comparison" hint={`First half vs second half of the selected ${window} days`} />
           <p className="mb-2 text-xs text-muted-foreground">
             Period A = the older half of your date range, Period B = the newer half. Δ is the change in %.
@@ -357,7 +357,7 @@ function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="panel p-4 xl:col-span-2">
+        <div className="panel min-w-0 p-4 xl:col-span-2">
           <SectionTitle
             title="Player comparison"
             hint="Uses the players you picked at the top — one line per player"
