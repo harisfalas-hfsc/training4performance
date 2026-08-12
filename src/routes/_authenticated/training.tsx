@@ -84,8 +84,13 @@ export const Route = createFileRoute("/_authenticated/training")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>): { date?: string } =>
-    typeof search["date"] === "string" ? { date: search["date"] as string } : {},
+  validateSearch: (search: Record<string, unknown>): { date?: string; block?: string; board?: number } => ({
+    ...(typeof search["date"] === "string" ? { date: search["date"] as string } : {}),
+    ...(typeof search["block"] === "string" ? { block: search["block"] as string } : {}),
+    ...(typeof search["board"] === "number" && Number.isInteger(search["board"])
+      ? { board: search["board"] as number }
+      : {}),
+  }),
   component: TrainingPage,
 });
 
@@ -229,7 +234,7 @@ function TrainingPage() {
       (sessionCalendar.find((s) => s.date === search.date) ??
         sessionCalendar.find((s) => s.date === today))?.id ?? "",
   );
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(search.board !== undefined ? 2 : 1);
   const [showSheet, setShowSheet] = useState(false);
   const session = sessionCalendar.find((s) => s.id === selectedId);
 
@@ -239,9 +244,9 @@ function TrainingPage() {
   const [items, setItems] = useState<SessionPlanItem[]>(() => session?.plan ?? []);
   const [blocks, setBlocks] = useState<string[]>(() => session?.blockNames ?? sessionTypeOf(session?.type).blocks);
   const [type, setType] = useState(() => session?.type ?? sessionTypeOf(session?.title).name);
-  const [activeBlock, setActiveBlock] = useState<string>(() => blocks[0] ?? "BLOCK 1");
+  const [activeBlock, setActiveBlock] = useState<string>(() => search.block ?? blocks[0] ?? "BLOCK 1");
   const [saved, setSaved] = useState("");
-  const [drawingIndex, setDrawingIndex] = useState<number | null>(null);
+  const [drawingIndex, setDrawingIndex] = useState<number | null>(() => search.board ?? null);
   const [renaming, setRenaming] = useState<string | null>(null);
 
   useEffect(() => {
