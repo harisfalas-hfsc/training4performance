@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Activity,
   BarChart3,
@@ -796,9 +796,9 @@ function ManualShell({
   children,
 }: {
   title: string;
-  subtitle?: React.ReactNode;
-  actions?: React.ReactNode;
-  children: React.ReactNode;
+  subtitle?: ReactNode;
+  actions?: ReactNode;
+  children: ReactNode;
 }) {
   const { session } = useAuth();
   if (session) {
