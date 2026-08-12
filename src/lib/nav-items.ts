@@ -7,14 +7,15 @@ import {
   Building2,
   Calculator,
   Dumbbell,
+  ListChecks,
   LayoutGrid,
   Satellite,
 } from "lucide-react";
 
-
 export const platformNav = [
   { to: "/dashboard", label: "Insights", icon: LayoutDashboard, color: "#2563eb" },
   { to: "/team", label: "Team & players", icon: Building2, color: "#0f766e" },
+  { to: "/trainings", label: "Trainings", icon: ListChecks, color: "#ca8a04" },
   { to: "/gps", label: "GPS reports", icon: Satellite, color: "#0891b2" },
   { to: "/logbook", label: "Fitness tests", icon: Dumbbell, color: "#9333ea" },
   { to: "/calendar", label: "Calendar", icon: CalendarDays, color: "#0891b2" },

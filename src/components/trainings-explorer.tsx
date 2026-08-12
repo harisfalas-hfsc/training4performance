@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
+import { PlayerPicker, type Scope } from "@/components/selectors";
 import { CHART_KINDS, ChartFrame, MultiChart, type ChartKind } from "@/components/charts";
 import {
   blockDistribution,
@@ -13,6 +14,7 @@ import {
   today,
   useDataVersion,
 } from "@/data/performance";
+import { guardDemo } from "@/lib/access";
 
 const CORE_KPIS = [
   { key: "distance", label: "Distance (m)" },
@@ -26,7 +28,6 @@ const CORE_KPIS = [
   { key: "load", label: "s-RPE load (AU)" },
 ] as const;
 
-type Scope = "team" | "average" | "players";
 type View = "days" | "drills";
 
 const round = (n: number) => Math.round(n * 10) / 10;
@@ -34,10 +35,13 @@ const round = (n: number) => Math.round(n * 10) / 10;
 function csv(rows: Array<Record<string, string | number>>) {
   if (!rows.length) return "";
   const keys = Object.keys(rows[0]!);
-  return [keys.join(","), ...rows.map((r) => keys.map((k) => `${r[k] ?? ""}`).join(","))].join("\n");
+  return [keys.join(","), ...rows.map((r) => keys.map((k) => `${r[k] ?? ""}`).join(","))].join(
+    "\n",
+  );
 }
 
 function download(name: string, text: string) {
+  if (!guardDemo("Exporting training data")) return;
   const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a");
   a.href = url;
@@ -56,7 +60,10 @@ const valueOf = (row: (typeof gpsHistory)[number], key: string) =>
 export function TrainingsExplorer() {
   useDataVersion();
   const trainingDates = useMemo(
-    () => [...new Set([...sessionCalendar.map((s) => s.date), ...gpsHistory.map((g) => g.date)])].sort(),
+    () =>
+      [
+        ...new Set([...sessionCalendar.map((s) => s.date), ...gpsHistory.map((g) => g.date)]),
+      ].sort(),
     [sessionCalendar.length, gpsHistory.length],
   );
 
@@ -77,7 +84,8 @@ export function TrainingsExplorer() {
   const activeIds = scope === "players" ? picked : players.map((p) => p.id);
 
   const rows = useMemo(
-    () => gpsHistory.filter((g) => g.date >= from && g.date <= to && activeIds.includes(g.playerId)),
+    () =>
+      gpsHistory.filter((g) => g.date >= from && g.date <= to && activeIds.includes(g.playerId)),
     [from, to, activeIds.join(","), gpsHistory.length],
   );
 
@@ -102,7 +110,13 @@ export function TrainingsExplorer() {
         for (const k of kpis) {
           const values = dayRows.map((r) => valueOf(r, k));
           const total = values.reduce((a, b) => a + b, 0);
-          point[k] = round(scope === "average" || k === "maxSpeed" || k === "rpe" ? (values.length ? total / values.length : 0) : total);
+          point[k] = round(
+            scope === "average" || k === "maxSpeed" || k === "rpe"
+              ? values.length
+                ? total / values.length
+                : 0
+              : total,
+          );
         }
         return point;
       }),
@@ -112,9 +126,15 @@ export function TrainingsExplorer() {
   const daySeries = perPlayerSeries
     ? picked.flatMap((id, i) => {
         const p = players.find((x) => x.id === id);
-        return p ? [{ key: id, name: fullName(p), color: `var(--color-chart-${(i % 5) + 1})` }] : [];
+        return p
+          ? [{ key: id, name: fullName(p), color: `var(--color-chart-${(i % 5) + 1})` }]
+          : [];
       })
-    : kpis.map((k, i) => ({ key: k, name: allKpis.find((m) => m.key === k)?.label ?? k, color: `var(--color-chart-${(i % 5) + 1})` }));
+    : kpis.map((k, i) => ({
+        key: k,
+        name: allKpis.find((m) => m.key === k)?.label ?? k,
+        color: `var(--color-chart-${(i % 5) + 1})`,
+      }));
 
   /** One day cut into its drills / blocks. */
   const session = sessionCalendar.find((s) => s.date === dayDate);
@@ -126,7 +146,12 @@ export function TrainingsExplorer() {
 
   const drillChart = drillRows.map((b) => ({
     date: b.block,
-    ...Object.fromEntries(kpis.map((k) => [k, k === "load" ? b.load : ((b as unknown as Record<string, number>)[k] ?? 0)])),
+    ...Object.fromEntries(
+      kpis.map((k) => [
+        k,
+        k === "load" ? b.load : ((b as unknown as Record<string, number>)[k] ?? 0),
+      ]),
+    ),
   }));
 
   const table = useMemo(
@@ -146,7 +171,8 @@ export function TrainingsExplorer() {
         : days.map((date) => {
             const dayRows = rows.filter((r) => r.date === date);
             const s = sessionCalendar.find((x) => x.date === date);
-            const sum = (f: (r: (typeof dayRows)[number]) => number) => Math.round(dayRows.reduce((a, r) => a + f(r), 0));
+            const sum = (f: (r: (typeof dayRows)[number]) => number) =>
+              Math.round(dayRows.reduce((a, r) => a + f(r), 0));
             return {
               Date: date,
               Session: s ? `${s.label} — ${s.title}` : "Unplanned activity",
@@ -167,12 +193,17 @@ export function TrainingsExplorer() {
   return (
     <div className="space-y-4">
       <section className="panel p-4">
-        <SectionTitle title="What do you want to see?" hint="Compare training days, or open one day drill by drill" />
+        <SectionTitle
+          title="What do you want to see?"
+          hint="Compare training days, or open one day drill by drill"
+        />
         <div className="flex flex-wrap gap-2">
-          {([
-            { id: "days", label: "Compare training days" },
-            { id: "drills", label: "One day, per drill" },
-          ] as Array<{ id: View; label: string }>).map((v) => (
+          {(
+            [
+              { id: "days", label: "Compare training days" },
+              { id: "drills", label: "One day, per drill" },
+            ] as Array<{ id: View; label: string }>
+          ).map((v) => (
             <button
               key={v.id}
               onClick={() => setView(v.id)}
@@ -184,38 +215,9 @@ export function TrainingsExplorer() {
         </div>
 
         <p className="eyebrow mt-4">Who</p>
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {([
-            { id: "team", label: "Whole team" },
-            { id: "average", label: "Squad average" },
-            { id: "players", label: "Selected players" },
-          ] as Array<{ id: Scope; label: string }>).map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setScope(s.id)}
-              className={`rounded-full border px-2.5 py-1 text-xs ${scope === s.id ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-            >
-              {s.label}
-            </button>
-          ))}
+        <div className="mt-1">
+          <PlayerPicker scope={scope} onScope={setScope} picked={picked} onPicked={setPicked} />
         </div>
-        {scope === "players" ? (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {players.length ? (
-              players.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => toggle(picked, setPicked, p.id)}
-                  className={`rounded-full border px-2.5 py-1 text-xs ${picked.includes(p.id) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-                >
-                  {fullName(p)}
-                </button>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No players yet — add them in Team &amp; players.</p>
-            )}
-          </div>
-        ) : null}
 
         <p className="eyebrow mt-4">What</p>
         <div className="mt-1 flex flex-wrap gap-1.5">
@@ -233,14 +235,42 @@ export function TrainingsExplorer() {
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
           {view === "days" ? (
             <>
-              <label className="field"><span className="field-label">From</span><input type="date" className="control" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-              <label className="field"><span className="field-label">To</span><input type="date" className="control" value={to} onChange={(e) => setTo(e.target.value)} /></label>
+              <label className="field">
+                <span className="field-label">From</span>
+                <input
+                  type="date"
+                  className="control"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
+              </label>
+              <label className="field">
+                <span className="field-label">To</span>
+                <input
+                  type="date"
+                  className="control"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                />
+              </label>
             </>
           ) : (
             <label className="field sm:col-span-2">
               <span className="field-label">Training day</span>
-              <select className="control" value={dayDate} onChange={(e) => setDayDate(e.target.value)}>
-                {trainingDates.length ? trainingDates.map((d) => <option key={d} value={d}>{d}</option>) : <option value={today}>{today}</option>}
+              <select
+                className="control"
+                value={dayDate}
+                onChange={(e) => setDayDate(e.target.value)}
+              >
+                {trainingDates.length ? (
+                  trainingDates.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))
+                ) : (
+                  <option value={today}>{today}</option>
+                )}
               </select>
             </label>
           )}
@@ -264,11 +294,22 @@ export function TrainingsExplorer() {
       <section className="panel p-4">
         <SectionTitle
           title={view === "drills" ? `${dayDate} · per drill` : "Training days"}
-          hint={view === "drills" ? (session ? `${session.label} — ${session.title}` : "No planned session on this day") : `${days.length} day(s) with data`}
+          hint={
+            view === "drills"
+              ? session
+                ? `${session.label} — ${session.title}`
+                : "No planned session on this day"
+              : `${days.length} day(s) with data`
+          }
           right={
             table.length ? (
               <button
-                onClick={() => download(`t4p-trainings-${view}.csv`, csv(table as Array<Record<string, string | number>>))}
+                onClick={() =>
+                  download(
+                    `t4p-trainings-${view}.csv`,
+                    csv(table as Array<Record<string, string | number>>),
+                  )
+                }
                 className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium"
               >
                 <Download className="size-3.5" /> Export CSV
@@ -282,7 +323,15 @@ export function TrainingsExplorer() {
               data={view === "drills" ? drillChart : dayChart}
               kind={kind}
               height={300}
-              series={view === "drills" ? kpis.map((k, i) => ({ key: k, name: allKpis.find((m) => m.key === k)?.label ?? k, color: `var(--color-chart-${(i % 5) + 1})` })) : daySeries}
+              series={
+                view === "drills"
+                  ? kpis.map((k, i) => ({
+                      key: k,
+                      name: allKpis.find((m) => m.key === k)?.label ?? k,
+                      color: `var(--color-chart-${(i % 5) + 1})`,
+                    }))
+                  : daySeries
+              }
             />
           </ChartFrame>
         ) : (
@@ -297,7 +346,12 @@ export function TrainingsExplorer() {
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                   {Object.keys(table[0]!).map((h) => (
-                    <th key={h} className={`py-2 ${h === "Date" || h === "Session" || h === "Block" ? "" : "text-right"}`}>{h}</th>
+                    <th
+                      key={h}
+                      className={`py-2 ${h === "Date" || h === "Session" || h === "Block" ? "" : "text-right"}`}
+                    >
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -305,7 +359,10 @@ export function TrainingsExplorer() {
                 {table.map((r, i) => (
                   <tr key={i} className="border-b border-border/60">
                     {Object.entries(r).map(([k, v]) => (
-                      <td key={k} className={`py-2 ${k === "Date" || k === "Session" || k === "Block" ? "" : "text-right tabular-nums"}`}>
+                      <td
+                        key={k}
+                        className={`py-2 ${k === "Date" || k === "Session" || k === "Block" ? "" : "text-right tabular-nums"}`}
+                      >
                         {typeof v === "number" ? v.toLocaleString() : v}
                       </td>
                     ))}
