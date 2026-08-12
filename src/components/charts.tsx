@@ -318,9 +318,18 @@ export function MultiChart({
   const withValues = showValues && data.length <= 14 && colored.length <= 3;
   const yLabel: { value: string; angle: number; position: "insideLeft"; fill: string; fontSize: number } | string =
     unit ? { value: unit, angle: -90, position: "insideLeft", fill: "var(--color-muted-foreground)", fontSize: 11 } : "";
-  if (!colored.length || !data.length) {
+  if (!colored.length) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Select at least one KPI to draw the chart.</p>;
   }
+  if (!data.length) {
+    return (
+      <p className="py-10 text-center text-sm text-muted-foreground">
+        Nothing to draw yet — there is no data for these players in the selected dates. Widen the date range or import
+        a report.
+      </p>
+    );
+  }
+
 
   if (kind === "pie") {
     const first = colored[0]!;

@@ -173,7 +173,11 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
+  /* Grid/flex children must be allowed to shrink so wide tables scroll
+     inside their own pane instead of stretching the page on mobile. */
+  min-width: 0;
 }
+
 
 @utility eyebrow {
   font-family: var(--font-display);

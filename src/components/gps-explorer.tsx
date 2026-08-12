@@ -205,7 +205,7 @@ export function GpsExplorer() {
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-1">
-          {CHART_KINDS.filter((c) => ["line", "bar", "stacked", "area", "pie"].includes(c.id)).map((c) => (
+          {CHART_KINDS.map((c) => (
             <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
               {c.label}
             </button>

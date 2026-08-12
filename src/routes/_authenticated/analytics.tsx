@@ -234,7 +234,7 @@ function AnalyticsPage() {
       {source !== "gps" ? null : (
       <>
       <section className="panel mb-4 p-4">
-        <SectionTitle title="3. Which KPIs, which dates, drawn how?" hint="Everything below follows these choices" />
+        <SectionTitle title="3. Which KPIs, drawn how?" hint={`Everything below follows these choices · dates: ${from || "start"} → ${to || "today"}`} />
 
         <div className="flex flex-wrap items-center gap-1">
           <span className="eyebrow w-full sm:w-auto">KPIs</span>
@@ -264,19 +264,8 @@ function AnalyticsPage() {
             </button>
           ))}
         </div>
-        <div className="mt-3">
-          <span className="eyebrow">Dates</span>
-          <div className="mt-1">
-            <DateRangePicker
-              from={from}
-              to={to}
-              onChange={(a, b) => { setFrom(a); setTo(b); }}
-              earliest={availableDates[0]}
-              latest={availableDates.at(-1)}
-            />
-          </div>
-        </div>
       </section>
+
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Mean HSR in selected dates" value={selectedHsr.mean} unit="m" />
@@ -286,7 +275,7 @@ function AnalyticsPage() {
       </section>
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
-        <div className="panel p-4 xl:col-span-2">
+        <div className="panel min-w-0 p-4 xl:col-span-2">
           <SectionTitle
             title="Squad trend"
             hint={`${kpiNames.join(", ") || "no KPI"} · ${whoLabel} · last ${window} days${kind === "pie" ? " · pie uses the first KPI" : ""}`}
@@ -304,7 +293,7 @@ function AnalyticsPage() {
             One bar/point per training day. Each colour is one KPI — hover to read the exact number{unit ? ` in ${unit}` : ""}.
           </p>
         </div>
-        <div className="panel p-4">
+        <div className="panel min-w-0 p-4">
           <SectionTitle
             title="Who is above or below his position group?"
             right={
@@ -331,7 +320,7 @@ function AnalyticsPage() {
       </section>
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
-        <div className="panel p-4">
+        <div className="panel min-w-0 p-4">
           <SectionTitle title="Period comparison" hint={`First half vs second half of the selected ${window} days`} />
           <p className="mb-2 text-xs text-muted-foreground">
             Period A = the older half of your date range, Period B = the newer half. Δ is the change in %.
@@ -368,7 +357,7 @@ function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="panel p-4 xl:col-span-2">
+        <div className="panel min-w-0 p-4 xl:col-span-2">
           <SectionTitle
             title="Player comparison"
             hint="Uses the players you picked at the top — one line per player"
