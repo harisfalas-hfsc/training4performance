@@ -264,19 +264,8 @@ function AnalyticsPage() {
             </button>
           ))}
         </div>
-        <div className="mt-3">
-          <span className="eyebrow">Dates</span>
-          <div className="mt-1">
-            <DateRangePicker
-              from={from}
-              to={to}
-              onChange={(a, b) => { setFrom(a); setTo(b); }}
-              earliest={availableDates[0]}
-              latest={availableDates.at(-1)}
-            />
-          </div>
-        </div>
       </section>
+
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Mean HSR in selected dates" value={selectedHsr.mean} unit="m" />
