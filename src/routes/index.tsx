@@ -15,6 +15,12 @@ import {
 import { MarketingPage } from "@/components/marketing";
 import { T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
+import {
+  ShotSquad,
+  ShotCalendar,
+  ShotTacticsBoard,
+  ShotGpsImport,
+} from "@/components/home-shots";
 
 
 export const Route = createFileRoute("/")({
@@ -61,6 +67,57 @@ const features = [
   { icon: BellRing, title: "Automated alerts", text: "ACWR spikes, load jumps, wellness drops and availability risks.", color: "#dc2626" },
   { icon: BarChart3, title: "Analytics", text: "Composite load, acute:chronic, monotony, strain and squad benchmarks.", color: "#4f46e5" },
   { icon: BrainCircuit, title: "AI assistant", text: "Daily observations and suggested adjustments for tomorrow's plan.", color: "#9333ea" },
+];
+
+const showcase = [
+  {
+    icon: Users,
+    color: "#2563eb",
+    title: "Squad management",
+    text: "Every player in one list: position, availability status and their current acute:chronic ratio, with a full passport one click away.",
+    points: [
+      "Availability, modified training and rehab at a glance",
+      "Searchable squad — no walls of buttons",
+      "Player passport: GPS, tests, wellness, medical, reports",
+    ],
+    shot: <ShotSquad />,
+  },
+  {
+    icon: CalendarDays,
+    color: "#059669",
+    title: "Training calendar",
+    text: "Plan the week around match day. Each day holds its blocks and drills, and the bar shows the load the day actually produced.",
+    points: [
+      "MD-cycle planning from MD-4 to MD+1",
+      "Blocks with times, drills and strength prescriptions",
+      "Planned vs actual load side by side",
+    ],
+    shot: <ShotCalendar />,
+  },
+  {
+    icon: ClipboardPen,
+    color: "#7c3aed",
+    title: "Tactics board",
+    text: "Draw the session on a real pitch with players, cones, poles, hurdles, balls and runs — then save the drawing straight onto the training block.",
+    points: [
+      "Full, half or quarter pitch · football, futsal or blank",
+      "Cones, poles, hurdles, balls, zones and run arrows",
+      "Every drawing is stored with the session it belongs to",
+    ],
+    shot: <ShotTacticsBoard />,
+  },
+  {
+    icon: Radar,
+    color: "#0891b2",
+    title: "GPS import",
+    text: "Drop the file in. T4P recognises the provider, matches your players and turns the raw KPIs into training load using your own weights.",
+    points: [
+      "Catapult, STATSports, GPEXE, Polar or your own template",
+      "Automatic player matching with a mapping report",
+      "Distance, HSR, sprints, accelerations, decelerations, jumps",
+    ],
+    shot: <ShotGpsImport />,
+  },
 ];
 
 function Home() {
@@ -199,6 +256,60 @@ function Home() {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Screenshot showcase — desktop only */}
+      <section className="hidden border-b border-border lg:block">
+        <div className="mx-auto max-w-7xl px-5 py-14">
+          <p className="eyebrow text-center">See it in action</p>
+          <h2 className="mx-auto mt-3 max-w-3xl text-center font-display text-2xl font-semibold uppercase tracking-wide">
+            Real screens from the demo team
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-muted-foreground">
+            This is exactly what you get when you open the live demo — squad, week, tactics board and
+            GPS, all connected.
+          </p>
+
+          <div className="mt-12 space-y-16">
+            {showcase.map((item, i) => (
+              <div
+                key={item.title}
+                className="grid items-center gap-10 lg:grid-cols-[1.35fr_1fr]"
+              >
+                <div className={i % 2 === 1 ? "lg:order-2" : undefined}>{item.shot}</div>
+                <div className={i % 2 === 1 ? "lg:order-1" : undefined}>
+                  <span
+                    className="grid size-10 place-items-center rounded-xl"
+                    style={{ background: `${item.color}1a`, color: item.color }}
+                  >
+                    <item.icon className="size-5" />
+                  </span>
+                  <h3 className="mt-4 font-display text-xl font-semibold uppercase tracking-wide">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
+                  <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                    {item.points.map((point) => (
+                      <li key={point} className="flex gap-2">
+                        <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-14 text-center">
+            <Link
+              to="/demo"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground"
+            >
+              Open the live demo <ArrowRight className="size-4" />
+            </Link>
           </div>
         </div>
       </section>
