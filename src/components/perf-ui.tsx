@@ -112,12 +112,12 @@ export function AcwrLegend({ className }: { className?: string }) {
 
 export function SectionTitle({ title, hint, right }: { title: string; hint?: ReactNode; right?: ReactNode }) {
   return (
-    <div className="mb-3 flex items-end justify-between gap-3">
-      <div>
+    <div className="mb-3 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+      <div className="min-w-0">
         <h2 className="text-lg font-semibold uppercase tracking-wide">{title}</h2>
         {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
       </div>
-      {right}
+      {right ? <div className="min-w-0 sm:shrink-0">{right}</div> : null}
     </div>
   );
 }

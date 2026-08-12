@@ -223,8 +223,6 @@ function About() {
   return (
     <MarketingPage>
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-brand-green/12 via-background to-brand-blue/14">
-        <div className="absolute -left-24 top-0 size-72 rounded-full bg-brand-cyan/10 blur-3xl" aria-hidden />
-        <div className="absolute -right-24 bottom-0 size-72 rounded-full bg-brand-violet/10 blur-3xl" aria-hidden />
         <div className="relative mx-auto max-w-5xl px-5 py-14 text-center">
           <p className="eyebrow text-brand-green">About</p>
           <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-wide">

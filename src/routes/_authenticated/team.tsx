@@ -345,16 +345,16 @@ function TeamPage() {
                 Wipes the team and everything inside it, then lets you create a new team in this same account. Type
                 <strong> DELETE </strong> to confirm.
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,140px)_auto]">
                 <input
-                  className="inp max-w-[140px]"
+                  className="inp w-full"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="DELETE"
                 />
                 <Button
                   variant="destructive"
-                  className="gap-2"
+                  className="w-full gap-2 sm:w-auto"
                   disabled={confirm !== "DELETE"}
                   onClick={() => {
                     if (deleteTeamAndData()) {
@@ -471,14 +471,15 @@ function TeamSlots({ userId }: { userId: string | null }) {
           </div>
         ))}
       </div>
-      <div className="mt-3 flex flex-wrap items-end gap-2">
+      <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,220px)_auto] sm:items-end">
         <input
-          className="inp max-w-[220px]"
+          className="inp w-full"
           value={label}
           placeholder="New team name (e.g. U19)"
           onChange={(e) => setLabel(e.target.value)}
         />
         <Button
+          className="w-full sm:w-auto"
           onClick={() => {
             const slot = addTeamSlot(userId, label);
             setLabel("");
