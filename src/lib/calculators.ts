@@ -24,7 +24,7 @@ export type CalcResult = {
 export type CalculatorSpec = {
   id: string;
   name: string;
-  category: "Aerobic" | "Speed & Power" | "Strength" | "Heart rate";
+  category: "Aerobic" | "Speed & Power" | "Strength" | "Heart rate" | "Workload" | "Testing";
   summary: string;
   fields: CalcField[];
   compute: (v: (key: string) => number) => CalcResult[];
