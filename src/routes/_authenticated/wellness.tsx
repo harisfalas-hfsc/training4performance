@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Copy, KeyRound, RefreshCw, Save, ShieldOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -88,6 +88,10 @@ function WellnessPage() {
         </>
       }
     >
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Link to="/alerts" className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">Open wellness & workload alerts</Link>
+        <Link to="/team" className="rounded-md border border-border px-3 py-2 text-sm font-medium">Open players</Link>
+      </div>
       <section className="grid gap-3 sm:grid-cols-3">
         <MetricCard label="Responses today" value={`${responded.length}/${players.length}`} hint="Questionnaires completed" />
         <MetricCard

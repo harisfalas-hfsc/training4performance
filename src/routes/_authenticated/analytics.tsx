@@ -337,7 +337,10 @@ function AnalyticsPage() {
                 <MultiLine
                   data={comparisonTrend}
                   dualAxis={false}
-                  series={selected.map((id, index) => ({ key: id, color: `var(--color-chart-${(index % 5) + 1})`, name: fullName(players.find((player) => player.id === id) ?? players[0]!) }))}
+                  series={selected.flatMap((id, index) => {
+                    const player = players.find((item) => item.id === id);
+                    return player ? [{ key: id, color: `var(--color-chart-${(index % 5) + 1})`, name: fullName(player) }] : [];
+                  })}
                   height={260}
                 />
               </ChartFrame>

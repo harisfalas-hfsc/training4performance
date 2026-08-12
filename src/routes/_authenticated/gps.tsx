@@ -492,6 +492,21 @@ function GpsPage() {
       }
     >
       <section className="panel mb-4 p-4">
+        <SectionTitle title="Saved GPS history" hint="Every completed import stays attached to its player and training date" />
+        {gpsHistory.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead><tr className="border-b border-border text-left text-xs uppercase text-muted-foreground"><th className="py-2">Date</th><th>Session</th><th className="text-right">Players</th><th className="text-right">Rows</th><th /></tr></thead>
+              <tbody>{[...new Set(gpsHistory.map((row) => row.date))].sort().reverse().map((date) => {
+                const savedRows = gpsHistory.filter((row) => row.date === date);
+                const savedSession = sessionCalendar.find((item) => item.date === date);
+                return <tr key={date} className="border-b border-border/60"><td className="py-2">{date}</td><td>{savedSession?.title ?? "Imported activity"}</td><td className="text-right">{new Set(savedRows.map((row) => row.playerId)).size}</td><td className="text-right">{savedRows.length}</td><td className="text-right"><Link to="/analytics" className="text-xs font-semibold text-primary hover:underline">Analyse</Link></td></tr>;
+              })}</tbody>
+            </table>
+          </div>
+        ) : <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">No GPS report has been imported yet. Upload a file below; player names can create the squad, and “Import into the session” saves the history.</p>}
+      </section>
+      <section className="panel mb-4 p-4">
         <SectionTitle
           title="Associate this file with a training"
           hint="GPS data is always written into a session — if there is no entry for that day, one is created automatically and you can design it later"
