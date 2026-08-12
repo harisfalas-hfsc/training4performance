@@ -6,6 +6,9 @@ import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, SERIES_COLORS, type ChartKind } from "@/components/charts";
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
+import { TrainingExplorer } from "@/components/training-explorer";
+import { TestsExplorer } from "@/components/tests-explorer";
+
 import {
   customKpis,
   fullName,
