@@ -1,24 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Activity,
   ArrowRight,
   BarChart3,
-  BellRing,
   CalendarDays,
   ClipboardPen,
-  Dumbbell,
-  FileSpreadsheet,
   HeartPulse,
   Radar,
   Shield,
-  Sparkles,
   Users,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
-import { T4P, SmartyAssistant } from "@/components/brand-text";
+import { T4P } from "@/components/brand-text";
 import { breadcrumbLd, jsonLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({

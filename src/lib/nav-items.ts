@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  BellRing,
   CalendarDays,
   ClipboardPen,
   HeartPulse,

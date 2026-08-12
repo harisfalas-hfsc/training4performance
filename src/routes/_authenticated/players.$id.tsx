@@ -24,11 +24,9 @@ import {
   playerMetrics,
   playerTrend,
   playerWellness,
-  positionAverage,
   removePlayer,
   removeMedicalEvent,
   RTP_STAGES,
-  squadStats,
   updatePlayer,
   useDataVersion,
   wellnessScore,
@@ -119,8 +117,6 @@ function PlayerProfile() {
   const wellness = playerWellness(id);
   const availability = availabilitySummary(id);
   const medical = playerMedical(id);
-  const hsrSquad = squadStats((x) => x.hsr7).mean;
-  const hsrPos = positionAverage(player.position, (x) => x.hsr7) || 1;
 
   return (
     <AppShell
