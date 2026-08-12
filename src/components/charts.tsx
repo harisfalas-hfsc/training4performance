@@ -24,6 +24,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import { ACWR_BANDS, AcwrLegend } from "@/components/perf-ui";
+import { guardDemo } from "@/lib/access";
 
 const axis = {
   stroke: "var(--color-muted-foreground)",
@@ -524,6 +525,7 @@ export function ChartFrame({
   const file = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "chart";
 
   async function exportPng() {
+    if (!guardDemo("Exporting charts")) return;
     if (!ref.current) return;
     const data = await chartToPng(ref.current);
     if (!data) return;
@@ -534,6 +536,7 @@ export function ChartFrame({
   }
 
   async function exportPdf() {
+    if (!guardDemo("Exporting charts")) return;
     if (!ref.current) return;
     const data = await chartToPng(ref.current, 2);
     if (!data) return;

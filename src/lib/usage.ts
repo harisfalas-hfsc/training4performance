@@ -16,12 +16,17 @@ import { applyTestRecords, subscribeTests, testRecordsSnapshot, type TestRecord 
 import type { Json } from "@/integrations/supabase/types";
 import { canWrite } from "@/lib/access";
 import { getWorkspaceScope } from "@/lib/workspace-scope";
+import { isDemoActive } from "@/lib/demo";
 
 let activeWorkspaceUser: string | null = null;
 /** Cloud hydration must happen once per signed-in user, never on every page change. */
 let hydratedUser: string | null = null;
 
 export async function hydrateWorkspace(userId: string) {
+  // The public demo runs in its own sandbox scope and never touches the cloud.
+  if (isDemoActive()) return;
+  // Extra teams (administrator only) live locally in their own scope.
+  if (getWorkspaceScope().userId !== userId) return;
   if (hydratedUser === userId) return;
   hydratedUser = userId;
   activeWorkspaceUser = userId;
@@ -87,6 +92,7 @@ export function resetWorkspaceHydration() {
 
 
 export async function syncWorkspace(userId: string) {
+  if (isDemoActive()) return;
   const scope = getWorkspaceScope();
   if (!canWrite() || scope.userId !== userId) return;
   const data = workspaceSnapshot();
@@ -174,6 +180,7 @@ let unsubscribeAuto: Array<() => void> = [];
  * browser" again.
  */
 export function startWorkspaceAutoSync(userId: string) {
+  if (isDemoActive()) return;
   if (autoSyncUser === userId) return;
   stopWorkspaceAutoSync();
   autoSyncUser = userId;

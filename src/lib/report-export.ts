@@ -1,3 +1,4 @@
+import { guardDemo } from "@/lib/access";
 /**
  * Real report exports — Excel, CSV, PDF (print-to-PDF sheet) and PNG.
  * Everything is generated in the browser from the report payload, so every
@@ -253,6 +254,7 @@ export function exportReportPng(p: ReportPayload) {
 }
 
 export function exportReport(format: string, payload: ReportPayload) {
+  if (!guardDemo("Exporting reports")) return "Exports are disabled in the demo.";
   switch (format) {
     case "Excel":
       exportReportExcel(payload);
@@ -345,6 +347,7 @@ Load is 0 only when neither an RPE nor minutes have been entered on the items.</
 
 /** Opens the session sheet in a new tab and triggers print-to-PDF. */
 export function printSessionSheet(s: SessionSheetPayload) {
+  if (!guardDemo("Exporting session sheets")) return false;
   const html = sessionSheetHtml(s);
   const w = window.open("", "_blank");
   if (!w) {
