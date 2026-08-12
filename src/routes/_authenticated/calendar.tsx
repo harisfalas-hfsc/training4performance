@@ -23,6 +23,7 @@ import { compositeAcwr, logbookRows } from "@/data/logbook";
 import { exportReport, type ReportPayload } from "@/lib/report-export";
 import { DAY_DESCRIPTIONS, SESSION_TYPES, sessionTypeOf } from "@/data/presets";
 import { Button } from "@/components/ui/button";
+import { TrainingsExplorer } from "@/components/trainings-explorer";
 
 
 
@@ -65,6 +66,7 @@ function CalendarPage() {
   const [cursor, setCursor] = useState(() => new Date(`${base.slice(0, 7)}-01T00:00:00`));
   const [filter, setFilter] = useState<"all" | SessionStatus | "favorite">("all");
   const [creating, setCreating] = useState<string | null>(null);
+  const [tab, setTab] = useState<"calendar" | "trainings">("calendar");
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [rangeFrom, setRangeFrom] = useState("");
@@ -186,6 +188,22 @@ function CalendarPage() {
         </Link>
       }
     >
+      <div className="mb-4 flex flex-wrap gap-2">
+        {([
+          { id: "calendar", label: "Calendar" },
+          { id: "trainings", label: "Trainings" },
+        ] as const).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`rounded-md border px-3 py-1.5 text-sm font-semibold ${tab === t.id ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "trainings" ? <TrainingsExplorer /> : <>
       <nav className="mb-4 flex flex-wrap gap-2" aria-label="Calendar data tools">
         <Button asChild variant="outline"><Link to="/logbook"><Activity className="size-4" /> Activity logbook & performance tests</Link></Button>
         <Button asChild variant="outline"><Link to="/gps"><Radar className="size-4" /> Import GPS for a session</Link></Button>
