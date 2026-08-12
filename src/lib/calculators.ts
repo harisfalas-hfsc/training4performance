@@ -24,7 +24,7 @@ export type CalcResult = {
 export type CalculatorSpec = {
   id: string;
   name: string;
-  category: "Aerobic" | "Speed & Power" | "Strength" | "Heart rate";
+  category: "Aerobic" | "Speed & Power" | "Strength" | "Heart rate" | "Workload" | "Testing";
   summary: string;
   fields: CalcField[];
   compute: (v: (key: string) => number) => CalcResult[];
@@ -213,6 +213,226 @@ export const calculators: CalculatorSpec[] = [
     },
     notes: ["vVO2max session: 5 repetitions with 3 minutes recovery between reps."],
   },
+  {
+    id: "session-load",
+    name: "Session load, monotony & strain",
+    category: "Workload",
+    summary: "Session RPE load, weekly total, average daily load, monotony and strain.",
+    fields: [
+      { key: "rpe", label: "Session RPE (0-10)", default: 7, step: 0.5, min: 0, max: 10 },
+      { key: "mins", label: "Session duration", unit: "min", default: 90, step: 1, min: 1 },
+      { key: "d1", label: "Day 1 load", unit: "AU", default: 630, step: 10, min: 0 },
+      { key: "d2", label: "Day 2 load", unit: "AU", default: 450, step: 10, min: 0 },
+      { key: "d3", label: "Day 3 load", unit: "AU", default: 720, step: 10, min: 0 },
+      { key: "d4", label: "Day 4 load", unit: "AU", default: 300, step: 10, min: 0 },
+      { key: "d5", label: "Day 5 load", unit: "AU", default: 560, step: 10, min: 0 },
+      { key: "d6", label: "Day 6 load", unit: "AU", default: 0, step: 10, min: 0 },
+      { key: "d7", label: "Day 7 load", unit: "AU", default: 900, step: 10, min: 0 },
+    ],
+    compute: (v) => {
+      const days = [v("d1"), v("d2"), v("d3"), v("d4"), v("d5"), v("d6"), v("d7")];
+      const weekly = days.reduce((a, b) => a + b, 0);
+      const mean = weekly / 7;
+      const sd = Math.sqrt(days.reduce((a, b) => a + (b - mean) ** 2, 0) / 7);
+      const monotony = sd > 0 ? mean / sd : 0;
+      const strain = weekly * monotony;
+      return [
+        { label: "Session load (RPE × minutes)", value: round(v("rpe") * v("mins")), unit: "AU", emphasis: true },
+        { label: "Weekly load", value: round(weekly), unit: "AU", emphasis: true },
+        { label: "Average daily load", value: round(mean), unit: "AU" },
+        { label: "Daily load SD", value: round(sd), unit: "AU" },
+        { label: "Monotony", value: round(monotony, 2), emphasis: true },
+        { label: "Strain", value: round(strain), unit: "AU", emphasis: true },
+        { label: "Monotony flag", value: monotony >= 2 ? "High — vary daily loads" : "OK" },
+      ];
+    },
+    notes: ["Monotony = weekly mean daily load ÷ SD. Values of 2.0+ with high strain raise illness/injury risk."],
+  },
+  {
+    id: "acwr",
+    name: "ACWR — acute:chronic workload ratio",
+    category: "Workload",
+    summary: "Ratio of the last 7 days against the 28-day chronic average, with the research-backed zone.",
+    fields: [
+      { key: "acute", label: "Acute load (last 7 days total)", unit: "AU", default: 3560, step: 10, min: 0 },
+      { key: "chronic", label: "Chronic load (last 28 days total)", unit: "AU", default: 13000, step: 10, min: 0 },
+    ],
+    compute: (v) => {
+      const chronicWeek = v("chronic") / 4;
+      const ratio = chronicWeek > 0 ? v("acute") / chronicWeek : 0;
+      const zone =
+        ratio < 0.8 ? "Under-training (yellow)" : ratio <= 1.3 ? "Sweet spot (green)" : ratio <= 1.5 ? "Caution (orange)" : "Danger (red)";
+      const safeMax = round(chronicWeek * 1.3);
+      return [
+        { label: "ACWR", value: round(ratio, 2), emphasis: true },
+        { label: "Zone", value: zone, emphasis: true },
+        { label: "Chronic weekly average", value: round(chronicWeek), unit: "AU" },
+        { label: "Max load next week to stay ≤1.3", value: safeMax, unit: "AU" },
+        { label: "Minimum load to stay ≥0.8", value: round(chronicWeek * 0.8), unit: "AU" },
+      ];
+    },
+    notes: ["Bands: <0.80 under-training, 0.80–1.30 sweet spot, 1.30–1.50 caution, >1.50 danger."],
+  },
+  {
+    id: "sprint-zones",
+    name: "Speed zones from maximum velocity",
+    category: "Speed & Power",
+    summary: "Individual speed thresholds as percentages of the player's maximum sprinting speed.",
+    fields: [
+      { key: "mss", label: "Maximum sprinting speed", unit: "km/h", default: 32, step: 0.1, min: 15 },
+    ],
+    compute: (v) => {
+      const mss = v("mss");
+      const z = (p: number) => round(mss * p, 1);
+      return [
+        { label: "Max speed", value: round(mss, 1), unit: "km/h", emphasis: true },
+        { label: "Max speed", value: round(mss / 3.6, 2), unit: "m/s" },
+        { label: "Zone 1 — walk/jog (<45%)", value: `< ${z(0.45)}`, unit: "km/h" },
+        { label: "Zone 2 — running (45–60%)", value: `${z(0.45)} – ${z(0.6)}`, unit: "km/h" },
+        { label: "Zone 3 — high speed (60–75%)", value: `${z(0.6)} – ${z(0.75)}`, unit: "km/h", emphasis: true },
+        { label: "Zone 4 — very high speed (75–85%)", value: `${z(0.75)} – ${z(0.85)}`, unit: "km/h", emphasis: true },
+        { label: "Zone 5 — sprint (>85%)", value: `> ${z(0.85)}`, unit: "km/h", emphasis: true },
+        { label: "Sprint threshold", value: z(0.85), unit: "km/h" },
+      ];
+    },
+    notes: ["Individual thresholds beat fixed squad cut-offs; re-test max speed every 6–8 weeks."],
+  },
+  {
+    id: "mas",
+    name: "MAS — maximal aerobic speed prescription",
+    category: "Aerobic",
+    summary: "MAS from a time trial, plus interval distances at chosen %MAS for run and recovery.",
+    fields: [
+      { key: "distance", label: "Time-trial distance", unit: "m", default: 1500, step: 10, min: 300 },
+      { key: "time", label: "Time-trial duration", unit: "min", default: 6, step: 0.5, min: 3 },
+      { key: "pct", label: "Prescription intensity", unit: "% MAS", default: 110, step: 5, min: 60, max: 140 },
+      { key: "work", label: "Work interval", unit: "s", default: 15, step: 5, min: 5 },
+      { key: "rest", label: "Recovery interval", unit: "s", default: 15, step: 5, min: 0 },
+      { key: "restPct", label: "Recovery intensity", unit: "% MAS", default: 50, step: 5, min: 0, max: 100 },
+    ],
+    compute: (v) => {
+      const mas = v("distance") / (v("time") * 60);
+      const runSpeed = mas * (v("pct") / 100);
+      const recSpeed = mas * (v("restPct") / 100);
+      return [
+        { label: "MAS", value: round(mas, 2), unit: "m/s", emphasis: true },
+        { label: "MAS", value: round(mas * 3.6, 1), unit: "km/h" },
+        { label: "Estimated VO2 max", value: round(mas * 3.6 * 3.5, 1), unit: "ml/kg/min" },
+        { label: `Run speed at ${round(v("pct"), 0)}% MAS`, value: round(runSpeed * 3.6, 1), unit: "km/h", emphasis: true },
+        { label: "Run distance per interval", value: round(runSpeed * v("work")), unit: "m", emphasis: true },
+        { label: "Recovery distance per interval", value: round(recSpeed * v("rest")), unit: "m" },
+        { label: "Distance per work:rest cycle", value: round(runSpeed * v("work") + recSpeed * v("rest")), unit: "m" },
+      ];
+    },
+    notes: ["MAS = time-trial distance ÷ time. VO2 max estimate uses 3.5 ml/kg/min per km/h."],
+  },
+  {
+    id: "load-table",
+    name: "%1RM loading table",
+    category: "Strength",
+    summary: "Working loads from 50% to 95% of 1RM, plus the target reps at your chosen intensity.",
+    fields: [
+      { key: "orm", label: "1RM", unit: "kg", default: 120, step: 0.5, min: 1 },
+      { key: "pct", label: "Working intensity", unit: "% 1RM", default: 80, step: 2.5, min: 40, max: 100 },
+    ],
+    compute: (v) => {
+      const orm = v("orm");
+      const l = (p: number) => round(orm * p, 1);
+      const pct = v("pct");
+      const reps = 173.525 - 6.31 * pct + 0.09576 * pct * pct - 0.0006742 * pct ** 3 + 0.00000175 * pct ** 4;
+      return [
+        { label: `Working load at ${round(pct, 1)}%`, value: l(pct / 100), unit: "kg", emphasis: true },
+        { label: "Estimated reps at that load", value: round(reps, 0), unit: "reps", emphasis: true },
+        { label: "50% — speed/technique", value: l(0.5), unit: "kg" },
+        { label: "60% — hypertrophy base", value: l(0.6), unit: "kg" },
+        { label: "70% — hypertrophy", value: l(0.7), unit: "kg" },
+        { label: "75%", value: l(0.75), unit: "kg" },
+        { label: "80% — strength", value: l(0.8), unit: "kg" },
+        { label: "85% — strength", value: l(0.85), unit: "kg" },
+        { label: "90% — max strength", value: l(0.9), unit: "kg" },
+        { label: "95% — max strength", value: l(0.95), unit: "kg" },
+      ];
+    },
+  },
+  {
+    id: "strength-progression",
+    name: "Strength progression planner",
+    category: "Strength",
+    summary: "Weekly load progression from a starting 1RM to a target, with per-week working loads.",
+    fields: [
+      { key: "start", label: "Current 1RM", unit: "kg", default: 120, step: 0.5, min: 1 },
+      { key: "gain", label: "Weekly gain", unit: "%", default: 2, step: 0.5, min: 0, max: 10 },
+      { key: "weeks", label: "Block length", unit: "weeks", default: 6, step: 1, min: 1, max: 12 },
+      { key: "pct", label: "Training intensity", unit: "% 1RM", default: 80, step: 2.5, min: 40, max: 100 },
+    ],
+    compute: (v) => {
+      const weeks = Math.min(12, Math.max(1, Math.floor(v("weeks"))));
+      const g = 1 + v("gain") / 100;
+      const rows: CalcResult[] = [];
+      for (let w = 1; w <= weeks; w += 1) {
+        const orm = v("start") * g ** w;
+        rows.push({ label: `Week ${w} — working load`, value: round(orm * (v("pct") / 100), 1), unit: "kg" });
+      }
+      const final = v("start") * g ** weeks;
+      return [
+        { label: "Projected 1RM at end of block", value: round(final, 1), unit: "kg", emphasis: true },
+        { label: "Total gain", value: round(final - v("start"), 1), unit: "kg", emphasis: true },
+        { label: "Start working load", value: round(v("start") * (v("pct") / 100), 1), unit: "kg" },
+        ...rows,
+      ];
+    },
+  },
+  {
+    id: "test-conversions",
+    name: "Testing conversions",
+    category: "Testing",
+    summary: "Sprint time to velocity, CMJ height from flight time, and Yo-Yo IR1 to VO2 max.",
+    fields: [
+      { key: "sprintD", label: "Sprint distance", unit: "m", default: 30, step: 1, min: 5 },
+      { key: "sprintT", label: "Sprint time", unit: "s", default: 4.1, step: 0.01, min: 0.5 },
+      { key: "flight", label: "CMJ flight time", unit: "s", default: 0.55, step: 0.01, min: 0.1 },
+      { key: "yoyo", label: "Yo-Yo IR1 distance", unit: "m", default: 1800, step: 40, min: 0 },
+    ],
+    compute: (v) => {
+      const vel = v("sprintD") / v("sprintT");
+      const jump = (9.81 * v("flight") ** 2) / 8;
+      return [
+        { label: "Average sprint velocity", value: round(vel, 2), unit: "m/s", emphasis: true },
+        { label: "Average sprint velocity", value: round(vel * 3.6, 1), unit: "km/h" },
+        { label: "Split per 10 m", value: round(10 / vel, 2), unit: "s" },
+        { label: "CMJ height", value: round(jump * 100, 1), unit: "cm", emphasis: true },
+        { label: "Yo-Yo IR1 VO2 max", value: round(v("yoyo") * 0.0084 + 36.4, 1), unit: "ml/kg/min", emphasis: true },
+      ];
+    },
+    notes: ["CMJ height = 9.81 × flight time² ÷ 8. Yo-Yo IR1 VO2 max = distance × 0.0084 + 36.4."],
+  },
+  {
+    id: "normative",
+    name: "Normative scoring (z-score & percentile)",
+    category: "Testing",
+    summary: "Where a player's test result sits against the squad or reference mean.",
+    fields: [
+      { key: "score", label: "Player result", default: 32, step: 0.1 },
+      { key: "mean", label: "Reference mean", default: 30, step: 0.1 },
+      { key: "sd", label: "Reference SD", default: 1.5, step: 0.1, min: 0.01 },
+      { key: "dir", label: "Higher is better? (1 = yes, 0 = no)", default: 1, step: 1, min: 0, max: 1 },
+    ],
+    compute: (v) => {
+      const raw = (v("score") - v("mean")) / v("sd");
+      const z = v("dir") >= 0.5 ? raw : -raw;
+      const cdf = 0.5 * (1 + Math.tanh(0.7978845608 * (z + 0.044715 * z ** 3)));
+      const pct = cdf * 100;
+      const band = pct >= 90 ? "Excellent" : pct >= 70 ? "Above average" : pct >= 30 ? "Average" : pct >= 10 ? "Below average" : "Poor";
+      return [
+        { label: "Z-score", value: round(z, 2), emphasis: true },
+        { label: "Percentile", value: round(pct, 1), unit: "%", emphasis: true },
+        { label: "Rating", value: band, emphasis: true },
+        { label: "T-score (mean 50, SD 10)", value: round(50 + 10 * z, 1) },
+        { label: "Difference from mean", value: round(v("score") - v("mean"), 2) },
+      ];
+    },
+    notes: ["Set 'Higher is better' to 0 for tests where a lower number is better, such as sprint times."],
+  },
 ];
 
-export const calculatorCategories = ["Aerobic", "Speed & Power", "Strength", "Heart rate"] as const;
+export const calculatorCategories = ["Aerobic", "Speed & Power", "Strength", "Heart rate", "Workload", "Testing"] as const;

@@ -89,9 +89,9 @@ function CalculatorCard({ spec }: { spec: CalculatorSpec }) {
           <div className="mt-4 rounded-md bg-secondary/60 p-3">
             <p className="eyebrow">Results</p>
             <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-              {results.map((r) => (
+              {results.map((r, i) => (
                 <div
-                  key={r.label}
+                  key={`${r.label}-${i}`}
                   className={cn(
                     "flex items-baseline justify-between gap-3 rounded-md px-2 py-1.5 text-sm",
                     r.emphasis ? "bg-background font-semibold" : "text-muted-foreground",
