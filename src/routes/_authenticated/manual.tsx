@@ -11,7 +11,7 @@ import {
   ClipboardPen,
   FileText,
   GitCompare,
-  HelpCircle,
+  Download,
   LayoutDashboard,
   LifeBuoy,
   Radar,
@@ -20,7 +20,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { SectionTitle } from "@/components/perf-ui";
 import { T4P } from "@/components/brand-text";
 
 export const Route = createFileRoute("/_authenticated/manual")({
