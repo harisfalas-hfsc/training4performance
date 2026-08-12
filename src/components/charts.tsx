@@ -202,21 +202,50 @@ export function HBar({
   labelKey,
   color = "var(--color-chart-1)",
   height = 420,
+  unit,
+  signColors = false,
+  zeroLine = false,
 }: {
   data: Row[];
   dataKey: string;
   labelKey: string;
   color?: string;
   height?: number;
+  /** Unit appended to the printed value, e.g. "%" or "m". */
+  unit?: string;
+  /** Green when below zero, amber when above — used for deviation charts. */
+  signColors?: boolean;
+  zeroLine?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, bottom: 0, left: 8 }}>
+      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 34, bottom: 0, left: 8 }}>
         <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" horizontal={false} />
-        <XAxis type="number" {...axis} />
+        <XAxis type="number" {...axis} tickFormatter={(v: number) => `${Math.round(Number(v))}${unit ?? ""}`} />
         <YAxis type="category" dataKey={labelKey} {...axis} width={120} />
-        <Tooltip {...tooltipStyle} cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }} />
-        <Bar dataKey={dataKey} fill={color} radius={[0, 3, 3, 0]} />
+        <Tooltip
+          {...tooltipStyle}
+          cursor={{ fill: "var(--color-secondary)", opacity: 0.4 }}
+          formatter={(v: number, n: string) => [`${Number(v).toLocaleString()}${unit ?? ""}`, n]}
+        />
+        {zeroLine ? <ReferenceLine x={0} stroke="var(--color-border)" /> : null}
+        <Bar dataKey={dataKey} fill={color} radius={[0, 3, 3, 0]}>
+          {signColors
+            ? data.map((row, index) => (
+                <Cell
+                  key={index}
+                  fill={Number(row[dataKey] ?? 0) >= 0 ? "var(--color-chart-4)" : "var(--color-chart-2)"}
+                />
+              ))
+            : null}
+          <LabelList
+            dataKey={dataKey}
+            position="right"
+            fontSize={10}
+            fill="var(--color-muted-foreground)"
+            formatter={(v: number) => `${Math.round(Number(v))}${unit ?? ""}`}
+          />
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
