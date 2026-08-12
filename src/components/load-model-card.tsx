@@ -119,7 +119,7 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
                           <label className="flex-1 text-sm" htmlFor={`w-${o.key}`}>
                             {o.label}
                             <span className="ml-1 text-xs text-muted-foreground">
-                              {o.unit ? `(${o.unit})` : ""} {mean ? `· squad avg ${Math.round(mean).toLocaleString()}` : "· no data yet"}
+                              {o.unit ? `(${o.unit})` : ""} {mean ? `· team reference ${Math.round(mean).toLocaleString()}` : "· no data yet"}
                             </span>
                           </label>
                           <input
