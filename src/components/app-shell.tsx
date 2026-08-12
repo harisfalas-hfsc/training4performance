@@ -36,7 +36,7 @@ import {
   useDataVersion,
 } from "@/data/performance";
 import { useAuth } from "@/lib/auth";
-import { hydrateWorkspace, syncUsageSnapshot } from "@/lib/usage";
+import { hydrateWorkspace, startWorkspaceAutoSync, stopWorkspaceAutoSync, syncUsageSnapshot } from "@/lib/usage";
 import { clearWellness, loadWellness } from "@/data/wellness";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,10 +96,12 @@ export function AppShell({
   useEffect(() => {
     if (!user?.id) {
       clearWellness();
+      stopWorkspaceAutoSync();
       return;
     }
-    void hydrateWorkspace(user.id);
-    void loadWellness(user.id);
+    const id = user.id;
+    void hydrateWorkspace(id).then(() => startWorkspaceAutoSync(id));
+    void loadWellness(id);
   }, [user?.id]);
 
   useEffect(() => {

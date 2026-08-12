@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import {
   applyWorkspaceData,
+  subscribeData,
   workspaceSnapshot,
   type GpsDay,
   type GpsBlockRow,
@@ -11,7 +12,7 @@ import {
   type Session,
   type Team,
 } from "@/data/performance";
-import { applyTestRecords, testRecordsSnapshot, type TestRecord } from "@/data/testing";
+import { applyTestRecords, subscribeTests, testRecordsSnapshot, type TestRecord } from "@/data/testing";
 import type { Json } from "@/integrations/supabase/types";
 import { canWrite } from "@/lib/access";
 import { getWorkspaceScope } from "@/lib/workspace-scope";
@@ -157,4 +158,41 @@ export async function clearRemoteWorkspace(userId: string) {
   } catch {
     /* best effort */
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Automatic cloud save                                                */
+/* ------------------------------------------------------------------ */
+
+let autoSyncUser: string | null = null;
+let autoSyncTimer: ReturnType<typeof setTimeout> | null = null;
+let unsubscribeAuto: Array<() => void> = [];
+
+/**
+ * Every change made in the browser (GPS import, test result, session, player)
+ * is pushed to the cloud within a second, so an upload is never "only in this
+ * browser" again.
+ */
+export function startWorkspaceAutoSync(userId: string) {
+  if (autoSyncUser === userId) return;
+  stopWorkspaceAutoSync();
+  autoSyncUser = userId;
+  const schedule = () => {
+    if (autoSyncTimer) clearTimeout(autoSyncTimer);
+    autoSyncTimer = setTimeout(() => {
+      autoSyncTimer = null;
+      if (autoSyncUser) void syncWorkspace(autoSyncUser);
+    }, 800);
+  };
+  unsubscribeAuto = [subscribeData(schedule), subscribeTests(schedule)];
+  // Push whatever is already in this browser right away.
+  void syncWorkspace(userId);
+}
+
+export function stopWorkspaceAutoSync() {
+  if (autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = null;
+  unsubscribeAuto.forEach((off) => off());
+  unsubscribeAuto = [];
+  autoSyncUser = null;
 }

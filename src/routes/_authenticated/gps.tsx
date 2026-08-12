@@ -42,6 +42,7 @@ import {
 import { T4P_TEMPLATE_COLUMNS, templateCsv } from "@/data/logbook";
 import { useRole } from "@/lib/roles";
 import { T4P } from "@/components/brand-text";
+import { GpsExplorer } from "@/components/gps-explorer";
 
 export const Route = createFileRoute("/_authenticated/gps")({
   head: () => ({
@@ -209,6 +210,7 @@ function GpsPage() {
   const [uploading, setUploading] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [imported, setImported] = useState<{ count: number; date: string; kpis: number; pbs: string[] } | null>(null);
+  const [tab, setTab] = useState<"reports" | "import">("reports");
 
   const sessions = useMemo(() => [...sessionCalendar].sort((a, b) => b.date.localeCompare(a.date)), []);
   const search = Route.useSearch();
@@ -476,13 +478,16 @@ function GpsPage() {
 
   return (
     <AppShell
-      title="GPS Import"
+      title="GPS reports"
       subtitle={
-        session
+        tab === "reports"
+          ? "Choose who, choose the KPI, choose the chart — the rows are underneath"
+          : session
           ? `${session.date} · ${session.label} — ${session.title}${parsed ? ` · file: ${parsed.fileName}` : ""}`
           : `No calendar entry — an empty session will be created for ${targetDate}${parsed ? ` · file: ${parsed.fileName}` : ""}`
       }
       actions={
+        tab === "import" ? (
         <button
           onClick={runImport}
           disabled={needsConfirm > 0 || uploading || !matched || !can("importGps")}
@@ -490,9 +495,28 @@ function GpsPage() {
         >
           <Upload className="size-4" /> Import {matched} rows
         </button>
+        ) : null
       }
     >
-      <section className="panel mb-4 p-4">
+      <div className="mb-4 flex flex-wrap gap-2">
+        {([["reports", "Reports & history"], ["import", "Import a file"]] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={
+              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
+              (tab === id ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:text-foreground")
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "reports" && <GpsExplorer />}
+
+      <section className={`panel mb-4 p-4 ${tab === "reports" ? "" : "hidden"}`}>
         <SectionTitle title="Saved GPS history" hint="Every completed import stays attached to its player and training date" />
         {gpsHistory.length ? (
           <div className="overflow-x-auto">
@@ -507,6 +531,7 @@ function GpsPage() {
           </div>
         ) : <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">No GPS report has been imported yet. Upload a file below; player names can create the squad, and “Import into the session” saves the history.</p>}
       </section>
+      {tab === "import" && (<>
       <section className="panel mb-4 p-4">
         <SectionTitle
           title="Associate this file with a training"
@@ -994,6 +1019,7 @@ function GpsPage() {
           </table>
         </div>
       </section>
+      </>)}
     </AppShell>
   );
 }

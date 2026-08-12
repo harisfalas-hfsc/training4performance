@@ -129,9 +129,6 @@ function TeamPage() {
           <Button asChild>
             <Link to="/squad"><Users className="size-4" /> Squad & player passports</Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link to="/logbook"><CheckCircle2 className="size-4" /> Performance tests</Link>
-          </Button>
         </section>
         <section className="rounded-xl border border-border bg-surface p-4">
           <SectionTitle
