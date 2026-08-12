@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Download, FileWarning, HelpCircle, Save, Upload, UserPlus, XCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import {
   addPlayer,
   fullName,
   getPlayer,
+  gpsHistory,
   matchName,
   players,
   sessionBlocks,
