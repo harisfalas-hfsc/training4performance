@@ -214,8 +214,8 @@ function TrainingsPage() {
                             to="/training"
                             search={{
                               date: session.date,
-                              block: firstDrawing.block,
                               board: firstDrawingIndex,
+                              ...(firstDrawing.block ? { block: firstDrawing.block } : {}),
                             }}
                           >
                             <Map /> View tactics board
