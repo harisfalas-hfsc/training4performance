@@ -138,6 +138,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/site.webmanifest" },
     ],
     scripts: [
+      {
+        // Tablets: portrait renders the mobile layout stretched to the full
+        // screen, landscape renders the desktop layout scaled to fit.
+        children: `(function(){try{var m=document.querySelector('meta[name="viewport"]');if(!m)return;function apply(){var sw=window.screen.width,sh=window.screen.height;var s=Math.min(sw,sh),l=Math.max(sw,sh);var tablet=s>=600&&s<=1180&&l<=1600;var portrait=window.innerHeight>=window.innerWidth;var c='width=device-width, initial-scale=1';if(tablet)c=portrait?'width=460, initial-scale=1, viewport-fit=cover':'width=1280, initial-scale=1, viewport-fit=cover';if(m.getAttribute('content')!==c)m.setAttribute('content',c);}apply();window.addEventListener('resize',apply);window.addEventListener('orientationchange',function(){setTimeout(apply,200);});}catch(e){}})();`,
+      },
+
       jsonLd({
         "@context": "https://schema.org",
         "@graph": [
