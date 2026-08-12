@@ -158,6 +158,8 @@ function TrainingsPage() {
                 const plan = session.plan ?? [];
                 const tags = allTags(session);
                 const drawings = plan.filter((item) => item.drawing).length;
+                const firstDrawingIndex = plan.findIndex((item) => item.drawing);
+                const firstDrawing = firstDrawingIndex >= 0 ? plan[firstDrawingIndex] : undefined;
                 const strength = plan.filter((item) => item.strength).length;
                 return (
                   <article key={session.id} className="panel min-w-0 p-4">
@@ -206,6 +208,20 @@ function TrainingsPage() {
                       </div>
                     ) : null}
                     <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-3">
+                      {firstDrawing ? (
+                        <Button asChild size="sm">
+                          <Link
+                            to="/training"
+                            search={{
+                              date: session.date,
+                              board: firstDrawingIndex,
+                              ...(firstDrawing.block ? { block: firstDrawing.block } : {}),
+                            }}
+                          >
+                            <Map /> View tactics board
+                          </Link>
+                        </Button>
+                      ) : null}
                       <Button asChild size="sm">
                         <Link to="/training" search={{ date: session.date }}>
                           <Pencil /> Review & edit

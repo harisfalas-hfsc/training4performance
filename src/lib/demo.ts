@@ -13,6 +13,8 @@ import { buildDemoTests, buildDemoWorkspace } from "@/data/demo-seed";
 
 export const DEMO_SCOPE = "t4p-demo";
 const FLAG = "t4p.demo.active";
+const SEED_VERSION_KEY = "t4p.demo.seed-version";
+const SEED_VERSION = "2";
 
 export function isDemoActive() {
   if (typeof window === "undefined") return false;
@@ -36,10 +38,12 @@ export function activateDemo(reseed = false) {
   setWriteAccess(true);
   setWorkspaceScope(DEMO_SCOPE);
   const snapshot = workspaceSnapshot();
-  if (reseed || snapshot.players.length === 0) {
+  const needsUpgrade = window.localStorage.getItem(SEED_VERSION_KEY) !== SEED_VERSION;
+  if (reseed || needsUpgrade || snapshot.players.length === 0) {
     applyWorkspaceData(buildDemoWorkspace());
+    window.localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION);
   }
-  if (reseed || testRecordsSnapshot().length === 0) {
+  if (reseed || needsUpgrade || testRecordsSnapshot().length === 0) {
     applyTestRecords(buildDemoTests());
   }
   setDemoMode(true);

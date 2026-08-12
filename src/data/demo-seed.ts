@@ -144,42 +144,138 @@ interface DayTemplate {
     purpose: string;
     gym?: boolean;
     strength?: { sets: number; reps: number; weightKg: number; restSec: number };
+    drawing?: string;
   }>;
 }
 
-const TACTICS_DRAWING = JSON.stringify({
-  orientation: "landscape",
-  view: "half",
-  field: "football",
-  tokens: [
-    { id: "demo-home-1", kind: "player", x: 220, y: 220, color: "#3b82f6", label: "8" },
-    { id: "demo-home-2", kind: "player", x: 360, y: 160, color: "#3b82f6", label: "10" },
-    { id: "demo-home-3", kind: "player", x: 360, y: 300, color: "#3b82f6", label: "9" },
-    { id: "demo-away-1", kind: "player", x: 500, y: 190, color: "#ef4444", label: "4" },
-    { id: "demo-away-2", kind: "player", x: 500, y: 290, color: "#ef4444", label: "5" },
-    { id: "demo-ball", kind: "ball", x: 390, y: 230, color: "#f8fafc" },
-  ],
-  shapes: [
-    {
-      id: "demo-run",
-      tool: "arrow",
-      color: "#facc15",
-      points: [
-        { x: 370, y: 160 },
-        { x: 570, y: 105 },
-      ],
-    },
-    {
-      id: "demo-pass",
-      tool: "dashed",
-      color: "#f8fafc",
-      points: [
-        { x: 235, y: 220 },
-        { x: 370, y: 165 },
-      ],
-    },
-  ],
+type DemoToken = { id: string; kind: string; x: number; y: number; color: string; label?: string };
+type DemoShape = { id: string; tool: string; color: string; points: Array<{ x: number; y: number }> };
+
+const home = (id: string, label: string, x: number, y: number): DemoToken => ({
+  id,
+  kind: "player",
+  x,
+  y,
+  color: "#3b82f6",
+  label,
 });
+const away = (id: string, label: string, x: number, y: number): DemoToken => ({
+  id,
+  kind: "player",
+  x,
+  y,
+  color: "#ef4444",
+  label,
+});
+const equipment = (id: string, kind: string, x: number, y: number, color = "#facc15"): DemoToken => ({
+  id,
+  kind,
+  x,
+  y,
+  color,
+});
+const route = (id: string, tool: string, color: string, from: [number, number], to: [number, number]): DemoShape => ({
+  id,
+  tool,
+  color,
+  points: [{ x: from[0], y: from[1] }, { x: to[0], y: to[1] }],
+});
+const board = (tokens: DemoToken[], shapes: DemoShape[], view: "full" | "half" | "quarter" = "full") =>
+  JSON.stringify({ orientation: "landscape", view, field: "football", tokens, shapes });
+
+const RONDO_BOARD = board(
+  [
+    home("r1", "1", 330, 190), home("r2", "2", 500, 130), home("r3", "3", 670, 190),
+    home("r4", "4", 670, 430), home("r5", "5", 330, 430), away("r6", "D1", 470, 275),
+    away("r7", "D2", 550, 350), equipment("rb", "ball", 500, 160, "#f8fafc"),
+    equipment("rc1", "cone", 285, 105), equipment("rc2", "cone", 715, 105),
+    equipment("rc3", "cone", 715, 500), equipment("rc4", "cone", 285, 500),
+  ],
+  [
+    route("rp1", "dashed", "#f8fafc", [330, 190], [500, 130]),
+    route("rp2", "dashed", "#f8fafc", [500, 130], [670, 190]),
+    route("rp3", "dashed", "#f8fafc", [670, 190], [670, 430]),
+    route("rp4", "dashed", "#f8fafc", [670, 430], [330, 430]),
+  ],
+);
+
+const PASSING_BOARD = board(
+  [
+    home("p1", "A", 210, 160), home("p2", "B", 790, 160), home("p3", "C", 790, 500),
+    home("p4", "D", 210, 500), equipment("pb", "ball", 245, 180, "#f8fafc"),
+    equipment("pc1", "cone", 180, 130), equipment("pc2", "cone", 820, 130),
+    equipment("pc3", "cone", 820, 530), equipment("pc4", "cone", 180, 530),
+    equipment("pm1", "mannequin", 420, 250), equipment("pm2", "mannequin", 580, 410),
+  ],
+  [
+    route("pp1", "dashed", "#f8fafc", [230, 160], [770, 160]),
+    route("pp2", "dashed", "#f8fafc", [790, 180], [790, 480]),
+    route("pp3", "dashed", "#f8fafc", [770, 500], [230, 500]),
+    route("pp4", "dashed", "#f8fafc", [210, 480], [210, 180]),
+    route("pr1", "arrow", "#facc15", [210, 160], [380, 245]),
+    route("pr2", "arrow", "#facc15", [790, 500], [620, 415]),
+  ],
+);
+
+const SSG_BOARD = board(
+  [
+    home("s1", "2", 320, 180), home("s2", "4", 320, 470), home("s3", "7", 470, 250),
+    home("s4", "9", 470, 400), away("s5", "3", 680, 180), away("s6", "5", 680, 470),
+    away("s7", "8", 530, 250), away("s8", "10", 530, 400),
+    equipment("sg1", "keeper", 180, 325, "#22c55e"), equipment("sg2", "keeper", 820, 325, "#22c55e"),
+    equipment("sb", "ball", 500, 325, "#f8fafc"), equipment("goal1", "goal", 90, 325, "#e2e8f0"),
+    equipment("goal2", "goal", 910, 325, "#e2e8f0"),
+  ],
+  [
+    route("sp1", "dashed", "#f8fafc", [470, 250], [320, 180]),
+    route("sr1", "curve", "#facc15", [470, 400], [650, 500]),
+    route("sr2", "arrow", "#facc15", [320, 180], [190, 290]),
+  ],
+);
+
+const PRESSING_BOARD = board(
+  [
+    home("x1", "9", 620, 335), home("x2", "11", 540, 200), home("x3", "7", 540, 470),
+    home("x4", "10", 440, 335), away("x5", "4", 760, 220), away("x6", "5", 760, 450),
+    away("x7", "6", 650, 335), equipment("xb", "ball", 785, 205, "#f8fafc"),
+  ],
+  [
+    route("xr1", "arrow", "#facc15", [620, 335], [715, 240]),
+    route("xr2", "arrow", "#facc15", [540, 200], [720, 205]),
+    route("xr3", "arrow", "#facc15", [540, 470], [710, 440]),
+    route("xp1", "dashed", "#f8fafc", [760, 220], [650, 335]),
+  ],
+);
+
+const CORNER_BOARD = board(
+  [
+    home("c1", "7", 865, 590), home("c2", "4", 730, 310), home("c3", "5", 790, 360),
+    home("c4", "9", 840, 290), away("c5", "D1", 760, 300), away("c6", "D2", 810, 320),
+    away("c7", "D3", 850, 380), equipment("cg", "keeper", 920, 335, "#22c55e"),
+    equipment("cb", "ball", 890, 610, "#f8fafc"),
+  ],
+  [
+    route("ccross", "curve", "#f8fafc", [875, 585], [760, 330]),
+    route("cr1", "arrow", "#facc15", [730, 310], [850, 335]),
+    route("cr2", "arrow", "#facc15", [790, 360], [900, 290]),
+    route("cr3", "arrow", "#facc15", [840, 290], [775, 390]),
+  ],
+);
+
+const FINISHING_BOARD = board(
+  [
+    home("f1", "7", 300, 180), home("f2", "11", 300, 490), home("f3", "9", 650, 335),
+    home("f4", "10", 460, 335), equipment("fg", "keeper", 900, 335, "#22c55e"),
+    equipment("fb", "ball", 325, 195, "#f8fafc"), equipment("fm1", "mannequin", 570, 250),
+    equipment("fm2", "mannequin", 570, 420), equipment("fgoal", "goal", 950, 335, "#e2e8f0"),
+  ],
+  [
+    route("fpass", "dashed", "#f8fafc", [320, 180], [450, 325]),
+    route("fwide", "arrow", "#facc15", [460, 335], [700, 150]),
+    route("fcross", "curve", "#f8fafc", [700, 150], [790, 320]),
+    route("frun", "arrow", "#facc15", [650, 335], [820, 335]),
+  ],
+);
 
 const WEEK: DayTemplate[] = [
   {
@@ -205,6 +301,7 @@ const WEEK: DayTemplate[] = [
         rpe: 4,
         tags: ["Rondo 5v2", "Possession"],
         purpose: "Low-intensity ball circulation.",
+        drawing: RONDO_BOARD,
       },
       {
         name: "BLOCK 3",
@@ -287,6 +384,7 @@ const WEEK: DayTemplate[] = [
         rpe: 4,
         tags: ["Rondo 5v2", "Warm-up"],
         purpose: "Raise temperature with the ball.",
+        drawing: RONDO_BOARD,
       },
       {
         name: "BLOCK 2",
@@ -295,6 +393,7 @@ const WEEK: DayTemplate[] = [
         rpe: 6,
         tags: ["Passing drill", "Technical"],
         purpose: "Quality of the first touch under speed.",
+        drawing: PASSING_BOARD,
       },
       {
         name: "BLOCK 3",
@@ -303,6 +402,7 @@ const WEEK: DayTemplate[] = [
         rpe: 9,
         tags: ["SSG 4v4", "Conditioning"],
         purpose: "High-intensity efforts, 4 x 4 min.",
+        drawing: SSG_BOARD,
       },
       {
         name: "BLOCK 4",
@@ -337,6 +437,7 @@ const WEEK: DayTemplate[] = [
         rpe: 6,
         tags: ["Tactical", "Pressing"],
         purpose: "Pressing triggers in the middle third.",
+        drawing: PRESSING_BOARD,
       },
       {
         name: "BLOCK 3",
@@ -345,6 +446,7 @@ const WEEK: DayTemplate[] = [
         rpe: 5,
         tags: ["Set pieces", "Corners"],
         purpose: "Attacking and defending routines.",
+        drawing: CORNER_BOARD,
       },
       {
         name: "BLOCK 4",
@@ -379,6 +481,7 @@ const WEEK: DayTemplate[] = [
         rpe: 4,
         tags: ["Rondo 5v2", "Possession"],
         purpose: "Rhythm and confidence on the ball.",
+        drawing: RONDO_BOARD,
       },
       {
         name: "BLOCK 3",
@@ -387,6 +490,7 @@ const WEEK: DayTemplate[] = [
         rpe: 5,
         tags: ["Finishing", "Technical"],
         purpose: "Crossing and finishing.",
+        drawing: FINISHING_BOARD,
       },
       {
         name: "BLOCK 4",
@@ -520,9 +624,7 @@ function buildSessions(monday: Date, weekShift: number): Session[] {
         block: b.name,
         location: b.gym ? "Gym" : "Pitch",
         ...(b.strength ? { strength: b.strength } : {}),
-        ...(/pressing|set pieces|finishing|SSG|passing drill/i.test(b.label)
-          ? { drawing: TACTICS_DRAWING }
-          : {}),
+        ...(b.drawing ? { drawing: b.drawing } : {}),
       })),
     } satisfies Session;
   });
