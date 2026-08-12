@@ -277,8 +277,10 @@ function AnalyticsPage() {
               </thead>
               <tbody>
                 {selected.map((id) => {
-                  const p = players.find((x) => x.id === id)!;
+                  const p = players.find((x) => x.id === id);
+                  if (!p) return null;
                   const m = playerMetrics(p);
+
                   return (
                     <tr key={id} className="border-b border-border/60">
                       <td className="py-2">{fullName(p)}</td>
