@@ -234,9 +234,16 @@ function GpsPage() {
 
   const matched = athleteRows.filter((r) => r.matchedId && r.confidence >= 0.95).length;
   const needsConfirm = athleteRows.filter((r) => r.matchedId && r.confidence < 0.95).length;
-  const unmatched = athleteRows.filter((r) => !r.matchedId).length;
+  /** Distinct people still missing from the squad — not the number of rows. */
+  const unmatchedNames = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of athleteRows) if (!r.matchedId) map.set(r.raw.trim().toLowerCase(), r.raw.trim());
+    return [...map.values()];
+  }, [athleteRows]);
+  const unmatched = unmatchedNames.length;
   const customCols = mapping.filter((m) => m.target === "custom" && m.header !== segmentCol);
   const missingCore = ["name", "distance"].filter((f) => !mapping.some((m) => m.target === f));
+
 
   const handleFile = async (file: File) => {
     if (!isAcceptedFile(file.name)) {
