@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { T4P } from "@/components/brand-text";
+import { MANUAL_SHOTS, type ManualShotKey } from "@/components/manual-examples";
 
 export const Route = createFileRoute("/_authenticated/manual")({
   head: () => ({
@@ -56,6 +57,7 @@ type Chapter = {
   linkLabel?: string;
   steps: string[];
   tips?: string[];
+  shots?: ManualShotKey[];
 };
 
 const CHAPTERS: Chapter[] = [
@@ -84,6 +86,7 @@ const CHAPTERS: Chapter[] = [
       "Nothing has to be perfect on day one. One player, one session, one file — the system starts working immediately.",
     ],
 
+    shots: ["createTeam", "addPlayer"],
   },
   {
     id: "explore",
@@ -107,6 +110,7 @@ const CHAPTERS: Chapter[] = [
       "Tag your drills in the Training Designer once and they stay searchable for the whole season.",
       "Any new kind of data added to the platform later appears as another WHAT source \u2014 the pattern never changes.",
     ],
+    shots: ["whoWhat", "drillHistory"],
   },
   {
     id: "squad",
@@ -130,6 +134,7 @@ const CHAPTERS: Chapter[] = [
       "Release or delete a player from the squad list; the historical data stays attached to the record.",
       "If a name is spelled differently in the GPS file, you can either rename the player here or map the name during import.",
     ],
+    shots: ["addPlayer"],
   },
   {
     id: "calendar",
@@ -173,6 +178,7 @@ const CHAPTERS: Chapter[] = [
       "Weighted RPE means a 10-minute RPE 9 block does not count the same as a 40-minute RPE 5 block.",
       "If a player was absent or did individual work, mark it in Step 4 so his load is not overstated.",
     ],
+    shots: ["sessionBlocks", "strengthSession"],
   },
   {
     id: "board",
@@ -216,6 +222,7 @@ const CHAPTERS: Chapter[] = [
       "You only need to define the mapping once — the same layout is recognised on your next upload.",
       "Download the T4P template from the import page if you prefer to align your export to a fixed layout.",
     ],
+    shots: ["gpsFile", "gpsMatching"],
   },
   {
     id: "load",
@@ -250,6 +257,7 @@ const CHAPTERS: Chapter[] = [
       "RPE is collected AFTER the session, roughly 20-30 minutes later, when the player can judge the whole effort.",
     ],
 
+    shots: ["calculatedLoad", "manualRpe", "loadAccumulation"],
   },
 
   {
