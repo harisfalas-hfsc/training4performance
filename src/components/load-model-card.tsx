@@ -80,7 +80,7 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2">
         {([
-          ["ratio", "Squad-ratio composite (recommended)", "Every KPI is divided by the squad average of that KPI, weighted and scaled to 100 AU. Same method as the Salamina training monitor workbook."],
+          ["ratio", "Squad-ratio composite (recommended)", "The load is calculated for every player individually, from his own numbers of that session. Each KPI is only divided by a fixed team reference (the average of that KPI across all imported player-sessions) so metres, counts and joules can be added together. Same method as the Salamina training monitor workbook."],
           ["srpe", "Session RPE (Foster)", "Load = RPE (0-10) x duration in minutes. Needs an RPE value for the session."],
         ] as const).map(([id, label, desc]) => (
           <button
@@ -119,7 +119,7 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
                           <label className="flex-1 text-sm" htmlFor={`w-${o.key}`}>
                             {o.label}
                             <span className="ml-1 text-xs text-muted-foreground">
-                              {o.unit ? `(${o.unit})` : ""} {mean ? `· squad avg ${Math.round(mean).toLocaleString()}` : "· no data yet"}
+                              {o.unit ? `(${o.unit})` : ""} {mean ? `· team reference ${Math.round(mean).toLocaleString()}` : "· no data yet"}
                             </span>
                           </label>
                           <input
@@ -159,9 +159,12 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
               </p>
               <p className="mt-2 break-words text-sm leading-relaxed">{loadFormulaText(model)}</p>
               <p className="mt-2 text-xs text-muted-foreground">
-                {activeLoadKpis(model).length} KPI(s) selected. 100 AU = an average session for an average player in your
-                own squad, so the number is always relative to your team, not to another club.
+                {activeLoadKpis(model).length} KPI(s) selected. The load is individual: each player gets his own number
+                from his own session values. The team reference (the average of that KPI across every imported
+                player-session) is only the scale, so 100 AU means "an average session for an average player of your
+                squad" — never another club.
               </p>
+
             </div>
             {preview.length > 0 && (
               <div className="rounded-md border border-border p-3">

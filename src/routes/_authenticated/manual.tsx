@@ -11,7 +11,7 @@ import {
   ClipboardPen,
   FileText,
   GitCompare,
-  HelpCircle,
+  Download,
   LayoutDashboard,
   LifeBuoy,
   Radar,
@@ -20,7 +20,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { SectionTitle } from "@/components/perf-ui";
 import { T4P } from "@/components/brand-text";
 
 export const Route = createFileRoute("/_authenticated/manual")({
@@ -193,27 +192,30 @@ const CHAPTERS: Chapter[] = [
     id: "load",
     n: 7,
     title: "Training load — how T4P calculates it",
-    why: "Most GPS exports have no training-load column. T4P estimates it from the KPIs you choose, so ACWR, monotony and strain still work with your own file.",
+    why: "Most GPS exports have no training-load column. T4P calculates one individually for every player, from the KPIs you choose, so ACWR, monotony and strain still work with your own file.",
     icon: Radar,
     color: "#d97706",
     to: "/gps",
     linkLabel: "Open the load model",
     steps: [
       "Open GPS Reports. The card 'Training load model' is on both the Reports and the Import tab.",
-      "Choose the formula. 'Squad-ratio composite' is the recommended one and is the same method used in the original Salamina FC training-monitor workbook: every metric is divided by the squad average of that metric.",
+      "Choose the formula. 'Squad-ratio composite' is the recommended one and is the same method used in the original Salamina FC training-monitor workbook.",
       "Choose the KPIs and their weights. Weight 0 means the KPI is not used. Distance, high-speed running, sprint distance, accelerations, decelerations and jumps are on by default; any club KPI found in your own upload can be added too.",
-      "The formula is written out in plain text under 'Your formula right now', and a preview shows the five highest loads of your most recent training day.",
-      "The calculated load then appears as the KPI 'Training load (calculated)' in GPS reports, in the CSV export, and feeds acute load, chronic load, ACWR, monotony and strain.",
-      "Alternative formula: 'Session RPE (Foster)' = RPE (0-10) x duration in minutes, if you prefer the perceived-effort route.",
+      "The load is INDIVIDUAL. Every player-session row gets its own load number, built only from that player's own values on that day — never from the squad's numbers of that day.",
+      "The squad average is only the scale, not the value. Each KPI is divided by a team reference number (the average of that KPI across every player-session you have imported) so metres, counts, joules and jump counts can be added into one figure without unit problems.",
+      "The result appears as the KPI 'Training load (calculated)' in GPS reports, in the CSV export, and feeds acute load, chronic load, ACWR, monotony and strain — all of them per player.",
+      "Alternative formula: 'Session RPE (Foster)' = RPE (0-10) x duration in minutes, also per player, if you prefer the perceived-effort route.",
     ],
     tips: [
-      "The maths: Load (AU) = 100 x [ w1 x (KPI1 / squad average of KPI1) + w2 x (KPI2 / squad average of KPI2) + … ] / (w1 + w2 + …).",
-      "Because every KPI is divided by its own squad average, metres, counts and joules can be mixed in one number without unit problems.",
-      "100 AU is an average session for an average player of your squad. 150 AU is 50% harder than your own team average, not harder than another club.",
+      "The maths, for one player on one day: Load (AU) = 100 x [ w1 x (his KPI1 / team reference of KPI1) + w2 x (his KPI2 / team reference of KPI2) + … ] / (w1 + w2 + …).",
+      "Worked example: reference distance 5,000 m and reference HSR 400 m; a player runs 6,000 m and 600 m HSR with weights 1 and 1.5. Load = 100 x [1 x 1.20 + 1.5 x 1.50] / 2.5 = 138 AU. His team-mate who ran 4,000 m and 200 m HSR on the same day gets 100 x [0.80 + 0.75] / 2.5 = 62 AU. Same session, two different individual loads.",
+      "100 AU is an average session for an average player of your squad. 150 AU is 50% harder than your own team's typical session, not harder than another club's.",
+      "The team reference uses your whole imported history, not only the day being calculated, so one very easy or very hard day does not move everybody's numbers.",
       "If your export already contains a load, TRIMP or player-load column, T4P keeps it as a club KPI so you can compare it with the calculated one.",
       "Change the weights any time — every historical day is recalculated instantly, nothing is stored twice.",
     ],
   },
+
   {
     id: "analyse",
     n: 8,
@@ -393,20 +395,37 @@ function ManualPage() {
     [q],
   );
 
+  const downloadPdf = () => {
+    setQuery("");
+    window.setTimeout(() => window.print(), 60);
+  };
+
   return (
     <AppShell
       title="Manual"
       subtitle={<>How <T4P /> works, step by step — from an empty squad to daily decisions</>}
+      actions={
+        <button
+          type="button"
+          onClick={downloadPdf}
+          className="no-print inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-panel transition-opacity hover:opacity-90"
+        >
+          <Download className="size-4" /> <span className="hidden sm:inline">Download</span> PDF
+        </button>
+      }
     >
-      <div className="space-y-6">
-        <section className="rounded-lg border border-border bg-card p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="space-y-7">
+        {/* Hero / index */}
+        <section className="no-print overflow-hidden rounded-2xl border border-brand-blue/30 bg-gradient-to-br from-brand-blue/10 via-brand-cyan/5 to-brand-green/10 shadow-panel">
+          <div className="flex flex-wrap items-start justify-between gap-4 p-6">
             <div className="max-w-2xl space-y-2">
-              <p className="eyebrow">User manual</p>
-              <h2 className="text-xl font-semibold">The whole logic of the platform in one page</h2>
-              <p className="text-sm text-muted-foreground">
-                Follow the chapters in order the first time. After that, use the search box or jump straight to the
-                troubleshooting section at the bottom.
+              <p className="eyebrow text-brand-blue">User manual</p>
+              <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+                The whole logic of the platform, chapter by chapter
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Follow the chapters in order the first time. After that, search, jump to a chapter from the coloured
+                index below, or go straight to troubleshooting. You can download this page exactly as you see it.
               </p>
             </div>
             <label className="relative w-full max-w-xs">
@@ -415,28 +434,37 @@ function ManualPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search the manual…"
-                className="w-full rounded-md border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="w-full rounded-full border border-border bg-background py-2.5 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               />
             </label>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="grid gap-2 border-t border-border/60 bg-background/60 p-4 sm:grid-cols-2 lg:grid-cols-3">
             {CHAPTERS.map((c) => (
               <a
                 key={c.id}
                 href={`#${c.id}`}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                className="group flex items-center gap-3 rounded-xl border bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
+                style={{ borderColor: `${c.color}40` }}
               >
-                <c.icon className="size-3.5" style={{ color: c.color }} />
-                {c.n}. {c.title}
+                <span
+                  className="grid size-8 shrink-0 place-items-center rounded-lg font-display text-sm font-bold"
+                  style={{ backgroundColor: `${c.color}1f`, color: c.color }}
+                >
+                  {c.n}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold">{c.title}</span>
+                <c.icon className="size-4 shrink-0 opacity-70" style={{ color: c.color }} />
               </a>
             ))}
             <a
               href="#troubleshooting"
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+              className="group flex items-center gap-3 rounded-xl border border-brand-red/40 bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
             >
-              <LifeBuoy className="size-3.5" style={{ color: "#dc2626" }} />
-              Troubleshooting
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-red/12 text-brand-red">
+                <LifeBuoy className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1 truncate text-sm font-semibold">Troubleshooting</span>
             </a>
           </div>
         </section>
@@ -445,53 +473,69 @@ function ManualPage() {
           <section
             key={c.id}
             id={c.id}
-            className="scroll-mt-28 overflow-hidden rounded-lg border border-border bg-card"
-            style={{ borderTop: `3px solid ${c.color}` }}
+            className="print-block scroll-mt-28 overflow-hidden rounded-2xl border bg-card shadow-panel"
+            style={{ borderColor: `${c.color}45` }}
           >
-            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-5">
-              <div className="flex min-w-0 items-start gap-3">
+            <div
+              className="flex flex-wrap items-start justify-between gap-3 border-b p-5"
+              style={{
+                borderColor: `${c.color}33`,
+                backgroundImage: `linear-gradient(120deg, ${c.color}1c, transparent 70%)`,
+              }}
+            >
+              <div className="flex min-w-0 items-start gap-4">
                 <span
-                  className="flex size-10 shrink-0 items-center justify-center rounded-md"
-                  style={{ backgroundColor: `${c.color}1a` }}
+                  className="grid size-14 shrink-0 place-items-center rounded-2xl font-display text-xl font-bold text-white shadow-panel"
+                  style={{ backgroundColor: c.color }}
                 >
-                  <c.icon className="size-5" style={{ color: c.color }} />
+                  {c.n}
                 </span>
                 <div className="min-w-0">
-                  <p className="eyebrow" style={{ color: c.color }}>
-                    Chapter {c.n}
+                  <p className="eyebrow flex items-center gap-1.5" style={{ color: c.color }}>
+                    <c.icon className="size-3.5" /> Chapter {c.n}
                   </p>
-                  <h3 className="text-lg font-semibold">{c.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{c.why}</p>
+                  <h3 className="font-display text-xl font-semibold uppercase tracking-wide">{c.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{c.why}</p>
                 </div>
               </div>
               {c.to ? (
                 <Link
                   to={c.to}
-                  className="shrink-0 rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+                  className="no-print shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition-colors"
+                  style={{ borderColor: `${c.color}66`, color: c.color }}
                 >
-                  {c.linkLabel ?? "Open"}
+                  {c.linkLabel ?? "Open"} →
                 </Link>
               ) : null}
             </div>
 
-            <ol className="divide-y divide-border">
+            <ol className="p-4 sm:p-5">
               {c.steps.map((s, i) => (
-                <li key={s} className="flex gap-3 p-4">
+                <li key={s} className="relative flex gap-4 pb-5 last:pb-0">
+                  {i < c.steps.length - 1 ? (
+                    <span
+                      className="absolute left-[13px] top-8 h-[calc(100%-1.5rem)] w-px"
+                      style={{ backgroundColor: `${c.color}33` }}
+                    />
+                  ) : null}
                   <span
-                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                    style={{ backgroundColor: `${c.color}1a`, color: c.color }}
+                    className="relative z-10 mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2 bg-card font-display text-xs font-bold"
+                    style={{ borderColor: c.color, color: c.color }}
                   >
                     {i + 1}
                   </span>
-                  <p className="text-sm leading-relaxed">{s}</p>
+                  <p className="pt-1 text-sm leading-relaxed">{s}</p>
                 </li>
               ))}
             </ol>
 
             {c.tips?.length ? (
-              <div className="space-y-2 border-t border-border bg-secondary/40 p-4">
+              <div className="space-y-2 border-t p-4 sm:p-5" style={{ borderColor: `${c.color}33`, backgroundColor: `${c.color}0d` }}>
+                <p className="eyebrow" style={{ color: c.color }}>
+                  Good to know
+                </p>
                 {c.tips.map((t) => (
-                  <p key={t} className="flex gap-2 text-sm text-muted-foreground">
+                  <p key={t} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0" style={{ color: c.color }} />
                     <span>{t}</span>
                   </p>
@@ -501,25 +545,47 @@ function ManualPage() {
           </section>
         ))}
 
-        <section id="troubleshooting" className="scroll-mt-28 space-y-3">
-          <SectionTitle
-            title="Troubleshooting — common problems and how to solve them"
-            hint="Every scenario coaches hit in the first weeks, with the fix"
-          />
+        <section id="troubleshooting" className="print-break-before scroll-mt-28 space-y-4">
+          <div className="rounded-2xl border border-brand-red/35 bg-gradient-to-r from-brand-red/10 to-brand-amber/10 p-5">
+            <p className="eyebrow text-brand-red">Troubleshooting</p>
+            <h3 className="font-display text-xl font-semibold uppercase tracking-wide">
+              Common problems and how to solve them
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every scenario coaches hit in the first weeks, with the fix.
+            </p>
+          </div>
           <div className="grid gap-3 md:grid-cols-2">
-            {problems.map((p) => (
-              <div key={p.q} className="rounded-lg border border-border bg-card p-4">
+            {problems.map((p, i) => (
+              <div key={p.q} className="print-block rounded-2xl border border-brand-red/25 bg-card p-4 shadow-panel">
                 <p className="flex items-start gap-2 text-sm font-semibold">
-                  <HelpCircle className="mt-0.5 size-4 shrink-0" style={{ color: "#dc2626" }} />
+                  <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-brand-red/12 font-display text-xs font-bold text-brand-red">
+                    {i + 1}
+                  </span>
                   {p.q}
                 </p>
-                <p className="mt-2 pl-6 text-sm text-muted-foreground">{p.a}</p>
+                <p className="mt-2 pl-8 text-sm leading-relaxed text-muted-foreground">{p.a}</p>
               </div>
             ))}
             {problems.length === 0 ? (
               <p className="text-sm text-muted-foreground">No result for “{query}”.</p>
             ) : null}
           </div>
+        </section>
+
+        <section className="no-print rounded-2xl border border-brand-blue/30 bg-gradient-to-r from-brand-blue/10 to-brand-cyan/10 p-6 text-center">
+          <p className="font-display text-lg font-semibold uppercase tracking-wide">Keep the manual with you</p>
+          <p className="mx-auto mt-1.5 max-w-xl text-sm text-muted-foreground">
+            Download this manual exactly as you see it — every chapter, every step, every troubleshooting card — and
+            share it with your staff.
+          </p>
+          <button
+            type="button"
+            onClick={downloadPdf}
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
+          >
+            <Download className="size-4" /> Download the manual (PDF)
+          </button>
         </section>
       </div>
     </AppShell>
