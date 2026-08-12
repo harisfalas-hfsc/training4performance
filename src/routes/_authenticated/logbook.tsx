@@ -201,6 +201,7 @@ function SquadTable() {
         </div>
       ) : null}
 
+      <p className="mb-2 text-xs text-muted-foreground sm:hidden">Swipe sideways to see every result.</p>
       <div className="panel scroll-pane max-h-[70vh] overflow-auto p-0">
         <table className="w-full min-w-[620px] text-sm">
           <thead className="sticky top-0 z-10 border-b border-border bg-surface-1 text-left text-xs uppercase text-muted-foreground">
@@ -344,6 +345,7 @@ function PlayerRecord() {
         </div>
       ) : null}
 
+      <p className="mb-2 text-xs text-muted-foreground sm:hidden">Swipe sideways to see the full history.</p>
       <div className="panel scroll-pane max-h-[70vh] overflow-auto p-0">
         <table className="w-full min-w-[620px] text-sm">
           <thead className="sticky top-0 z-10 border-b border-border bg-surface-1 text-left text-xs uppercase text-muted-foreground">

@@ -184,20 +184,20 @@ function Field({
   return (
     <label className="block">
       <span className="eyebrow">{label}</span>
-      <div className="relative mt-1">
+      <div className={`mt-1 ${isPassword ? "grid grid-cols-[minmax(0,1fr)_2.5rem]" : ""}`}>
         <input
           type={isPassword && show ? "text" : type}
           value={value}
           required={required}
           onChange={(e) => onChange(e.target.value)}
-          className={`h-10 w-full rounded-md border border-input bg-surface-2 px-3 text-sm ${isPassword ? "pr-10" : ""}`}
+          className={`h-10 min-w-0 border border-input bg-surface-2 px-3 text-sm ${isPassword ? "rounded-l-md border-r-0" : "w-full rounded-md"}`}
         />
         {isPassword ? (
           <button
             type="button"
             onClick={() => setShow((v) => !v)}
             aria-label={show ? "Hide password" : "Show password"}
-            className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
+            className="grid size-10 place-items-center rounded-r-md border border-input bg-surface-2 text-muted-foreground hover:text-foreground"
           >
             {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>

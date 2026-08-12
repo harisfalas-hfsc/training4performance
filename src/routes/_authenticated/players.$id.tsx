@@ -195,8 +195,8 @@ function PlayerProfile() {
             </div>
             <div className="panel p-4 xl:col-span-3">
               <SectionTitle title="Participation history" hint="Recorded once when the coach selects the squad" />
-              <div className="max-h-80 overflow-y-auto">
-                <table className="w-full text-sm">
+              <div className="scroll-pane max-h-80 overflow-auto">
+                <table className="w-full min-w-[34rem] text-sm">
                   <thead>
                     <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                       <th className="py-2">Date</th>
@@ -855,7 +855,8 @@ function SprintSplitPanel({ playerId }: { playerId: string }) {
         }
       />
       {splits.length ? (
-        <table className="w-full text-sm">
+        <div className="scroll-pane overflow-x-auto">
+        <table className="w-full min-w-[36rem] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
               <th className="py-2">Segment</th>
@@ -877,6 +878,7 @@ function SprintSplitPanel({ playerId }: { playerId: string }) {
             ))}
           </tbody>
         </table>
+        </div>
       ) : (
         <p className="py-8 text-center text-sm text-muted-foreground">
           No sprint gate times yet. Add a 5, 10, 15, 20 or 30 m sprint above and the splits appear here automatically.
@@ -980,8 +982,8 @@ function FitnessTab({ playerId }: { playerId: string }) {
           hint="Every dated result, manual or auto-detected"
         />
 
-        <div className="max-h-96 overflow-y-auto">
-          <table className="w-full text-sm">
+        <div className="scroll-pane max-h-96 overflow-auto">
+          <table className="w-full min-w-[44rem] text-sm">
             <thead className="sticky top-0 bg-surface-1">
               <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <th className="py-2">Date</th>
