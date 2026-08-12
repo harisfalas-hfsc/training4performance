@@ -134,9 +134,89 @@ const includes = [
 const facts = [
   { k: "€999", v: "per season, per team" },
   { k: "Unlimited", v: "players and staff users" },
-  { k: "13", v: "manual chapters, downloadable" },
+  { k: "No GPS?", v: "the full system still works" },
   { k: "GDPR", v: "European infrastructure" },
 ];
+
+/** The two equally complete ways of feeding the platform. */
+const routes = [
+  {
+    icon: PencilLine,
+    color: "green",
+    eyebrow: "Without a GPS system",
+    title: "Pen, stopwatch and RPE — nothing else",
+    body: "You do not need a single GPS unit to run the whole platform. Record the session and its blocks, the duration and a 0–10 RPE after training, and T4P turns it into session load exactly as Foster describes it: RPE × minutes. Strength work, indoor sessions, pool, rehab and gym are all counted the same way.",
+    points: [
+      "Session or block RPE for the whole squad in one screen, or athlete by athlete",
+      "Load, acute vs chronic, ACWR, monotony and strain calculated from it",
+      "Wellness, availability, testing, alerts and every report work identically",
+      "Same PDF, PNG, Excel and CSV exports for the head coach",
+    ],
+  },
+  {
+    icon: Satellite,
+    color: "cyan",
+    eyebrow: "With a GPS system",
+    title: "Your export, your KPIs, your formula",
+    body: "If you do have GPS, the same structure simply gets more resolution. Import from Catapult, STATSports, GPEXE, Polar or your own spreadsheet, and T4P builds an individual training load from the KPIs and weights you choose — even when the file has no load column at all.",
+    points: [
+      "Distance, high-speed running, sprints, accelerations, decelerations, jumps, max speed",
+      "Your own club KPIs recognised from your own file",
+      "Individual load per player, not a squad average",
+      "GPS days and manually rated days add up into one true daily load",
+    ],
+  },
+];
+
+/** Why the coach's working week changes. */
+const benefits = [
+  {
+    icon: Clock,
+    color: "blue",
+    t: "Your evening back",
+    d: "No more copying rows between four spreadsheets after training. Import once, or type the RPE once, and every chart, table and report is already updated.",
+  },
+  {
+    icon: ShieldCheck,
+    color: "green",
+    t: "Fewer avoidable injuries",
+    d: "Spikes in load, low wellness, exposure gaps and availability risk are flagged the moment they appear — with a concrete suggestion for tomorrow's session, not just a red number.",
+  },
+  {
+    icon: ClipboardList,
+    color: "amber",
+    t: "Credibility with the head coach",
+    d: "Walk into the meeting with a clean one-page report built from real data. Every recommendation you make can be shown on a chart in five seconds.",
+  },
+  {
+    icon: Users,
+    color: "pink",
+    t: "The players on your side",
+    d: "Each player has his own login, fills in his wellness in thirty seconds and sees his own progress. Buy-in comes from letting them see the numbers, not from asking them to fill in a form.",
+  },
+  {
+    icon: Gauge,
+    color: "violet",
+    t: "Your own methodology, not ours",
+    d: "You decide which KPIs define load and how much each one weighs. T4P does the arithmetic; the sports science stays yours.",
+  },
+  {
+    icon: BookOpen,
+    color: "teal",
+    t: "A season that is written down",
+    d: "Every session, test, injury and export stays in one place. At the end of the season you have a complete record — and a starting point for the next one.",
+  },
+];
+
+/** A realistic week, so the coach can picture himself using it. */
+const week = [
+  { d: "Sunday night", t: "Plan the microcycle", b: "Lay MD-4 to MD+1 on the calendar and duplicate the blocks that worked last week." },
+  { d: "Before training", t: "Check who you have", b: "Availability, wellness responses and the alerts that came in overnight — one screen, thirty seconds." },
+  { d: "After training", t: "Record what happened", b: "Import the GPS file, or rate the session 0–10 and enter the minutes. Both end in the same training load." },
+  { d: "Midweek", t: "Read the response", b: "ACWR, monotony and strain per player, plus who is drifting away from his position group." },
+  { d: "Match week", t: "Report and decide", b: "Export the PDF for the head coach and adjust tomorrow's block before it is delivered, not after." },
+];
+
 
 function About() {
   return (
