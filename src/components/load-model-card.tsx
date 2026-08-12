@@ -159,9 +159,12 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
               </p>
               <p className="mt-2 break-words text-sm leading-relaxed">{loadFormulaText(model)}</p>
               <p className="mt-2 text-xs text-muted-foreground">
-                {activeLoadKpis(model).length} KPI(s) selected. 100 AU = an average session for an average player in your
-                own squad, so the number is always relative to your team, not to another club.
+                {activeLoadKpis(model).length} KPI(s) selected. The load is individual: each player gets his own number
+                from his own session values. The team reference (the average of that KPI across every imported
+                player-session) is only the scale, so 100 AU means "an average session for an average player of your
+                squad" — never another club.
               </p>
+
             </div>
             {preview.length > 0 && (
               <div className="rounded-md border border-border p-3">
