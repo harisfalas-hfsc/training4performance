@@ -782,22 +782,37 @@ function GpsPage() {
           <SectionTitle
             title="Player matching"
             right={
-              unmatched ? (
+              <span className="flex flex-wrap items-center gap-2">
+                {unmatched ? (
+                  <button
+                    type="button"
+                    onClick={createMissingPlayers}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-primary px-3 py-1.5 text-xs font-semibold text-primary"
+                  >
+                    <UserPlus className="size-3.5" /> Create {unmatched} missing player(s)
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  onClick={createMissingPlayers}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                  onClick={runImport}
+                  disabled={needsConfirm > 0 || uploading || !matched || !can("importGps")}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  <UserPlus className="size-3.5" /> Create {unmatched} missing player(s)
+                  <Upload className="size-3.5" /> Import {matched} rows into the session
                 </button>
-              ) : undefined
+              </span>
             }
             hint={
-              combine
-                ? "One line per athlete — the parts of the training are already combined into his session total."
-                : "Names must exist in your squad. Fix a mismatch here, or rename the player in his profile so future files match automatically."
+              <>
+                {combine
+                  ? "One line per athlete — the parts of the training are already combined into his session total. "
+                  : "Names must exist in your squad. Fix a mismatch here, or rename the player in his profile so future files match automatically. "}
+                “Save template” only remembers the column mapping — the data itself is stored with “Import into the session”.
+                Tap a club-KPI number to see the values kept for that athlete.
+              </>
             }
           />
+
           <div className="scroll-pane overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
