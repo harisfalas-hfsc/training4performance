@@ -327,7 +327,7 @@ function AnalyticsPage() {
             </label>
           </div>
           <div className="scroll-pane overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
+             <table className="w-full min-w-[1050px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                   <th className="py-2">Player</th>
@@ -335,9 +335,9 @@ function AnalyticsPage() {
                    <th className="text-right whitespace-nowrap">HSR selected dates (m)</th>
                    <th className="text-right whitespace-nowrap">Sprint selected dates (m)</th>
                   <th className="text-right whitespace-nowrap">Max speed (km/h)</th>
-                  <th className="text-right">RPE</th>
+                   <th className="text-right whitespace-nowrap">Average RPE</th>
                    <th className="text-right whitespace-nowrap">Selected load (AU)</th>
-                  <th className="text-right">ACWR</th>
+                   <th className="text-right whitespace-nowrap">ACWR</th>
                 </tr>
               </thead>
               <tbody>
