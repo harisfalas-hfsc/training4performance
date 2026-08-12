@@ -7,6 +7,7 @@ import { CHART_KINDS, ChartFrame, HBar, MultiChart, type ChartKind } from "@/com
 import {
   fullName,
   gpsHistory,
+  gpsRowLoad,
   players,
   sessionCalendar,
   useDataVersion,
@@ -60,7 +61,7 @@ function metricOf(g: GpsDay, key: MetricKey): number {
     case "zone1":
       return Math.max(0, g.distance - g.hsr);
     case "load":
-      return Math.round(g.rpe * g.minutes);
+      return Math.round(gpsRowLoad(g));
     case "jumps":
       return g.jumps ?? 0;
     default:

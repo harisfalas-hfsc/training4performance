@@ -10,6 +10,8 @@ import {
   customKpis,
   fullName,
   gpsHistory,
+  gpsLoadFor,
+  gpsRowLoad,
   gpsValue,
   players,
   useDataVersion,
@@ -41,7 +43,7 @@ const METRICS = [
   { key: "decel", label: "Decelerations", unit: "n" },
   { key: "minutes", label: "Minutes", unit: "min" },
   { key: "rpe", label: "RPE", unit: "0-10" },
-  { key: "load", label: "s-RPE load", unit: "AU" },
+  { key: "load", label: "Training load", unit: "AU" },
 ] as const;
 
 type MetricKey = string;
@@ -85,7 +87,7 @@ function AnalyticsPage() {
       const dayRows = selectedRows.filter((row) => row.date === date);
       const point: Record<string, string | number> = { date: date.slice(5) };
       for (const metric of [...METRICS, ...customKpis().map((item) => ({ ...item, unit: "" }))]) {
-        const values = dayRows.map((row) => metric.key === "load" ? row.rpe * row.minutes : gpsValue(row, metric.key));
+        const values = dayRows.map((row) => metric.key === "load" ? gpsRowLoad(row) : gpsValue(row, metric.key));
         if (metric.key === "maxSpeed") point[metric.key] = values.length ? Math.max(...values) : 0;
         else if (scope === "team") point[metric.key] = Math.round(values.reduce((a, b) => a + b, 0));
         else point[metric.key] = values.length ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10 : 0;
@@ -154,7 +156,7 @@ function AnalyticsPage() {
       const point: Record<string, string | number> = { date: date.slice(5) };
       for (const id of selected) {
          const row = gpsHistory.find((item) => item.playerId === id && item.date === date);
-         if (row) point[id] = compareKpi === "load" ? row.rpe * row.minutes : gpsValue(row, compareKpi);
+         if (row) point[id] = compareKpi === "load" ? gpsRowLoad(row) : gpsValue(row, compareKpi);
       }
       return point;
     });

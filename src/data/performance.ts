@@ -320,6 +320,26 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
+/**
+ * GPS training-load provider. The load-model bridge registers a function here so
+ * the coach's chosen formula (KPIs + weights) becomes the single source of truth
+ * for load, ACWR, monotony and strain everywhere — GPS reports, analytics, the
+ * player profile, the dashboard and the report engine.
+ */
+type GpsRowLoadFn = (row: GpsDay) => number;
+let gpsRowLoadProvider: GpsRowLoadFn | null = null;
+export function registerGpsLoadProvider(fn: GpsRowLoadFn | null) {
+  gpsRowLoadProvider = fn;
+}
+/** Lets the load-model bridge push model changes to performance subscribers. */
+export function notifyDataChange() {
+  emit();
+}
+/** Per-row GPS training load (AU) — the configured model, or s-RPE fallback. */
+export function gpsRowLoad(r: GpsDay): number {
+  return gpsRowLoadProvider ? gpsRowLoadProvider(r) : (r.rpe || 0) * (r.minutes || 0);
+}
+
 export function workspaceSnapshot(): WorkspaceData {
   return {
     team: { ...team },
@@ -732,11 +752,11 @@ export function manualLoadFor(playerId: string, date: string) {
     .reduce((a, r) => a + (r.rpe || 0) * (r.minutes || 0), 0);
 }
 
-/** GPS-derived sRPE load (AU) of one athlete on one day. */
+/** GPS training load (AU) of one athlete on one day — driven by the configured load model. */
 export function gpsLoadFor(playerId: string, date: string) {
   return gpsHistory
     .filter((g) => g.playerId === playerId && g.date === date)
-    .reduce((a, g) => a + (g.rpe || 0) * (g.minutes || 0), 0);
+    .reduce((a, g) => a + gpsRowLoad(g), 0);
 }
 
 export interface DayLoad {
@@ -909,8 +929,8 @@ const positionProfile: Record<Position, { dist: number; hsr: number; sprint: num
   ST: { dist: 5800, hsr: 690, sprint: 180, speed: 32.9 },
 };
 
-export function dateNAgo(n: number) {
-  const d = new Date(today);
+export function dateNAgo(n: number, asOf: string = today) {
+  const d = new Date(asOf);
   d.setDate(d.getDate() - n);
   return d.toISOString().slice(0, 10);
 }
@@ -947,11 +967,11 @@ export interface LoadSummary {
   chronicReliable: boolean;
 }
 
-export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28): LoadSummary {
+export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28, asOf: string = today): LoadSummary {
   const days = loadDays(id);
   const sRpe = days.map((d) => ({ date: d.date, load: d.total }));
-  const acuteDays = sRpe.filter((d) => d.date >= dateNAgo(acuteWindow - 1));
-  const chronicDays = sRpe.filter((d) => d.date >= dateNAgo(chronicWindow - 1));
+  const acuteDays = sRpe.filter((d) => d.date >= dateNAgo(acuteWindow - 1, asOf));
+  const chronicDays = sRpe.filter((d) => d.date >= dateNAgo(chronicWindow - 1, asOf));
   const acute = sum(acuteDays.map((d) => d.load));
   const chronicTotal = sum(chronicDays.map((d) => d.load));
   const chronic = chronicTotal / (chronicWindow / acuteWindow);
@@ -965,17 +985,17 @@ export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28): Lo
     acwr: chronic ? +(acute / chronic).toFixed(2) : 0,
     monotony: +monotony.toFixed(2),
     strain: Math.round(acute * monotony),
-    chronicReliable: days.filter((d) => d.date >= dateNAgo(chronicWindow - 1)).length >= 12,
+    chronicReliable: days.filter((d) => d.date >= dateNAgo(chronicWindow - 1, asOf)).length >= 12,
   };
 }
 
 /** Rolling day-by-day ACWR for the last `days` calendar days. */
-export function acwrSeries(id: string, days = 42, acuteWindow = 7, chronicWindow = 28) {
+export function acwrSeries(id: string, days = 42, acuteWindow = 7, chronicWindow = 28, asOf: string = today) {
   const daily = loadDays(id);
   const byDate = new Map(daily.map((d) => [d.date, d.total]));
   const out: Array<{ date: string; acwr: number; acute: number; chronic: number; load: number }> = [];
   for (let i = days - 1; i >= 0; i--) {
-    const date = dateNAgo(i);
+    const date = dateNAgo(i, asOf);
     const from = (n: number) => {
       const d = new Date(date);
       d.setDate(d.getDate() - (n - 1));
@@ -1164,7 +1184,7 @@ export function squadTrend(days = 28) {
       decel: Math.round(avg(rows.map((r) => r.decel))),
       minutes: Math.round(avg(rows.map((r) => r.minutes))),
       rpe: +avg(rows.map((r) => r.rpe)).toFixed(1),
-      load: Math.round(avg(rows.map((r) => r.rpe * r.minutes))),
+      load: Math.round(avg(rows.map((r) => gpsRowLoad(r)))),
     };
     // club-specific KPIs ride along without widening the typed core shape
     return Object.assign(base, custom);
@@ -1184,7 +1204,7 @@ export function playerTrend(id: string, days = 28) {
       decel: d.decel,
       minutes: d.minutes,
       rpe: d.rpe,
-      load: d.rpe * d.minutes,
+      load: gpsRowLoad(d),
       ...(d.extra ?? {}),
     }));
 }

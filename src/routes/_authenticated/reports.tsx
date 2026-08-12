@@ -9,6 +9,7 @@ import {
   availabilitySummary,
   avg,
   loadDays,
+  loadSummary,
   fullName,
   medicalEvents,
   players,
@@ -37,11 +38,8 @@ import {
 } from "@/data/reporting";
 import {
   DEFAULT_WEIGHTS,
-  LOAD_KPIS,
   pivotMetrics,
-  compositeAcwr,
   logbookRows,
-  type LoadWeights,
 } from "@/data/logbook";
 import { MEDICAL_REDACTED, useRole } from "@/lib/roles";
 import { exportReport, type ReportPayload } from "@/lib/report-export";
@@ -106,11 +104,8 @@ function ReportsPage() {
   const canSeeMedical = can("viewMedicalDetail");
   const has = (s: SectionId) => active.sections.includes(s);
 
-  /* --- report KPI columns + load model configuration --- */
+  /* --- report KPI columns (load & ACWR follow the global training-load model) --- */
   const [kpiCols, setKpiCols] = useState<string[]>(["distance", "hsr", "sprintDistance", "accel", "srpe"]);
-  const [weights, setWeights] = useState<LoadWeights>(DEFAULT_WEIGHTS);
-  const [acuteWindow, setAcuteWindow] = useState(7);
-  const [chronicWindow, setChronicWindow] = useState(28);
 
   const toggleKpi = (key: string) =>
     setKpiCols((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
@@ -123,19 +118,19 @@ function ReportsPage() {
         for (const key of kpiCols) {
           const metric = pivotMetrics().find((m) => m.key === key);
           if (!metric) continue;
-          const vals = rows.map((r) => metric.value(r, weights));
+          const vals = rows.map((r) => metric.value(r, DEFAULT_WEIGHTS));
           values[key] =
             key === "maxSpeed"
               ? +(vals.length ? Math.max(...vals) : 0).toFixed(1)
               : Math.round(vals.reduce((a, b) => a + b, 0));
         }
-        const load = compositeAcwr(p.id, weights, acuteWindow, chronicWindow, to);
+        const load = loadSummary(p.id, 7, 28, to);
         const spread = loadDays(p.id).filter((d) => d.date >= from && d.date <= to);
         const manual = spread.reduce((a, d) => a + d.manual, 0);
         const gpsLoad = spread.reduce((a, d) => a + d.gps, 0);
         return { player: p, values, load, manual, gpsLoad, totalLoad: manual + gpsLoad };
       }),
-    [kpiCols, weights, acuteWindow, chronicWindow, from, to, selectedPlayers],
+    [kpiCols, from, to, selectedPlayers],
   );
 
 
@@ -414,75 +409,6 @@ function ReportsPage() {
           </div>
         </div>
 
-        <div className="panel p-4">
-          <SectionTitle
-            title="Training load model"
-            hint="Choose exactly which components build the load and the acute:chronic ratio"
-            right={
-              <button
-                onClick={() => {
-                  setWeights(DEFAULT_WEIGHTS);
-                  setAcuteWindow(7);
-                  setChronicWindow(28);
-                }}
-                className="rounded-md border border-border px-2 py-1 text-[0.68rem] font-semibold text-muted-foreground hover:border-primary hover:text-primary"
-              >
-                Reset model
-              </button>
-            }
-          />
-          <div className="grid gap-2 sm:grid-cols-2">
-            {LOAD_KPIS.map((k) => (
-              <div key={k.key} className="rounded-md border border-border p-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">
-                    {k.label} <span className="opacity-60">· {k.group}</span>
-                  </span>
-                  <span className="metric-value text-primary">{(weights[k.key] ?? 0).toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={3}
-                  step={0.25}
-                  value={weights[k.key] ?? 0}
-                  onChange={(e) => setWeights((prev) => ({ ...prev, [k.key]: Number(e.target.value) }))}
-                  className="mt-1 w-full accent-[var(--color-primary)]"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <label className="block text-xs text-muted-foreground">
-              Acute window: <span className="text-primary">{acuteWindow} days</span>
-              <input
-                type="range"
-                min={3}
-                max={14}
-                step={1}
-                value={acuteWindow}
-                onChange={(e) => setAcuteWindow(Number(e.target.value))}
-                className="mt-1 w-full accent-[var(--color-primary)]"
-              />
-            </label>
-            <label className="block text-xs text-muted-foreground">
-              Chronic window: <span className="text-primary">{chronicWindow} days</span>
-              <input
-                type="range"
-                min={14}
-                max={56}
-                step={7}
-                value={chronicWindow}
-                onChange={(e) => setChronicWindow(Number(e.target.value))}
-                className="mt-1 w-full accent-[var(--color-primary)]"
-              />
-            </label>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Load = weighted mean of the selected components, each normalised against the squad reference and scaled to
-            100 AU for a typical full session. ACWR = acute sum ÷ chronic sum scaled to the same window length.
-          </p>
-        </div>
       </section>
 
 

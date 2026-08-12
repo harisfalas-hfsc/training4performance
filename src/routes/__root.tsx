@@ -14,6 +14,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RoleProvider } from "../lib/roles";
 import { AuthProvider } from "../lib/auth";
 import { Toaster } from "../components/ui/sonner";
+// Side effect: registers the training-load model as the single source of truth
+// for load / ACWR / monotony everywhere in the platform.
+import "@/data/gps-load";
 import {
   jsonLd,
   CONTACT_EMAIL,
