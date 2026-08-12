@@ -10,7 +10,6 @@ import {
   customKpis,
   fullName,
   gpsHistory,
-  gpsLoadFor,
   gpsRowLoad,
   gpsValue,
   players,
