@@ -210,18 +210,23 @@ export const T4P_TEMPLATE_COLUMNS: TemplateColumn[] = [
 ];
 
 const exampleAthletes = players.slice(0, 3);
+const FALLBACK_ATHLETES = ["HARIS FALAS", "PLAYER TWO", "PLAYER THREE"];
 
 /** CSV text for the downloadable T4P import template. */
 export function templateCsv(): string {
   const header = T4P_TEMPLATE_COLUMNS.map((c) => c.header).join(",");
-  const rows = exampleAthletes.map((p, i) =>
+  const sample = exampleAthletes.length
+    ? exampleAthletes.map((p) => ({ name: fullName(p).toUpperCase(), role: p.position }))
+    : FALLBACK_ATHLETES.map((name) => ({ name, role: "CENTER BACK" }));
+  const rows = sample.map((a, i) =>
     T4P_TEMPLATE_COLUMNS.map((c) => {
-      if (c.key === "athlete") return fullName(p).toUpperCase();
-      if (c.key === "role") return p.position;
+      if (c.key === "athlete") return a.name;
+      if (c.key === "role") return a.role;
       if (c.key === "starter") return i === 0 ? "TRUE" : "FALSE";
       return c.example;
     }).join(","),
   );
+
   const legend = [
     "",
     "# T4P GPS IMPORT TEMPLATE",
