@@ -13,6 +13,8 @@ import {
   today,
   useDataVersion,
 } from "@/data/performance";
+import { estimateLoad, kpiMeans, activeLoadKpis } from "@/data/load-model";
+import { useLoadModel } from "@/components/load-model-card";
 
 const CORE_KPIS = [
   { key: "distance", label: "Distance", unit: "m" },
@@ -50,6 +52,14 @@ const PAGE = 50;
  */
 export function GpsExplorer() {
   useDataVersion();
+  const loadModel = useLoadModel();
+  /** Squad means are computed once per render so the load column stays cheap. */
+  const loadMeans = useMemo(
+    () => kpiMeans(activeLoadKpis(loadModel).map((k) => k.key)),
+    [loadModel, gpsHistory.length],
+  );
+  const metricValue = (row: (typeof gpsHistory)[number], key: string) =>
+    key === "t4pLoad" ? estimateLoad(row, loadModel, loadMeans) : gpsValue(row, key);
   const dates = useMemo(() => [...new Set(gpsHistory.map((r) => r.date))].sort(), [gpsHistory.length]);
   const [scope, setScope] = useState<Scope>("team");
   const [picked, setPicked] = useState<string[]>([]);
@@ -72,9 +82,10 @@ export function GpsExplorer() {
   const allKpis = useMemo(
     () => [
       ...CORE_KPIS.map((k) => ({ key: k.key as string, label: k.label, unit: k.unit as string })),
+      { key: "t4pLoad", label: "Training load (calculated)", unit: "AU" },
       ...customKpis().map((k) => ({ key: k.key, label: k.label, unit: "" })),
     ],
-    [gpsHistory.length],
+    [gpsHistory.length, loadModel],
   );
 
   const activeIds = scope === "players" ? picked : players.map((p) => p.id);
@@ -100,11 +111,11 @@ export function GpsExplorer() {
         const key = kpis[0]!;
         for (const id of picked) {
           const row = dayRows.find((r) => r.playerId === id);
-           if (row) point[id] = gpsValue(row, key);
+           if (row) point[id] = metricValue(row, key);
         }
       } else {
         for (const key of kpis) {
-          const total = dayRows.reduce((a, r) => a + gpsValue(r, key), 0);
+          const total = dayRows.reduce((a, r) => a + metricValue(r, key), 0);
           point[key] = scope === "average" && dayRows.length ? Math.round(total / dayRows.length) : Math.round(total);
         }
       }
@@ -143,7 +154,7 @@ export function GpsExplorer() {
       const player = players.find((item) => item.id === id);
       const playerRows = rows.filter((row) => row.playerId === id);
       if (!player || !playerRows.length) return [];
-      const values = playerRows.map((row) => gpsValue(row, key));
+      const values = playerRows.map((row) => metricValue(row, key));
       const value = key === "maxSpeed" ? Math.max(...values) : key === "rpe" ? values.reduce((a, b) => a + b, 0) / values.length : values.reduce((a, b) => a + b, 0);
       return [{ name: fullName(player), value: Math.round(value * 10) / 10 }];
     });
@@ -171,6 +182,7 @@ export function GpsExplorer() {
             rpe: r.rpe,
           };
           for (const column of extraColumns) base[column.label] = gpsValue(r, column.key);
+          base["training load (AU)"] = metricValue(r, "t4pLoad");
           return base;
         }),
       ),

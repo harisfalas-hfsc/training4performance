@@ -43,6 +43,7 @@ import { T4P_TEMPLATE_COLUMNS, templateCsv } from "@/data/logbook";
 import { useRole } from "@/lib/roles";
 import { T4P } from "@/components/brand-text";
 import { GpsExplorer } from "@/components/gps-explorer";
+import { LoadModelCard } from "@/components/load-model-card";
 
 export const Route = createFileRoute("/_authenticated/gps")({
   head: () => ({
@@ -514,7 +515,14 @@ function GpsPage() {
         ))}
       </div>
 
-      {tab === "reports" && <GpsExplorer />}
+      {tab === "reports" && (
+        <>
+          <GpsExplorer />
+          <div className="mt-4">
+            <LoadModelCard />
+          </div>
+        </>
+      )}
 
       <section className={`panel mb-4 p-4 ${tab === "reports" ? "" : "hidden"}`}>
         <SectionTitle title="Saved GPS history" hint="Every completed import stays attached to its player and training date" />
@@ -532,6 +540,9 @@ function GpsPage() {
         ) : <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">No GPS report has been imported yet. Upload a file below; player names can create the squad, and “Import into the session” saves the history.</p>}
       </section>
       {tab === "import" && (<>
+      <div className="mb-4">
+        <LoadModelCard />
+      </div>
       <section className="panel mb-4 p-4">
         <SectionTitle
           title="Associate this file with a training"
