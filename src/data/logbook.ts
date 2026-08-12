@@ -189,7 +189,7 @@ export const T4P_TEMPLATE_COLUMNS: TemplateColumn[] = [
   { key: "category", header: "category", required: true, example: "FULL TRAINING", note: "One of the player training descriptions." },
   { key: "dayDescription", header: "day description", required: false, example: "MD -2", note: "Match-day cycle label." },
   { key: "drill", header: "training drill", required: false, example: "SSG > AT", note: "Leave empty for a whole-session row; fill it to split the session into parts." },
-  { key: "athlete", header: "athlete", required: true, example: "PANAYIOTIS ARTYMATAS", note: "Player name, matched against the squad list." },
+  { key: "athlete", header: "athlete", required: true, example: "HARIS FALAS", note: "Player name, matched against the squad list." },
   { key: "role", header: "role", required: false, example: "CENTER BACK", note: "Position on the day." },
   { key: "starter", header: "starter", required: false, example: "TRUE", note: "TRUE / FALSE." },
   { key: "duration", header: "duration (mm:ss)", required: true, example: "75:32", note: "Minutes are also accepted (75)." },
