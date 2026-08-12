@@ -189,7 +189,7 @@ export const T4P_TEMPLATE_COLUMNS: TemplateColumn[] = [
   { key: "category", header: "category", required: true, example: "FULL TRAINING", note: "One of the player training descriptions." },
   { key: "dayDescription", header: "day description", required: false, example: "MD -2", note: "Match-day cycle label." },
   { key: "drill", header: "training drill", required: false, example: "SSG > AT", note: "Leave empty for a whole-session row; fill it to split the session into parts." },
-  { key: "athlete", header: "athlete", required: true, example: "PANAYIOTIS ARTYMATAS", note: "Player name, matched against the squad list." },
+  { key: "athlete", header: "athlete", required: true, example: "HARIS FALAS", note: "Player name, matched against the squad list." },
   { key: "role", header: "role", required: false, example: "CENTER BACK", note: "Position on the day." },
   { key: "starter", header: "starter", required: false, example: "TRUE", note: "TRUE / FALSE." },
   { key: "duration", header: "duration (mm:ss)", required: true, example: "75:32", note: "Minutes are also accepted (75)." },
@@ -210,18 +210,23 @@ export const T4P_TEMPLATE_COLUMNS: TemplateColumn[] = [
 ];
 
 const exampleAthletes = players.slice(0, 3);
+const FALLBACK_ATHLETES = ["HARIS FALAS", "PLAYER TWO", "PLAYER THREE"];
 
 /** CSV text for the downloadable T4P import template. */
 export function templateCsv(): string {
   const header = T4P_TEMPLATE_COLUMNS.map((c) => c.header).join(",");
-  const rows = exampleAthletes.map((p, i) =>
+  const sample = exampleAthletes.length
+    ? exampleAthletes.map((p) => ({ name: fullName(p).toUpperCase(), role: p.position }))
+    : FALLBACK_ATHLETES.map((name) => ({ name, role: "CENTER BACK" }));
+  const rows = sample.map((a, i) =>
     T4P_TEMPLATE_COLUMNS.map((c) => {
-      if (c.key === "athlete") return fullName(p).toUpperCase();
-      if (c.key === "role") return p.position;
+      if (c.key === "athlete") return a.name;
+      if (c.key === "role") return a.role;
       if (c.key === "starter") return i === 0 ? "TRUE" : "FALSE";
       return c.example;
     }).join(","),
   );
+
   const legend = [
     "",
     "# T4P GPS IMPORT TEMPLATE",

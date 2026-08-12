@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { isAdminEmail } from "@/lib/admin";
 import { setWriteAccess } from "@/lib/access";
 import { setWorkspaceScope } from "@/lib/workspace-scope";
+import { resetWorkspaceHydration } from "@/lib/usage";
 
 export interface Profile {
   id: string;
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasAccess: Boolean(session) && (isAdmin || active),
       refresh: () => load(session?.user?.id, session?.user?.email),
       signOut: async () => {
+        resetWorkspaceHydration();
         setWorkspaceScope(null);
         if (typeof window !== "undefined") window.sessionStorage.removeItem("t4p.adminSession");
         await supabase.auth.signOut();

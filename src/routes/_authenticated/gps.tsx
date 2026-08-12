@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Download, FileWarning, HelpCircle, Save, Upload, UserPlus, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
@@ -199,6 +199,7 @@ function GpsPage() {
   const [mapping, setMapping] = useState<ColumnMapping[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
   const [segmentCol, setSegmentCol] = useState<string | null>(null);
+  const [openKpis, setOpenKpis] = useState<string | null>(null);
   const [scope, setScope] = useState<"whole" | "segments">("whole");
   const [segmentMap, setSegmentMap] = useState<Record<string, string>>({});
   const [templateName, setTemplateName] = useState("");
@@ -234,9 +235,16 @@ function GpsPage() {
 
   const matched = athleteRows.filter((r) => r.matchedId && r.confidence >= 0.95).length;
   const needsConfirm = athleteRows.filter((r) => r.matchedId && r.confidence < 0.95).length;
-  const unmatched = athleteRows.filter((r) => !r.matchedId).length;
+  /** Distinct people still missing from the squad — not the number of rows. */
+  const unmatchedNames = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of athleteRows) if (!r.matchedId) map.set(r.raw.trim().toLowerCase(), r.raw.trim());
+    return [...map.values()];
+  }, [athleteRows]);
+  const unmatched = unmatchedNames.length;
   const customCols = mapping.filter((m) => m.target === "custom" && m.header !== segmentCol);
   const missingCore = ["name", "distance"].filter((f) => !mapping.some((m) => m.target === f));
+
 
   const handleFile = async (file: File) => {
     if (!isAcceptedFile(file.name)) {
@@ -328,15 +336,15 @@ function GpsPage() {
 
   /** Create squad members straight from the file, so a coach never types the names twice. */
   const createMissingPlayers = () => {
-    const missing = athleteRows.filter((r) => !r.matchedId);
-    if (!missing.length) return;
+    if (!unmatchedNames.length) return;
     const created: Record<string, string> = {};
-    for (const r of missing) {
-      const parts = r.raw.trim().split(/[\s,]+/).filter(Boolean);
+    for (const raw of unmatchedNames) {
+      const parts = raw.trim().split(/[\s,]+/).filter(Boolean);
       const last = parts.length > 1 ? parts.slice(1).join(" ") : "";
-      const player = addPlayer({ firstName: parts[0] ?? r.raw, lastName: last, position: "CM" });
-      if (player) created[r.raw.toLowerCase()] = player.id;
+      const player = addPlayer({ firstName: parts[0] ?? raw, lastName: last, position: "CM" });
+      if (player) created[raw.toLowerCase()] = player.id;
     }
+
     const count = Object.keys(created).length;
     if (!count) {
       toast.error("A team subscription is needed to add players.");
@@ -344,12 +352,15 @@ function GpsPage() {
     }
     setRows((prev) =>
       prev.map((r) =>
-        !r.matchedId && created[r.raw.toLowerCase()]
-          ? { ...r, matchedId: created[r.raw.toLowerCase()]!, confidence: 1 }
+        !r.matchedId && created[r.raw.trim().toLowerCase()]
+          ? { ...r, matchedId: created[r.raw.trim().toLowerCase()]!, confidence: 1 }
           : r,
       ),
     );
-    toast.success(`${count} player(s) added to your squad from the file`);
+    toast.success(`${count} player(s) added to your squad from the file`, {
+      description: "Now press “Import into the session” to save their GPS records.",
+    });
+
   };
 
   const persistTemplate = () => {
@@ -772,22 +783,37 @@ function GpsPage() {
           <SectionTitle
             title="Player matching"
             right={
-              unmatched ? (
+              <span className="flex flex-wrap items-center gap-2">
+                {unmatched ? (
+                  <button
+                    type="button"
+                    onClick={createMissingPlayers}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-primary px-3 py-1.5 text-xs font-semibold text-primary"
+                  >
+                    <UserPlus className="size-3.5" /> Create {unmatched} missing player(s)
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  onClick={createMissingPlayers}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                  onClick={runImport}
+                  disabled={needsConfirm > 0 || uploading || !matched || !can("importGps")}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  <UserPlus className="size-3.5" /> Create {unmatched} missing player(s)
+                  <Upload className="size-3.5" /> Import {matched} rows into the session
                 </button>
-              ) : undefined
+              </span>
             }
             hint={
-              combine
-                ? "One line per athlete — the parts of the training are already combined into his session total."
-                : "Names must exist in your squad. Fix a mismatch here, or rename the player in his profile so future files match automatically."
+              <>
+                {combine
+                  ? "One line per athlete — the parts of the training are already combined into his session total. "
+                  : "Names must exist in your squad. Fix a mismatch here, or rename the player in his profile so future files match automatically. "}
+                “Save template” only remembers the column mapping — the data itself is stored with “Import into the session”.
+                Tap a club-KPI number to see the values kept for that athlete.
+              </>
             }
           />
+
           <div className="scroll-pane overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
@@ -806,8 +832,13 @@ function GpsPage() {
                 {athleteRows.map((r, i) => {
                   const p = r.matchedId ? getPlayer(r.matchedId) : null;
                   const certain = r.confidence >= 0.95;
+                  const rowKey = `${r.raw}-${i}`;
+                  const kpiKeys = Object.keys(r.extra);
+                  const open = openKpis === rowKey;
+                  const cols = combine ? 8 : 7;
                   return (
-                    <tr key={`${r.raw}-${i}`} className="border-b border-border/60">
+                    <Fragment key={rowKey}>
+                    <tr className="border-b border-border/60">
                       <td className="py-2 font-mono text-xs">{r.raw}</td>
                       <td>
                         {p && certain ? (
@@ -841,7 +872,19 @@ function GpsPage() {
                       <td className="text-right tabular-nums">{(r.core.distance ?? 0).toLocaleString()}</td>
                       <td className="text-right tabular-nums">{r.core.hsr ?? 0}</td>
                       <td className="text-right tabular-nums">{r.core.maxSpeed ?? 0}</td>
-                      <td className="text-right tabular-nums">{Object.keys(r.extra).length}</td>
+                      <td className="text-right tabular-nums">
+                        {kpiKeys.length ? (
+                          <button
+                            type="button"
+                            onClick={() => setOpenKpis(open ? null : rowKey)}
+                            className="font-semibold text-primary underline-offset-2 hover:underline"
+                          >
+                            {kpiKeys.length}
+                          </button>
+                        ) : (
+                          0
+                        )}
+                      </td>
                       <td className="py-2 text-right">
                         {p && !certain ? (
                           <span className="inline-flex gap-1">
@@ -863,8 +906,25 @@ function GpsPage() {
                         ) : null}
                       </td>
                     </tr>
+                    {open && kpiKeys.length ? (
+                      <tr className="border-b border-border/60 bg-surface-2">
+                        <td colSpan={cols} className="p-3">
+                          <p className="eyebrow mb-2">Club KPIs kept for {r.raw}</p>
+                          <div className="grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                            {kpiKeys.map((k) => (
+                              <div key={k} className="flex justify-between gap-3">
+                                <span className="truncate text-muted-foreground">{r.extraLabels[k] ?? k}</span>
+                                <span className="tabular-nums">{r.extra[k]?.toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                    </Fragment>
                   );
                 })}
+
 
               </tbody>
             </table>

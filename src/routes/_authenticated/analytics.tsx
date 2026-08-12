@@ -65,7 +65,7 @@ function AnalyticsPage() {
   const [kpis, setKpis] = useState<MetricKey[]>(["hsr", "distance"]);
   const [kind, setKind] = useState<ChartKind>("line");
   const [devKey, setDevKey] = useState<(typeof DEVIATION_METRICS)[number]["key"]>("hsr7");
-  const [selected, setSelected] = useState<string[]>(["p14", "p09", "p03"]);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const trend = squadTrend(window);
   const metrics = squadMetrics();
@@ -277,8 +277,10 @@ function AnalyticsPage() {
               </thead>
               <tbody>
                 {selected.map((id) => {
-                  const p = players.find((x) => x.id === id)!;
+                  const p = players.find((x) => x.id === id);
+                  if (!p) return null;
                   const m = playerMetrics(p);
+
                   return (
                     <tr key={id} className="border-b border-border/60">
                       <td className="py-2">{fullName(p)}</td>
