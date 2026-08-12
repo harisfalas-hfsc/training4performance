@@ -2,6 +2,37 @@
 @source "../src";
 @import "tw-animate-css";
 
+/*
+ * Responsive variants stay width-based everywhere except a tablet held in
+ * portrait. The root head marks that one case before the page body renders,
+ * so every existing sm/md/lg layout falls back to its real mobile base style.
+ */
+@custom-variant sm {
+  @media (min-width: 40rem) {
+    &:where(:not(.tablet-portrait *)) { @slot; }
+  }
+}
+@custom-variant md {
+  @media (min-width: 48rem) {
+    &:where(:not(.tablet-portrait *)) { @slot; }
+  }
+}
+@custom-variant lg {
+  @media (min-width: 64rem) {
+    &:where(:not(.tablet-portrait *)) { @slot; }
+  }
+}
+@custom-variant xl {
+  @media (min-width: 80rem) {
+    &:where(:not(.tablet-portrait *)) { @slot; }
+  }
+}
+@custom-variant 2xl {
+  @media (min-width: 96rem) {
+    &:where(:not(.tablet-portrait *)) { @slot; }
+  }
+}
+
 
 /*
  * FOOTBALL PERFORMANCE OS — design system
