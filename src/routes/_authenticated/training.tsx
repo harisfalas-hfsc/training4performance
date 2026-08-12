@@ -834,7 +834,25 @@ function TrainingPage() {
                                 </Field>
                               </div>
                             )}
+                            <div className="mt-3">
+                              <Field label="Tags (searchable in Analytics — separate with commas)">
+                                <input
+                                  className="control"
+                                  placeholder="Rondo 5v2, Passing drill, Bulgarian split squat"
+                                  value={(it.tags ?? []).join(", ")}
+                                  onChange={(e) =>
+                                    patchItem(i, {
+                                      tags: e.target.value
+                                        .split(",")
+                                        .map((t) => t.trim())
+                                        .filter(Boolean),
+                                    })
+                                  }
+                                />
+                              </Field>
+                            </div>
                             {it.drawing ? (
+
                               <p className="mt-2 text-[0.68rem] text-success">Tactics-board drawing attached</p>
                             ) : null}
                           </li>
