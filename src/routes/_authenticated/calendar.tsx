@@ -443,6 +443,8 @@ function CalendarPage() {
           })}
         </div>
       </section>
+      </>}
+
 
       {creating ? (
         <CreateSession
