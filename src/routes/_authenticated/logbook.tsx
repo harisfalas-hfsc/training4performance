@@ -181,7 +181,7 @@ function SquadTable() {
         <MetricCard
           label={def?.higher === false ? "Fastest / lowest" : "Best result"}
           value={withValue[0] ? fmt(withValue[0].last!.value) : "—"}
-          hint={withValue[0] ? fullName(withValue[0].player) : undefined}
+          hint={withValue[0] ? fullName(withValue[0].player) : ""}
         />
       </div>
 
