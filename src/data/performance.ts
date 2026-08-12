@@ -384,11 +384,31 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
       raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) window.localStorage.setItem(key, raw);
     }
+    // Recovery: an earlier storage-key rotation left real squad/GPS data behind
+    // under the previous key. Adopt it when the current key holds nothing.
+    const hasContent = (value: string | null) => {
+      if (!value) return false;
+      try {
+        const parsed = JSON.parse(value) as { players?: unknown[]; gpsHistory?: unknown[] };
+        return Boolean(parsed.players?.length || parsed.gpsHistory?.length);
+      } catch {
+        return false;
+      }
+    };
+    if (!hasContent(raw)) {
+      const legacyKey = scopedStorageKey("t4p.data.v1", userId);
+      const legacyRaw = legacyKey ? window.localStorage.getItem(legacyKey) : null;
+      if (hasContent(legacyRaw)) {
+        raw = legacyRaw;
+        window.localStorage.setItem(key, legacyRaw as string);
+      }
+    }
     if (!raw && migrateLegacy) {
       replace(players, seedPlayers());
       replace(gpsHistory, seedGps());
       replace(sessionCalendar, seedSessions());
     } else if (raw) {
+
     const s = JSON.parse(raw) as {
       team?: Team;
       players?: Player[];
