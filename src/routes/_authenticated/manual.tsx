@@ -191,8 +191,8 @@ const CHAPTERS: Chapter[] = [
   {
     id: "load",
     n: 7,
-    title: "Training load — how T4P calculates it",
-    why: "Most GPS exports have no training-load column. T4P calculates one individually for every player, from the KPIs you choose, so ACWR, monotony and strain still work with your own file.",
+    title: "Training load — with or without GPS",
+    why: "You do not need a GPS system. With GPS, T4P builds an individual load from the KPIs you choose; without GPS, a 0-10 rating and the duration produce the same load, ACWR, monotony and strain.",
     icon: Radar,
     color: "#d97706",
     to: "/gps",
@@ -204,7 +204,10 @@ const CHAPTERS: Chapter[] = [
       "The load is INDIVIDUAL. Every player-session row gets its own load number, built only from that player's own values on that day — never from the squad's numbers of that day.",
       "The squad average is only the scale, not the value. Each KPI is divided by a team reference number (the average of that KPI across every player-session you have imported) so metres, counts, joules and jump counts can be added into one figure without unit problems.",
       "The result appears as the KPI 'Training load (calculated)' in GPS reports, in the CSV export, and feeds acute load, chronic load, ACWR, monotony and strain — all of them per player.",
-      "Alternative formula: 'Session RPE (Foster)' = RPE (0-10) x duration in minutes, also per player, if you prefer the perceived-effort route.",
+      "NO GPS SYSTEM? Use Calendar > 'Enter session or block RPE' (Manual RPE load). Pick the day, pick the block or the whole session, enter the duration in minutes and a 0-10 RPE — the same value for everyone, or athlete by athlete.",
+      "Manual load = RPE x minutes (Foster's session RPE). RPE 7 for 45 minutes = 315 AU, shown on screen before you save.",
+      "Total day load = GPS load + manual load, per player. That total is what feeds ACWR, monotony, strain, alerts and every report, so a squad with no GPS at all is monitored exactly like a squad with vests.",
+      "Alternative: set the whole load model to 'Session RPE (Foster)' if you want the perceived-effort route everywhere, including for imported GPS days that carry an RPE column.",
     ],
     tips: [
       "The maths, for one player on one day: Load (AU) = 100 x [ w1 x (his KPI1 / team reference of KPI1) + w2 x (his KPI2 / team reference of KPI2) + … ] / (w1 + w2 + …).",
@@ -213,7 +216,11 @@ const CHAPTERS: Chapter[] = [
       "The team reference uses your whole imported history, not only the day being calculated, so one very easy or very hard day does not move everybody's numbers.",
       "If your export already contains a load, TRIMP or player-load column, T4P keeps it as a club KPI so you can compare it with the calculated one.",
       "Change the weights any time — every historical day is recalculated instantly, nothing is stored twice.",
+      "Strength, gym, indoor, pool and rehab blocks are exactly what manual RPE is for: rate them after the session and they stop being invisible work.",
+      "No double counting: if a block already has a GPS file attached, a manual rating for that same block is ignored. Rate blocks, not the whole session, on days that were partly tracked.",
+      "RPE is collected AFTER the session, roughly 20-30 minutes later, when the player can judge the whole effort.",
     ],
+
   },
 
   {
