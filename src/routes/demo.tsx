@@ -124,7 +124,7 @@ function DemoPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             No sign-up, no card, nothing to import. One click opens the platform with the demo team{" "}
-            <strong className="text-foreground">T4P</strong>: five players, a full week of training
+            <T4P className="text-foreground" />: five players, a full week of training
             in blocks, GPS data, manual RPE and a fitness-test battery. Everything is live — change
             the load model, edit a session, add an RPE and see the numbers move.
           </p>
