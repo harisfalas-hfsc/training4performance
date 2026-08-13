@@ -421,6 +421,12 @@ const newId = () => `lib-${Date.now().toString(36)}-${Math.random().toString(36)
 export const savedBlocks = () => state.blocks;
 export const savedSessions = () => state.sessions;
 
+/** Replaces the coach's own library — used when seeding the public demo. */
+export function applySavedBlocks(blocks: SavedBlock[]) {
+  state.blocks = blocks.map((b) => ({ ...b, items: b.items.map((i) => ({ ...i })) }));
+  emit();
+}
+
 /** Save a block (its drills/exercises) so it can be reused in any other training. */
 export function saveBlockTemplate(
   name: string,
