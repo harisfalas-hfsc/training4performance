@@ -1,14 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { BookMarked, ClipboardPen, Copy, Lock, Plus, Search, Trash2 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { SectionTitle } from "@/components/perf-ui";
 import { T4P } from "@/components/brand-text";
-import { listLibraryBlocks, type LibraryBlock } from "@/lib/library.functions";
+import { type LibraryBlock } from "@/lib/library.functions";
+import { useOfficialLibrary } from "@/lib/use-library-blocks";
 import {
   removeSavedBlock,
   saveBlockTemplate,
@@ -53,16 +52,12 @@ function itemLine(it: SessionPlanItem) {
 
 function LibraryPage() {
   useLibraryVersion();
-  const { hasAccess } = useAuth();
-  const fetchBlocks = useServerFn(listLibraryBlocks);
   const [tab, setTab] = useState<"t4p" | "mine">("t4p");
   const [category, setCategory] = useState<string>("ALL");
   const [q, setQ] = useState("");
 
-  const official = useQuery({
-    queryKey: ["library-blocks"],
-    queryFn: () => fetchBlocks(),
-  });
+  const official = useOfficialLibrary();
+  const hasAccess = !official.locked;
 
   const mine = savedBlocks();
 
@@ -73,7 +68,7 @@ function LibraryPage() {
         r.name.toLowerCase().includes(q.trim().toLowerCase()),
     );
 
-  const officialRows = useMemo(() => filter(official.data ?? []), [official.data, category, q]);
+  const officialRows = useMemo(() => filter(official.blocks), [official.blocks, category, q]);
   const myRows = useMemo(() => filter(mine), [mine, category, q]);
 
   const copyToMine = (b: LibraryBlock) => {
@@ -119,7 +114,7 @@ function LibraryPage() {
                     tab === t.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
                   }`}
                 >
-                  {t.label} ({t.id === "t4p" ? (official.data?.length ?? 0) : mine.length})
+                  {t.label} ({t.id === "t4p" ? official.blocks.length : mine.length})
                 </button>
               ))}
             </div>
@@ -166,7 +161,7 @@ function LibraryPage() {
                 See pricing
               </Link>
             </div>
-          ) : official.isPending ? (
+          ) : official.loading ? (
             <p className="panel p-8 text-center text-sm text-muted-foreground">Loading the library…</p>
           ) : officialRows.length === 0 ? (
             <p className="panel p-8 text-center text-sm text-muted-foreground">
