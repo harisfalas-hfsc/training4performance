@@ -125,8 +125,8 @@ export function ShotAddPlayer() {
       caption="Only the name is really needed. Everything else can be filled in later, or never."
     >
       <div className="grid gap-2 sm:grid-cols-4">
-        <Field label="First name" value="Andreas" />
-        <Field label="Last name" value="Petrou" />
+        <Field label="First name" value="Player" />
+        <Field label="Last name" value="Example" />
         <Field label="Shirt" value="7" />
         <Field label="Position" value="Winger" />
         <Field label="Date of birth" value="14/03/2001" />
@@ -152,10 +152,10 @@ export function ShotGpsFile() {
       <Table
         head={["Player Name", "Duration", "Total Distance (m)", "HSR (m)", "Sprints", "Acc", "Dec", "Max Speed"]}
         rows={[
-          ["Andreas Petrou", "72", "6 240", "612", "14", "31", "28", "31.4"],
-          ["Marios Georgiou", "72", "5 480", "398", "9", "24", "22", "29.8"],
-          ["Kyriakos Louca", "68", "4 910", "205", "4", "18", "17", "27.1"],
-          ["Nikos Charalambous", "72", "6 010", "540", "12", "29", "26", "30.6"],
+          ["Player 01", "72", "6 240", "612", "14", "31", "28", "31.4"],
+          ["Player 02", "72", "5 480", "398", "9", "24", "22", "29.8"],
+          ["Player 03", "68", "4 910", "205", "4", "18", "17", "27.1"],
+          ["Player 04", "72", "6 010", "540", "12", "29", "26", "30.6"],
         ]}
       />
     </Shot>
@@ -174,10 +174,10 @@ export function ShotGpsMatching() {
       <Table
         head={["Name in file", "Squad", "Status"]}
         rows={[
-          ["Andreas Petrou", "#7 Andreas Petrou", ok],
-          ["Marios Georgiou", "#4 Marios Georgiou", ok],
-          ["Kyriakos Louca", "#11 Kyriakos Louca", ok],
-          ["Nikos Charalambous", "— not in squad —", nw],
+          ["Player 01", "#7 Player 01", ok],
+          ["Player 02", "#4 Player 02", ok],
+          ["Player 03", "#11 Player 03", ok],
+          ["Player 04", "— not in squad —", nw],
         ]}
       />
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -201,10 +201,10 @@ export function ShotCalculatedLoad() {
       <Table
         head={["Player", "Distance", "HSR", "Load (AU)", "ACWR"]}
         rows={[
-          ["Andreas Petrou", "6 240 m", "612 m", <strong key="a">138</strong>, "1.18"],
-          ["Marios Georgiou", "5 480 m", "398 m", <strong key="b">104</strong>, "1.02"],
-          ["Kyriakos Louca", "4 910 m", "205 m", <strong key="c">78</strong>, "0.74"],
-          ["Nikos Charalambous", "6 010 m", "540 m", <strong key="d">127</strong>, "1.11"],
+          ["Player 01", "6 240 m", "612 m", <strong key="a">138</strong>, "1.18"],
+          ["Player 02", "5 480 m", "398 m", <strong key="b">104</strong>, "1.02"],
+          ["Player 03", "4 910 m", "205 m", <strong key="c">78</strong>, "0.74"],
+          ["Player 04", "6 010 m", "540 m", <strong key="d">127</strong>, "1.11"],
         ]}
       />
     </Shot>
@@ -287,7 +287,7 @@ export function ShotManualRpe() {
 export function ShotLoadAccumulation() {
   return (
     <Shot
-      title="Andreas Petrou › week of 10–16 August"
+      title="Player 01 › week of 10–16 August"
       caption="GPS days and rated days sit in the same column. The weekly total, ACWR, monotony and strain use all of them."
     >
       <Table
@@ -321,7 +321,7 @@ export function ShotWhoWhat() {
         <div className="rounded-lg border border-brand-blue/40 bg-brand-blue/5 p-2.5">
           <p className="text-[10px] font-bold uppercase tracking-wide text-brand-blue">1 · Who</p>
           <p className="mt-1 text-[11px] leading-relaxed">
-            Whole team · Squad average · <strong>Andreas Petrou, Marios Georgiou</strong>
+            Whole team · Squad average · <strong>Player 01, Player 02</strong>
           </p>
         </div>
         <div className="rounded-lg border border-brand-green/40 bg-brand-green/5 p-2.5">

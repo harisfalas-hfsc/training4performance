@@ -294,7 +294,9 @@ export interface WorkspaceData {
   medicalEvents: MedicalEvent[];
 }
 
-const STORAGE_KEY = "t4p.data.v2";
+// v3 intentionally starts every real account clean. Never recover old uploaded
+// reference data from the retired unscoped/v1/v2 browser stores.
+const STORAGE_KEY = "t4p.data.v3";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -372,7 +374,7 @@ function replace<T>(target: T[], next: T[]) {
   target.splice(0, target.length, ...next);
 }
 
-function hydrate(userId: string | null, migrateLegacy: boolean) {
+function hydrate(userId: string | null, _migrateLegacy: boolean) {
   if (typeof window === "undefined") return;
   replace(players, []);
   replace(gpsHistory, []);
@@ -402,35 +404,8 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
   try {
     const key = scopedStorageKey(STORAGE_KEY, userId);
     if (!key) return;
-    let raw = window.localStorage.getItem(key);
-    if (!raw && migrateLegacy) {
-      raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) window.localStorage.setItem(key, raw);
-    }
-    // Recovery: an earlier storage-key rotation left real squad/GPS data behind
-    // under the previous key. Adopt it when the current key holds nothing.
-    const hasContent = (value: string | null) => {
-      if (!value) return false;
-      try {
-        const parsed = JSON.parse(value) as { players?: unknown[]; gpsHistory?: unknown[] };
-        return Boolean(parsed.players?.length || parsed.gpsHistory?.length);
-      } catch {
-        return false;
-      }
-    };
-    if (!hasContent(raw)) {
-      const legacyKey = scopedStorageKey("t4p.data.v1", userId);
-      const legacyRaw = legacyKey ? window.localStorage.getItem(legacyKey) : null;
-      if (hasContent(legacyRaw)) {
-        raw = legacyRaw;
-        window.localStorage.setItem(key, legacyRaw as string);
-      }
-    }
-    if (!raw && migrateLegacy) {
-      replace(players, seedPlayers());
-      replace(gpsHistory, seedGps());
-      replace(sessionCalendar, seedSessions());
-    } else if (raw) {
+    const raw = window.localStorage.getItem(key);
+    if (raw) {
 
     const s = JSON.parse(raw) as {
       team?: Team;

@@ -80,7 +80,7 @@ export function LoadModelCard({ compact = false }: { compact?: boolean }) {
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2">
         {([
-          ["ratio", "Squad-ratio composite (recommended)", "The load is calculated for every player individually, from his own numbers of that session. Each KPI is only divided by a fixed team reference (the average of that KPI across all imported player-sessions) so metres, counts and joules can be added together. Same method as the Salamina training monitor workbook."],
+          ["ratio", "Squad-ratio composite (recommended)", "The load is calculated for every player individually, from their own numbers for that session. Each KPI is divided by a fixed team reference (the average across all imported player-sessions) so metres, counts and joules can be combined."],
           ["srpe", "Session RPE (Foster)", "Load = RPE (0-10) x duration in minutes. Needs an RPE value for the session."],
         ] as const).map(([id, label, desc]) => (
           <button

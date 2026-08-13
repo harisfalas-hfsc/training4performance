@@ -160,7 +160,7 @@ export interface TestRecord {
 
 export const testRecords: TestRecord[] = [];
 
-const STORAGE_KEY = "t4p.tests.v2";
+const STORAGE_KEY = "t4p.tests.v3";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -201,7 +201,7 @@ function seed(): TestRecord[] {
 /* Custom test builder                                                 */
 /* ------------------------------------------------------------------ */
 
-const CUSTOM_KEY = "t4p.customtests.v2";
+const CUSTOM_KEY = "t4p.customtests.v3";
 
 /** What kind of number the coach records for a custom test. */
 export type CustomTestKind = "number" | "time" | "score" | "strength";
@@ -302,7 +302,7 @@ export function removeCustomTest(id: string) {
   emit();
 }
 
-function hydrate(userId: string | null, migrateLegacy: boolean) {
+function hydrate(userId: string | null, _migrateLegacy: boolean) {
   testRecords.splice(0, testRecords.length);
   hydrateCustomTests(userId);
   if (typeof window === "undefined" || !userId) return;
@@ -310,11 +310,7 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
   try {
     const key = scopedStorageKey(STORAGE_KEY, userId);
     if (!key) return;
-    let raw = window.localStorage.getItem(key);
-    if (!raw && migrateLegacy) {
-      raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) window.localStorage.setItem(key, raw);
-    }
+    const raw = window.localStorage.getItem(key);
     if (raw) {
       const parsed = JSON.parse(raw) as TestRecord[];
       if (Array.isArray(parsed)) {
@@ -324,7 +320,6 @@ function hydrate(userId: string | null, migrateLegacy: boolean) {
   } catch {
     /* corrupt */
   }
-  if (!testRecords.length && migrateLegacy) testRecords.push(...seed());
   version++;
   listeners.forEach((listener) => listener());
 }
