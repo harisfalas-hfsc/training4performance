@@ -6,10 +6,10 @@ const federations = [
   { name: "FIFA", src: "/federations/fifa.svg", wide: true },
   { name: "Cyprus FA", src: "/federations/cyprus-fa.png" },
   { name: "Hellenic FA", src: "/federations/hellenic-fa.svg" },
-  { name: "Premier League", src: "/federations/premier-league.png", darkInvert: true },
-  { name: "Serie A", src: "/federations/serie-a.svg" },
-  { name: "Bundesliga", src: "/federations/bundesliga.svg", wide: true, darkInvert: true },
-  { name: "La Liga", src: "/federations/laliga.svg", wide: true, darkInvert: true },
+  { name: "Premier League", src: "/federations/premier-league.png", darkPlate: true },
+  { name: "Serie A", src: "/federations/serie-a.svg", darkPlate: true },
+  { name: "Bundesliga", src: "/federations/bundesliga.svg", wide: true, darkPlate: true },
+  { name: "La Liga", src: "/federations/laliga.svg", wide: true },
   { name: "Ligue 1", src: "/federations/ligue-1.svg", darkInvert: true },
   { name: "Eredivisie", src: "/federations/eredivisie.png", wide: true, darkInvert: true },
 ];
@@ -38,6 +38,7 @@ export function FederationTrust({ className }: { className?: string }) {
                 ? "h-4 max-w-[30px] sm:h-6 sm:max-w-[72px] md:h-7 md:max-w-[92px]"
                 : "h-6 max-w-[22px] sm:h-9 sm:max-w-[42px] md:h-11 md:max-w-[52px]",
               f.darkInvert && "dark:brightness-0 dark:invert",
+              f.darkPlate && "dark:rounded-sm dark:bg-white dark:p-0.5",
             )}
           />
         ))}
