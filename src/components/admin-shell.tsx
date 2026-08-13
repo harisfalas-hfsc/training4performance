@@ -39,13 +39,7 @@ export function AdminShell({
               to="/dashboard"
               className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
             >
-              My workspace
-            </Link>
-            <Link
-              to="/account"
-              className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-            >
-              Account
+              Exit admin
             </Link>
           </div>
         </div>
