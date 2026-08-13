@@ -1,47 +1,44 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, CreditCard, MessageSquare } from "lucide-react";
+import { Bell, Download, Trash2 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
-import { AccountNotifications } from "@/components/account-notifications";
-import { AccountMessages } from "@/components/account-messages";
-import { requestSubscription, setAutoRenew } from "@/lib/support.functions";
+import { deleteMyAccount, requestSubscription, setAutoRenew } from "@/lib/support.functions";
+import { hydrateWorkspace } from "@/lib/usage";
+import { downloadWorkspaceZip } from "@/lib/workspace-export";
 import { PRICE_FULL, PRICE_LABEL, formatDate } from "@/lib/pricing";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
     ...seoHead({
       path: "/account",
-      title: "My account | T4P",
-      description: "Manage your T4P monthly subscription, notifications and support messages.",
+      title: "Manage account | T4P",
+      description: "Manage your T4P subscription, download all your data or delete your account.",
       card: "summary",
       noindex: true,
     }),
   }),
-  validateSearch: (search: Record<string, unknown>): { tab?: "subscription" | "notifications" | "messages" } =>
-    search["tab"] === "notifications" || search["tab"] === "messages" || search["tab"] === "subscription"
-      ? { tab: search["tab"] }
-      : {},
   component: Account,
 });
 
 function Account() {
-  const { tab: tabParam } = Route.useSearch();
   const { loading, session, user, profile, isAdmin, subscription, hasAccess, refresh, signOut } = useAuth();
   const navigate = useNavigate();
   const subscribeFn = useServerFn(requestSubscription);
   const autoRenewFn = useServerFn(setAutoRenew);
-  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">(tabParam ?? "subscription");
+  const deleteAccountFn = useServerFn(deleteMyAccount);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [clubName, setClubName] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState("");
 
   useEffect(() => {
     if (!loading && !session) void navigate({ to: "/auth", replace: true });
@@ -89,6 +86,33 @@ function Account() {
     setBusy(false);
   }
 
+  async function downloadEverything() {
+    if (!user) return;
+    setExporting(true);
+    setError(null);
+    try {
+      await hydrateWorkspace(user.id);
+      if (!downloadWorkspaceZip()) setError("There is nothing to export yet.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Export failed");
+    }
+    setExporting(false);
+  }
+
+  async function deleteAccount() {
+    setBusy(true);
+    setError(null);
+    const res = await deleteAccountFn({});
+    if ("error" in res) {
+      setError(res.error);
+      setBusy(false);
+      return;
+    }
+    window.localStorage.clear();
+    await signOut();
+    void navigate({ to: "/", replace: true });
+  }
+
   if (loading || !session) {
     return (
       <MarketingPage>
@@ -100,7 +124,7 @@ function Account() {
   return (
     <MarketingPage>
       <div className="mx-auto max-w-5xl px-5 py-14">
-        <p className="eyebrow">My account</p>
+        <p className="eyebrow">Manage account</p>
         <h1 className="mt-2 font-display text-3xl font-semibold uppercase tracking-wide">
           {profile?.full_name || user?.email}
         </h1>
@@ -113,32 +137,15 @@ function Account() {
             Team: <span className="font-semibold">{clubName}</span>
           </p>
         ) : null}
+        <p className="mt-3 text-sm text-muted-foreground">
+          Subscription, your data and the account itself live here. Payment notices, announcements and your support
+          conversations live in the{" "}
+          <Link to="/notifications" className="font-semibold text-primary underline underline-offset-2">
+            notification centre
+          </Link>{" "}
+          <Bell className="inline size-3.5" />.
+        </p>
 
-        <div className="mt-6 grid grid-cols-3 gap-2">
-          {([
-            ["subscription", "Subscription", CreditCard],
-            ["notifications", "Notifications", Bell],
-            ["messages", "Messages", MessageSquare],
-          ] as const).map(([k, label, Icon]) => (
-            <button
-              key={k}
-              onClick={() => setTab(k)}
-              aria-label={label}
-              className={`flex items-center justify-center gap-2 rounded-full px-2 py-2 text-xs font-semibold sm:text-sm ${
-                tab === k ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"
-              }`}
-            >
-              <Icon className="size-4 shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          ))}
-        </div>
-
-        {tab === "notifications" && user ? <div className="mt-6"><AccountNotifications userId={user.id} /></div> : null}
-        {tab === "messages" && user ? <div className="mt-6"><AccountMessages userId={user.id} /></div> : null}
-
-        {tab === "subscription" ? (
-          <>
         <div className="panel mt-6 p-5">
           <p className="eyebrow">Profile &amp; team</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -237,7 +244,7 @@ function Account() {
               </button>
               <p className="mt-2 text-xs text-muted-foreground">
                 Online card payments are being rolled out — for now the monthly subscription is activated after
-                invoicing. You will get a notification here as soon as it is live.
+                invoicing. You will get a notification as soon as it is live.
               </p>
             </>
           )}
@@ -250,11 +257,57 @@ function Account() {
             </Link>
           </div>
         </div>
-          </>
-        ) : null}
+
+        <div className="panel mt-6 p-5">
+          <p className="eyebrow">My data</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            One ZIP with everything in your account: team and squad, players, training sessions and blocks, GPS reports,
+            fitness tests, wellness entries and medical events, as spreadsheets plus the raw JSON backup.
+          </p>
+          <button
+            onClick={downloadEverything}
+            disabled={exporting}
+            className="mt-3 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          >
+            <Download className="size-4" /> {exporting ? "Preparing…" : "Download all my data (.zip)"}
+          </button>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-5">
+          <p className="eyebrow text-destructive">Delete my account</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This erases your login, your team and every record you have stored with <T4P /> — players, sessions, GPS
+            reports, tests, wellness, notifications and support history. It cannot be undone, so download your data
+            first. Deletion is handled as described in our{" "}
+            <Link to="/privacy" className="font-semibold text-primary underline underline-offset-2">
+              Privacy Policy
+            </Link>
+            ,{" "}
+            <Link to="/terms" className="font-semibold text-primary underline underline-offset-2">
+              Terms &amp; Conditions
+            </Link>{" "}
+            and{" "}
+            <Link to="/disclaimer" className="font-semibold text-primary underline underline-offset-2">
+              Disclaimer
+            </Link>
+            .
+          </p>
+          <label className="field mt-3 max-w-xs">
+            <span className="field-label">Type DELETE to confirm</span>
+            <input className="control" value={confirmDelete} onChange={(e) => setConfirmDelete(e.target.value)} />
+          </label>
+          <button
+            onClick={() => {
+              if (window.confirm("Delete your account and all data permanently?")) void deleteAccount();
+            }}
+            disabled={busy || confirmDelete.trim().toUpperCase() !== "DELETE"}
+            className="mt-3 inline-flex items-center gap-2 rounded-md border border-destructive/50 px-4 py-2 text-sm font-semibold text-destructive disabled:opacity-50"
+          >
+            <Trash2 className="size-4" /> {busy ? "Deleting…" : "Delete my account permanently"}
+          </button>
+        </div>
 
         {error ? <p className="mt-4 text-sm text-destructive">{error}</p> : null}
-
 
         <button
           onClick={async () => {

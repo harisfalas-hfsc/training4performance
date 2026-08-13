@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import { MessageSquare, Send } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { MessageSquare, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { autoAnswerTicket } from "@/lib/support-auto.functions";
+import { RichText } from "@/components/rich-text";
 
 type Ticket = {
   id: string;
@@ -22,11 +23,18 @@ const TOPICS = [
   { v: "feature", l: "Feature request" },
 ];
 
+type Filter = "all" | "unread" | "read";
+
 function when(iso: string) {
   return new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-export function AccountMessages({ userId }: { userId: string }) {
+/**
+ * Support centre — the two-way half of the communication centre.
+ * A conversation behaves exactly like a notification: select, mark read or
+ * unread, delete one, delete the selected ones or delete everything.
+ */
+export function SupportCentre({ userId }: { userId: string }) {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -37,6 +45,8 @@ export function AccountMessages({ userId }: { userId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [composing, setComposing] = useState(false);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [selected, setSelected] = useState<string[]>([]);
 
   const loadTickets = useCallback(async () => {
     const { data } = await supabase
@@ -55,6 +65,7 @@ export function AccountMessages({ userId }: { userId: string }) {
       .order("created_at", { ascending: true });
     setMessages((data as Message[]) ?? []);
     await supabase.from("support_tickets").update({ unread_for_user: false }).eq("id", ticketId);
+    setTickets((t) => t.map((x) => (x.id === ticketId ? { ...x, unread_for_user: false } : x)));
   }, []);
 
   useEffect(() => {
@@ -64,6 +75,44 @@ export function AccountMessages({ userId }: { userId: string }) {
   useEffect(() => {
     if (openId) void loadMessages(openId);
   }, [openId, loadMessages]);
+
+  const visible = useMemo(
+    () =>
+      tickets.filter((t) => (filter === "unread" ? t.unread_for_user : filter === "read" ? !t.unread_for_user : true)),
+    [tickets, filter],
+  );
+  const unread = tickets.filter((t) => t.unread_for_user).length;
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const allVisibleSelected = visible.length > 0 && visible.every((t) => selectedSet.has(t.id));
+
+  function toggle(id: string) {
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  }
+
+  async function setRead(ids: string[], read: boolean) {
+    if (!ids.length) return;
+    setBusy(true);
+    await supabase.from("support_tickets").update({ unread_for_user: !read }).in("id", ids).eq("user_id", userId);
+    setTickets((t) => t.map((x) => (ids.includes(x.id) ? { ...x, unread_for_user: !read } : x)));
+    setBusy(false);
+  }
+
+  async function remove(ids: string[]) {
+    if (!ids.length) return;
+    setBusy(true);
+    await supabase.from("support_messages").delete().in("ticket_id", ids);
+    const { error: err } = await supabase.from("support_tickets").delete().in("id", ids).eq("user_id", userId);
+    if (err) setError(err.message);
+    else {
+      setTickets((t) => t.filter((x) => !ids.includes(x.id)));
+      setSelected((s) => s.filter((x) => !ids.includes(x)));
+      if (openId && ids.includes(openId)) {
+        setOpenId(null);
+        setMessages([]);
+      }
+    }
+    setBusy(false);
+  }
 
   /** Instant answer from the built-in answer book, when the question is covered. */
   async function autoReply(ticketId: string) {
@@ -87,7 +136,7 @@ export function AccountMessages({ userId }: { userId: string }) {
       .select("id")
       .single();
     if (err || !data) {
-      setError(err?.message ?? "Could not open the ticket");
+      setError(err?.message ?? "Could not open the conversation");
       setBusy(false);
       return;
     }
@@ -124,23 +173,24 @@ export function AccountMessages({ userId }: { userId: string }) {
     await loadTickets();
   }
 
+  const btn = "rounded-md border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-50";
+
   return (
     <div className="panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="eyebrow">Communication centre</p>
+        <div className="min-w-0">
+          <p className="eyebrow">Support centre</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            A two-way conversation with T4P: open a ticket, ask a question, report a problem, and read the answers
-            here. The Smarty assistant answers instantly from what it already knows, and every answer the T4P owner
-            gives is remembered, so the same question is answered automatically next time. One-way announcements from
-            T4P sit in the Notifications tab.
+            Ask T4P anything — a question, a problem, a request. The Smarty assistant answers instantly from what it
+            already knows, and the T4P owner answers everything else here. {tickets.length} conversation
+            {tickets.length === 1 ? "" : "s"} · {unread} unread.
           </p>
         </div>
         <button
           onClick={() => setComposing((c) => !c)}
           className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
-          {composing ? "Close" : "New ticket"}
+          {composing ? "Close" : "Send a message to T4P"}
         </button>
       </div>
 
@@ -177,40 +227,110 @@ export function AccountMessages({ userId }: { userId: string }) {
             disabled={busy}
             className="mt-3 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
-            {busy ? "Sending…" : "Send ticket"}
+            {busy ? "Sending…" : "Send message"}
           </button>
         </div>
       ) : null}
 
       {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
 
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {(["all", "unread", "read"] as Filter[]).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`rounded-md border px-3 py-1.5 text-xs font-semibold capitalize ${
+              filter === f ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+            }`}
+          >
+            {f}
+          </button>
+        ))}
+        <span className="mx-1 hidden h-5 w-px bg-border sm:block" />
+        <button onClick={() => setSelected(allVisibleSelected ? [] : visible.map((t) => t.id))} disabled={!visible.length} className={btn}>
+          {allVisibleSelected ? "Clear selection" : "Select all"}
+        </button>
+        <button onClick={() => setRead(selected, true)} disabled={busy || !selected.length} className={btn}>
+          Mark as read
+        </button>
+        <button onClick={() => setRead(selected, false)} disabled={busy || !selected.length} className={btn}>
+          Mark as unread
+        </button>
+        <button
+          onClick={() => {
+            if (window.confirm("Delete the selected conversations? This cannot be undone.")) void remove(selected);
+          }}
+          disabled={busy || !selected.length}
+          className={`${btn} text-destructive`}
+        >
+          Delete selected ({selected.length})
+        </button>
+        <button
+          onClick={() => setRead(tickets.filter((t) => t.unread_for_user).map((t) => t.id), true)}
+          disabled={busy || unread === 0}
+          className={btn}
+        >
+          Mark all read
+        </button>
+        <button
+          onClick={() => {
+            if (window.confirm("Delete all conversations? This cannot be undone.")) void remove(tickets.map((t) => t.id));
+          }}
+          disabled={busy || !tickets.length}
+          className={`${btn} text-destructive`}
+        >
+          Delete all
+        </button>
+      </div>
+
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
         <div className="space-y-2">
-          {tickets.length === 0 ? (
-            <p className="rounded-md bg-surface-2 px-3 py-4 text-sm text-muted-foreground">No tickets yet.</p>
+          {visible.length === 0 ? (
+            <p className="rounded-md bg-surface-2 px-3 py-4 text-sm text-muted-foreground">
+              {tickets.length === 0 ? "No conversations yet." : "Nothing in this filter."}
+            </p>
           ) : (
-            tickets.map((t) => (
-              <button
+            visible.map((t) => (
+              <div
                 key={t.id}
-                onClick={() => setOpenId(t.id)}
-                className={`w-full rounded-md border px-3 py-2 text-left ${openId === t.id ? "border-primary bg-primary/10" : "border-border bg-card"}`}
+                className={`flex items-start gap-2 rounded-md border px-3 py-2 ${
+                  openId === t.id ? "border-primary bg-primary/10" : "border-border bg-card"
+                }`}
               >
-                <span className="flex items-center gap-2 text-sm font-semibold">
-                  <MessageSquare className="size-4 shrink-0 text-brand-teal" />
-                  <span className="min-w-0 flex-1 truncate">{t.subject}</span>
-                  {t.unread_for_user ? <span className="size-2 shrink-0 rounded-full bg-primary" /> : null}
-                </span>
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  {t.status === "closed" ? "Closed" : "Open"} · {when(t.last_message_at)}
-                </span>
-              </button>
+                <input
+                  type="checkbox"
+                  checked={selectedSet.has(t.id)}
+                  onChange={() => toggle(t.id)}
+                  aria-label={`Select ${t.subject}`}
+                  className="mt-1.5 size-4 shrink-0 accent-[hsl(var(--primary))]"
+                />
+                <button onClick={() => setOpenId(t.id)} className="min-w-0 flex-1 text-left">
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    <MessageSquare className="size-4 shrink-0 text-brand-teal" />
+                    <span className="min-w-0 flex-1 truncate">{t.subject}</span>
+                    {t.unread_for_user ? <span className="size-2 shrink-0 rounded-full bg-primary" /> : null}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {t.status === "closed" ? "Closed" : "Open"} · {when(t.last_message_at)}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm("Delete this conversation?")) void remove([t.id]);
+                  }}
+                  aria-label="Delete conversation"
+                  className="mt-1 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
             ))
           )}
         </div>
 
         <div className="rounded-md border border-border p-3">
           {!openId ? (
-            <p className="text-sm text-muted-foreground">Select a ticket to read the conversation.</p>
+            <p className="text-sm text-muted-foreground">Select a conversation to read it.</p>
           ) : (
             <>
               <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -222,7 +342,7 @@ export function AccountMessages({ userId }: { userId: string }) {
                     <p className="text-xs font-semibold text-muted-foreground">
                       {m.sender_role === "user" ? "You" : "T4P support"} · {when(m.created_at)}
                     </p>
-                    <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
+                    <RichText text={m.body} className="mt-1 whitespace-pre-wrap" />
                   </div>
                 ))}
               </div>

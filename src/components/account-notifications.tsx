@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Bell, CheckCircle2, Info, Mail, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { RichText } from "@/components/rich-text";
 
 type Row = {
   id: string;
@@ -94,10 +95,11 @@ export function AccountNotifications({ userId }: { userId: string }) {
         </span>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Notifications are one-way announcements you receive: payment and renewal events, alerts, and messages sent by the{" "}
-        <span className="font-semibold">T4P</span> owner to customers. Two-way conversations — where you ask and get an
-        answer — live in the <span className="font-semibold">Messages</span> tab.
+        Notifications are what <span className="font-semibold">T4P</span> sends you: payment and renewal events,
+        subscription changes, alerts and announcements. To ask something and get an answer, use the{" "}
+        <span className="font-semibold">Support</span> tab.
       </p>
+
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {(["all", "unread", "read"] as Filter[]).map((f) => (
@@ -189,7 +191,7 @@ export function AccountNotifications({ userId }: { userId: string }) {
                     {r.title}
                     {!r.read_at ? <span className="ml-2 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] uppercase text-primary">New</span> : null}
                   </p>
-                  {r.body ? <p className="mt-1 text-sm text-muted-foreground">{r.body}</p> : null}
+                  {r.body ? <RichText text={r.body} className="mt-1 text-sm text-muted-foreground" /> : null}
                   <p className="mt-1 text-xs text-muted-foreground">{when(r.created_at)}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">

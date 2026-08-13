@@ -19,6 +19,7 @@ import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as HarisFalasRouteImport } from './routes/haris-falas'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ManualRouteImport } from './routes/manual'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -92,6 +93,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const ManualRoute = ManualRouteImport.update({
   id: '/manual',
   path: '/manual',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalRoute = PortalRouteImport.update({
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
   '/manual': typeof ManualRoute
+  '/notifications': typeof NotificationsRoute
   '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
   '/manual': typeof ManualRoute
+  '/notifications': typeof NotificationsRoute
   '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
   '/manual': typeof ManualRoute
+  '/notifications': typeof NotificationsRoute
   '/portal': typeof PortalRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/haris-falas'
     | '/how-it-works'
     | '/manual'
+    | '/notifications'
     | '/portal'
     | '/pricing'
     | '/privacy'
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/haris-falas'
     | '/how-it-works'
     | '/manual'
+    | '/notifications'
     | '/portal'
     | '/pricing'
     | '/privacy'
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/haris-falas'
     | '/how-it-works'
     | '/manual'
+    | '/notifications'
     | '/portal'
     | '/pricing'
     | '/privacy'
@@ -454,6 +466,7 @@ export interface RootRouteChildren {
   HarisFalasRoute: typeof HarisFalasRoute
   HowItWorksRoute: typeof HowItWorksRoute
   ManualRoute: typeof ManualRoute
+  NotificationsRoute: typeof NotificationsRoute
   PortalRoute: typeof PortalRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -532,6 +545,13 @@ declare module '@tanstack/react-router' {
       path: '/manual'
       fullPath: '/manual'
       preLoaderRoute: typeof ManualRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal': {
@@ -770,6 +790,7 @@ const rootRouteChildren: RootRouteChildren = {
   HarisFalasRoute: HarisFalasRoute,
   HowItWorksRoute: HowItWorksRoute,
   ManualRoute: ManualRoute,
+  NotificationsRoute: NotificationsRoute,
   PortalRoute: PortalRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,

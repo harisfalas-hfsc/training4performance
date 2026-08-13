@@ -253,3 +253,34 @@ export const adminGetTicketMessages = createServerFn({ method: "POST" })
       }
     },
   );
+
+/* ------------------------------------------------------------------ */
+/* Account self-service                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Permanently deletes the signed-in customer: workspace rows, support history
+ * and the login itself. Irreversible, and only ever affects the caller.
+ */
+export const deleteMyAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ ok: true } | { error: string }> => {
+    const { userId } = context as { userId: string };
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("workspace_data").delete().eq("user_id", userId);
+      await supabaseAdmin.from("usage_snapshots").delete().eq("user_id", userId);
+      await supabaseAdmin.from("player_wellness").delete().eq("coach_id", userId);
+      await supabaseAdmin.from("player_access").delete().eq("coach_id", userId);
+      await supabaseAdmin.from("notifications").delete().eq("user_id", userId);
+      await supabaseAdmin.from("support_messages").delete().eq("sender_id", userId);
+      await supabaseAdmin.from("support_tickets").delete().eq("user_id", userId);
+      await supabaseAdmin.from("subscriptions").delete().eq("user_id", userId);
+      await supabaseAdmin.from("profiles").delete().eq("id", userId);
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+      if (error) return { error: error.message };
+      return { ok: true };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Failed to delete the account" };
+    }
+  });

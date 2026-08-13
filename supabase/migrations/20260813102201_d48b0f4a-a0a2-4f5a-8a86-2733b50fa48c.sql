@@ -1,0 +1,2 @@
+CREATE POLICY "Users delete own tickets" ON public.support_tickets FOR DELETE TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Users delete own ticket messages" ON public.support_messages FOR DELETE TO authenticated USING (EXISTS (SELECT 1 FROM public.support_tickets t WHERE t.id = ticket_id AND t.user_id = auth.uid()));
