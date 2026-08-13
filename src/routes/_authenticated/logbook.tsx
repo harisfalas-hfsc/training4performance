@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { ChartFrame, HBar, MultiChart, CHART_KINDS, type ChartKind } from "@/components/charts";
 import { PlayerPicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { fullName, players, today, useDataVersion } from "@/data/performance";
 import {
   TEST_CATALOG,
@@ -258,11 +259,6 @@ function PlayerRecord() {
       return point;
     });
   }, [records.length, shown.join(","), playerId]);
-
-  const chip = (active: boolean) =>
-    `rounded-md border px-3 py-1.5 text-xs font-semibold ${
-      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
-    }`;
 
   if (!players.length) {
     return <p className="panel p-6 text-sm text-muted-foreground">No players yet. Add your squad in Team & players first.</p>;
