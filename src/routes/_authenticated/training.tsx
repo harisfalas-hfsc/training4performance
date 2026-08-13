@@ -1381,6 +1381,21 @@ function TrainingPage() {
                 setDrawingIndex(null);
               }}
             />
+            <div className="panel mt-3 p-4">
+              <Field label="Description — how this drill runs (rules, area, players, coaching points)">
+                <textarea
+                  rows={4}
+                  className="control h-auto py-2"
+                  placeholder="Organisation, rules, progressions and coaching points. This prints on the session sheet next to the drawing."
+                  value={items[drawingIndex]!.notes ?? ""}
+                  onChange={(e) => patchItem(drawingIndex, { notes: e.target.value })}
+                />
+              </Field>
+              <p className="mt-2 text-[0.68rem] text-muted-foreground">
+                The description saves as you type; use “Save to drill” above to store the drawing itself.
+              </p>
+            </div>
+
           </div>
         </div>
       ) : null}
