@@ -68,7 +68,9 @@ import {
   SESSION_TYPES,
   sessionTypeOf,
   TRAINING_GROUPS,
+  savedBlocks,
   useLibraryVersion,
+  type SavedBlock,
 } from "@/data/presets";
 
 export const Route = createFileRoute("/_authenticated/training")({
