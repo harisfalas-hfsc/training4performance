@@ -179,15 +179,14 @@ function PitchMarkings({
   const common = { fill: "none", stroke: line, strokeWidth: 3 } as const;
   const long = orientation === "portrait" ? h : w;
   const short = orientation === "portrait" ? w : h;
-  const futsal = field === "futsal";
-  const boxDepth = long * (futsal ? 0.1 : 0.15);
-  const boxWidth = short * (futsal ? 0.45 : 0.62);
+  const boxDepth = long * 0.15;
+  const boxWidth = short * 0.62;
   const goalDepth = long * 0.05;
-  const goalWidth = short * (futsal ? 0.22 : 0.3);
-  const spot = long * (futsal ? 0.07 : 0.1);
-  const r = short * (futsal ? 0.12 : 0.16);
+  const goalWidth = short * 0.3;
+  const spot = long * 0.1;
+  const r = short * 0.16;
 
-  /* Boundary hugs the visible area so half / quarter views read as a real
+  /* Boundary hugs the visible area so the half view reads as a real
      playing surface instead of a cropped full pitch. */
   const boundary = (
     <rect x={vb.x + m} y={vb.y + m} width={vb.w - m * 2} height={vb.h - m * 2} {...common} />
