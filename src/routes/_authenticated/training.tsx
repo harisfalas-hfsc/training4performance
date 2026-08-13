@@ -825,7 +825,12 @@ function TrainingPage() {
                                   value={it.durationMin}
                                   onChange={(v) => patchItem(i, { durationMin: v })}
                                 />
-                                <NumField label="RPE" value={it.rpe} onChange={(v) => patchItem(i, { rpe: v })} />
+                                <NumField
+                                  label="Target RPE (optional)"
+                                  value={it.rpe}
+                                  onChange={(v) => patchItem(i, { rpe: v })}
+                                />
+
                                 <Field label="Where">
                                   <select
                                     value={it.location ?? "Pitch"}
