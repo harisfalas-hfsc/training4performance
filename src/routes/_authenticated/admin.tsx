@@ -46,7 +46,7 @@ import {
   type AdminWorkspace,
 } from "@/lib/admin.functions";
 
-type AdminSearch = { tab: "customers" | "teams" | "support"; customer?: string };
+type AdminSearch = { tab?: "customers" | "teams" | "support"; customer?: string };
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -94,9 +94,9 @@ function AdminPage() {
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
 
-  const { tab, customer: customerParam } = Route.useSearch();
+  const { tab = "customers", customer: customerParam } = Route.useSearch();
   const [audience, setAudience] = useState<"all" | "subscribers" | "users">("all");
-  const setTab = (t: AdminSearch["tab"]) => void navigate({ to: "/admin", search: { tab: t } });
+  const setTab = (t: NonNullable<AdminSearch["tab"]>) => void navigate({ to: "/admin", search: { tab: t } });
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
