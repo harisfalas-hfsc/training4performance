@@ -9,12 +9,13 @@ import { setDemoMode, setWriteAccess } from "@/lib/access";
 import { getWorkspaceScope, setWorkspaceScope } from "@/lib/workspace-scope";
 import { applyWorkspaceData, workspaceSnapshot } from "@/data/performance";
 import { applyTestRecords, testRecordsSnapshot } from "@/data/testing";
-import { buildDemoTests, buildDemoWorkspace } from "@/data/demo-seed";
+import { applyLocalWellness, clearWellness, setWellnessLocalOnly } from "@/data/wellness";
+import { buildDemoTests, buildDemoWellness, buildDemoWorkspace } from "@/data/demo-seed";
 
 export const DEMO_SCOPE = "t4p-demo";
 const FLAG = "t4p.demo.active";
 const SEED_VERSION_KEY = "t4p.demo.seed-version";
-const SEED_VERSION = "2";
+const SEED_VERSION = "3";
 
 export function isDemoActive() {
   if (typeof window === "undefined") return false;
@@ -46,6 +47,9 @@ export function activateDemo(reseed = false) {
   if (reseed || needsUpgrade || testRecordsSnapshot().length === 0) {
     applyTestRecords(buildDemoTests());
   }
+  // Wellness never touches the cloud in the demo — it is kept in memory only.
+  setWellnessLocalOnly(true);
+  applyLocalWellness(buildDemoWellness());
   setDemoMode(true);
 }
 
@@ -64,6 +68,8 @@ export function exitDemo() {
   }
   setDemoMode(false);
   setWriteAccess(false);
+  setWellnessLocalOnly(false);
+  clearWellness();
   if (getWorkspaceScope().userId === DEMO_SCOPE) setWorkspaceScope(null);
   window.location.href = "/";
 }

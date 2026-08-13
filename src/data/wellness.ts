@@ -134,7 +134,24 @@ export const rowToEntry = (r: Row): WellnessEntry => ({
 
 let activeCoach: string | null = null;
 
+/**
+ * Demo sandbox: wellness lives only in memory, never in the cloud. While this
+ * is on, loads are ignored and saves/deletes mutate the local list.
+ */
+let localOnly = false;
+
+export function setWellnessLocalOnly(on: boolean) {
+  localOnly = on;
+}
+
+/** Replaces every entry with a locally-built set (demo sandbox). */
+export function applyLocalWellness(entries: WellnessEntry[]) {
+  wellnessEntries.splice(0, wellnessEntries.length, ...entries);
+  emit();
+}
+
 export async function loadWellness(coachId: string) {
+  if (localOnly) return;
   activeCoach = coachId;
   const { data, error } = await supabase
     .from("player_wellness")
@@ -148,6 +165,8 @@ export async function loadWellness(coachId: string) {
 }
 
 export function clearWellness() {
+  // The demo keeps its seeded answers in memory; signing state must not wipe it.
+  if (localOnly) return;
   activeCoach = null;
   wellnessEntries.splice(0, wellnessEntries.length);
   emit();
@@ -155,6 +174,14 @@ export function clearWellness() {
 
 /** Coach-side upsert (players write through the portal service). */
 export async function saveWellness(coachId: string, entry: WellnessEntry) {
+  if (localOnly) {
+    const idx = wellnessEntries.findIndex((e) => e.playerId === entry.playerId && e.date === entry.date);
+    const next: WellnessEntry = { ...entry, id: entry.id ?? `demo-w-${entry.playerId}-${entry.date}` };
+    if (idx >= 0) wellnessEntries.splice(idx, 1, next);
+    else wellnessEntries.push(next);
+    emit();
+    return true;
+  }
   const payload = {
     coach_id: coachId,
     player_id: entry.playerId,
@@ -179,6 +206,12 @@ export async function saveWellness(coachId: string, entry: WellnessEntry) {
 }
 
 export async function deleteWellness(coachId: string, id: string) {
+  if (localOnly) {
+    const idx = wellnessEntries.findIndex((e) => e.id === id);
+    if (idx >= 0) wellnessEntries.splice(idx, 1);
+    emit();
+    return;
+  }
   await supabase.from("player_wellness").delete().eq("id", id).eq("coach_id", coachId);
   await loadWellness(coachId);
 }

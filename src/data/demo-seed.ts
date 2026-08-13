@@ -19,6 +19,7 @@ import type {
   WorkspaceData,
 } from "@/data/performance";
 import type { TestRecord } from "@/data/testing";
+import type { WellnessEntry } from "@/data/wellness";
 
 export const DEMO_TEAM: Team = {
   id: "team-demo",
@@ -727,7 +728,6 @@ function buildRpe(monday: Date, weekShift: number): RpeEntry[] {
 }
 
 function buildTests(monday: Date): TestRecord[] {
-  const date = iso(monday, -28);
   const out: TestRecord[] = [];
   const battery: Array<{ testId: string; base: number; spread: number; reps?: number }> = [
     { testId: "weight", base: 76, spread: 8 },
@@ -741,19 +741,30 @@ function buildTests(monday: Date): TestRecord[] {
     { testId: "bulgarianR", base: 45, spread: 10, reps: 6 },
     { testId: "bulgarianL", base: 44, spread: 10, reps: 6 },
   ];
+  // Two rounds — pre-season baseline and an in-season retest, so the demo
+  // shows progression, personal bests and comparisons instead of one flat row.
+  const lowerIsBetter = new Set(["sprint10", "sprint30", "bodyFat"]);
+  const rounds = [
+    { date: iso(monday, -56), gain: 0, note: "Pre-season baseline battery" },
+    { date: iso(monday, -7), gain: 0.03, note: "In-season retest" },
+  ];
   DEMO_PLAYERS.forEach((player, i) => {
     battery.forEach((t, j) => {
       const f = factor(player.id, j + i);
-      const value = Number((t.base + (f - 1) * t.spread * 4).toFixed(t.base < 10 ? 2 : 1));
-      out.push({
-        id: `demo-tr-${player.id}-${t.testId}`,
-        playerId: player.id,
-        testId: t.testId,
-        date,
-        value,
-        ...(t.reps ? { reps: t.reps } : {}),
-        source: "manual",
-        note: "Demo pre-season battery",
+      const base = Number((t.base + (f - 1) * t.spread * 4).toFixed(t.base < 10 ? 2 : 1));
+      rounds.forEach((round, r) => {
+        const dir = lowerIsBetter.has(t.testId) ? -1 : 1;
+        const value = Number((base * (1 + dir * round.gain)).toFixed(t.base < 10 ? 2 : 1));
+        out.push({
+          id: `demo-tr-${player.id}-${t.testId}-${r}`,
+          playerId: player.id,
+          testId: t.testId,
+          date: round.date,
+          value,
+          ...(t.reps ? { reps: t.reps } : {}),
+          source: "manual",
+          note: round.note,
+        });
       });
     });
   });
@@ -805,4 +816,79 @@ export function buildDemoWorkspace(): WorkspaceData {
 
 export function buildDemoTests(): TestRecord[] {
   return buildTests(mondayOfThisWeek());
+}
+
+/* ---------------- Wellness + player portal ---------------- */
+
+const clamp5 = (n: number) => Math.max(1, Math.min(5, Math.round(n)));
+
+/**
+ * 28 days of daily questionnaires for all five players, so the Wellness page,
+ * the alerts and the wellness explorer in Analytics all have something to show.
+ * Answers dip on the two hardest days of the week and recover after the day off.
+ */
+export function buildDemoWellness(): WellnessEntry[] {
+  const monday = mondayOfThisWeek();
+  const out: WellnessEntry[] = [];
+  const todayIso = new Date().toISOString().slice(0, 10);
+
+  WEEK_OFFSETS.forEach((shift) => {
+    WEEK.forEach((day, dayIndex) => {
+      const date = iso(monday, day.offset + shift);
+      if (date > todayIso) return;
+      DEMO_PLAYERS.forEach((player, pIndex) => {
+        const f = factor(player.id, dayIndex + pIndex + 2);
+        // Hard days (high intensity) push fatigue and soreness down.
+        const strain = day.intensity * 2.2;
+        const lift = (f - 0.88) * 4;
+        const entry: WellnessEntry = {
+          id: `demo-w-${player.id}-${date}`,
+          playerId: player.id,
+          date,
+          sleepHours: Number((7.4 + lift * 0.5 - day.intensity * 0.4).toFixed(1)),
+          sleep: clamp5(4.4 + lift * 0.6 - strain * 0.35),
+          fatigue: clamp5(4.6 + lift * 0.5 - strain * 0.6),
+          soreness: clamp5(4.5 + lift * 0.5 - strain * 0.7),
+          stress: clamp5(4.2 + lift * 0.4 - strain * 0.2),
+          mood: clamp5(4.4 + lift * 0.5 - strain * 0.25),
+          hydration: clamp5(4.3 + lift * 0.5 - strain * 0.2),
+          readiness: clamp5(4.6 + lift * 0.5 - strain * 0.55),
+          source: "player",
+        };
+        // The player coming back from injury reports a niggle now and then.
+        if (player.id === "p04" && dayIndex === 2) {
+          entry.soreness = clamp5(entry.soreness - 1);
+          entry.readiness = clamp5(entry.readiness - 1);
+          entry.note = "Hamstring feels a bit tight after the sprints.";
+        }
+        out.push(entry);
+      });
+    });
+  });
+  return out;
+}
+
+export interface DemoAccessRow {
+  id: string;
+  player_id: string;
+  player_name: string;
+  code: string;
+  email: string | null;
+  active: boolean;
+  last_login_at: string | null;
+}
+
+/** Portal logins the demo coach has already handed out. */
+export function buildDemoAccess(): DemoAccessRow[] {
+  const codes = ["K7M-4RP-2XA", "B3D-9QT-6LN", "V5H-2WY-8FC", "R8J-6KE-3PU", "T2N-7SD-5MB"];
+  const now = Date.now();
+  return DEMO_PLAYERS.map((p, i) => ({
+    id: `demo-access-${p.id}`,
+    player_id: p.id,
+    player_name: `${p.firstName} ${p.lastName}`,
+    code: codes[i] ?? "AAA-111-BBB",
+    email: `${p.firstName.toLowerCase()}.${p.lastName.toLowerCase()}@demo.t4p`,
+    active: i !== 4,
+    last_login_at: i === 4 ? null : new Date(now - (i + 1) * 3600_000).toISOString(),
+  }));
 }
