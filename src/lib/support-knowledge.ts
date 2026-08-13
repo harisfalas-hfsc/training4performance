@@ -16,7 +16,7 @@ export type KnowledgeEntry = {
 export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
   {
     id: "subscription-price",
-    keywords: ["price", "pricing", "cost", "how much", "subscription", "69", "monthly", "per month"],
+    keywords: ["price", "pricing", "cost", "how much", "69", "per month", "fee", "expensive"],
     answer:
       "T4P is €69.90 per month per team, billed monthly and cancellable at any time. One account manages one team with unlimited players, sessions, GPS files and reports. You can see the full breakdown on the Pricing page.",
   },
