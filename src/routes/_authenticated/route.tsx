@@ -61,7 +61,7 @@ function AuthenticatedLayout() {
               <Eye className="size-4" aria-hidden /> View-only mode
             </span>
             <span className="text-muted-foreground">
-              Browse every page freely. Adding or editing data unlocks with a team subscription — €999 / season.
+              Read-only mode: view, analyse and export everything. Adding or editing unlocks with a subscription — €69.90 / month.
             </span>
             <Link
               to="/pricing"

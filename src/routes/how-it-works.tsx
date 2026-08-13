@@ -265,7 +265,7 @@ const faqSchema = [
   },
   {
     q: "What does the subscription cost and what does it cover?",
-    a: "\u20ac999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
+    a: "\u20ac69.90 per month for one team, cancel any time. Every module is included and there is no per-user fee.",
   },
   {
     q: "Do I need a GPS system to use T4P?",
