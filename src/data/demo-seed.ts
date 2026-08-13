@@ -24,19 +24,18 @@ import type { WellnessEntry } from "@/data/wellness";
 
 export const DEMO_TEAM: Team = {
   id: "team-demo",
-  name: "First Team",
-  club: "T4P",
-  season: "2025/26",
-  competition: "Demo League",
+  name: "",
+  club: "",
+  season: "",
+  competition: "",
   ageGroup: "Senior",
   gender: "Male",
-  headCoach: "Demo Head Coach",
-  fitnessCoach: "Demo S&C Coach",
-  configured: true,
-  createdAt: new Date().toISOString(),
+  headCoach: "",
+  fitnessCoach: "",
+  configured: false,
 };
 
-const DEMO_PLAYERS: Player[] = [
+const RETIRED_DEMO_PLAYERS: Player[] = [
   {
     id: "p01",
     firstName: "Andreas",

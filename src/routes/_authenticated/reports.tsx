@@ -89,7 +89,7 @@ function ReportsPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [cadence, setCadence] = useState<Cadence>("Weekly (Mon)");
   const [format, setFormat] = useState<ExportFormat>("PDF");
-  const [recipients, setRecipients] = useState("head.coach@t4p.club");
+  const [recipients, setRecipients] = useState("");
 
   const allowed = templates.filter((t) => t.allowedRoles.includes(def.id));
   const active = allowed.find((t) => t.id === activeId) ?? allowed[0]!;
