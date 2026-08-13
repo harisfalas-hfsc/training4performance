@@ -270,6 +270,9 @@ function BlockCard({
           <li key={i} className="rounded-md bg-surface-2 p-2">
             <p className="truncate text-sm">{it.drill}</p>
             <p className="text-xs text-muted-foreground">{itemLine(it)}</p>
+            {it.notes ? <p className="mt-1 whitespace-pre-line text-xs">{it.notes}</p> : null}
+            {it.drawing ? <p className="mt-1 text-[0.68rem] text-success">Tactics-board drawing attached</p> : null}
+
           </li>
         ))}
         {items.length === 0 ? <li className="text-xs text-muted-foreground">Empty block</li> : null}
