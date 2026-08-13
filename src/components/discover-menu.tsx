@@ -93,7 +93,7 @@ export function DiscoverMenu({
                     onClick={openDemo}
                     className="border-b border-border py-3.5 text-left font-display text-lg uppercase tracking-wide text-primary transition-opacity hover:opacity-70"
                   >
-                    Try shared demo
+                    Try demo
                   </button>
                 </nav>
 
