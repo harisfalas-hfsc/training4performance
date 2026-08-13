@@ -141,7 +141,7 @@ export const portalSignIn = createServerFn({ method: "POST" })
     const { data: row } = await supabaseAdmin
       .from("player_access")
       .select("coach_id,player_id,player_name,code,active,reports,password_hash,password_salt")
-      .ilike("email", data.email)
+      .eq("email", data.email)
       .maybeSingle();
     if (!row || !row.password_hash || !row.password_salt) throw new Error("Wrong email or password");
     const hash = await hashPassword(data.password, row.password_salt);
