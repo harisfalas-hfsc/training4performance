@@ -22,10 +22,15 @@ export const Route = createFileRoute("/account")({
       noindex: true,
     }),
   }),
+  validateSearch: (search: Record<string, unknown>): { tab?: "subscription" | "notifications" | "messages" } =>
+    search["tab"] === "notifications" || search["tab"] === "messages" || search["tab"] === "subscription"
+      ? { tab: search["tab"] }
+      : {},
   component: Account,
 });
 
 function Account() {
+  const { tab: tabParam } = Route.useSearch();
   const { loading, session, user, profile, isAdmin, subscription, hasAccess, refresh, signOut } = useAuth();
   const navigate = useNavigate();
   const subscribeFn = useServerFn(requestSubscription);
