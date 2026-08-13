@@ -329,7 +329,7 @@ function TrainingPage() {
       flash("Add at least one item to this block first");
       return;
     }
-    saveBlockTemplate(b, blockItems);
+    saveBlockTemplate(b, blockItems, { category: inferCategory(blockItems) });
     flash(`${b} saved to your library`);
   };
 
