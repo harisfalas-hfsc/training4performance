@@ -11,7 +11,7 @@ function when(iso: string) {
 }
 
 /** Bell with the unread count, sitting next to the avatar in every shell. */
-export function NotificationBell({ userId }: { userId?: string }) {
+export function NotificationBell({ userId }: { userId?: string | undefined }) {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
   const boxRef = useRef<HTMLDivElement>(null);
