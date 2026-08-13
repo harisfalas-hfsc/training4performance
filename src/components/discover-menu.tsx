@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
+import { activateDemo } from "@/lib/demo";
 import { toolsNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,11 @@ export function DiscoverMenu({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const close = () => setOpen(false);
+  const openDemo = () => {
+    close();
+    activateDemo(true);
+    window.location.assign("/dashboard");
+  };
 
   return (
     <>
@@ -82,6 +88,13 @@ export function DiscoverMenu({
                       {l.label}
                     </Link>
                   ))}
+                  <button
+                    type="button"
+                    onClick={openDemo}
+                    className="border-b border-border py-3.5 text-left font-display text-lg uppercase tracking-wide text-primary transition-opacity hover:opacity-70"
+                  >
+                    Try shared demo
+                  </button>
                 </nav>
 
                 {session && platformItems.length ? (
