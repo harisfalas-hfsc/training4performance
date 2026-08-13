@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/auth";
 import { type LibraryBlock } from "@/lib/library.functions";
 import { useOfficialLibrary } from "@/lib/use-library-blocks";
 import { normalizeCategory } from "@/data/library-categories";
