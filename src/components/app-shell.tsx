@@ -128,8 +128,8 @@ export function AppShell({
     <div className="flex min-h-screen w-full bg-background">
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 bg-background/90 backdrop-blur">
-          <div className="relative flex items-center justify-between px-4 py-1 sm:px-5">
-            <div className="flex shrink-0 items-center gap-0.5">
+          <div className="relative flex items-center justify-between px-2 py-1 sm:px-5">
+            <div className="flex shrink-0 items-center gap-0">
 
               <DiscoverMenu platformItems={navItems} />
               {canGoBack ? (
@@ -137,9 +137,9 @@ export function AppShell({
                   type="button"
                   onClick={goBack}
                   aria-label="Back"
-                  className="grid size-12 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70"
+                  className="grid size-9 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70 sm:size-10"
                 >
-                  <ArrowLeft className="size-6" />
+                  <ArrowLeft className="size-5" />
                 </button>
               ) : null}
             </div>
@@ -153,11 +153,11 @@ export function AppShell({
               <img
                 src="/logo-t4p.png"
                 alt="Training 4 Performance logo"
-                className="t4p-logo size-12 shrink-0 object-contain"
+                className="t4p-logo size-9 shrink-0 object-contain sm:size-10"
               />
             </Link>
 
-            <div className="flex shrink-0 items-center gap-0.5">
+            <div className="flex shrink-0 items-center gap-0">
               {supportMode ? (
                 <Button size="sm" onClick={() => void returnToAdmin()}>
                   <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
@@ -173,12 +173,12 @@ export function AppShell({
                   aria-label="Open my account"
                   aria-expanded={accountOpen}
                   onClick={() => setAccountOpen((value) => !value)}
-                  className="size-12 rounded-full border-0 bg-transparent text-primary shadow-none hover:bg-transparent hover:opacity-70"
+                  className="size-9 rounded-full border-0 bg-transparent text-primary shadow-none hover:bg-transparent hover:opacity-70 sm:size-10"
                 >
                   {profile?.full_name ? (
                     <span className="text-sm font-bold">{profile.full_name.slice(0, 1).toUpperCase()}</span>
                   ) : (
-                    <User className="size-6" />
+                    <User className="size-5" />
                   )}
                 </Button>
                 {accountOpen ? (

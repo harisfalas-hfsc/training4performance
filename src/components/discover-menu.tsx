@@ -48,11 +48,11 @@ export function DiscoverMenu({
         onClick={() => setOpen(true)}
         aria-label="Open discovery menu"
         className={cn(
-          "grid size-12 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70",
+          "grid size-9 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70 sm:size-10",
           className,
         )}
       >
-        <Menu className="size-6" />
+        <Menu className="size-5" />
       </button>
 
       {open && mounted

@@ -32,7 +32,7 @@ export function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur">
-        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-1 sm:px-5">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-2 py-1 sm:px-5">
           <DiscoverMenu platformItems={platformNav} />
 
           <Link
@@ -47,12 +47,12 @@ export function SiteHeader() {
               height={512}
               decoding="async"
               fetchPriority="high"
-              className="t4p-logo size-12 shrink-0 object-contain"
+              className="t4p-logo size-9 shrink-0 object-contain sm:size-10"
             />
           </Link>
 
 
-          <div className="flex shrink-0 items-center gap-0.5">
+          <div className="flex shrink-0 items-center gap-0">
             {session ? <NotificationBell userId={session.user.id} /> : null}
             <ThemeToggle />
 
@@ -61,9 +61,9 @@ export function SiteHeader() {
                 onClick={() => setAvatar((v) => !v)}
 
               aria-label="Account menu"
-              className="grid size-12 place-items-center rounded-full text-sm font-semibold uppercase text-primary transition-opacity hover:opacity-70"
+              className="grid size-9 place-items-center rounded-full text-xs font-semibold uppercase text-primary transition-opacity hover:opacity-70 sm:size-10"
             >
-              {session ? initials : <User className="size-6" />}
+              {session ? initials : <User className="size-5" />}
             </button>
             {avatar ? (
               <div className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-panel">
