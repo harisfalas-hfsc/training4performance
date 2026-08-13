@@ -19,6 +19,7 @@ import {
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
+import { activateDemo } from "@/lib/demo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -129,6 +130,7 @@ const features = [
 ];
 
 function Home() {
+  const openDemo = () => activateDemo(true);
   return (
     <MarketingPage>
       {/* MOBILE hero — centered text */}
@@ -151,10 +153,11 @@ function Home() {
               Get started <ArrowRight className="size-4" />
             </Link>
             <Link
-              to="/how-it-works"
+              to="/dashboard"
+              onClick={openDemo}
               className="inline-flex h-12 items-center justify-center rounded-full border-2 border-primary text-sm font-semibold text-primary"
             >
-              See how it works
+              Try shared demo
             </Link>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
@@ -185,10 +188,11 @@ function Home() {
                 Get started <ArrowRight className="size-4" />
               </Link>
               <Link
-                to="/how-it-works"
+                to="/dashboard"
+                onClick={openDemo}
                 className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-primary px-8 text-sm font-semibold text-primary"
               >
-                See how it works
+                Try shared demo
               </Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
