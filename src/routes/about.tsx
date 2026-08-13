@@ -20,6 +20,7 @@ import {
 
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
+import { FederationTrustBlock } from "@/components/federation-trust";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
@@ -666,6 +667,8 @@ function About() {
             </div>
           ))}
         </div>
+
+        <FederationTrustBlock className="mt-10" />
 
         <div className="panel mt-16 border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-cyan/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
