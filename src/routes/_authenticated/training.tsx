@@ -101,6 +101,17 @@ export const Route = createFileRoute("/_authenticated/training")({
   component: TrainingPage,
 });
 
+/** Best-guess library section for a block the coach saves — re-filable later on /library. */
+function inferCategory(blockItems: SessionPlanItem[]): string {
+  if (blockItems.every((i) => i.strength)) return "STRENGTH";
+  const purposes = blockItems.map((i) => (i.purpose || "").toUpperCase());
+  if (purposes.some((p) => p.includes("POWER"))) return "POWER";
+  if (purposes.some((p) => p.includes("METABOLIC"))) return "ESD (ENERGY SYSTEM DEVELOPMENT)";
+  if (purposes.some((p) => p.includes("ACTIVATION") || p.includes("WARM"))) return "MOBILITY & STABILITY";
+  return "TECHNICAL / TACTICAL";
+}
+
+
 const STATUS: TrainingStatus[] = [
   "Full Training",
   "Partial Training",
