@@ -78,59 +78,41 @@ export function TrainingExplorer({
 
       <section className="panel p-4">
         <SectionTitle
-          title="Search a drill, tag or exercise"
+          title="3. Which drills or tags?"
           hint='Tag drills in the Training Designer (e.g. "Rondo 5v2", "Bulgarian split squat") and they become searchable here'
         />
-        <div className="control flex max-w-sm items-center gap-2">
-          <Search className="size-4 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Rondo 5v2, passing drill, split squat…"
-            className="w-full bg-transparent text-sm outline-none"
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MultiSelectField
+            label="Drills / tags"
+            values={picked}
+            onChange={setPicked}
+            placeholder="Choose drills…"
+            searchPlaceholder="Rondo 5v2, passing drill…"
+            emptyText="Nothing planned in this date range yet — add drills in the Training Designer."
+            options={catalog.map((item) => ({
+              value: item.key,
+              label: item.label,
+              hint: `${item.kind === "tag" ? "tag" : "drill"} · ${item.count}×`,
+            }))}
+          />
+          <SelectField
+            label="Measure"
+            value={measure}
+            onChange={(value) => setMeasure(value as "times" | "minutes")}
+            options={[
+              { value: "times", label: "How many times" },
+              { value: "minutes", label: "Total minutes" },
+            ]}
+          />
+          <SelectField
+            label="Chart"
+            value={kind}
+            onChange={(value) => setKind(value as ChartKind)}
+            options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
           />
         </div>
-        <div className="mt-3 flex flex-wrap gap-1">
-          {filtered.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={chip(picked.includes(item.key))}
-              onClick={() =>
-                setPicked((prev) => (prev.includes(item.key) ? prev.filter((x) => x !== item.key) : [...prev, item.key]))
-              }
-            >
-              {item.label}
-              <span className="ml-1 font-normal text-muted-foreground">
-                {item.kind === "tag" ? "tag" : "drill"} · {item.count}×
-              </span>
-            </button>
-          ))}
-          {!filtered.length ? (
-            <p className="text-sm text-muted-foreground">
-              Nothing planned in this date range yet — add drills in the Training Designer.
-            </p>
-          ) : null}
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">Measure</span>
-          <button type="button" className={chip(measure === "times")} onClick={() => setMeasure("times")}>
-            How many times
-          </button>
-          <button type="button" className={chip(measure === "minutes")} onClick={() => setMeasure("minutes")}>
-            Total minutes
-          </button>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">Chart</span>
-          {CHART_KINDS.map((c) => (
-            <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
-              {c.label}
-            </button>
-          ))}
-        </div>
       </section>
+
 
       {summaries.length ? (
         <>
