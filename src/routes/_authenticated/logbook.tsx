@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { ChartFrame, HBar, MultiChart, CHART_KINDS, type ChartKind } from "@/components/charts";
 import { PlayerPicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { fullName, players, today, useDataVersion } from "@/data/performance";
 import {
   TEST_CATALOG,
@@ -259,11 +260,6 @@ function PlayerRecord() {
     });
   }, [records.length, shown.join(","), playerId]);
 
-  const chip = (active: boolean) =>
-    `rounded-md border px-3 py-1.5 text-xs font-semibold ${
-      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
-    }`;
-
   if (!players.length) {
     return <p className="panel p-6 text-sm text-muted-foreground">No players yet. Add your squad in Team & players first.</p>;
   }
@@ -320,25 +316,23 @@ function PlayerRecord() {
       {testIds.length ? (
         <div className="panel p-4">
           <SectionTitle title="Trend" hint="Pick the test(s) you want to see and how to draw them" />
-          <div className="mb-3 flex flex-wrap gap-1">
-            {testIds.map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={chip(shown.includes(id))}
-                onClick={() => setChartTests((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))}
-              >
-                {testLabel(id)}
-              </button>
-            ))}
+          <div className="mb-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <MultiSelectField
+              label="Tests"
+              values={shown}
+              onChange={setChartTests}
+              options={testIds.map((id) => ({ value: id, label: testLabel(id) }))}
+              placeholder="Choose tests…"
+              searchPlaceholder="Search test…"
+            />
+            <SelectField
+              label="Chart"
+              value={kind}
+              onChange={(value) => setKind(value as ChartKind)}
+              options={CHART_KINDS.filter((c) => ["line", "bar", "pie"].includes(c.id)).map((c) => ({ value: c.id, label: c.label }))}
+            />
           </div>
-          <div className="mb-3 flex flex-wrap gap-1">
-            {CHART_KINDS.filter((c) => ["line", "bar", "pie"].includes(c.id)).map((c) => (
-              <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
-                {c.label}
-              </button>
-            ))}
-          </div>
+
           <ChartFrame title={`${player ? fullName(player) : "Player"} test trend`}>
             <MultiChart data={chartData} kind={kind} height={300} series={shown.map((id) => ({ key: id, name: testLabel(id) }))} />
           </ChartFrame>

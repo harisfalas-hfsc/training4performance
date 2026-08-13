@@ -3,6 +3,7 @@ import { Download, MoveHorizontal, Trash2 } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, SERIES_COLORS, type ChartKind } from "@/components/charts";
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import {
   customKpis,
   fullName,
@@ -130,14 +131,6 @@ export function GpsExplorer() {
       })
     : kpis.map((k) => ({ key: k, name: allKpis.find((m) => m.key === k)?.label ?? k }));
 
-  const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
-    set(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
-
-  const chip = (active: boolean) =>
-    `rounded-md border px-3 py-1.5 text-xs font-semibold ${
-      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-    }`;
-
   const kpiNames = kpis.map((k) => allKpis.find((m) => m.key === k)?.label ?? k);
   const unit = kpis.length === 1 ? (allKpis.find((m) => m.key === kpis[0])?.unit ?? "") : "";
   const whoLabel =
@@ -191,28 +184,25 @@ export function GpsExplorer() {
   return (
     <div className="space-y-4">
       <section className="panel p-4">
-        <SectionTitle title="1. Who?" hint="The whole squad, the squad average, or players you pick from the list" />
-        <PlayerPicker scope={scope} onScope={setScope} picked={picked} onPicked={setPicked} />
-      </section>
-
-      <section className="panel p-4">
-        <SectionTitle title="2. What do you want to see?" hint="Pick one KPI or several — and how it should be drawn" />
-        <div className="flex flex-wrap gap-1">
-          {allKpis.map((k) => (
-            <button key={k.key} type="button" className={chip(kpis.includes(k.key))} onClick={() => toggle(kpis, setKpis, k.key)}>
-              {k.label}{k.unit ? ` (${k.unit})` : ""}
-            </button>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1">
-          {CHART_KINDS.map((c) => (
-            <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
-              {c.label}
-            </button>
-          ))}
-        </div>
-        <div className="mt-3">
-          <p className="eyebrow mb-1">Dates</p>
+        <SectionTitle title="Build your report" hint="Pick who you are looking at, the KPIs and the dates" />
+        <div className="space-y-3">
+          <PlayerPicker scope={scope} onScope={setScope} picked={picked} onPicked={setPicked} />
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <MultiSelectField
+              label="KPIs"
+              values={kpis}
+              onChange={setKpis}
+              options={allKpis.map((k) => ({ value: k.key, label: k.label, ...(k.unit ? { hint: k.unit } : {}) }))}
+              placeholder="Choose KPIs…"
+              searchPlaceholder="Search KPI…"
+            />
+            <SelectField
+              label="Chart"
+              value={kind}
+              onChange={(value) => setKind(value as ChartKind)}
+              options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
+            />
+          </div>
           <DateRangePicker
             from={from}
             to={to}
@@ -222,6 +212,7 @@ export function GpsExplorer() {
           />
         </div>
       </section>
+
 
       <section className="panel p-4">
         {perPlayerSeries && playerSummary.length ? (
@@ -242,7 +233,7 @@ export function GpsExplorer() {
       <section className="panel p-0">
         <div className="flex flex-wrap items-center justify-between gap-2 p-4 pb-2">
           <SectionTitle
-            title="3. The rows behind the graph"
+            title="The rows behind the graph"
             hint={`${rows.length} row(s) between ${from} and ${to} — newest first`}
           />
           <button
