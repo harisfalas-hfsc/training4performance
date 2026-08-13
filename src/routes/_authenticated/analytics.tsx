@@ -189,7 +189,7 @@ function AnalyticsPage() {
     scope === "team" ? "whole squad (sum)" : scope === "average" ? "squad average per player" : `${selected.length} selected player(s)`;
 
   return (
-    <AppShell title="Analytics & reports" subtitle="Choose players, KPI and dates — then see or export the result">
+    <AppShell title="Analytics & reports" subtitle="Pick the report, the players and the KPI — then see or export the result">
       <nav className="mb-4 flex flex-wrap gap-2" aria-label="Analytics and reporting tools">
         <Button asChild variant="outline"><Link to="/compare"><GitCompare className="size-4" /> Compare players</Link></Button>
         <Button asChild variant="outline"><Link to="/blocks"><Layers className="size-4" /> Compare blocks</Link></Button>
