@@ -43,6 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notification-bell";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
 import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
