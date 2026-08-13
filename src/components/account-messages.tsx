@@ -130,7 +130,10 @@ export function AccountMessages({ userId }: { userId: string }) {
         <div>
           <p className="eyebrow">Communication centre</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Open a ticket, ask a question, report a problem — and read the answers here.
+            A two-way conversation with T4P: open a ticket, ask a question, report a problem, and read the answers
+            here. The Smarty assistant answers instantly from what it already knows, and every answer the T4P owner
+            gives is remembered, so the same question is answered automatically next time. One-way announcements from
+            T4P sit in the Notifications tab.
           </p>
         </div>
         <button
