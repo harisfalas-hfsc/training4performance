@@ -80,6 +80,31 @@ export const setAutoRenew = createServerFn({ method: "POST" })
   .inputValidator((data: { cancel: boolean }) => data)
   .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: current } = await supabaseAdmin
+      .from("subscriptions")
+      .select("stripe_subscription_id,environment")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    // A card subscription must be changed in Stripe first, otherwise the next
+    // renewal is still charged even though the app says it was cancelled.
+    if (current?.stripe_subscription_id) {
+      try {
+        const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
+        const env = current.environment === "live" ? "live" : "sandbox";
+        try {
+          const stripe = createStripeClient(env);
+          await stripe.subscriptions.update(current.stripe_subscription_id, {
+            cancel_at_period_end: data.cancel,
+          });
+        } catch (e) {
+          return { error: getStripeErrorMessage(e) };
+        }
+      } catch {
+        return { error: "Billing is temporarily unavailable. Please try again." };
+      }
+    }
+
     const { data: sub, error } = await supabaseAdmin
       .from("subscriptions")
       .update({ cancel_at_period_end: data.cancel, canceled_at: data.cancel ? new Date().toISOString() : null })
