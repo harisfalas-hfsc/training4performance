@@ -26,15 +26,15 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
   {
 
     id: "subscription-price",
-    keywords: ["price", "pricing", "cost", "how much", "69", "per month", "fee", "expensive"],
+    keywords: ["price", "pricing", "cost", "how much", "69", "per year", "season", "fee", "expensive"],
     answer:
-      "T4P is €69.90 per month per team, billed monthly and cancellable at any time. One account manages one team with unlimited players, sessions, GPS files and reports. You can see the full breakdown on the [Pricing page](/pricing).",
+      "T4P is €699 per season per team, billed yearly and cancellable at any time. One account manages one team with unlimited players, sessions, GPS files and reports. You can see the full breakdown on the [Pricing page](/pricing).",
   },
   {
     id: "cancel",
     keywords: ["cancel", "stop", "unsubscribe", "renew", "renewal", "expire", "expired"],
     answer:
-      "Open [Manage account](/account) and switch automatic renewal off. You keep full access until the end of the month you already paid for. After that the workspace becomes read-only: nothing is deleted, you can still open every page, read every report and export your data, and editing returns the moment you subscribe again.",
+      "Open [Manage account](/account) and switch automatic renewal off. You keep full access until the end of the season you already paid for. After that the workspace becomes read-only: nothing is deleted, you can still open every page, read every report and export your data, and editing returns the moment you subscribe again.",
   },
   {
     id: "payment-failed",
@@ -46,7 +46,7 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
     id: "read-only",
     keywords: ["read only", "read-only", "cannot edit", "can't edit", "locked", "view only", "no access"],
     answer:
-      "Read-only means your subscription is not active yet or has lapsed. You can browse every page and export your data, but saving is blocked. Activate the monthly subscription from [Manage account](/account) and full editing is unlocked immediately.",
+      "Read-only means your subscription is not active yet or has lapsed. You can browse every page and export your data, but saving is blocked. Activate the yearly subscription from [Manage account](/account) and full editing is unlocked immediately.",
   },
   {
     id: "team-create",

@@ -44,7 +44,7 @@ export const Route = createFileRoute("/privacy")({
         <h2>2. Data we process</h2>
         <ul>
           <li><strong>Account data:</strong> name, email address, club name, role, authentication identifiers.</li>
-          <li><strong>Subscription data:</strong> plan, monthly billing period, status.</li>
+          <li><strong>Subscription data:</strong> plan, yearly billing period, status.</li>
           <li><strong>Player data (club-controlled):</strong> identity, position, contract, training records, GPS and physical output, RPE, wellness, testing results, availability.</li>
           <li><strong>Health data (special category, Article 9):</strong> injury, diagnosis, rehabilitation and return-to-play information, only where a club chooses to record it.</li>
           <li><strong>Technical data:</strong> log data necessary for security and service operation.</li>

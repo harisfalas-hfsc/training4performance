@@ -247,7 +247,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             ],
             offers: {
               "@type": "Offer",
-              price: "69.90",
+              price: "699.00",
               priceCurrency: "EUR",
               url: `${SITE_URL}/pricing`,
               availability: "https://schema.org/InStock",

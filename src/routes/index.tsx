@@ -251,7 +251,7 @@ function Home() {
             </Link>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            €69.90 per month, per team · cancel any time
+            €699 per season, per team · cancel any time
           </p>
         </div>
       </section>
@@ -285,7 +285,7 @@ function Home() {
               </Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              €69.90 per month, per team · cancel any time
+              €699 per season, per team · cancel any time
             </p>
           </div>
         </div>
@@ -501,7 +501,7 @@ function Home() {
           Ready to start?
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          €69.90 per month, cancel any time. One subscription covers your team and your whole staff.
+          €699 per season, cancel any time. One subscription covers your team and your whole staff.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link

@@ -367,7 +367,7 @@ export const adminGrantAccess = createServerFn({ method: "POST" })
         season_end: untilDate,
         complimentary: Boolean(data.complimentary),
         admin_note: data.note ?? null,
-        price_eur: data.complimentary ? 0 : (existing?.price_eur ?? 69.9),
+        price_eur: data.complimentary ? 0 : (existing?.price_eur ?? 699),
         updated_at: new Date().toISOString(),
       };
 

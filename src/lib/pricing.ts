@@ -1,19 +1,17 @@
 /**
  * Single source of truth for T4P pricing.
- * One team subscription, billed monthly, cancel any time.
+ * One team subscription, billed yearly (365 days), renews automatically.
  */
-export const PRICE_EUR = 69.9;
-export const PRICE_LABEL = "€69.90";
-export const PRICE_PER = "per month, per team";
-export const PRICE_FULL = "€69.90 / month";
-export const PRICE_SCHEMA = "69.90";
+export const PRICE_EUR = 699;
+export const PRICE_LABEL = "€699";
+export const PRICE_PER = "per season, per team";
+export const PRICE_FULL = "€699 / season";
+export const PRICE_SCHEMA = "699.00";
 
-/** Adds one month to a date (clamping short months). */
-export function addMonth(date: Date) {
+/** Adds 365 days to a date. */
+export function addSeason(date: Date) {
   const d = new Date(date.getTime());
-  const day = d.getUTCDate();
-  d.setUTCMonth(d.getUTCMonth() + 1);
-  if (d.getUTCDate() < day) d.setUTCDate(0);
+  d.setUTCDate(d.getUTCDate() + 365);
   return d;
 }
 
@@ -21,9 +19,9 @@ export function isoDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
-/** Current monthly billing period starting today. */
+/** Current 365-day billing period starting today. */
 export function currentBillingPeriod(now = new Date()) {
-  return { start: isoDate(now), end: isoDate(addMonth(now)) };
+  return { start: isoDate(now), end: isoDate(addSeason(now)) };
 }
 
 export function formatDate(value?: string | null) {

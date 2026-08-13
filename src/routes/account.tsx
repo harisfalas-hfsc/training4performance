@@ -209,7 +209,7 @@ function Account() {
                         disabled={busy}
                         className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
                       >
-                        {busy ? "Working…" : "Resume monthly renewal"}
+                        {busy ? "Working…" : "Resume yearly renewal"}
                       </button>
                     ) : (
                       <button
@@ -222,7 +222,7 @@ function Account() {
                     )}
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Cancelling stops the next payment. You keep full access until the end of the paid month, then the
+                    Cancelling stops the next payment. You keep full access until the end of the paid season, then the
                     account becomes read-only — all your data, charts, reports and exports stay available.
                   </p>
                 </>
@@ -233,7 +233,7 @@ function Account() {
               <p className="mt-2 text-lg font-semibold">Read-only mode</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 You can open the platform, view every record, chart and report and export everything. Adding or editing
-                data needs an active subscription — {PRICE_LABEL} per month, per team, cancel any time.
+                data needs an active subscription — {PRICE_LABEL} per season, per team, cancel any time.
               </p>
               <button
                 onClick={activate}
@@ -243,7 +243,7 @@ function Account() {
                 {busy ? "Sending…" : `Subscribe — ${PRICE_FULL}`}
               </button>
               <p className="mt-2 text-xs text-muted-foreground">
-                Online card payments are being rolled out — for now the monthly subscription is activated after
+                Online card payments are being rolled out — for now the yearly subscription is activated after
                 invoicing. You will get a notification as soon as it is live.
               </p>
             </>
