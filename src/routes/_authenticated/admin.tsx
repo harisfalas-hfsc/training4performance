@@ -46,7 +46,7 @@ import {
   type AdminWorkspace,
 } from "@/lib/admin.functions";
 
-type AdminSearch = { tab?: "customers" | "teams" | "support"; customer?: string };
+type AdminSearch = { tab?: "customers" | "teams" | "support" | "library"; customer?: string };
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
     const tab = search["tab"];
     const customer = search["customer"];
     return {
-      tab: tab === "teams" || tab === "support" ? tab : "customers",
+      tab: tab === "teams" || tab === "support" || tab === "library" ? tab : "customers",
       ...(typeof customer === "string" && customer ? { customer } : {}),
     };
   },
