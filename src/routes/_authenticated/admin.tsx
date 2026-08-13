@@ -83,6 +83,7 @@ function AdminPage() {
   const [months, setMonths] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openTeam, setOpenTeam] = useState<string | null>(null);
+  const [unreadTickets, setUnreadTickets] = useState(0);
   const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
   const [workspace, setWorkspace] = useState<AdminWorkspace | null>(null);
 
