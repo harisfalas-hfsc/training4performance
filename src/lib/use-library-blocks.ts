@@ -27,9 +27,11 @@ export function useOfficialLibrary(enabled = true) {
   const query = useQuery({
     queryKey: ["library-blocks"],
     queryFn: () => fetchBlocks(),
-    enabled: enabled && !demo,
+    enabled: enabled && !demo && hasAccess,
   });
 
   if (demo) return { blocks: demoBlocks, loading: false, locked: false };
-  return { blocks: query.data ?? [], loading: enabled && query.isPending, locked: !hasAccess };
+  // Expired / canceled accounts keep their own saved blocks but lose the T4P set.
+  if (!hasAccess) return { blocks: [] as LibraryBlock[], loading: false, locked: true };
+  return { blocks: query.data ?? [], loading: enabled && query.isPending, locked: false };
 }
