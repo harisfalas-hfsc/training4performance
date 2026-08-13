@@ -160,7 +160,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-5 py-8 sm:py-10">
         <FederationTrust />
 
-        <div className="mt-8 flex flex-col items-center gap-5 sm:mt-10 sm:flex-row sm:justify-between">
+        <div className="mt-8 flex flex-col items-center gap-4 text-center sm:mt-10">
           <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
             <Training4Performance />
           </p>
@@ -179,6 +179,7 @@ export function SiteFooter() {
             </Link>
           </nav>
         </div>
+
       </div>
       <div className="border-t border-border px-5 py-5 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} <Training4Performance />. All rights reserved.
