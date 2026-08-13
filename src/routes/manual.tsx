@@ -759,9 +759,10 @@ function ManualPage() {
                   <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-brand-red/12 font-display text-xs font-bold text-brand-red">
                     {i + 1}
                   </span>
-                  {p.q}
+                  <BrandCopy>{p.q}</BrandCopy>
                 </p>
-                <p className="mt-2 pl-8 text-sm leading-relaxed text-muted-foreground">{p.a}</p>
+                <p className="mt-2 pl-8 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{p.a}</BrandCopy></p>
+
               </div>
             ))}
             {problems.length === 0 ? (
