@@ -35,14 +35,6 @@ export function Training4Performance({ className }: { className?: string }) {
   );
 }
 
-export function SmartyAssistant({ className }: { className?: string }) {
-  return (
-    <span className={cn("font-semibold text-brand-blue", className)}>
-      Smarty Assistant
-    </span>
-  );
-}
-
 /** Theme-aware renderer for brand names embedded in longer copy. */
 export function BrandCopy({ children }: { children: string }) {
   const parts = children.split(/(Training (?:4|for) Performance|T4P|C4P)/gi);
