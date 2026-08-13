@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { T4P } from "@/components/brand-text";
 
 /**
  * Desktop-only "screenshots" for the homepage.
@@ -67,7 +68,7 @@ export function ShotSquad() {
     <Frame path="t4p / team & players">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
-          <p className="font-display text-sm font-semibold uppercase tracking-wide">T4P — squad</p>
+          <p className="font-display text-sm font-semibold uppercase tracking-wide"><T4P /> — squad</p>
           <p className="text-[0.7rem] text-muted-foreground">5 players · season 2026/27</p>
         </div>
         <span className="rounded-full border border-border px-3 py-1 text-[0.7rem] text-muted-foreground">

@@ -734,7 +734,7 @@ function ManualPage() {
                 {c.tips.map((t) => (
                   <p key={t} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0" style={{ color: c.color }} />
-                    <span>{t}</span>
+                    <span><BrandCopy>{t}</BrandCopy></span>
                   </p>
                 ))}
               </div>
