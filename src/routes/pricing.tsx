@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P } from "@/components/brand-text";
-import { currentSeason, useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import {
   breadcrumbLd,
   jsonLd,
@@ -19,9 +19,9 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     ...seoHead({
       path: "/pricing",
-      title: "Pricing — €999 Per Season | Football S&C Software | T4P",
+      title: "Pricing — €69.90 Per Month | Football S&C Software | T4P",
       description:
-        "T4P costs €999 per season (1 June – 31 May) for one football team: unlimited players, unlimited staff users, GPS, ACWR, testing, wellness and reporting included.",
+        "T4P costs €69.90 per month for one football team, cancel any time: unlimited players, unlimited staff users, GPS, ACWR, testing, wellness and reporting included.",
       keywords: [
         "football performance management platform pricing",
         "athlete monitoring system football price",
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/pricing")({
         path: "/pricing",
         name: "T4P Pricing",
         description:
-          "T4P pricing: EUR 999 per season for one football team, unlimited players and unlimited staff users, with every module included.",
+          "T4P pricing: EUR 69.90 per month for one football team, unlimited players and unlimited staff users, with every module included.",
         breadcrumb: true,
       }),
       breadcrumbLd([
@@ -44,23 +44,23 @@ export const Route = createFileRoute("/pricing")({
         "@context": "https://schema.org",
         "@type": "Product",
         "@id": `${SITE_URL}/pricing#product`,
-        name: "T4P Team Season Subscription",
+        name: "T4P Team Monthly Subscription",
         mainEntityOfPage: { "@id": `${SITE_URL}/pricing#webpage` },
         category: "Football performance management software",
         description:
-          "One season of T4P — Training 4 Performance for one football team: squad management, training design, GPS import, training load and ACWR, wellness, fitness testing, alerts and reports, with unlimited staff users.",
+          "A monthly subscription to T4P — Training 4 Performance for one football team: squad management, training design, GPS import, training load and ACWR, wellness, fitness testing, alerts and reports, with unlimited staff users.",
         image: OG_IMAGE,
         brand: { "@type": "Brand", name: SITE_NAME },
         isRelatedTo: { "@id": SOFTWARE_ID },
         url: `${SITE_URL}/pricing`,
         offers: {
           "@type": "Offer",
-          price: "999",
+          price: "69.90",
           priceCurrency: "EUR",
           url: `${SITE_URL}/pricing`,
           availability: "https://schema.org/InStock",
-          category: "Season subscription",
-          priceValidUntil: "2027-05-31",
+          category: "Monthly subscription",
+          priceValidUntil: "2027-12-31",
           seller: { "@id": ORGANIZATION_ID },
         },
       }),
@@ -92,14 +92,14 @@ const notes = [
     label: "text-brand-blue",
   },
   {
-    t: "Browse before you buy",
-    d: "Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
+    t: "You never lose your data",
+    d: "If you cancel, expire or a payment fails, the account becomes read-only: every record, chart, report and export stays available. Subscribe again and full editing comes straight back.",
     tone: "border-brand-green/25",
     label: "text-brand-green",
   },
   {
-    t: "Season-based billing",
-    d: "A subscription covers one full season from 1 June to 31 May, regardless of when you join. Prices are in euro and exclude VAT where applicable.",
+    t: "Monthly billing, cancel any time",
+    d: "€69.90 is charged every month and renews automatically until you cancel. Cancel from your account and you keep full access until the end of the paid month. Prices are in euro and exclude VAT where applicable.",
     tone: "border-brand-amber/25",
     label: "text-brand-amber",
   },
@@ -113,7 +113,6 @@ const notes = [
 
 function Pricing() {
   const { session } = useAuth();
-  const season = currentSeason();
 
   return (
     <MarketingPage>
@@ -121,12 +120,12 @@ function Pricing() {
         <div className="mx-auto max-w-6xl px-5 py-14 text-center">
           <p className="page-eyebrow">Pricing</p>
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
-            One price, one season, one team
+            One price, one month, one team
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
-            The <T4P /> season runs from{" "}
-            <strong className="text-foreground">1 June to 31 May</strong>. Current season:{" "}
-            {season.label} ({season.start} → {season.end}).
+            <T4P /> is billed monthly at{" "}
+            <strong className="text-foreground">€69.90 per team</strong> — it renews automatically
+            and you can cancel any time from your account.
           </p>
         </div>
       </section>
@@ -137,9 +136,9 @@ function Pricing() {
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-indigo/15 px-3 py-1 text-xs font-semibold text-brand-indigo">
               <Sparkles className="size-3.5" /> Team subscription
             </span>
-            <p className="mt-4 font-display text-6xl font-semibold leading-none">€999</p>
+            <p className="mt-4 font-display text-6xl font-semibold leading-none">€69.90</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              per season, per team — every module included
+              per month, per team — every module included · cancel any time
             </p>
             <ul className="mt-5 space-y-1.5 text-sm text-muted-foreground">
               <li className="flex gap-2">
