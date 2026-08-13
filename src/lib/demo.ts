@@ -7,16 +7,13 @@
  */
 import { setDemoMode, setWriteAccess } from "@/lib/access";
 import { getWorkspaceScope, setWorkspaceScope } from "@/lib/workspace-scope";
-import { applyWorkspaceData, workspaceSnapshot } from "@/data/performance";
-import { applyTestRecords, testRecordsSnapshot } from "@/data/testing";
-import { applyLocalWellness, clearWellness, setWellnessLocalOnly } from "@/data/wellness";
-import { buildDemoLibrary, buildDemoTests, buildDemoWellness, buildDemoWorkspace } from "@/data/demo-seed";
+import { applyWorkspaceData } from "@/data/performance";
+import { applyTestRecords } from "@/data/testing";
+import { clearWellness, setWellnessLocalOnly } from "@/data/wellness";
 import { applySavedBlocks } from "@/data/presets";
 
 export const DEMO_SCOPE = "t4p-demo";
 const FLAG = "t4p.demo.active";
-const SEED_VERSION_KEY = "t4p.demo.seed-version";
-const SEED_VERSION = "4";
 
 export function isDemoActive() {
   if (typeof window === "undefined") return false;
@@ -27,8 +24,8 @@ export function isDemoActive() {
   }
 }
 
-/** Turns the demo on and seeds the T4P squad when the sandbox is empty. */
-export function activateDemo(reseed = false) {
+/** Opens an isolated, empty sandbox without creating example records. */
+export function activateDemo(_reseed = false) {
   if (typeof window === "undefined") return;
   try {
     window.sessionStorage.setItem(FLAG, "1");
@@ -39,20 +36,14 @@ export function activateDemo(reseed = false) {
   setDemoMode(false);
   setWriteAccess(true);
   setWorkspaceScope(DEMO_SCOPE);
-  const snapshot = workspaceSnapshot();
-  const needsUpgrade = window.localStorage.getItem(SEED_VERSION_KEY) !== SEED_VERSION;
-  if (reseed || needsUpgrade || snapshot.players.length === 0) {
-    applyWorkspaceData(buildDemoWorkspace());
-    window.localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION);
-  }
-  if (reseed || needsUpgrade || testRecordsSnapshot().length === 0) {
-    applyTestRecords(buildDemoTests());
-  }
-  // The coach's own drills & exercise library.
-  applySavedBlocks(buildDemoLibrary());
-  // Wellness never touches the cloud in the demo — it is kept in memory only.
+  applyWorkspaceData({
+    team: { id: "team-demo", name: "", club: "", season: "", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "", configured: false },
+    players: [], sessions: [], gpsHistory: [], gpsBlocks: [], rpeEntries: [], manualTests: [], medicalEvents: [],
+  });
+  applyTestRecords([]);
+  applySavedBlocks([]);
   setWellnessLocalOnly(true);
-  applyLocalWellness(buildDemoWellness());
+  clearWellness();
   setDemoMode(true);
 }
 

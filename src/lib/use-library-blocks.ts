@@ -1,17 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { DEMO_T4P_LIBRARY } from "@/data/demo-seed";
 import { isDemoMode } from "@/lib/access";
 import { useAuth } from "@/lib/auth";
 import { listLibraryBlocks, type LibraryBlock } from "@/lib/library.functions";
 
-const demoBlocks: LibraryBlock[] = DEMO_T4P_LIBRARY.map((b) => ({
-  ...b,
-  notes: null,
-  published: true,
-  sort_order: 0,
-  updated_at: new Date().toISOString(),
-}));
+const demoBlocks: LibraryBlock[] = [];
 
 /**
  * The ready-made T4P blocks.
