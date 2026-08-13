@@ -3,15 +3,15 @@ import { cn } from "@/lib/utils";
 const federations = [
   { name: "UEFA", src: "/federations/uefa.svg" },
   { name: "UEFA Champions League", src: "/federations/champions-league.svg" },
-  { name: "FIFA", src: "/federations/fifa.svg" },
+  { name: "FIFA", src: "/federations/fifa.svg", wide: true },
   { name: "Cyprus FA", src: "/federations/cyprus-fa.png" },
   { name: "Hellenic FA", src: "/federations/hellenic-fa.svg" },
   { name: "Premier League", src: "/federations/premier-league.png" },
   { name: "Serie A", src: "/federations/serie-a.svg" },
-  { name: "Bundesliga", src: "/federations/bundesliga.svg" },
-  { name: "La Liga", src: "/federations/laliga.svg" },
+  { name: "Bundesliga", src: "/federations/bundesliga.svg", wide: true },
+  { name: "La Liga", src: "/federations/laliga.svg", wide: true },
   { name: "Ligue 1", src: "/federations/ligue-1.svg" },
-  { name: "Eredivisie", src: "/federations/eredivisie.png" },
+  { name: "Eredivisie", src: "/federations/eredivisie.png", wide: true },
 ];
 
 export function FederationTrust({ className }: { className?: string }) {
@@ -22,7 +22,7 @@ export function FederationTrust({ className }: { className?: string }) {
         leading football federations and leagues worldwide.
       </p>
       <div
-        className="mt-5 flex flex-wrap items-center justify-center gap-5 sm:gap-7"
+        className="mx-auto mt-5 flex w-full max-w-4xl flex-nowrap items-center justify-center gap-x-1.5 sm:gap-x-3 md:gap-x-5"
         aria-label="Federations and leagues we are compatible with"
       >
         {federations.map((f) => (
@@ -32,13 +32,19 @@ export function FederationTrust({ className }: { className?: string }) {
             alt={`${f.name} logo`}
             title={f.name}
             loading="lazy"
-            className="h-10 w-10 shrink-0 object-contain sm:h-12 sm:w-12"
+            className={cn(
+              "w-auto shrink object-contain",
+              f.wide
+                ? "h-4 max-w-[30px] sm:h-6 sm:max-w-[72px] md:h-7 md:max-w-[92px]"
+                : "h-6 max-w-[22px] sm:h-9 sm:max-w-[42px] md:h-11 md:max-w-[52px]",
+            )}
           />
         ))}
       </div>
     </div>
   );
 }
+
 
 
 
