@@ -13,7 +13,7 @@ export function Glyph4({ className }: { className?: string }) {
       role="img"
       aria-label="4"
       className={cn(
-        "t4p-glyph relative inline-block h-[0.95em] w-[0.95em] align-[-0.1em]",
+        "t4p-glyph relative inline-block h-[1.05em] w-[1.05em] shrink-0 align-[-0.16em]",
         className,
       )}
     >

@@ -397,11 +397,11 @@ textarea.control {
 }
 .t4p-glyph-primary {
   background-color: var(--color-foreground);
-  mask-image: url("/glyph-4-primary-mask.png");
+  mask-image: url("/glyph-4-primary-mask.png?v=2");
 }
 .t4p-glyph-accent {
   background-color: var(--color-brand-blue);
-  mask-image: url("/glyph-4-accent-mask.png");
+  mask-image: url("/glyph-4-accent-mask.png?v=2");
 }
 
 
