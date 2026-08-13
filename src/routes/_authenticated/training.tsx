@@ -1509,6 +1509,8 @@ function SessionSheet({
                           : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`}
                         {it.drawing ? " · drawing attached" : ""}
                       </p>
+                      {it.notes ? <p className="mt-1 whitespace-pre-line text-xs">{it.notes}</p> : null}
+
                     </li>
                   ))}
                 </ol>
