@@ -289,6 +289,32 @@ export function AdminLibrary() {
           </div>
         )}
       </div>
+
+      {boardIdx !== null && form.items[boardIdx] ? (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/90 p-3">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="font-display text-lg font-semibold">Board — {form.items[boardIdx]!.drill}</p>
+              <Button type="button" variant="outline" size="sm" onClick={() => setBoardIdx(null)}>
+                Close
+              </Button>
+            </div>
+            <TacticsBoard
+              drawing={parseDrawing(form.items[boardIdx]!.drawing)}
+              saveLabel="Save to drill"
+              onSave={(d) => {
+                const idx = boardIdx;
+                setForm((f) => ({
+                  ...f,
+                  items: f.items.map((x, k) => (k === idx ? { ...x, drawing: JSON.stringify(d) } : x)),
+                }));
+                setBoardIdx(null);
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
+
   );
 }
