@@ -59,12 +59,11 @@ export function SiteHeader() {
             <div ref={avatarRef} className="relative shrink-0">
               <button
                 onClick={() => setAvatar((v) => !v)}
-
-              aria-label="Account menu"
-              className="grid size-9 place-items-center rounded-full text-xs font-semibold uppercase text-primary transition-opacity hover:opacity-70 sm:size-10"
-            >
-              {session ? initials : <User className="size-5" />}
-            </button>
+                aria-label="Account menu"
+                className="grid size-9 place-items-center rounded-full border border-border text-xs font-semibold uppercase text-primary transition-opacity hover:opacity-70 sm:size-10"
+              >
+                {session ? initials : <User className="size-5" />}
+              </button>
             {avatar ? (
               <div className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-panel">
                 {session ? (

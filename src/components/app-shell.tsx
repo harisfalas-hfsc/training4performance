@@ -173,7 +173,7 @@ export function AppShell({
                   aria-label="Open my account"
                   aria-expanded={accountOpen}
                   onClick={() => setAccountOpen((value) => !value)}
-                  className="size-9 rounded-full border-0 bg-transparent text-primary shadow-none hover:bg-transparent hover:opacity-70 sm:size-10"
+                  className="size-9 rounded-full border-border bg-transparent text-primary shadow-none hover:bg-transparent hover:opacity-70 sm:size-10"
                 >
                   {profile?.full_name ? (
                     <span className="text-sm font-bold">{profile.full_name.slice(0, 1).toUpperCase()}</span>
