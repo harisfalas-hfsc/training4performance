@@ -170,6 +170,8 @@ const CHAPTERS: Chapter[] = [
       "Step 1 · Setup — pick the date, session kind, location and objective.",
       "Step 2 · Blocks — add blocks (warm-up, activation/prehab, strength, technical, tactical, conditioning, speed & power, SSG, set pieces, cool-down). Each block gets a name, duration, planned RPE and purpose.",
       "Use the drill library and press + on a drill to drop it into the open block; a toast confirms and can scroll you to the block.",
+      "Need a whole block instead of a single drill? Open the Blocks tab and pick a ready-made T4P block or one of your own — it arrives complete with its drills, sets, reps, rest and board drawing.",
+      "Press Save block on anything you build to keep it in My library and reuse it later.",
       "For strength blocks prescribe sets, reps, load in kg and rest per exercise.",
       "Sketch the drill on the embedded tactics board: place players, cones, goals, draw runs, zigzags, curves and zones, then export the image for your briefing.",
       "Step 3 · Preview — read the full session sheet: total duration, weighted RPE and planned load.",
@@ -183,8 +185,32 @@ const CHAPTERS: Chapter[] = [
     shots: ["sessionBlocks", "strengthSession"],
   },
   {
-    id: "board",
+    id: "library",
     n: 6,
+    title: "Drills & exercise library",
+    why: "You should never start a session from an empty page. The library keeps ready-made blocks and everything you have already built.",
+    icon: BookMarked,
+    color: "#c026d3",
+    to: "/library",
+    linkLabel: "Open the library",
+    steps: [
+      "A block is a ready group of drills or exercises — with durations, RPE, sets, reps, rest and, where it helps, a tactics board drawing.",
+      "Open Library. The T4P library tab holds the blocks written by T4P; My library holds everything you saved yourself.",
+      "Filter by category (strength, power, speed, ESD, coordination, mobility & stability, reaction, technical/tactical, recovery) or type in the search box.",
+      "Press Add to training on a block and it opens in the Training Designer with all of its content already inside.",
+      "Press Copy to my library on a T4P block if you want to edit it — the original stays untouched.",
+      "Inside the Training Designer, the Blocks tab does the same job without leaving the page: search, tap, and the whole block lands in the block you have open.",
+      "Built something good? Press Save block on it and it appears in My library for the rest of the season.",
+      "Rename, re-categorise or delete anything in My library at any time.",
+    ],
+    tips: [
+      "Blocks you save are yours: if a subscription ends they stay in your account in read-only mode, while the ready-made T4P templates need an active subscription.",
+      "Categories are the same everywhere, so a block saved from a gym session is easy to find months later.",
+    ],
+  },
+  {
+    id: "board",
+    n: 7,
     title: "Use the tactics board",
     why: "A drawn drill is understood in two seconds; a written one is not.",
     icon: Activity,
@@ -203,7 +229,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "gps",
-    n: 7,
+    n: 8,
     title: "Import GPS data (any provider)",
     why: "T4P does not force you into one GPS system. You upload your own export and teach the platform your columns once.",
     icon: Radar,
@@ -228,7 +254,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "load",
-    n: 8,
+    n: 9,
     title: "Training load — with or without GPS",
     why: "You do not need a GPS system. With GPS, T4P builds an individual load from the KPIs you choose; without GPS, a 0-10 rating and the duration produce the same load, ACWR, monotony and strain.",
     icon: Radar,
@@ -264,7 +290,7 @@ const CHAPTERS: Chapter[] = [
 
   {
     id: "analyse",
-    n: 9,
+    n: 10,
     title: "Analyse the GPS and the workload",
     why: "Raw numbers are not information. Acute, chronic, ACWR, monotony and strain tell you what to do tomorrow.",
     icon: BarChart3,
@@ -286,7 +312,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "tests",
-    n: 10,
+    n: 11,
     title: "Fitness testing and tracking",
     why: "Testing turns opinion into evidence, and repeated testing shows whether your programme worked.",
     icon: GitCompare,
@@ -306,7 +332,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "wellness",
-    n: 11,
+    n: 12,
     title: "Wellness and the player\u2019s own login",
     why: "The cheapest daily data in football is how the player feels \u2014 and the player can type it himself, so you do not have to.",
     icon: HeartPulse,
@@ -328,7 +354,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "alerts",
-    n: 12,
+    n: 13,
     title: "Alerts — let the system watch for you",
     why: "You cannot manually scan 27 players every morning. The thresholds do it for you.",
     icon: BellRing,
@@ -346,7 +372,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "reports",
-    n: 13,
+    n: 14,
     title: "Reports and one-click exports",
     why: "The head coach, the medical staff and the board each need a different page, not the same page.",
     icon: FileText,
@@ -363,7 +389,7 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: "logbook",
-    n: 14,
+    n: 15,
     title: "The logbook — your season record",
     why: "One scrollable record of every session, RPE and load, so nothing is lost when the season ends.",
     icon: BookOpen,
