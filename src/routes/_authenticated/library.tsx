@@ -217,17 +217,31 @@ function LibraryPage() {
                 description={b.description ?? null}
                 items={b.items}
                 footer={
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!window.confirm(`Remove ${b.name} from your library?`)) return;
-                      removeSavedBlock(b.id);
-                      toast.success("Removed from your library");
-                    }}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="size-3.5" /> Remove
-                  </button>
+                  <>
+                    <select
+                      aria-label={`Section for ${b.name}`}
+                      className="control h-9 flex-1 text-xs"
+                      value={normalizeCategory(b.category)}
+                      onChange={(e) => updateSavedBlock(b.id, { category: e.target.value })}
+                    >
+                      {LIBRARY_CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!window.confirm(`Remove ${b.name} from your library?`)) return;
+                        removeSavedBlock(b.id);
+                        toast.success("Removed from your library");
+                      }}
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" /> Remove
+                    </button>
+                  </>
                 }
               />
             ))}
