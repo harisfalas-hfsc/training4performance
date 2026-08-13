@@ -73,7 +73,7 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
         ) : null}
       </Button>
       {open ? (
-        <div className="absolute right-0 top-12 z-40 w-80 max-w-[85vw] overflow-hidden rounded-md border border-border bg-popover shadow-panel">
+        <div className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-md border border-border bg-popover shadow-panel sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-80">
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notifications</p>
             {unread ? (
