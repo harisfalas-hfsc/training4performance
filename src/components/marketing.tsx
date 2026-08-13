@@ -5,6 +5,8 @@ import { useAuth } from "@/lib/auth";
 import { Training4Performance } from "@/components/brand-text";
 
 import { DiscoverMenu } from "@/components/discover-menu";
+import { NotificationBell } from "@/components/notification-bell";
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import { platformNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
