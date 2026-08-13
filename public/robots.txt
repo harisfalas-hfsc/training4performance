@@ -152,7 +152,6 @@ Disallow: /alerts
 Disallow: /calculators
 Disallow: /manual
 Disallow: /admin
-Disallow: /ai
 Disallow: /api/
 
 Sitemap: https://training4performance.com/sitemap.xml
