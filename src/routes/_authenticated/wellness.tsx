@@ -416,7 +416,7 @@ function AccessTab() {
 
   const refresh = async () => {
     if (isDemoActive()) {
-      setRows(buildDemoAccess());
+      setRows([]);
       return;
     }
     if (!user?.id) return;
