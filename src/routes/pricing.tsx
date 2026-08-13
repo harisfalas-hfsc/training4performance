@@ -19,7 +19,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     ...seoHead({
       path: "/pricing",
-      title: "Pricing — €699 Per Month | Football S&C Software | T4P",
+      title: "Pricing — €699 Per Season | Football S&C Software | T4P",
       description:
         "T4P costs €699 per season for one football team, cancel any time: unlimited players, unlimited staff users, GPS, ACWR, testing, wellness and reporting included.",
       keywords: [
@@ -59,7 +59,7 @@ export const Route = createFileRoute("/pricing")({
           priceCurrency: "EUR",
           url: `${SITE_URL}/pricing`,
           availability: "https://schema.org/InStock",
-          category: "Monthly subscription",
+          category: "Annual subscription",
           priceValidUntil: "2027-12-31",
           seller: { "@id": ORGANIZATION_ID },
         },
@@ -98,8 +98,8 @@ const notes = [
     label: "text-brand-green",
   },
   {
-    t: "Yearly billing, cancel any time",
-    d: "€699 is charged every month and renews automatically until you cancel. Cancel from your account and you keep full access until the end of the paid season. Prices are in euro and exclude VAT where applicable.",
+    t: "One season, then it renews",
+    d: "€699 covers a full season — 365 days from the day you subscribe, whatever month that is — and renews automatically until you cancel. Cancel from your account and you keep full access until the end of the paid season. Prices are in euro and exclude VAT where applicable.",
     tone: "border-brand-amber/25",
     label: "text-brand-amber",
   },
@@ -120,12 +120,12 @@ function Pricing() {
         <div className="mx-auto max-w-6xl px-5 py-14 text-center">
           <p className="page-eyebrow">Pricing</p>
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
-            One price, one month, one team
+            Everything included, one season, one team
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
-            <T4P /> is billed monthly at{" "}
-            <strong className="text-foreground">€699 per team</strong> — it renews automatically
-            and you can cancel any time from your account.
+            <T4P /> is <strong className="text-foreground">€699 per team for a full season</strong> —
+            365 days from the day you start, whatever month that is. Every module is included, it
+            renews automatically, and you can cancel any time from your account.
           </p>
         </div>
       </section>
