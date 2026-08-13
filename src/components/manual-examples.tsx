@@ -66,7 +66,9 @@ function Btn({ children, tone = "primary" }: { children: ReactNode; tone?: "prim
 
 function Table({ head, rows }: { head: string[]; rows: (string | ReactNode)[][] }) {
   return (
-    <table className="w-full border-collapse text-left text-[11px]">
+    <div className="-mx-1 w-[calc(100%+0.5rem)] overflow-x-auto px-1">
+    <table className="w-full min-w-[420px] border-collapse text-left text-[11px]">
+
       <thead>
         <tr>
           {head.map((h) => (
