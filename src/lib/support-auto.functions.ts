@@ -31,8 +31,32 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
     if (!last || last.sender_role !== "user") return { answered: false };
 
     const question = `${ticket.subject} ${last.body}`;
-    const entry = findSupportAnswer(question);
-    const body = entry?.answer ?? SUPPORT_FALLBACK;
+
+    // 1) Answers learned from previous conversations, 2) the built-in answer
+    // book, 3) an acknowledgement. No AI request is made in any of the three.
+    const { data: learnedRows } = await supabaseAdmin
+      .from("support_learned")
+      .select("id, question, answer, keywords")
+      .order("uses", { ascending: false })
+      .limit(500);
+    const learned = findLearnedAnswer(question, (learnedRows as LearnedEntry[]) ?? []);
+    const entry = learned ? null : findSupportAnswer(question);
+    const body = learned?.answer ?? entry?.answer ?? SUPPORT_FALLBACK;
+    if (learned) {
+      const current = (learnedRows ?? []).find((r) => r.id === learned.id) as { id: string } | undefined;
+      if (current) {
+        await supabaseAdmin.rpc; // no-op guard for typing
+        const { data: row } = await supabaseAdmin
+          .from("support_learned")
+          .select("uses")
+          .eq("id", learned.id)
+          .maybeSingle();
+        await supabaseAdmin
+          .from("support_learned")
+          .update({ uses: (row?.uses ?? 0) + 1 })
+          .eq("id", learned.id);
+      }
+    }
 
     // Do not repeat the same answer twice in a row.
     const previous = rows?.[1];
