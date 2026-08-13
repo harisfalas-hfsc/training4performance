@@ -542,13 +542,23 @@ export function updatePlayer(id: string, patch: Partial<Player>) {
   if (i < 0) return;
   const current = players[i]!;
   const next = { ...current, ...patch };
-  const clash = squadConflict(
-    { firstName: next.firstName, lastName: next.lastName, number: next.number },
-    id,
-  );
-  if (clash) {
-    toast.error("Change not saved", { description: clash });
-    return;
+  // Only validate the identity fields the edit actually touches, so a squad
+  // that already contains a legacy duplicate stays editable.
+  const nameChanged = next.firstName !== current.firstName || next.lastName !== current.lastName;
+  const numberChanged = next.number !== current.number;
+  if (nameChanged || numberChanged) {
+    const clash = squadConflict(
+      {
+        firstName: nameChanged ? next.firstName : `__${id}`,
+        lastName: nameChanged ? next.lastName : `__${id}`,
+        number: numberChanged ? next.number : 0,
+      },
+      id,
+    );
+    if (clash) {
+      toast.error("Change not saved", { description: clash });
+      return;
+    }
   }
   players[i] = next;
   emit();
