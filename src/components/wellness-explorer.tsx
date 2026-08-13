@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { SectionTitle } from "@/components/perf-ui";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, type ChartKind } from "@/components/charts";
 import { fullName, players } from "@/data/performance";
 import {
@@ -9,11 +10,6 @@ import {
   wellnessEntries,
   type WellnessEntry,
 } from "@/data/wellness";
-
-const chip = (active: boolean) =>
-  `rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
-    active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-  }`;
 
 /** Wellness KPIs the coach can chart, exactly like GPS KPIs. */
 const WELLNESS_KPIS = [
