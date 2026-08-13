@@ -43,6 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DiscoverMenu } from "@/components/discover-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notification-bell";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
 import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
@@ -61,7 +62,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, subscription, user } = useAuth();
+  const { profile, subscription, user, isAdmin } = useAuth();
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
   const { canGoBack, goBack } = usePlatformBack();
   const [supportMode, setSupportMode] = useState(false);
@@ -162,6 +163,7 @@ export function AppShell({
                   <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
                 </Button>
               ) : null}
+              <NotificationBell userId={user?.id} />
               <ThemeToggle />
               <div ref={accountRef} className="relative">
                 <Button
@@ -189,6 +191,15 @@ export function AppShell({
                     >
                       My account
                     </Link>
+                    {isAdmin ? (
+                      <Link
+                        to="/admin"
+                        onClick={() => setAccountOpen(false)}
+                        className="flex items-center gap-2 border-t border-border px-3 py-2.5 text-sm font-medium text-primary hover:bg-accent"
+                      >
+                        <Shield className="size-4" /> Admin panel
+                      </Link>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

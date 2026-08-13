@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminCustomerDetail } from "@/components/admin-customer-detail";
 import { AdminSupport } from "@/components/admin-support";
+import { adminListTickets } from "@/lib/support.functions";
 import { Button } from "@/components/ui/button";
 import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
@@ -65,6 +66,7 @@ function AdminPage() {
   const listCustomers = useServerFn(adminListCustomers);
   const listTeams = useServerFn(adminListTeams);
   const getStats = useServerFn(adminGetStats);
+  const listTickets = useServerFn(adminListTickets);
   const getWorkspace = useServerFn(adminGetCustomerWorkspace);
   const saveWorkspace = useServerFn(adminSaveCustomerWorkspace);
   const grantAccess = useServerFn(adminGrantAccess);
@@ -83,6 +85,7 @@ function AdminPage() {
   const [months, setMonths] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openTeam, setOpenTeam] = useState<string | null>(null);
+  const [unreadTickets, setUnreadTickets] = useState(0);
   const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
   const [workspace, setWorkspace] = useState<AdminWorkspace | null>(null);
 
@@ -99,8 +102,10 @@ function AdminPage() {
     else setStats(s.stats);
     if ("error" in t) toast.error(t.error);
     else setTeams(t.teams);
+    const tk = await listTickets({ data: { status: "all" } });
+    if (!("error" in tk)) setUnreadTickets(tk.tickets.filter((x) => x.unread_for_admin).length);
     setPending(false);
-  }, [listCustomers, getStats, listTeams, search]);
+  }, [listCustomers, getStats, listTeams, listTickets, search]);
 
 
   useEffect(() => {
@@ -253,7 +258,7 @@ function AdminPage() {
         </Button>
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {(["customers", "teams", "support"] as const).map((t) => (
           <Button
             key={t}
@@ -262,10 +267,19 @@ function AdminPage() {
             onClick={() => setTab(t)}
           >
             {t === "customers"
-              ? "Customers"
+              ? "Subscribers"
               : t === "teams"
-                ? `All teams & squads (${teams.length})`
-                : "Support & messages"}
+                ? `Teams & squads (${teams.length})`
+                : (
+                  <>
+                    Messages
+                    {unreadTickets ? (
+                      <span className="ml-1.5 rounded-full bg-destructive px-1.5 text-[0.65rem] font-bold text-destructive-foreground">
+                        {unreadTickets}
+                      </span>
+                    ) : null}
+                  </>
+                )}
           </Button>
         ))}
       </div>

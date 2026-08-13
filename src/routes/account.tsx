@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Bell, CreditCard, MessageSquare } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,15 +22,20 @@ export const Route = createFileRoute("/account")({
       noindex: true,
     }),
   }),
+  validateSearch: (search: Record<string, unknown>): { tab?: "subscription" | "notifications" | "messages" } =>
+    search["tab"] === "notifications" || search["tab"] === "messages" || search["tab"] === "subscription"
+      ? { tab: search["tab"] }
+      : {},
   component: Account,
 });
 
 function Account() {
+  const { tab: tabParam } = Route.useSearch();
   const { loading, session, user, profile, isAdmin, subscription, hasAccess, refresh, signOut } = useAuth();
   const navigate = useNavigate();
   const subscribeFn = useServerFn(requestSubscription);
   const autoRenewFn = useServerFn(setAutoRenew);
-  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">("subscription");
+  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">(tabParam ?? "subscription");
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -108,20 +114,22 @@ function Account() {
           </p>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 grid grid-cols-3 gap-2">
           {([
-            ["subscription", "Subscription & profile"],
-            ["notifications", "Notifications"],
-            ["messages", "Communication centre"],
-          ] as const).map(([k, label]) => (
+            ["subscription", "Subscription", CreditCard],
+            ["notifications", "Notifications", Bell],
+            ["messages", "Messages", MessageSquare],
+          ] as const).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              aria-label={label}
+              className={`flex items-center justify-center gap-2 rounded-full px-2 py-2 text-xs font-semibold sm:text-sm ${
                 tab === k ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"
               }`}
             >
-              {label}
+              <Icon className="size-4 shrink-0" />
+              <span className="truncate">{label}</span>
             </button>
           ))}
         </div>
