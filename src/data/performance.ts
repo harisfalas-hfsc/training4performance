@@ -11,7 +11,7 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { guardDemo, guardWrite } from "@/lib/access";
-import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
 
@@ -297,6 +297,16 @@ export interface WorkspaceData {
 // v5 permanently invalidates every earlier browser workspace. Never recover
 // retired uploaded, seeded, demo, or reference data from older stores.
 const STORAGE_KEY = "t4p.data.v5";
+
+if (typeof window !== "undefined") {
+  const purgeMarker = "t4p.purge.v5";
+  if (window.localStorage.getItem(purgeMarker) !== "done") {
+    Object.keys(window.localStorage).forEach((key) => {
+      if (key.startsWith("t4p.") && key !== "t4p.theme") window.localStorage.removeItem(key);
+    });
+    window.localStorage.setItem(purgeMarker, "done");
+  }
+}
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -306,21 +316,7 @@ export function subscribeData(fn: () => void) {
 }
 
 function persist() {
-  if (typeof window === "undefined") return;
-  const { userId } = getWorkspaceScope();
-  // Real accounts persist to the cloud only. Browser storage is reserved for
-  // the isolated demo scope and must never resurrect deleted account content.
-  if (userId !== "t4p-demo") return;
-  const key = scopedStorageKey(STORAGE_KEY);
-  if (!key) return;
-  try {
-    window.localStorage.setItem(
-      key,
-      JSON.stringify({ team, players, gpsHistory, gpsBlocks, rpeEntries, sessionCalendar, manualTests, medicalEvents }),
-    );
-  } catch {
-    /* quota — ignore */
-  }
+  // Account records persist to the cloud only; demo records are memory-only.
 }
 
 function emit() {
@@ -404,41 +400,6 @@ function hydrate(userId: string | null, _migrateLegacy: boolean) {
     version++;
     listeners.forEach((listener) => listener());
     return;
-  }
-  // Signed-in accounts start empty and are populated only by cloud hydration.
-  // Never read account data back from browser caches.
-  if (userId !== "t4p-demo") {
-    version++;
-    listeners.forEach((listener) => listener());
-    return;
-  }
-  try {
-    const key = scopedStorageKey(STORAGE_KEY, userId);
-    if (!key) return;
-    const raw = window.localStorage.getItem(key);
-    if (raw) {
-
-    const s = JSON.parse(raw) as {
-      team?: Team;
-      players?: Player[];
-      gpsHistory?: GpsDay[];
-      gpsBlocks?: GpsBlockRow[];
-      rpeEntries?: RpeEntry[];
-      sessionCalendar?: Session[];
-      manualTests?: ManualTest[];
-      medicalEvents?: MedicalEvent[];
-    };
-    if (s.team) Object.assign(team, s.team);
-    if (s.players?.length) replace(players, s.players);
-    if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
-    if (s.gpsBlocks?.length) replace(gpsBlocks, s.gpsBlocks);
-    if (s.rpeEntries?.length) replace(rpeEntries, s.rpeEntries);
-    if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
-    if (s.manualTests) replace(manualTests, s.manualTests);
-    if (s.medicalEvents) replace(medicalEvents, s.medicalEvents);
-    }
-  } catch {
-    /* corrupt — ignore */
   }
   version++;
   listeners.forEach((listener) => listener());

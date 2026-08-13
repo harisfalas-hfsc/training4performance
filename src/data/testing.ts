@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { getPlayer, gpsHistory, players } from "@/data/performance";
 import { guardWrite } from "@/lib/access";
-import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { getWorkspaceScope, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 /* ------------------------------------------------------------------ */
 /* Test catalogue — every KPI the fitness coach can record             */

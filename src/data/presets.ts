@@ -6,7 +6,7 @@
 import type { SessionPlanItem } from "@/data/performance";
 import { useSyncExternalStore } from "react";
 import { guardWrite } from "@/lib/access";
-import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { getWorkspaceScope, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 /* ------------------------------------------------------------------ */
 /* Session types (PLAYER TRAINING DESCRIPTION)                         */
