@@ -855,6 +855,17 @@ function TrainingPage() {
                               </div>
                             )}
                             <div className="mt-3">
+                              <Field label="Description — how the drill runs (rules, area, players, coaching points)">
+                                <textarea
+                                  rows={2}
+                                  className="control h-auto py-2"
+                                  placeholder="e.g. 30×20 m area, 5v2 rondo, two touches, defenders swap after an interception. Coaching point: body shape open to receive."
+                                  value={it.notes ?? ""}
+                                  onChange={(e) => patchItem(i, { notes: e.target.value })}
+                                />
+                              </Field>
+                            </div>
+                            <div className="mt-3">
                               <Field label="Tags (searchable in Analytics — separate with commas)">
                                 <input
                                   className="control"
@@ -872,9 +883,9 @@ function TrainingPage() {
                               </Field>
                             </div>
                             {it.drawing ? (
-
                               <p className="mt-2 text-[0.68rem] text-success">Tactics-board drawing attached</p>
                             ) : null}
+
                           </li>
                         ))}
                       </ul>
