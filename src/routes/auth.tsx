@@ -9,8 +9,14 @@ import { seoHead } from "@/lib/seo";
 
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" } =>
-    search["mode"] === "signup" ? { mode: "signup" } : {},
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin"; next?: string } => {
+    const out: { mode?: "signup" | "signin"; next?: string } = {};
+    if (search["mode"] === "signup") out.mode = "signup";
+    // Only same-origin relative paths are honoured as a post-login redirect.
+    const next = search["next"];
+    if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) out.next = next;
+    return out;
+  },
 
   head: () => ({
     ...seoHead({
@@ -25,7 +31,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { mode } = Route.useSearch();
+  const { mode, next } = Route.useSearch();
   const navigate = useNavigate();
   const { session } = useAuth();
   const [isSignup, setIsSignup] = useState(mode === "signup");
@@ -38,8 +44,13 @@ function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (session) void navigate({ to: "/dashboard", replace: true });
-  }, [session, navigate]);
+    if (!session) return;
+    if (next) {
+      window.location.replace(next);
+      return;
+    }
+    void navigate({ to: "/dashboard", replace: true });
+  }, [session, navigate, next]);
 
   async function forgotPassword() {
     setError(null);
@@ -67,7 +78,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}${next ?? "/"}`,
             data: { full_name: fullName, club_name: clubName },
           },
         });
