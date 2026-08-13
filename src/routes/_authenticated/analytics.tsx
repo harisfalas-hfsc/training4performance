@@ -5,7 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, SERIES_COLORS, type ChartKind } from "@/components/charts";
-import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
+import { DateRangePicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { TrainingExplorer } from "@/components/training-explorer";
 import { TestsExplorer } from "@/components/tests-explorer";
 import { WellnessExplorer } from "@/components/wellness-explorer";
@@ -54,13 +55,16 @@ type MetricKey = string;
 
 /** The three families of data every page follows: people → what about them. */
 const SOURCES = [
-  { id: "gps", label: "GPS reports" },
-  { id: "training", label: "Training & drills" },
+  { id: "gps", label: "Performance — GPS" },
   { id: "tests", label: "Fitness tests" },
+  { id: "training", label: "Training & drills" },
   { id: "wellness", label: "Wellness" },
   { id: "medical", label: "Medical & availability" },
 ] as const;
 type SourceId = (typeof SOURCES)[number]["id"];
+
+/** Who the report is about — plain language, one drop-down. */
+type WhoMode = "total" | "average" | "multiple" | "single";
 
 const daysBetween = (from: string, to: string) =>
   Math.max(7, Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000) || 28);
@@ -73,6 +77,7 @@ function AnalyticsPage() {
   const [kind, setKind] = useState<ChartKind>("bar");
   const [devKey, setDevKey] = useState<MetricKey>("hsr");
   const [scope, setScope] = useState<Scope>("team");
+  const [who, setWho] = useState<WhoMode>("total");
   const [selected, setSelected] = useState<string[]>([]);
   const [compareKpi, setCompareKpi] = useState<MetricKey>("distance");
   const availableDates = useMemo(() => [...new Set(gpsHistory.map((row) => row.date))].sort(), [gpsHistory.length]);
@@ -184,7 +189,7 @@ function AnalyticsPage() {
     scope === "team" ? "whole squad (sum)" : scope === "average" ? "squad average per player" : `${selected.length} selected player(s)`;
 
   return (
-    <AppShell title="Analytics & reports" subtitle="Choose players, KPI and dates — then see or export the result">
+    <AppShell title="Analytics & reports" subtitle="Pick the report, the players and the KPI — then see or export the result">
       <nav className="mb-4 flex flex-wrap gap-2" aria-label="Analytics and reporting tools">
         <Button asChild variant="outline"><Link to="/compare"><GitCompare className="size-4" /> Compare players</Link></Button>
         <Button asChild variant="outline"><Link to="/blocks"><Layers className="size-4" /> Compare blocks</Link></Button>
@@ -192,25 +197,64 @@ function AnalyticsPage() {
       </nav>
 
       <section className="panel mb-4 p-4">
-        <SectionTitle title="1. Who do you want to analyse?" hint="Whole squad, squad average, or players picked from the list" />
-        <PlayerPicker scope={scope} onScope={setScope} picked={selected} onPicked={setSelected} />
-        {!players.length ? <p className="mt-3 rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">No players yet. Import a GPS report or add players in Team & players.</p> : null}
-      </section>
-
-      <section className="panel mb-4 p-4">
-        <SectionTitle title="2. What do you want to see for them?" hint="GPS reports, training & drills, fitness tests, wellness or medical & availability" />
-        <div className="flex flex-wrap gap-1">
-          {SOURCES.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSource(s.id)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                source === s.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
+        <SectionTitle
+          title="Build your report"
+          hint="1. What report · 2. For who · 3. Which KPI — then pick the dates"
+        />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <SelectField
+            label="1. Report"
+            value={source}
+            onChange={(value) => setSource(value as SourceId)}
+            options={SOURCES.map((s) => ({ value: s.id, label: s.label }))}
+          />
+          <SelectField
+            label="2. For who"
+            value={who}
+            onChange={(value) => {
+              const next = value as WhoMode;
+              setWho(next);
+              setScope(next === "total" ? "team" : next === "average" ? "average" : "players");
+              if (next === "single") setSelected((prev) => prev.slice(0, 1));
+            }}
+            options={[
+              { value: "total", label: "All players (squad total)" },
+              { value: "average", label: "All players (squad average)" },
+              { value: "multiple", label: "Multiple players" },
+              { value: "single", label: "Single player" },
+            ]}
+          />
+          {who === "multiple" || who === "single" ? (
+            <MultiSelectField
+              label={who === "single" ? "Player" : "Players"}
+              values={selected}
+              onChange={setSelected}
+              max={who === "single" ? 1 : undefined}
+              placeholder={who === "single" ? "Choose a player…" : "Choose players…"}
+              searchPlaceholder="Search player…"
+              emptyText="No players yet — add them in Team & players."
+              options={players.map((p) => ({ value: p.id, label: fullName(p), hint: p.position }))}
+            />
+          ) : null}
+          {source === "gps" ? (
+            <MultiSelectField
+              label="3. KPI"
+              values={kpis}
+              onChange={setKpis}
+              placeholder="Choose KPIs…"
+              searchPlaceholder="Distance, HSR, sprint…"
+              emptyText="No GPS KPIs yet — import a GPS report."
+              options={allMetrics.map((m) => ({ value: m.key, label: m.label, hint: m.unit }))}
+            />
+          ) : null}
+          {source === "gps" ? (
+            <SelectField
+              label="Chart"
+              value={kind}
+              onChange={(value) => setKind(value as ChartKind)}
+              options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
+            />
+          ) : null}
         </div>
         <div className="mt-3">
           <span className="eyebrow">Dates</span>
@@ -224,7 +268,13 @@ function AnalyticsPage() {
             />
           </div>
         </div>
+        {!players.length ? (
+          <p className="mt-3 rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
+            No players yet. Import a GPS report or add players in Team &amp; players.
+          </p>
+        ) : null}
       </section>
+
 
       {source === "training" ? <TrainingExplorer playerIds={activeIds} from={from} to={to} /> : null}
       {source === "tests" ? <TestsExplorer playerIds={activeIds} from={from} to={to} /> : null}
@@ -233,38 +283,8 @@ function AnalyticsPage() {
 
       {source !== "gps" ? null : (
       <>
-      <section className="panel mb-4 p-4">
-        <SectionTitle title="3. Which KPIs, drawn how?" hint={`Everything below follows these choices · dates: ${from || "start"} → ${to || "today"}`} />
 
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">KPIs</span>
-          {allMetrics.map((m) => (
-            <button
-              key={m.key}
-              onClick={() => toggleKpi(m.key)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                kpis.includes(m.key) ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {m.label}{m.unit ? ` (${m.unit})` : ""}
-            </button>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">Chart</span>
-          {CHART_KINDS.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setKind(c.id)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                kind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </section>
+
 
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -425,7 +445,7 @@ function AnalyticsPage() {
                   height={260}
                 />
               </ChartFrame>
-            ) : <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Pick “Selected players” at the top and choose at least one player with GPS data in this date range.</p>}
+            ) : <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Set “For who” to Multiple players or Single player and choose at least one athlete with GPS data in this date range.</p>}
           </div>
         </div>
       </section>
