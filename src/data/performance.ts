@@ -988,10 +988,14 @@ export function loadSummary(id: string, acuteWindow = 7, chronicWindow = 28, asO
   const acute = sum(acuteDays.map((d) => d.load));
   const chronicTotal = sum(chronicDays.map((d) => d.load));
   const chronic = chronicTotal / (chronicWindow / acuteWindow);
-  const loads = acuteDays.map((d) => d.load);
+  // Foster's monotony needs every calendar day of the week, rest days included
+  // as a zero. Averaging only the days that happen to have a record inflates
+  // the mean, hides the variation and under-reports monotony/strain.
+  const byDate = new Map(acuteDays.map((d) => [d.date, d.load]));
+  const loads = Array.from({ length: acuteWindow }, (_, i) => byDate.get(dateNAgo(i, asOf)) ?? 0);
   const mean = avg(loads);
-  const sd = Math.sqrt(avg(loads.map((l) => (l - mean) ** 2))) || 1;
-  const monotony = mean / sd;
+  const sd = Math.sqrt(avg(loads.map((l) => (l - mean) ** 2)));
+  const monotony = sd > 0 ? mean / sd : 0;
   return {
     acute: Math.round(acute),
     chronic: Math.round(chronic),
