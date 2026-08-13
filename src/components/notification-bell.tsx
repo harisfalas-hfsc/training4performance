@@ -23,7 +23,7 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
       .select("id, kind, title, body, read_at, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(100);
     setNotes((data as Note[]) ?? []);
   }, [userId]);
 
