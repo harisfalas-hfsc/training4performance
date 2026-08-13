@@ -40,6 +40,8 @@ export function AdminLibrary() {
   const remove = useServerFn(deleteLibraryBlock);
   const [form, setForm] = useState(empty);
   const [pick, setPick] = useState("");
+  const [boardIdx, setBoardIdx] = useState<number | null>(null);
+
 
   const blocks = useQuery({ queryKey: ["library-blocks"], queryFn: () => list() });
 
