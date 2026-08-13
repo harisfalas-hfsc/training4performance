@@ -219,3 +219,46 @@ export function findSupportAnswer(question: string): KnowledgeEntry | null {
 
 export const SUPPORT_FALLBACK =
   "Thanks for the message — it has been logged and a person from T4P will come back to you here. In the meantime the platform manual covers every section step by step at /manual.";
+
+/* ------------------------------------------------------------------ */
+/* Self-training layer                                                 */
+/* ------------------------------------------------------------------ */
+
+/** Turns a question into the keywords stored with a learned answer. */
+export function extractKeywords(question: string): string[] {
+  const q = normalise(question);
+  const words = q.split(" ").filter((w) => w.length > 2 && !STOP.has(w));
+  return [...new Set(words)].slice(0, 24);
+}
+
+export type LearnedEntry = { id: string; question: string; answer: string; keywords: string[] };
+
+/**
+ * Matches a question against answers the platform has already learned from
+ * previous conversations. Learned answers are checked before the built-in
+ * answer book, so an owner only ever has to answer the same question once.
+ */
+export function findLearnedAnswer(question: string, learned: LearnedEntry[]): LearnedEntry | null {
+  const q = normalise(question);
+  if (q.length < 3) return null;
+  const asked = new Set(q.split(" ").filter((w) => w.length > 2 && !STOP.has(w)));
+  if (asked.size === 0) return null;
+
+  let best: LearnedEntry | null = null;
+  let bestScore = 0;
+
+  for (const entry of learned) {
+    const kws = entry.keywords.length ? entry.keywords : extractKeywords(entry.question);
+    if (!kws.length) continue;
+    let hits = 0;
+    for (const kw of kws) if (asked.has(kw)) hits += 1;
+    // Overlap relative to both sides, so a short question cannot match everything.
+    const score = (hits / kws.length) * 0.5 + (hits / asked.size) * 0.5;
+    if (hits >= 2 && score > bestScore) {
+      bestScore = score;
+      best = entry;
+    }
+  }
+
+  return bestScore >= 0.5 ? best : null;
+}
