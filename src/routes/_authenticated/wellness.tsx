@@ -25,6 +25,8 @@ import {
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { canWrite } from "@/lib/access";
+import { isDemoActive } from "@/lib/demo";
+import { buildDemoAccess } from "@/data/demo-seed";
 
 export const Route = createFileRoute("/_authenticated/wellness")({
   head: () => ({
@@ -199,11 +201,12 @@ function TodayTab() {
           initial={entryOn(editing, today) ?? { ...emptyEntry(editing), source: "coach" }}
           onCancel={() => setEditing(null)}
           onSave={async (entry) => {
-            if (!user?.id || !canWrite()) {
+            const coachId = user?.id ?? (isDemoActive() ? "demo" : null);
+            if (!coachId || !canWrite()) {
               toast.error("A team subscription is needed to record data.");
               return;
             }
-            const ok = await saveWellness(user.id, { ...entry, source: "coach" });
+            const ok = await saveWellness(coachId, { ...entry, source: "coach" });
             toast[ok ? "success" : "error"](ok ? "Wellness saved" : "Could not save wellness");
             if (ok) setEditing(null);
           }}
@@ -379,7 +382,7 @@ function TrendsTab() {
         ) : (
           <p className="text-sm text-muted-foreground">No answers for this player yet.</p>
         )}
-        {personal.length && user?.id ? (
+        {personal.length && (user?.id || isDemoActive()) ? (
           <div className="mt-3 space-y-1 text-xs text-muted-foreground">
             {entriesFor(playerId)
               .slice(-5)
@@ -391,7 +394,7 @@ function TrendsTab() {
                   <button
                     type="button"
                     className="text-destructive hover:underline"
-                    onClick={() => e.id && void deleteWellness(user.id, e.id)}
+                    onClick={() => e.id && void deleteWellness(user?.id ?? "demo", e.id)}
                   >
                     delete entry
                   </button>
@@ -413,6 +416,10 @@ function AccessTab() {
   const portalUrl = typeof window === "undefined" ? "/portal" : `${window.location.origin}/portal`;
 
   const refresh = async () => {
+    if (isDemoActive()) {
+      setRows(buildDemoAccess());
+      return;
+    }
     if (!user?.id) return;
     const { data } = await supabase
       .from("player_access")
@@ -426,6 +433,26 @@ function AccessTab() {
   }, [user?.id]);
 
   const give = async (playerId: string, playerName: string) => {
+    if (isDemoActive()) {
+      setRows((prev) =>
+        prev.some((r) => r.player_id === playerId)
+          ? prev
+          : [
+              ...prev,
+              {
+                id: `demo-access-${playerId}`,
+                player_id: playerId,
+                player_name: playerName,
+                code: newCode(),
+                email: null,
+                active: true,
+                last_login_at: null,
+              },
+            ],
+      );
+      toast.success(`Access code created for ${playerName}`);
+      return;
+    }
     if (!user?.id) return;
     if (!canWrite()) {
       toast.error("A team subscription is needed to invite players.");
@@ -445,11 +472,19 @@ function AccessTab() {
   };
 
   const toggle = async (row: AccessRow) => {
+    if (isDemoActive()) {
+      setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, active: !r.active } : r)));
+      return;
+    }
     await supabase.from("player_access").update({ active: !row.active }).eq("id", row.id);
     void refresh();
   };
 
   const remove = async (row: AccessRow) => {
+    if (isDemoActive()) {
+      setRows((prev) => prev.filter((r) => r.id !== row.id));
+      return;
+    }
     await supabase.from("player_access").delete().eq("id", row.id);
     void refresh();
   };
