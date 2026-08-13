@@ -214,82 +214,47 @@ export function TrainingsExplorer() {
           ))}
         </div>
 
-        <p className="eyebrow mt-4">Who</p>
-        <div className="mt-1">
+        <div className="mt-4 space-y-3">
           <PlayerPicker scope={scope} onScope={setScope} picked={picked} onPicked={setPicked} />
-        </div>
 
-        <p className="eyebrow mt-4">What</p>
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {allKpis.map((k) => (
-            <button
-              key={k.key}
-              onClick={() => toggle(kpis, setKpis, k.key)}
-              className={`rounded-md border px-2.5 py-1 text-xs font-semibold ${kpis.includes(k.key) ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}
-            >
-              {k.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-4 grid gap-3 sm:grid-cols-4">
-          {view === "days" ? (
-            <>
-              <label className="field">
-                <span className="field-label">From</span>
-                <input
-                  type="date"
-                  className="control"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                />
-              </label>
-              <label className="field">
-                <span className="field-label">To</span>
-                <input
-                  type="date"
-                  className="control"
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                />
-              </label>
-            </>
-          ) : (
-            <label className="field sm:col-span-2">
-              <span className="field-label">Training day</span>
-              <select
-                className="control"
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <MultiSelectField
+              label="KPIs"
+              values={kpis}
+              onChange={setKpis}
+              options={allKpis.map((k) => ({ value: k.key, label: k.label }))}
+              placeholder="Choose KPIs…"
+              searchPlaceholder="Search KPI…"
+            />
+            <SelectField
+              label="Chart"
+              value={kind}
+              onChange={(value) => setKind(value as ChartKind)}
+              options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
+            />
+            {view === "days" ? (
+              <>
+                <label className="flex min-w-0 flex-col gap-1">
+                  <span className="eyebrow">From</span>
+                  <input type="date" className="control w-full" value={from} onChange={(e) => setFrom(e.target.value)} />
+                </label>
+                <label className="flex min-w-0 flex-col gap-1">
+                  <span className="eyebrow">To</span>
+                  <input type="date" className="control w-full" value={to} onChange={(e) => setTo(e.target.value)} />
+                </label>
+              </>
+            ) : (
+              <SelectField
+                label="Training day"
                 value={dayDate}
-                onChange={(e) => setDayDate(e.target.value)}
-              >
-                {trainingDates.length ? (
-                  trainingDates.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))
-                ) : (
-                  <option value={today}>{today}</option>
-                )}
-              </select>
-            </label>
-          )}
-          <label className="field sm:col-span-2">
-            <span className="field-label">Chart</span>
-            <div className="flex flex-wrap gap-1.5">
-              {CHART_KINDS.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setKind(c.id)}
-                  className={`rounded-md border px-2.5 py-1 text-xs font-semibold ${kind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-          </label>
+                onChange={setDayDate}
+                options={(trainingDates.length ? trainingDates : [today]).map((d) => ({ value: d, label: d }))}
+              />
+            )}
+          </div>
         </div>
       </section>
+
 
       <section className="panel p-4">
         <SectionTitle
