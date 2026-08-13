@@ -145,12 +145,6 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
       "The logbook is the scrollable season record: every completed session with its RPE and load, switchable between session view, player view and pivot summaries. It is the audit trail behind every number in analytics.",
   },
   {
-    id: "demo",
-    keywords: ["demo", "try", "sandbox", "test drive"],
-    answer:
-      "The live demo at /demo is a sandbox with one team and five players. It behaves exactly like the real platform except that nothing is saved to your account and exports are disabled.",
-  },
-  {
     id: "password",
     keywords: ["password", "reset password", "forgot", "sign in", "login", "log in", "email change"],
     answer:

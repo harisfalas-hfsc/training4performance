@@ -13,7 +13,6 @@ export const publicLinks = [
   { to: "/how-it-works", label: "How it works" },
   { to: "/pricing", label: "Pricing" },
   { to: "/manual", label: "Platform manual" },
-  { to: "/demo", label: "Live demo" },
 ] as const;
 
 export type PlatformItem = {
