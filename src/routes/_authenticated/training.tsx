@@ -630,23 +630,6 @@ function TrainingPage() {
       {/* ---------- step 2 · blocks ---------- */}
       {step === 2 && (
         <>
-          <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <MetricCard
-              label="Planned duration"
-              value={plan.minutes}
-              unit="min"
-              icon={<Timer className="size-4" />}
-            />
-            <MetricCard label="Planned RPE" value={plan.plannedRpe} hint="Calculated from added items" />
-            <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`${blocks.length} blocks`} />
-            <MetricCard
-              label="Gym tonnage"
-              value={plan.tonnage ? Math.round(plan.tonnage) : "—"}
-              unit={plan.tonnage ? "kg" : ""}
-              hint="Sets × reps × kg"
-            />
-          </section>
-
           <section className="mt-4 grid gap-4 xl:grid-cols-3">
             <div className="panel p-5 xl:col-span-2">
               <SectionTitle
