@@ -78,6 +78,21 @@ function endDateLabel(months: number) {
   return d.toLocaleDateString();
 }
 
+/**
+ * Access date shown on a customer card. A date only means something while the
+ * subscription is live: once it is revoked or expired the stored season_end is
+ * history, so it is labelled instead of being presented as active access.
+ */
+function accessUntilLabel(c: { active?: boolean; status?: string | null; season_end?: string | null }) {
+  if (!c.season_end) return "—";
+  const label = new Date(c.season_end).toLocaleDateString();
+  if (c.active) return label;
+  if (c.status === "revoked") return `revoked (was ${label})`;
+  return `ended ${label}`;
+}
+
+
+
 function AdminPage() {
   const { isAdmin, loading } = useAuth();
   const navigate = useNavigate();
