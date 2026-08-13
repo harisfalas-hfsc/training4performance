@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Bell, CheckCircle2, Info, Mail, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,6 +20,8 @@ const ICONS: Record<string, { icon: typeof Info; tone: string }> = {
   message: { icon: Mail, tone: "text-brand-teal" },
 };
 
+type Filter = "all" | "unread" | "read";
+
 function when(iso: string) {
   return new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
@@ -27,6 +29,9 @@ function when(iso: string) {
 export function AccountNotifications({ userId }: { userId: string }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const { data } = await supabase
@@ -34,8 +39,9 @@ export function AccountNotifications({ userId }: { userId: string }) {
       .select("id, kind, title, body, read_at, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(100);
+      .limit(200);
     setRows((data as Row[]) ?? []);
+    setSelected([]);
     setLoading(false);
   }, [userId]);
 
@@ -43,57 +49,160 @@ export function AccountNotifications({ userId }: { userId: string }) {
     void load();
   }, [load]);
 
-  async function markAllRead() {
-    await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", userId).is("read_at", null);
-    void load();
-  }
-
-  async function remove(id: string) {
-    await supabase.from("notifications").delete().eq("id", id);
-    setRows((r) => r.filter((x) => x.id !== id));
-  }
-
+  const visible = useMemo(
+    () => rows.filter((r) => (filter === "unread" ? !r.read_at : filter === "read" ? !!r.read_at : true)),
+    [rows, filter],
+  );
   const unread = rows.filter((r) => !r.read_at).length;
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const allVisibleSelected = visible.length > 0 && visible.every((r) => selectedSet.has(r.id));
+
+  function toggle(id: string) {
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  }
+
+  function toggleAll() {
+    setSelected(allVisibleSelected ? [] : visible.map((r) => r.id));
+  }
+
+  async function setRead(ids: string[], read: boolean) {
+    if (!ids.length) return;
+    setBusy(true);
+    const read_at = read ? new Date().toISOString() : null;
+    await supabase.from("notifications").update({ read_at }).in("id", ids).eq("user_id", userId);
+    setRows((r) => r.map((x) => (ids.includes(x.id) ? { ...x, read_at } : x)));
+    setBusy(false);
+  }
+
+  async function remove(ids: string[]) {
+    if (!ids.length) return;
+    setBusy(true);
+    await supabase.from("notifications").delete().in("id", ids).eq("user_id", userId);
+    setRows((r) => r.filter((x) => !ids.includes(x.id)));
+    setSelected((s) => s.filter((x) => !ids.includes(x)));
+    setBusy(false);
+  }
+
+  const actionable = selected.length ? selected : [];
 
   return (
     <div className="panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="eyebrow">Notifications</p>
-        {unread > 0 ? (
-          <button onClick={markAllRead} className="text-xs font-semibold text-primary">
-            Mark all as read ({unread})
-          </button>
-        ) : null}
+        <span className="text-xs text-muted-foreground">
+          {rows.length} total · {unread} unread
+        </span>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Payments, renewals, replies from support and announcements from <span className="font-semibold">T4P</span>.
+        Notifications are one-way announcements you receive: payment and renewal events, alerts, and messages sent by the{" "}
+        <span className="font-semibold">T4P</span> owner to customers. Two-way conversations — where you ask and get an
+        answer — live in the <span className="font-semibold">Messages</span> tab.
       </p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {(["all", "unread", "read"] as Filter[]).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`rounded-md border px-3 py-1.5 text-xs font-semibold capitalize ${
+              filter === f ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+            }`}
+          >
+            {f}
+          </button>
+        ))}
+        <span className="mx-1 hidden h-5 w-px bg-border sm:block" />
+        <button
+          onClick={toggleAll}
+          disabled={visible.length === 0}
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+        >
+          {allVisibleSelected ? "Clear selection" : "Select all"}
+        </button>
+        <button
+          onClick={() => setRead(actionable, true)}
+          disabled={busy || !actionable.length}
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+        >
+          Mark as read
+        </button>
+        <button
+          onClick={() => setRead(actionable, false)}
+          disabled={busy || !actionable.length}
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+        >
+          Mark as unread
+        </button>
+        <button
+          onClick={() => remove(actionable)}
+          disabled={busy || !actionable.length}
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-destructive disabled:opacity-50"
+        >
+          Delete selected ({selected.length})
+        </button>
+        <button
+          onClick={() => setRead(rows.filter((r) => !r.read_at).map((r) => r.id), true)}
+          disabled={busy || unread === 0}
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+        >
+          Mark all read
+        </button>
+        <button
+          onClick={() => {
+            if (window.confirm("Delete all notifications? This cannot be undone.")) void remove(rows.map((r) => r.id));
+          }}
+          disabled={busy || rows.length === 0}
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-destructive disabled:opacity-50"
+        >
+          Delete all
+        </button>
+      </div>
 
       {loading ? (
         <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
-      ) : rows.length === 0 ? (
+      ) : visible.length === 0 ? (
         <p className="mt-4 rounded-md bg-surface-2 px-3 py-4 text-sm text-muted-foreground">
-          Nothing yet. Billing events and support replies will show up here.
+          {rows.length === 0 ? "Nothing yet. Billing events, alerts and announcements will show up here." : "Nothing in this filter."}
         </p>
       ) : (
         <ul className="mt-4 space-y-2">
-          {rows.map((r) => {
+          {visible.map((r) => {
             const conf = ICONS[r.kind] ?? ICONS["info"]!;
             const Icon = conf.icon;
             return (
               <li
                 key={r.id}
-                className={`flex gap-3 rounded-md border border-border px-3 py-3 ${r.read_at ? "bg-card" : "bg-surface-2"}`}
+                className={`flex gap-3 rounded-md border px-3 py-3 ${
+                  selectedSet.has(r.id) ? "border-primary" : "border-border"
+                } ${r.read_at ? "bg-card" : "bg-surface-2"}`}
               >
+                <input
+                  type="checkbox"
+                  checked={selectedSet.has(r.id)}
+                  onChange={() => toggle(r.id)}
+                  aria-label={`Select ${r.title}`}
+                  className="mt-1 size-4 shrink-0 accent-[hsl(var(--primary))]"
+                />
                 <Icon className={`mt-0.5 size-4 shrink-0 ${conf.tone}`} aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold">{r.title}</p>
+                  <p className="text-sm font-semibold">
+                    {r.title}
+                    {!r.read_at ? <span className="ml-2 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] uppercase text-primary">New</span> : null}
+                  </p>
                   {r.body ? <p className="mt-1 text-sm text-muted-foreground">{r.body}</p> : null}
                   <p className="mt-1 text-xs text-muted-foreground">{when(r.created_at)}</p>
                 </div>
-                <button onClick={() => remove(r.id)} aria-label="Delete notification" className="text-muted-foreground hover:text-destructive">
-                  <Trash2 className="size-4" />
-                </button>
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <button
+                    onClick={() => setRead([r.id], !r.read_at)}
+                    className="text-xs font-semibold text-primary"
+                  >
+                    {r.read_at ? "Unread" : "Read"}
+                  </button>
+                  <button onClick={() => remove([r.id])} aria-label="Delete notification" className="text-muted-foreground hover:text-destructive">
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </li>
             );
           })}
