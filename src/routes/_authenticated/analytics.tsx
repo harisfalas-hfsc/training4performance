@@ -192,25 +192,64 @@ function AnalyticsPage() {
       </nav>
 
       <section className="panel mb-4 p-4">
-        <SectionTitle title="1. Who do you want to analyse?" hint="Whole squad, squad average, or players picked from the list" />
-        <PlayerPicker scope={scope} onScope={setScope} picked={selected} onPicked={setSelected} />
-        {!players.length ? <p className="mt-3 rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">No players yet. Import a GPS report or add players in Team & players.</p> : null}
-      </section>
-
-      <section className="panel mb-4 p-4">
-        <SectionTitle title="2. What do you want to see for them?" hint="GPS reports, training & drills, fitness tests, wellness or medical & availability" />
-        <div className="flex flex-wrap gap-1">
-          {SOURCES.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSource(s.id)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                source === s.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
+        <SectionTitle
+          title="Build your report"
+          hint="1. What report · 2. For who · 3. Which KPI — then pick the dates"
+        />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <SelectField
+            label="1. Report"
+            value={source}
+            onChange={(value) => setSource(value as SourceId)}
+            options={SOURCES.map((s) => ({ value: s.id, label: s.label }))}
+          />
+          <SelectField
+            label="2. For who"
+            value={who}
+            onChange={(value) => {
+              const next = value as WhoMode;
+              setWho(next);
+              setScope(next === "total" ? "team" : next === "average" ? "average" : "players");
+              if (next === "single") setSelected((prev) => prev.slice(0, 1));
+            }}
+            options={[
+              { value: "total", label: "All players (squad total)" },
+              { value: "average", label: "All players (squad average)" },
+              { value: "multiple", label: "Multiple players" },
+              { value: "single", label: "Single player" },
+            ]}
+          />
+          {who === "multiple" || who === "single" ? (
+            <MultiSelectField
+              label={who === "single" ? "Player" : "Players"}
+              values={selected}
+              onChange={setSelected}
+              max={who === "single" ? 1 : undefined}
+              placeholder={who === "single" ? "Choose a player…" : "Choose players…"}
+              searchPlaceholder="Search player…"
+              emptyText="No players yet — add them in Team & players."
+              options={players.map((p) => ({ value: p.id, label: fullName(p), hint: p.position }))}
+            />
+          ) : null}
+          {source === "gps" ? (
+            <MultiSelectField
+              label="3. KPI"
+              values={kpis}
+              onChange={setKpis}
+              placeholder="Choose KPIs…"
+              searchPlaceholder="Distance, HSR, sprint…"
+              emptyText="No GPS KPIs yet — import a GPS report."
+              options={allMetrics.map((m) => ({ value: m.key, label: m.label, hint: m.unit }))}
+            />
+          ) : null}
+          {source === "gps" ? (
+            <SelectField
+              label="Chart"
+              value={kind}
+              onChange={(value) => setKind(value as ChartKind)}
+              options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
+            />
+          ) : null}
         </div>
         <div className="mt-3">
           <span className="eyebrow">Dates</span>
@@ -224,7 +263,13 @@ function AnalyticsPage() {
             />
           </div>
         </div>
+        {!players.length ? (
+          <p className="mt-3 rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
+            No players yet. Import a GPS report or add players in Team &amp; players.
+          </p>
+        ) : null}
       </section>
+
 
       {source === "training" ? <TrainingExplorer playerIds={activeIds} from={from} to={to} /> : null}
       {source === "tests" ? <TestsExplorer playerIds={activeIds} from={from} to={to} /> : null}
