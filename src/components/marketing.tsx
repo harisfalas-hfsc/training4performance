@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LogOut, User } from "lucide-react";
+import { LogOut, Shield, User } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { SmartyAssistant } from "@/components/smarty-assistant";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
   const [avatar, setAvatar] = useState(false);
-  const { session, profile, signOut } = useAuth();
+  const { session, profile, isAdmin, signOut } = useAuth();
   const avatarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,6 +71,13 @@ export function SiteHeader() {
                     <MenuLink to="/account" onClick={() => setAvatar(false)}>
                       Manage account
                     </MenuLink>
+                    {isAdmin ? (
+                      <MenuLink to="/admin" onClick={() => setAvatar(false)}>
+                        <span className="flex items-center gap-2 font-medium text-primary">
+                          <Shield className="size-4" /> Admin panel
+                        </span>
+                      </MenuLink>
+                    ) : null}
                     <button
                       onClick={() => {
                         setAvatar(false);
