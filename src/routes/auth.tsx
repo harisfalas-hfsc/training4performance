@@ -78,7 +78,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}${next ?? "/"}`,
             data: { full_name: fullName, club_name: clubName },
           },
         });
