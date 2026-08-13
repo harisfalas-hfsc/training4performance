@@ -94,10 +94,11 @@ export function AccountNotifications({ userId }: { userId: string }) {
         </span>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Notifications are one-way announcements you receive: payment and renewal events, alerts, and messages sent by the{" "}
-        <span className="font-semibold">T4P</span> owner to customers. Two-way conversations — where you ask and get an
-        answer — live in the <span className="font-semibold">Messages</span> tab.
+        Notifications are what <span className="font-semibold">T4P</span> sends you: payment and renewal events,
+        subscription changes, alerts and announcements. To ask something and get an answer, use the{" "}
+        <span className="font-semibold">Support</span> tab.
       </p>
+
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {(["all", "unread", "read"] as Filter[]).map((f) => (
