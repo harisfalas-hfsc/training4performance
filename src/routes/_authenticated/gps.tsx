@@ -269,6 +269,7 @@ function GpsPage() {
     setProgress(15);
     try {
       const p = await parseGpsFile(file);
+      if (!p.rows.length) throw new Error("The file has column names but no data rows.");
       setProgress(70);
       const saved = findTemplate(p.headers);
       const map = saved ? saved.mapping : buildMapping(p.headers);
