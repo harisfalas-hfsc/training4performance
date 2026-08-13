@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
-import { T4P } from "@/components/brand-text";
+import { BrandCopy, T4P } from "@/components/brand-text";
 import { currentSeason, useAuth } from "@/lib/auth";
 import {
   breadcrumbLd,
@@ -189,7 +189,7 @@ function Pricing() {
               >
                 {n.t}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{n.d}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{n.d}</BrandCopy></p>
             </div>
           ))}
         </div>

@@ -25,7 +25,7 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { MarketingPage } from "@/components/marketing";
 import { useAuth } from "@/lib/auth";
-import { T4P } from "@/components/brand-text";
+import { BrandCopy, T4P } from "@/components/brand-text";
 import { MANUAL_SHOTS, type ManualShotKey } from "@/components/manual-examples";
 
 export const Route = createFileRoute("/manual")({
@@ -591,7 +591,7 @@ function ManualPage() {
                 >
                   {c.n}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold">{c.title}</span>
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold"><BrandCopy>{c.title}</BrandCopy></span>
                 <c.icon className="size-4 shrink-0 opacity-70" style={{ color: c.color }} />
               </a>
             ))}
@@ -676,8 +676,8 @@ function ManualPage() {
                   <p className="eyebrow flex items-center gap-1.5" style={{ color: c.color }}>
                     <c.icon className="size-3.5" /> Chapter {c.n}
                   </p>
-                  <h3 className="font-display text-xl font-semibold uppercase tracking-wide">{c.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{c.why}</p>
+                  <h3 className="font-display text-xl font-semibold uppercase tracking-wide"><BrandCopy>{c.title}</BrandCopy></h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{c.why}</BrandCopy></p>
                 </div>
               </div>
               {c.to ? (
@@ -706,7 +706,7 @@ function ManualPage() {
                   >
                     {i + 1}
                   </span>
-                  <p className="pt-1 text-sm leading-relaxed">{s}</p>
+                  <p className="pt-1 text-sm leading-relaxed"><BrandCopy>{s}</BrandCopy></p>
                 </li>
               ))}
             </ol>

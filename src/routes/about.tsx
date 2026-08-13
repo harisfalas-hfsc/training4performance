@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { MarketingPage } from "@/components/marketing";
-import { T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
+import { BrandCopy, T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
@@ -384,7 +384,7 @@ function About() {
                 <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">
                   {q.q}
                 </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{q.a}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{q.a}</BrandCopy></p>
               </div>
             );
           })}
@@ -423,7 +423,7 @@ function About() {
                       </p>
                     </div>
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{r.body}</BrandCopy></p>
                   <ul className="mt-4 space-y-2">
                     {r.points.map((p) => (
                       <li
@@ -431,7 +431,7 @@ function About() {
                         className="flex gap-2 text-sm leading-relaxed text-muted-foreground"
                       >
                         <Check className={`mt-0.5 size-4 shrink-0 ${t.text}`} aria-hidden />
-                        <span>{p}</span>
+                        <span><BrandCopy>{p}</BrandCopy></span>
                       </li>
                     ))}
                   </ul>
@@ -620,7 +620,7 @@ function About() {
                   <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">
                     {b.t}
                   </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{b.d}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{b.d}</BrandCopy></p>
                 </div>
               );
             })}

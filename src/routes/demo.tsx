@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
-import { T4P } from "@/components/brand-text";
+import { BrandCopy, T4P } from "@/components/brand-text";
 import { Button } from "@/components/ui/button";
 import { activateDemo, resetDemo } from "@/lib/demo";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
@@ -164,7 +164,7 @@ function DemoPage() {
                 <item.icon className="size-4" aria-hidden />
               </span>
               <p className="mt-3 text-sm font-semibold">{item.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.text}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground"><BrandCopy>{item.text}</BrandCopy></p>
             </div>
           ))}
         </div>
