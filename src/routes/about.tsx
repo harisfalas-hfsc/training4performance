@@ -164,7 +164,7 @@ const includes = [
   },
   {
     t: "Training designer",
-    d: "Block-based sessions with drill library, strength prescriptions and an interactive football/futsal tactics board.",
+    d: "Block-based sessions with drill library, strength prescriptions and an interactive football tactics board.",
     color: "green",
   },
   {
