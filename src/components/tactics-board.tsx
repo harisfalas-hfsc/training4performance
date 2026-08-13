@@ -134,29 +134,34 @@ const DIMS: Record<Orientation, { w: number; h: number }> = {
   landscape: { w: 1000, h: 680 },
 };
 
-export type PitchView = "full" | "half" | "quarter";
-export type FieldType = "football" | "futsal" | "blank";
+export type PitchView = "full" | "half";
+export type FieldType = "football" | "blank";
 
 const VIEWS: { id: PitchView; label: string }[] = [
   { id: "full", label: "Full pitch" },
   { id: "half", label: "Half pitch" },
-  { id: "quarter", label: "Quarter pitch" },
 ];
 
 const FIELDS: { id: FieldType; label: string }[] = [
   { id: "football", label: "Football 11v11" },
-  { id: "futsal", label: "Futsal / indoor" },
   { id: "blank", label: "Blank field" },
 ];
+
+/* Legacy drawings may still carry retired options; fall back to the
+   supported ones so old saved boards keep opening. */
+function normView(v: unknown): PitchView {
+  return v === "half" ? "half" : "full";
+}
+function normField(f: unknown): FieldType {
+  return f === "blank" ? "blank" : "football";
+}
 
 /** Visible area of the base pitch for the chosen view. */
 function viewBoxFor(orientation: Orientation, view: PitchView) {
   const { w, h } = DIMS[orientation];
   if (view === "full") return { x: 0, y: 0, w, h };
-  if (orientation === "portrait") {
-    return view === "half" ? { x: 0, y: 0, w, h: h / 2 } : { x: 0, y: 0, w: w / 2, h: h / 2 };
-  }
-  return view === "half" ? { x: 0, y: 0, w: w / 2, h } : { x: 0, y: 0, w: w / 2, h: h / 2 };
+  if (orientation === "portrait") return { x: 0, y: 0, w, h: h / 2 };
+  return { x: 0, y: 0, w: w / 2, h };
 }
 
 function PitchMarkings({
@@ -174,15 +179,14 @@ function PitchMarkings({
   const common = { fill: "none", stroke: line, strokeWidth: 3 } as const;
   const long = orientation === "portrait" ? h : w;
   const short = orientation === "portrait" ? w : h;
-  const futsal = field === "futsal";
-  const boxDepth = long * (futsal ? 0.1 : 0.15);
-  const boxWidth = short * (futsal ? 0.45 : 0.62);
+  const boxDepth = long * 0.15;
+  const boxWidth = short * 0.62;
   const goalDepth = long * 0.05;
-  const goalWidth = short * (futsal ? 0.22 : 0.3);
-  const spot = long * (futsal ? 0.07 : 0.1);
-  const r = short * (futsal ? 0.12 : 0.16);
+  const goalWidth = short * 0.3;
+  const spot = long * 0.1;
+  const r = short * 0.16;
 
-  /* Boundary hugs the visible area so half / quarter views read as a real
+  /* Boundary hugs the visible area so the half view reads as a real
      playing surface instead of a cropped full pitch. */
   const boundary = (
     <rect x={vb.x + m} y={vb.y + m} width={vb.w - m * 2} height={vb.h - m * 2} {...common} />
@@ -448,8 +452,8 @@ export function TacticsBoard({
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [orientation, setOrientation] = useState<Orientation>(initialDrawing?.orientation ?? "portrait");
-  const [view, setView] = useState<PitchView>(initialDrawing?.view ?? "full");
-  const [field, setField] = useState<FieldType>(initialDrawing?.field ?? "football");
+  const [view, setView] = useState<PitchView>(normView(initialDrawing?.view));
+  const [field, setField] = useState<FieldType>(normField(initialDrawing?.field));
   const [tool, setTool] = useState<Tool>("select");
   const [tokens, setTokens] = useState<BoardToken[]>(initialDrawing?.tokens ?? initialTokens);
   const [shapes, setShapes] = useState<BoardShape[]>(initialDrawing?.shapes ?? []);
