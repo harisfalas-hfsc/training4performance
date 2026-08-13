@@ -45,7 +45,8 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
       ticket_id: ticket.id,
       sender_id: ticket.user_id,
       sender_role: "auto",
-      body: entry.answer,
+      body,
+
     });
     if (error) return { answered: false };
 
@@ -59,7 +60,7 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
       user_id: ticket.user_id,
       kind: "message",
       title: "New reply from T4P support",
-      body: entry.answer,
+      body,
     });
 
     return { answered: true };
