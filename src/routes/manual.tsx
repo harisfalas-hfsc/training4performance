@@ -594,7 +594,7 @@ function ManualPage() {
           <div className="grid gap-2 border-t border-border/60 bg-background/60 p-4 sm:grid-cols-2 lg:grid-cols-3">
             <a
               href="#walkthrough"
-              className="group flex items-center gap-3 rounded-xl border border-brand-green/45 bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
+              className="group flex min-w-0 items-center gap-3 rounded-xl border border-brand-green/45 bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
             >
               <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-green/12 text-brand-green">
                 <Sparkles className="size-4" />
@@ -605,7 +605,7 @@ function ManualPage() {
               <a
                 key={c.id}
                 href={`#${c.id}`}
-                className="group flex items-center gap-3 rounded-xl border bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
+                className="group flex min-w-0 items-center gap-3 rounded-xl border bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
                 style={{ borderColor: `${c.color}40` }}
               >
                 <span
@@ -620,7 +620,7 @@ function ManualPage() {
             ))}
             <a
               href="#troubleshooting"
-              className="group flex items-center gap-3 rounded-xl border border-brand-red/40 bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
+              className="group flex min-w-0 items-center gap-3 rounded-xl border border-brand-red/40 bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel"
             >
               <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-red/12 text-brand-red">
                 <LifeBuoy className="size-4" />
