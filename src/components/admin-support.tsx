@@ -179,10 +179,10 @@ export function AdminSupport({ customers }: { customers: { id: string; email: st
                     {messages.map((m) => (
                       <div
                         key={m.id}
-                        className={`rounded-md px-3 py-2 text-sm ${m.sender_role === "admin" ? "bg-primary/10" : "bg-surface-2"}`}
+                        className={`rounded-md px-3 py-2 text-sm ${m.sender_role === "user" ? "bg-surface-2" : "bg-primary/10"}`}
                       >
                         <p className="text-xs font-semibold text-muted-foreground">
-                          {m.sender_role === "admin" ? "You (T4P)" : "Customer"} · {when(m.created_at)}
+                          {m.sender_role === "user" ? "Customer" : m.sender_role === "auto" ? "T4P support · automatic answer" : "You (T4P)"} · {when(m.created_at)}
                         </p>
                         <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
                       </div>
