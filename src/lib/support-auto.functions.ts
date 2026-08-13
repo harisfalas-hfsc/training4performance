@@ -32,13 +32,14 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
 
     const question = `${ticket.subject} ${last.body}`;
     const entry = findSupportAnswer(question);
-    if (!entry) return { answered: false };
+    const body = entry?.answer ?? SUPPORT_FALLBACK;
 
     // Do not repeat the same answer twice in a row.
     const previous = rows?.[1];
-    if (previous && previous.sender_role !== "user" && previous.body === entry.answer) {
+    if (previous && previous.sender_role !== "user" && previous.body === body) {
       return { answered: false };
     }
+
 
     const { error } = await supabaseAdmin.from("support_messages").insert({
       ticket_id: ticket.id,
