@@ -89,6 +89,8 @@ function BoardPage() {
               onChange={(e) => {
                 setSessionId(e.target.value);
                 setItemIndex(-1);
+                setDescription("");
+
               }}
             >
               {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
