@@ -445,7 +445,7 @@ function AnalyticsPage() {
                   height={260}
                 />
               </ChartFrame>
-            ) : <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Pick “Selected players” at the top and choose at least one player with GPS data in this date range.</p>}
+            ) : <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Set “For who” to Multiple players or Single player and choose at least one athlete with GPS data in this date range.</p>}
           </div>
         </div>
       </section>
