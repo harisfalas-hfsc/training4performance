@@ -47,7 +47,11 @@ export function SiteHeader() {
               height={512}
               decoding="async"
               fetchPriority="high"
-              className="t4p-logo size-9 shrink-0 object-contain sm:size-10"
+              className="t4p-logo size-9 shrink-0 object-contain sm:hidden"
+            />
+            <Training4Performance
+              uppercase
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm"
             />
           </Link>
 
