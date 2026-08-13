@@ -3,15 +3,20 @@ import { useEffect, useState } from "react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
-import { currentSeason, useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
+import { useServerFn } from "@tanstack/react-start";
+import { AccountNotifications } from "@/components/account-notifications";
+import { AccountMessages } from "@/components/account-messages";
+import { requestSubscription, setAutoRenew } from "@/lib/support.functions";
+import { PRICE_FULL, PRICE_LABEL, formatDate } from "@/lib/pricing";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
     ...seoHead({
       path: "/account",
       title: "My account | T4P",
-      description: "Manage your T4P subscription and platform access.",
+      description: "Manage your T4P monthly subscription, notifications and support messages.",
       card: "summary",
       noindex: true,
     }),
@@ -22,7 +27,9 @@ export const Route = createFileRoute("/account")({
 function Account() {
   const { loading, session, user, profile, isAdmin, subscription, hasAccess, refresh, signOut } = useAuth();
   const navigate = useNavigate();
-  const season = currentSeason();
+  const subscribeFn = useServerFn(requestSubscription);
+  const autoRenewFn = useServerFn(setAutoRenew);
+  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">("subscription");
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -61,18 +68,17 @@ function Account() {
     if (!user) return;
     setBusy(true);
     setError(null);
-    // Requests are always saved as "pending" by the database — only the owner can activate them.
-    const { error: err } = await supabase.from("subscriptions").upsert(
-      {
-        user_id: user.id,
-        team_name: clubName || profile?.club_name || "First team",
-        season_start: season.start,
-        season_end: season.end,
-        price_eur: 999,
-      },
-      { onConflict: "user_id" },
-    );
-    if (err) setError(err.message);
+    const res = await subscribeFn({ data: { teamName: clubName || profile?.club_name || "First team" } });
+    if ("error" in res) setError(res.error);
+    await refresh();
+    setBusy(false);
+  }
+
+  async function toggleRenew(cancel: boolean) {
+    setBusy(true);
+    setError(null);
+    const res = await autoRenewFn({ data: { cancel } });
+    if ("error" in res) setError(res.error);
     await refresh();
     setBusy(false);
   }
