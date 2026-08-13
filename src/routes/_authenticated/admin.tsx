@@ -525,14 +525,7 @@ function AdminPage() {
                   {/* Only a live subscription has an access date and a price —
                       anything else would show stale figures from a plan that
                       is no longer running. */}
-                  <span>
-                    Access until:{" "}
-                    {c.active && c.season_end
-                      ? new Date(c.season_end).toLocaleDateString()
-                      : c.season_end
-                        ? `ended ${new Date(c.season_end).toLocaleDateString()}`
-                        : "—"}
-                  </span>
+                  <span>Access until: {accessUntilLabel(c)}</span>
                   <span>Price: {c.active ? `€${c.price_eur}` : "—"}</span>
                   <span>Joined: {new Date(c.created_at).toLocaleDateString()}</span>
                   <span>Last sign-in: {c.last_sign_in_at ? new Date(c.last_sign_in_at).toLocaleDateString() : "—"}</span>
