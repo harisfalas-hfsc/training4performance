@@ -471,7 +471,7 @@ type Problem = { q: string; a: string };
 const PROBLEMS: Problem[] = [
   {
     q: "What does T4P cost and how am I billed?",
-    a: "€69.90 per month for one team, charged monthly and renewing automatically until you cancel. Every module is included and there is no per-user fee. You cancel from Account → Subscription, and access continues until the end of the month you already paid for.",
+    a: "€699 per season for one team, charged monthly and renewing automatically until you cancel. Every module is included and there is no per-user fee. You cancel from Account → Subscription, and access continues until the end of the month you already paid for.",
   },
   {
     q: "What happens if I cancel, expire or a payment fails?",

@@ -61,7 +61,7 @@ function AuthenticatedLayout() {
               <Eye className="size-4" aria-hidden /> View-only mode
             </span>
             <span className="text-muted-foreground">
-              Read-only mode: view, analyse and export everything. Adding or editing unlocks with a subscription — €69.90 / month.
+              Read-only mode: view, analyse and export everything. Adding or editing unlocks with a subscription — €699 / season.
             </span>
             <Link
               to="/pricing"

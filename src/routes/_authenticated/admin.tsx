@@ -541,10 +541,10 @@ function AdminPage() {
 
                 <p className={`mt-2 rounded-md px-3 py-2 text-xs font-medium ${c.active ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                   {c.active
-                    ? `${c.complimentary ? "Complimentary" : "Paid"} monthly subscription — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
+                    ? `${c.complimentary ? "Complimentary" : "Paid"} yearly subscription — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
                     : c.status === "pending"
-                      ? "Subscription requested — read-only until you activate it below (€69.90 / month)."
-                      : "No subscription — read-only account. Activating below turns on the monthly subscription (€69.90 / month)."}
+                      ? "Subscription requested — read-only until you activate it below (€699 / season)."
+                      : "No subscription — read-only account. Activating below turns on the yearly subscription (€699 / season)."}
                 </p>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">

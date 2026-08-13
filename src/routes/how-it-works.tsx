@@ -248,7 +248,7 @@ const faq = [
   },
   {
     q: "What does the subscription cost and what does it cover?",
-    a: "€69.90 per month for one team, cancel any time. Every module is included and there is no per-user fee.",
+    a: "€699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
   },
   {
     q: (
@@ -315,7 +315,7 @@ const faqSchema = [
   },
   {
     q: "What does the subscription cost and what does it cover?",
-    a: "\u20ac69.90 per month for one team, cancel any time. Every module is included and there is no per-user fee.",
+    a: "\u20ac699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
   },
   {
     q: "Do I need a GPS system to use T4P?",

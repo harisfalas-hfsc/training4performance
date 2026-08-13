@@ -37,7 +37,7 @@ export const Route = createFileRoute("/terms")({
 
         <h2>2. Subscription and billing</h2>
         <ul>
-          <li>A team subscription costs €69.90 per month, billed monthly in advance, and covers one team.</li>
+          <li>A team subscription costs €699 per season, billed yearly in advance, and covers one team.</li>
           <li>The subscription renews automatically every month until it is cancelled, and can be cancelled at any time from the account area; access continues until the end of the paid month.</li>
           <li>Prices are in euro and exclude VAT, which is added where legally applicable.</li>
           <li>The subscriber owns the account and the data inside it, and can export or delete it at any time.</li>

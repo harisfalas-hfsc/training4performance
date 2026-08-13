@@ -28,7 +28,7 @@ export type TicketRow = {
 /* Billing                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Customer asks for the monthly subscription — saved as pending for the owner. */
+/** Customer asks for the yearly subscription — saved as pending for the owner. */
 export const requestSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { teamName?: string }) => data)
@@ -69,12 +69,12 @@ export const requestSubscription = createServerFn({ method: "POST" })
       user_id: context.userId,
       kind: "billing",
       title: "Subscription request received",
-      body: "Your monthly subscription (€69.90 / month) is being set up. You will get a message here as soon as the payment is confirmed and full editing is unlocked.",
+      body: "Your yearly subscription (€699 / season) is being set up. You will get a message here as soon as the payment is confirmed and full editing is unlocked.",
     });
     return { ok: true };
   });
 
-/** Customer cancels (or resumes) the automatic monthly renewal. */
+/** Customer cancels (or resumes) the automatic yearly renewal. */
 export const setAutoRenew = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { cancel: boolean }) => data)
@@ -95,7 +95,7 @@ export const setAutoRenew = createServerFn({ method: "POST" })
       title: data.cancel ? "Subscription cancelled" : "Subscription resumed",
       body: data.cancel
         ? `Automatic renewal is off. You keep full access until ${sub?.season_end ?? "the end of the paid month"}, then the account becomes read-only — your data, reports and exports stay available.`
-        : "Automatic monthly renewal is back on. Nothing else to do.",
+        : "Automatic yearly renewal is back on. Nothing else to do.",
     });
     return { ok: true };
   });
