@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { isAdminEmail } from "@/lib/admin";
+import { requireOwner } from "@/lib/support.server";
 
 export type NotificationRow = {
   id: string;
@@ -22,11 +22,6 @@ export type TicketRow = {
   unread_for_admin: boolean;
   created_at: string;
 };
-
-function adminGuard(context: { claims: Record<string, unknown> }) {
-  const email = context.claims?.["email"] as string | undefined;
-  if (!isAdminEmail(email)) throw new Error("Forbidden: owner access required");
-}
 
 /* ------------------------------------------------------------------ */
 /* Billing                                                             */
@@ -97,7 +92,7 @@ export const adminSendNotification = createServerFn({ method: "POST" })
   .inputValidator((data: { userId?: string; all?: boolean; title: string; body?: string; kind?: string }) => data)
   .handler(async ({ context, data }): Promise<{ ok: true; sent: number } | { error: string }> => {
     try {
-      adminGuard(context as never);
+      requireOwner(context.claims);
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const title = (data.title || "").trim().slice(0, 160);
       if (!title) return { error: "A title is required" };
@@ -130,7 +125,7 @@ export const adminReplyToTicket = createServerFn({ method: "POST" })
   .inputValidator((data: { ticketId: string; body: string; close?: boolean }) => data)
   .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
     try {
-      adminGuard(context as never);
+      requireOwner(context.claims);
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const body = (data.body || "").trim().slice(0, 4000);
       if (!body) return { error: "Message is empty" };
@@ -158,7 +153,7 @@ export const adminReplyToTicket = createServerFn({ method: "POST" })
         user_id: ticket.user_id,
         kind: "message",
         title: "New reply from T4P support",
-        body: `Re: ${ticket.subject}`,
+        body,
       });
       return { ok: true };
     } catch (e) {
@@ -173,7 +168,7 @@ export const adminListTickets = createServerFn({ method: "POST" })
   .inputValidator((data: { status?: string }) => data)
   .handler(async ({ context, data }): Promise<{ tickets: AdminTicket[] } | { error: string }> => {
     try {
-      adminGuard(context as never);
+      requireOwner(context.claims);
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       let q = supabaseAdmin
         .from("support_tickets")
@@ -212,7 +207,7 @@ export const adminGetTicketMessages = createServerFn({ method: "POST" })
       { messages: { id: string; sender_role: string; body: string; created_at: string }[] } | { error: string }
     > => {
       try {
-        adminGuard(context as never);
+        requireOwner(context.claims);
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: rows, error } = await supabaseAdmin
           .from("support_messages")
