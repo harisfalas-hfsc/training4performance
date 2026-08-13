@@ -668,6 +668,8 @@ function About() {
           ))}
         </div>
 
+        <FederationTrustBlock className="mt-10" />
+
         <div className="panel mt-16 border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-cyan/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
             <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-amber/15 text-brand-amber">
