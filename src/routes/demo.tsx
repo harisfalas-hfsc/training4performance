@@ -96,7 +96,7 @@ const ALLOWED = [
   "Add and edit drills, blocks, tags, times and strength prescriptions",
   "Enter manual RPE for any block or player",
   "Record fitness tests and wellness answers",
-  "Use the tactics board, calculators and Smarty Assistant",
+  "Use the tactics board and the calculators",
   "Open every chart, table and player passport",
 ];
 

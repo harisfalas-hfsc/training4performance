@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Shield } from "lucide-react";
+import { ArrowLeft, Shield } from "lucide-react";
 import type { ReactNode } from "react";
 import { T4P } from "@/components/brand-text";
 
@@ -12,11 +12,13 @@ export function AdminShell({
   title,
   subtitle,
   actions,
+  onBack,
   children,
 }: {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  onBack?: () => void;
   children: ReactNode;
 }) {
   return (
@@ -24,6 +26,16 @@ export function AdminShell({
       <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4">
           <div className="flex min-w-0 items-center gap-3">
+            {onBack ? (
+              <button
+                type="button"
+                onClick={onBack}
+                aria-label="Back"
+                className="grid size-9 shrink-0 place-items-center rounded-md border border-border text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="size-4" />
+              </button>
+            ) : null}
             <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-secondary">
               <Shield className="size-4" style={{ color: "#111827" }} />
             </span>
@@ -36,6 +48,7 @@ export function AdminShell({
           <div className="flex flex-wrap items-center gap-2">
             {actions}
             <Link
+
               to="/dashboard"
               className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
             >

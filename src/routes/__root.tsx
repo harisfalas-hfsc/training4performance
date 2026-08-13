@@ -231,7 +231,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               "Fitness testing battery with personal-best tracking (CMJ, sprint splits, Yo-Yo, 30-15 IFT, strength)",
               "Automated workload, wellness and availability alerts",
               "Player and squad analytics, comparisons and one-click performance reports",
-              "AI performance assistant for plain-language questions about squad data",
             ],
             offers: {
               "@type": "Offer",

@@ -16,6 +16,8 @@ import {
   Trash2,
   TrendingUp,
   Users,
+  UserRound,
+  CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
@@ -44,8 +46,18 @@ import {
   type AdminWorkspace,
 } from "@/lib/admin.functions";
 
+type AdminSearch = { tab?: "customers" | "teams" | "support"; customer?: string };
+
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
+  validateSearch: (search: Record<string, unknown>): AdminSearch => {
+    const tab = search["tab"];
+    const customer = search["customer"];
+    return {
+      tab: tab === "teams" || tab === "support" ? tab : "customers",
+      ...(typeof customer === "string" && customer ? { customer } : {}),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Admin panel | T4P" },
@@ -58,6 +70,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
     ],
   }),
 });
+
+/** Human date for the end of an access grant of N months from today. */
+function endDateLabel(months: number) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d.toLocaleDateString();
+}
 
 function AdminPage() {
   const { isAdmin, loading } = useAuth();
@@ -75,7 +94,9 @@ function AdminPage() {
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
 
-  const [tab, setTab] = useState<"customers" | "teams" | "support">("customers");
+  const { tab = "customers", customer: customerParam } = Route.useSearch();
+  const [audience, setAudience] = useState<"all" | "subscribers" | "users">("all");
+  const setTab = (t: NonNullable<AdminSearch["tab"]>) => void navigate({ to: "/admin", search: { tab: t } });
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -88,6 +109,11 @@ function AdminPage() {
   const [unreadTickets, setUnreadTickets] = useState(0);
   const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
   const [workspace, setWorkspace] = useState<AdminWorkspace | null>(null);
+
+  const subscribers = customers.filter((c) => c.active);
+  const freeUsers = customers.filter((c) => !c.active);
+  const visibleCustomers =
+    audience === "subscribers" ? subscribers : audience === "users" ? freeUsers : customers;
 
   const reload = useCallback(async () => {
     setPending(true);
@@ -107,6 +133,31 @@ function AdminPage() {
     setPending(false);
   }, [listCustomers, getStats, listTeams, listTickets, search]);
 
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!customerParam) {
+      setSelectedCustomer(null);
+      setWorkspace(null);
+      return;
+    }
+    const found = customers.find((c) => c.id === customerParam);
+    if (!found) return;
+    setSelectedCustomer(found);
+    void (async () => {
+      const result = await getWorkspace({ data: { userId: found.id } });
+      if (cancelled) return;
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      setWorkspace(result.workspace);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerParam, customers]);
 
   useEffect(() => {
     if (isAdmin) void reload();
@@ -173,16 +224,9 @@ function AdminPage() {
     void navigate({ to: "/dashboard" });
   }
 
-  async function openCustomer(customer: AdminCustomer) {
-    setPending(true);
-    const result = await getWorkspace({ data: { userId: customer.id } });
-    setPending(false);
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
-    }
-    setSelectedCustomer(customer);
-    setWorkspace(result.workspace);
+  /** Opening a customer is a navigation, so the browser back button stays inside the panel. */
+  function openCustomer(customer: AdminCustomer) {
+    void navigate({ to: "/admin", search: { tab: "customers", customer: customer.id } });
   }
 
   async function saveCustomerWorkspace(teamData: Json, playerData: Json) {
@@ -197,14 +241,23 @@ function AdminPage() {
     }
   }
 
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+    else void navigate({ to: "/admin", search: { tab: "customers" } });
+  };
+
   if (selectedCustomer && workspace) {
     return (
-      <AdminShell title="Customer workspace" subtitle={`${selectedCustomer.full_name || selectedCustomer.email} · owner support view`}>
+      <AdminShell
+        title="Customer workspace"
+        subtitle={`${selectedCustomer.full_name || selectedCustomer.email} · owner support view`}
+        onBack={goBack}
+      >
         <AdminCustomerDetail
           customer={selectedCustomer}
           workspace={workspace}
           busy={busy}
-          onBack={() => { setSelectedCustomer(null); setWorkspace(null); }}
+          onBack={goBack}
           onSave={saveCustomerWorkspace}
           onSignIn={() => void signInAs(selectedCustomer)}
         />
@@ -216,6 +269,7 @@ function AdminPage() {
     <AdminShell
       title="Admin panel"
       subtitle="Customers, access, revenue and workspace usage"
+      {...(tab === "customers" ? {} : { onBack: goBack })}
       actions={
         <Button
           variant="outline"
@@ -267,7 +321,7 @@ function AdminPage() {
             onClick={() => setTab(t)}
           >
             {t === "customers"
-              ? "Subscribers"
+              ? `Subscribers & users (${customers.length})`
               : t === "teams"
                 ? `Teams & squads (${teams.length})`
                 : (
@@ -375,16 +429,46 @@ function AdminPage() {
         </div>
       )}
 
-      <div className={tab === "customers" ? "mt-4 space-y-3" : "hidden"}>
+      <div className={tab === "customers" ? "mt-4" : "hidden"}>
+        <div className="flex flex-wrap items-center gap-2">
+          {(
+            [
+              { v: "all", label: `All (${customers.length})`, icon: Users },
+              { v: "subscribers", label: `Subscribers (${subscribers.length})`, icon: CreditCard },
+              { v: "users", label: `Free users (${freeUsers.length})`, icon: UserRound },
+            ] as const
+          ).map((o) => {
+            const Icon = o.icon;
+            return (
+              <Button
+                key={o.v}
+                size="sm"
+                variant={audience === o.v ? "default" : "outline"}
+                onClick={() => setAudience(o.v)}
+              >
+                <Icon className="size-3.5" /> {o.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={tab === "customers" ? "mt-3 space-y-3" : "hidden"}>
         {pending ? (
           <div className="grid place-items-center py-16">
             <Loader2 className="size-6 animate-spin text-primary" />
           </div>
-        ) : customers.length === 0 ? (
-          <p className="panel p-8 text-center text-sm text-muted-foreground">No customers yet.</p>
+        ) : visibleCustomers.length === 0 ? (
+          <p className="panel p-8 text-center text-sm text-muted-foreground">
+            {audience === "subscribers"
+              ? "No paying subscribers in this list yet."
+              : audience === "users"
+                ? "Every account in this list is currently subscribed."
+                : "No accounts yet."}
+          </p>
 
         ) : (
-          customers.map((c) => {
+          visibleCustomers.map((c) => {
             const m = months[c.id] ?? 12;
             return (
               <article key={c.id} className="panel overflow-hidden">
@@ -394,7 +478,15 @@ function AdminPage() {
                   className="flex w-full items-start justify-between gap-3 border-b border-border bg-secondary/40 p-4 text-left transition-colors hover:bg-secondary"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate font-semibold">{c.full_name || c.email || "Unnamed coach"}</span>
+                    <span className="flex min-w-0 items-center gap-2 font-semibold">
+                      <span
+                        className={`grid size-6 shrink-0 place-items-center rounded-full ${c.active ? "bg-emerald-500/15 text-emerald-600" : "bg-muted text-muted-foreground"}`}
+                        title={c.active ? "Subscriber" : "Free user — no subscription"}
+                      >
+                        {c.active ? <CreditCard className="size-3.5" /> : <UserRound className="size-3.5" />}
+                      </span>
+                      <span className="truncate">{c.full_name || c.email || "Unnamed coach"}</span>
+                    </span>
                     <span className="block truncate text-xs text-muted-foreground">{c.email}</span>
                     <span className="block truncate text-xs text-muted-foreground">{c.club_name || "No club"} · {c.team_name || "No team"}</span>
                   </span>
@@ -412,12 +504,18 @@ function AdminPage() {
                   <div className="flex flex-wrap gap-1 text-[0.65rem]">
                     {c.is_admin && <Tag tone="admin">Admin</Tag>}
                     {c.active ? (
-                      <Tag tone="ok">{c.complimentary ? "Complimentary" : "Active"}</Tag>
+                      <Tag tone="ok">{c.complimentary ? "Complimentary subscriber" : "Subscriber"}</Tag>
                     ) : (
-                      <Tag tone="off">{c.status === "revoked" ? "Revoked" : "No access"}</Tag>
+                      <Tag tone="off">{c.status === "revoked" ? "Revoked — free user" : "Free user"}</Tag>
                     )}
                   </div>
                 </div>
+
+                <p className={`mt-2 rounded-md px-3 py-2 text-xs font-medium ${c.active ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                  {c.active
+                    ? `${c.complimentary ? "Complimentary" : "Paid"} monthly subscription — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
+                    : "No subscription — read-only account. Activating below turns on the monthly subscription (€69.90 / month)."}
+                </p>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
                   <span>Players: {c.players}</span>
@@ -445,16 +543,21 @@ function AdminPage() {
                   </select>
                   <Action
                     disabled={busy}
-                    onClick={() => act(() => grantAccess({ data: { userId: c.id, months: m } }), "Access granted.")}
+                    onClick={() =>
+                      act(
+                        () => grantAccess({ data: { userId: c.id, months: m } }),
+                        `Paid subscription active until ${endDateLabel(m)}.`,
+                      )
+                    }
                   >
-                    <CheckCircle2 className="size-3.5" /> Give paid access
+                    <CheckCircle2 className="size-3.5" /> {c.active ? "Extend subscription" : "Activate paid subscription"}
                   </Action>
                   <Action
                     disabled={busy}
                     onClick={() =>
                       act(
                         () => grantAccess({ data: { userId: c.id, months: m, complimentary: true } }),
-                        "Complimentary access granted.",
+                        `Complimentary subscription active until ${endDateLabel(m)}.`,
                       )
                     }
                   >
@@ -462,7 +565,7 @@ function AdminPage() {
                   </Action>
                   <Action
                     disabled={busy || !c.active}
-                    onClick={() => act(() => revokeAccess({ data: { userId: c.id } }), "Access revoked.")}
+                    onClick={() => act(() => revokeAccess({ data: { userId: c.id } }), "Subscription revoked — the account is now a free, read-only user.")}
                   >
                     <Ban className="size-3.5" /> Revoke
                   </Action>

@@ -20,7 +20,6 @@
 - Fitness testing: test battery with 40+ KPIs (CMJ, sprint splits, Yo-Yo, FMS, anthropometrics) and personal-best detection.
 - Alerts: notification centre for ACWR spikes, load jumps, wellness drops and availability risks, with configurable thresholds.
 - Analytics and reporting: player comparisons, squad benchmarks, pivot charts, and one-click PDF/print reports.
-- Smarty Assistant: built-in AI analyst that answers plain-language questions about squad workload, GPS, comparisons and reports.
 
 ## Who it is for
 
@@ -31,7 +30,6 @@ Football strength and conditioning coaches, fitness coaches, sports scientists, 
 - [Home](https://training4performance.com/): overview of the platform and its modules.
 - [How it works](https://training4performance.com/how-it-works): step-by-step workflow from creating a team to reading reports, plus FAQ.
 - [Pricing](https://training4performance.com/pricing): EUR 999 per season per team, what is included.
-- [Smarty Assistant](https://training4performance.com/smarty-assistant): the AI performance analyst inside T4P.
 - [About](https://training4performance.com/about): why T4P exists and what it connects.
 - [Haris Falas](https://training4performance.com/haris-falas): the creator's background.
 - [Terms](https://training4performance.com/terms), [Privacy (GDPR)](https://training4performance.com/privacy), [Disclaimer](https://training4performance.com/disclaimer)

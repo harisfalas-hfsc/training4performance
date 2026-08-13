@@ -24,13 +24,10 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SmartyAssistantRouteImport } from './routes/smarty-assistant'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
-import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedBlocksRouteImport } from './routes/_authenticated/blocks'
 import { Route as AuthenticatedBoardRouteImport } from './routes/_authenticated/board'
 import { Route as AuthenticatedCalculatorsRouteImport } from './routes/_authenticated/calculators'
@@ -47,7 +44,6 @@ import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedTrainingsRouteImport } from './routes/_authenticated/trainings'
 import { Route as AuthenticatedWellnessRouteImport } from './routes/_authenticated/wellness'
 import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players.$id'
-import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -123,11 +119,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SmartyAssistantRoute = SmartyAssistantRouteImport.update({
-  id: '/smarty-assistant',
-  path: '/smarty-assistant',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -138,11 +129,6 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAiRoute = AuthenticatedAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
@@ -151,11 +137,6 @@ const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
-  id: '/assistant',
-  path: '/assistant',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBlocksRoute = AuthenticatedBlocksRouteImport.update({
@@ -239,11 +220,6 @@ const AuthenticatedPlayersIdRoute = AuthenticatedPlayersIdRouteImport.update({
   path: '/players/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiAssistantChatRoute = ApiAssistantChatRouteImport.update({
-  id: '/api/assistant/chat',
-  path: '/api/assistant/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -260,13 +236,10 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/smarty-assistant': typeof SmartyAssistantRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/ai': typeof AuthenticatedAiRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
-  '/assistant': typeof AuthenticatedAssistantRoute
   '/blocks': typeof AuthenticatedBlocksRoute
   '/board': typeof AuthenticatedBoardRoute
   '/calculators': typeof AuthenticatedCalculatorsRoute
@@ -283,7 +256,6 @@ export interface FileRoutesByFullPath {
   '/trainings': typeof AuthenticatedTrainingsRoute
   '/wellness': typeof AuthenticatedWellnessRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
-  '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -300,13 +272,10 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/smarty-assistant': typeof SmartyAssistantRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/ai': typeof AuthenticatedAiRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
-  '/assistant': typeof AuthenticatedAssistantRoute
   '/blocks': typeof AuthenticatedBlocksRoute
   '/board': typeof AuthenticatedBoardRoute
   '/calculators': typeof AuthenticatedCalculatorsRoute
@@ -323,7 +292,6 @@ export interface FileRoutesByTo {
   '/trainings': typeof AuthenticatedTrainingsRoute
   '/wellness': typeof AuthenticatedWellnessRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
-  '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -342,13 +310,10 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/smarty-assistant': typeof SmartyAssistantRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
-  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/blocks': typeof AuthenticatedBlocksRoute
   '/_authenticated/board': typeof AuthenticatedBoardRoute
   '/_authenticated/calculators': typeof AuthenticatedCalculatorsRoute
@@ -365,7 +330,6 @@ export interface FileRoutesById {
   '/_authenticated/trainings': typeof AuthenticatedTrainingsRoute
   '/_authenticated/wellness': typeof AuthenticatedWellnessRoute
   '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
-  '/api/assistant/chat': typeof ApiAssistantChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -384,13 +348,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/sitemap.xml'
-    | '/smarty-assistant'
     | '/terms'
     | '/admin'
-    | '/ai'
     | '/alerts'
     | '/analytics'
-    | '/assistant'
     | '/blocks'
     | '/board'
     | '/calculators'
@@ -407,7 +368,6 @@ export interface FileRouteTypes {
     | '/trainings'
     | '/wellness'
     | '/players/$id'
-    | '/api/assistant/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -424,13 +384,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/sitemap.xml'
-    | '/smarty-assistant'
     | '/terms'
     | '/admin'
-    | '/ai'
     | '/alerts'
     | '/analytics'
-    | '/assistant'
     | '/blocks'
     | '/board'
     | '/calculators'
@@ -447,7 +404,6 @@ export interface FileRouteTypes {
     | '/trainings'
     | '/wellness'
     | '/players/$id'
-    | '/api/assistant/chat'
   id:
     | '__root__'
     | '/'
@@ -465,13 +421,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/sitemap.xml'
-    | '/smarty-assistant'
     | '/terms'
     | '/_authenticated/admin'
-    | '/_authenticated/ai'
     | '/_authenticated/alerts'
     | '/_authenticated/analytics'
-    | '/_authenticated/assistant'
     | '/_authenticated/blocks'
     | '/_authenticated/board'
     | '/_authenticated/calculators'
@@ -488,7 +441,6 @@ export interface FileRouteTypes {
     | '/_authenticated/trainings'
     | '/_authenticated/wellness'
     | '/_authenticated/players/$id'
-    | '/api/assistant/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -507,9 +459,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  SmartyAssistantRoute: typeof SmartyAssistantRoute
   TermsRoute: typeof TermsRoute
-  ApiAssistantChatRoute: typeof ApiAssistantChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -619,13 +569,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/smarty-assistant': {
-      id: '/smarty-assistant'
-      path: '/smarty-assistant'
-      fullPath: '/smarty-assistant'
-      preLoaderRoute: typeof SmartyAssistantRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -640,13 +583,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/ai': {
-      id: '/_authenticated/ai'
-      path: '/ai'
-      fullPath: '/ai'
-      preLoaderRoute: typeof AuthenticatedAiRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/alerts': {
       id: '/_authenticated/alerts'
       path: '/alerts'
@@ -659,13 +595,6 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/assistant': {
-      id: '/_authenticated/assistant'
-      path: '/assistant'
-      fullPath: '/assistant'
-      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/blocks': {
@@ -780,22 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlayersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/assistant/chat': {
-      id: '/api/assistant/chat'
-      path: '/api/assistant/chat'
-      fullPath: '/api/assistant/chat'
-      preLoaderRoute: typeof ApiAssistantChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
-  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedBlocksRoute: typeof AuthenticatedBlocksRoute
   AuthenticatedBoardRoute: typeof AuthenticatedBoardRoute
   AuthenticatedCalculatorsRoute: typeof AuthenticatedCalculatorsRoute
@@ -816,10 +736,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
-  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedBlocksRoute: AuthenticatedBlocksRoute,
   AuthenticatedBoardRoute: AuthenticatedBoardRoute,
   AuthenticatedCalculatorsRoute: AuthenticatedCalculatorsRoute,
@@ -857,9 +775,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  SmartyAssistantRoute: SmartyAssistantRoute,
   TermsRoute: TermsRoute,
-  ApiAssistantChatRoute: ApiAssistantChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
