@@ -27,10 +27,14 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Search Console reads <lastmod> as a crawl hint; today's date is the
+        // honest answer for pages that are served from the live deployment.
+        const lastmod = new Date().toISOString().slice(0, 10);
         const urls = entries.map((e) =>
           [
             `  <url>`,
             `    <loc>${BASE_URL}${e.path}</loc>`,
+            `    <lastmod>${lastmod}</lastmod>`,
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,

@@ -108,6 +108,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "T4P is the football performance system built for S&C coaches — squad availability, training design, GPS import, workload monitoring, wellness, testing, medical status, logbook, alerts and reports in one connected workspace.",
       },
       { name: "author", content: "Training 4 Performance" },
+      // Google Search Console ownership proof for training4performance.com.
+      // Issued by Google — do not edit or remove, or the property loses verification.
+      {
+        name: "google-site-verification",
+        content: "47uV30zNueQDIoiP5jNex2mmnbsO14YsAoxJvCJGw9k",
+      },
       { name: "theme-color", content: "#fafafa" },
       { name: "apple-mobile-web-app-title", content: "T4P" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
