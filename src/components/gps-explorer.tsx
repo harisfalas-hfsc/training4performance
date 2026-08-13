@@ -3,6 +3,7 @@ import { Download, MoveHorizontal, Trash2 } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, SERIES_COLORS, type ChartKind } from "@/components/charts";
 import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import {
   customKpis,
   fullName,
@@ -132,11 +133,6 @@ export function GpsExplorer() {
 
   const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
     set(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
-
-  const chip = (active: boolean) =>
-    `rounded-md border px-3 py-1.5 text-xs font-semibold ${
-      active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-    }`;
 
   const kpiNames = kpis.map((k) => allKpis.find((m) => m.key === k)?.label ?? k);
   const unit = kpis.length === 1 ? (allKpis.find((m) => m.key === kpis[0])?.unit ?? "") : "";
