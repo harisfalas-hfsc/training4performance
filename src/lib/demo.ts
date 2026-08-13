@@ -53,6 +53,23 @@ export function activateDemo(reseed = false) {
   setDemoMode(true);
 }
 
+/**
+ * Silently drops the sandbox (no redirect). Used when a real account is
+ * signed in — a signed-in workspace must never show the demo team.
+ */
+export function leaveDemoSilently() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(FLAG);
+  } catch {
+    /* ignore */
+  }
+  setDemoMode(false);
+  setWellnessLocalOnly(false);
+  clearWellness();
+  if (getWorkspaceScope().userId === DEMO_SCOPE) setWorkspaceScope(null);
+}
+
 /** Rebuilds the demo data from scratch (used by the "Reset demo" button). */
 export function resetDemo() {
   activateDemo(true);
