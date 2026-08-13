@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminCustomerDetail } from "@/components/admin-customer-detail";
+import { AdminSupport } from "@/components/admin-support";
 import { Button } from "@/components/ui/button";
 import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
@@ -72,7 +73,7 @@ function AdminPage() {
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
 
-  const [tab, setTab] = useState<"customers" | "teams">("customers");
+  const [tab, setTab] = useState<"customers" | "teams" | "support">("customers");
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -253,17 +254,27 @@ function AdminPage() {
       </div>
 
       <div className="mt-4 flex gap-2">
-        {(["customers", "teams"] as const).map((t) => (
+        {(["customers", "teams", "support"] as const).map((t) => (
           <Button
             key={t}
             variant={tab === t ? "default" : "outline"}
             size="sm"
             onClick={() => setTab(t)}
           >
-            {t === "customers" ? "Customers" : `All teams & squads (${teams.length})`}
+            {t === "customers"
+              ? "Customers"
+              : t === "teams"
+                ? `All teams & squads (${teams.length})`
+                : "Support & messages"}
           </Button>
         ))}
       </div>
+
+      {tab === "support" && (
+        <AdminSupport
+          customers={customers.map((c) => ({ id: c.id, email: c.email, full_name: c.full_name }))}
+        />
+      )}
 
       {tab === "teams" && (
         <div className="mt-4 space-y-3">
