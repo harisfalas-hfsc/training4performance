@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { parseDrawing, TacticsBoard } from "@/components/tactics-board";
+
 import { LIBRARY_CATEGORIES, normalizeCategory } from "@/data/library-categories";
 import { allDrills, allStrengthExercises } from "@/data/presets";
 import type { SessionPlanItem } from "@/data/performance";
