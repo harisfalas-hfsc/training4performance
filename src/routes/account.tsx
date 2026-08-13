@@ -11,6 +11,9 @@ import { deleteMyAccount, requestSubscription, setAutoRenew } from "@/lib/suppor
 import { hydrateWorkspace } from "@/lib/usage";
 import { downloadWorkspaceZip } from "@/lib/workspace-export";
 import { PRICE_FULL, PRICE_LABEL, formatDate } from "@/lib/pricing";
+import { createPortalSession } from "@/utils/payments.functions";
+import { PaymentTestModeBanner, StripeEmbeddedCheckout } from "@/components/stripe-checkout";
+import { SEASON_PRICE_ID, getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -31,6 +34,8 @@ function Account() {
   const subscribeFn = useServerFn(requestSubscription);
   const autoRenewFn = useServerFn(setAutoRenew);
   const deleteAccountFn = useServerFn(deleteMyAccount);
+  const portalFn = useServerFn(createPortalSession);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
