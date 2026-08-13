@@ -43,19 +43,15 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
     const entry = learned ? null : findSupportAnswer(question);
     const body = learned?.answer ?? entry?.answer ?? SUPPORT_FALLBACK;
     if (learned) {
-      const current = (learnedRows ?? []).find((r) => r.id === learned.id) as { id: string } | undefined;
-      if (current) {
-        await supabaseAdmin.rpc; // no-op guard for typing
-        const { data: row } = await supabaseAdmin
-          .from("support_learned")
-          .select("uses")
-          .eq("id", learned.id)
-          .maybeSingle();
-        await supabaseAdmin
-          .from("support_learned")
-          .update({ uses: (row?.uses ?? 0) + 1 })
-          .eq("id", learned.id);
-      }
+      const { data: row } = await supabaseAdmin
+        .from("support_learned")
+        .select("uses")
+        .eq("id", learned.id)
+        .maybeSingle();
+      await supabaseAdmin
+        .from("support_learned")
+        .update({ uses: (row?.uses ?? 0) + 1 })
+        .eq("id", learned.id);
     }
 
     // Do not repeat the same answer twice in a row.
