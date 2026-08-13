@@ -46,6 +46,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
 import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
+import { Training4Performance } from "@/components/brand-text";
 
 const nav = platformNav;
 
@@ -153,7 +154,11 @@ export function AppShell({
               <img
                 src="/logo-t4p.png"
                 alt="Training 4 Performance logo"
-                className="t4p-logo size-9 shrink-0 object-contain sm:size-10"
+                className="t4p-logo size-9 shrink-0 object-contain sm:hidden"
+              />
+              <Training4Performance
+                uppercase
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm"
               />
             </Link>
 

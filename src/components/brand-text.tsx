@@ -27,9 +27,9 @@ export function T4P({ className }: { className?: string }) {
   );
 }
 
-export function Training4Performance({ className }: { className?: string }) {
+export function Training4Performance({ className, uppercase = false }: { className?: string; uppercase?: boolean }) {
   return (
-    <span className={cn("font-semibold text-brand-blue", className)}>
+    <span className={cn("font-semibold text-brand-blue", uppercase && "uppercase tracking-wide", className)}>
       Training <Glyph4 /> Performance
     </span>
   );
