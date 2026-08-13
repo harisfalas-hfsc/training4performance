@@ -206,7 +206,7 @@ const faq = [
   },
   {
     q: "What does the subscription cost and what does it cover?",
-    a: "€999 per season for one team. The season runs 1 June to 31 May, every module is included and there is no per-user fee.",
+    a: "€69.90 per month for one team, cancel any time. Every module is included and there is no per-user fee.",
   },
   {
     q: (

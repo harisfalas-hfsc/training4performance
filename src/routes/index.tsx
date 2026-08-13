@@ -191,7 +191,7 @@ function Home() {
             </Link>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            €999 per season, per team · every module included
+            €69.90 per month, per team · cancel any time
           </p>
         </div>
       </section>
@@ -228,7 +228,7 @@ function Home() {
               </Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              €999 per season, per team · every module included
+              €69.90 per month, per team · cancel any time
             </p>
           </div>
         </div>
@@ -441,10 +441,10 @@ function Home() {
 
       <section className="mx-auto max-w-3xl px-5 py-10 text-center">
         <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
-          Ready for the season?
+          Ready to start?
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          The season runs 1 June to 31 May. One subscription covers your team and your whole staff.
+          €69.90 per month, cancel any time. One subscription covers your team and your whole staff.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link

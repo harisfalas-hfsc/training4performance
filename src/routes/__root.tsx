@@ -235,11 +235,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             ],
             offers: {
               "@type": "Offer",
-              price: "999",
+              price: "69.90",
               priceCurrency: "EUR",
               url: `${SITE_URL}/pricing`,
               availability: "https://schema.org/InStock",
-              category: "Season subscription (1 June – 31 May), one team, unlimited staff users",
+              category: "Monthly subscription, one team, unlimited staff users",
             },
             publisher: { "@id": ORGANIZATION_ID },
             isPartOf: { "@id": WEBSITE_ID },

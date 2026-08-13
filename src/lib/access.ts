@@ -58,7 +58,7 @@ export function guardWrite(): boolean {
   if (writeAllowed) return true;
   notice(
     "Subscription required",
-    "Browsing is free — adding or editing data needs an active team subscription (€999 / season).",
+    "Your data stays readable and exportable — adding or editing needs an active subscription (€69.90 / month).",
   );
   return false;
 }

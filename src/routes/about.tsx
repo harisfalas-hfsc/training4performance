@@ -205,7 +205,7 @@ const includes = [
 ];
 
 const facts = [
-  { k: "€999", v: "per season, per team" },
+  { k: "€69.90", v: "per month, per team" },
   { k: "Unlimited", v: "players and staff users" },
   { k: "No GPS?", v: "the full system still works" },
   { k: "GDPR", v: "European infrastructure" },
