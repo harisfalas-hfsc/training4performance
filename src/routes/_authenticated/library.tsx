@@ -13,6 +13,7 @@ import {
   removeSavedBlock,
   saveBlockTemplate,
   savedBlocks,
+  updateSavedBlock,
   useLibraryVersion,
   type SavedBlock,
 } from "@/data/presets";
