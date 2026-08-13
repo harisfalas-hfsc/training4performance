@@ -157,23 +157,30 @@ function MenuLink({
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-surface-2/40">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-5 py-6 sm:flex-row sm:justify-between">
-        <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
-          <Training4Performance />
-        </p>
-        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-          <Link to="/terms" className="hover:text-foreground">
-            Terms &amp; Conditions
-          </Link>
-          <Link to="/privacy" className="hover:text-foreground">
-            Privacy Policy
-          </Link>
-          <Link to="/disclaimer" className="hover:text-foreground">
-            Disclaimer
-          </Link>
-        </nav>
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:py-10">
+        <FederationTrust />
+
+        <div className="mt-8 flex flex-col items-center gap-5 sm:mt-10 sm:flex-row sm:justify-between">
+          <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
+            <Training4Performance />
+          </p>
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <Link to="/terms" className="hover:text-foreground">
+              Terms &amp; Conditions
+            </Link>
+            <Link to="/privacy" className="hover:text-foreground">
+              Privacy Policy
+            </Link>
+            <Link to="/disclaimer" className="hover:text-foreground">
+              Disclaimer
+            </Link>
+            <Link to="/manual" className="hover:text-foreground">
+              Manual
+            </Link>
+          </nav>
+        </div>
       </div>
-      <div className="border-t border-border px-5 py-4 text-center text-[0.7rem] text-muted-foreground">
+      <div className="border-t border-border px-5 py-5 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} <Training4Performance />. All rights reserved.
       </div>
     </footer>
