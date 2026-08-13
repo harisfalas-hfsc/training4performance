@@ -4,7 +4,7 @@
 
 - Website: https://training4performance.com/
 - Creator: Haris Falas, sports scientist and strength & conditioning coach in professional football (Cyprus)
-- Price: EUR 999 per season, per team. Season runs 1 June to 31 May. Unlimited players, unlimited staff users, every module included.
+- Price: EUR 699 per season, per team. A season is 365 days from the day you subscribe, renewing automatically. Unlimited players, unlimited staff users, every module included.
 - Language: English. Hosting and data processing: European infrastructure, GDPR.
 
 ## What T4P does
@@ -29,7 +29,7 @@ Football strength and conditioning coaches, fitness coaches, sports scientists, 
 
 - [Home](https://training4performance.com/): overview of the platform and its modules.
 - [How it works](https://training4performance.com/how-it-works): step-by-step workflow from creating a team to reading reports, plus FAQ.
-- [Pricing](https://training4performance.com/pricing): EUR 999 per season per team, what is included.
+- [Pricing](https://training4performance.com/pricing): EUR 699 per season per team, what is included.
 - [About](https://training4performance.com/about): why T4P exists and what it connects.
 - [Haris Falas](https://training4performance.com/haris-falas): the creator's background.
 - [Terms](https://training4performance.com/terms), [Privacy (GDPR)](https://training4performance.com/privacy), [Disclaimer](https://training4performance.com/disclaimer)

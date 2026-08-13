@@ -38,7 +38,7 @@ export const Route = createFileRoute("/terms")({
         <h2>2. Subscription and billing</h2>
         <ul>
           <li>A team subscription costs €699 per season, billed yearly in advance, and covers one team.</li>
-          <li>The subscription renews automatically every month until it is cancelled, and can be cancelled at any time from the account area; access continues until the end of the paid month.</li>
+          <li>The subscription renews automatically every 365 days until it is cancelled, and can be cancelled at any time from the account area; access continues until the end of the paid season.</li>
           <li>Prices are in euro and exclude VAT, which is added where legally applicable.</li>
           <li>The subscriber owns the account and the data inside it, and can export or delete it at any time.</li>
         </ul>
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/terms")({
 
         <h2>8. Termination</h2>
         <p>
-          A subscription runs month to month and may be cancelled at any time, taking effect at the end of the current paid month. After a cancellation, expiry or failed payment the account switches to read-only: all data, reports and exports remain available, but no new records can be created or edited until the subscription is resumed. <T4P /> may suspend
+          A subscription runs for 365 days from the start date and may be cancelled at any time, taking effect at the end of the current paid season. After a cancellation, expiry or failed payment the account switches to read-only: all data, reports and exports remain available, but no new records can be created or edited until the subscription is resumed. <T4P /> may suspend
           or terminate access in the event of material breach of these terms or non-payment, following notice.
           On termination, the Customer may request an export of its data within 30 days.
         </p>

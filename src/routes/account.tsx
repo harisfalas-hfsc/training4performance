@@ -222,7 +222,7 @@ function Account() {
                     )}
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Cancelling stops the next payment. You keep full access until the end of the paid month, then the
+                    Cancelling stops the next payment. You keep full access until the end of the paid season, then the
                     account becomes read-only — all your data, charts, reports and exports stay available.
                   </p>
                 </>

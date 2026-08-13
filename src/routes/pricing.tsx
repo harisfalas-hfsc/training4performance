@@ -55,7 +55,7 @@ export const Route = createFileRoute("/pricing")({
         url: `${SITE_URL}/pricing`,
         offers: {
           "@type": "Offer",
-          price: "69.90",
+          price: "699.00",
           priceCurrency: "EUR",
           url: `${SITE_URL}/pricing`,
           availability: "https://schema.org/InStock",
@@ -99,7 +99,7 @@ const notes = [
   },
   {
     t: "Yearly billing, cancel any time",
-    d: "€699 is charged every month and renews automatically until you cancel. Cancel from your account and you keep full access until the end of the paid month. Prices are in euro and exclude VAT where applicable.",
+    d: "€699 is charged every month and renews automatically until you cancel. Cancel from your account and you keep full access until the end of the paid season. Prices are in euro and exclude VAT where applicable.",
     tone: "border-brand-amber/25",
     label: "text-brand-amber",
   },

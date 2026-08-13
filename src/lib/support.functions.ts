@@ -94,7 +94,7 @@ export const setAutoRenew = createServerFn({ method: "POST" })
       kind: data.cancel ? "warning" : "success",
       title: data.cancel ? "Subscription cancelled" : "Subscription resumed",
       body: data.cancel
-        ? `Automatic renewal is off. You keep full access until ${sub?.season_end ?? "the end of the paid month"}, then the account becomes read-only — your data, reports and exports stay available.`
+        ? `Automatic renewal is off. You keep full access until ${sub?.season_end ?? "the end of the paid season"}, then the account becomes read-only — your data, reports and exports stay available.`
         : "Automatic yearly renewal is back on. Nothing else to do.",
     });
     return { ok: true };
