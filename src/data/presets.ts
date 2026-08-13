@@ -1,9 +1,6 @@
 /**
- * Training presets — taken from the "DATA" sheet of
- * SALAMINA_FC_LOGBOOK_TRAINING_MONITOR.xlsx.
- *
- * Everything here is a *default*: staff can add their own entries, which are
- * persisted in the browser and merged on top of the defaults.
+ * Generic training presets for football performance planning.
+ * Staff can add their own entries, which are persisted in their account only.
  */
 
 import type { SessionPlanItem } from "@/data/performance";
@@ -282,7 +279,7 @@ export const LIFT_PATTERNS: LiftPattern[] = [
 /* Custom (user) library, persisted locally                            */
 /* ------------------------------------------------------------------ */
 
-const KEY = "t4p.library.v2";
+const KEY = "t4p.library.v3";
 
 /** A saved block: the block name plus every drill/exercise inside it. */
 export interface SavedBlock {
@@ -320,7 +317,7 @@ const state: LibraryState = { strength: [], drills: [], blockNames: [], blocks: 
 const listeners = new Set<() => void>();
 let version = 0;
 
-function load(userId: string | null, migrateLegacy: boolean) {
+function load(userId: string | null, _migrateLegacy: boolean) {
   state.strength = [];
   state.drills = [];
   state.blockNames = [];
@@ -330,11 +327,7 @@ function load(userId: string | null, migrateLegacy: boolean) {
   try {
     const key = scopedStorageKey(KEY, userId);
     if (!key) return;
-    let raw = window.localStorage.getItem(key);
-    if (!raw && migrateLegacy) {
-      raw = window.localStorage.getItem(KEY);
-      if (raw) window.localStorage.setItem(key, raw);
-    }
+    const raw = window.localStorage.getItem(key);
     if (raw) {
       const s = JSON.parse(raw) as Partial<LibraryState>;
       state.strength = s.strength ?? [];

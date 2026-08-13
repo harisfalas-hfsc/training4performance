@@ -157,7 +157,7 @@ export interface SavedTemplate {
   savedAt: string;
 }
 
-const TEMPLATE_KEY = "t4p.gps.templates.v2";
+const TEMPLATE_KEY = "t4p.gps.templates.v3";
 
 const signature = (headers: string[]) => headers.map((h) => norm(h)).sort().join("|");
 

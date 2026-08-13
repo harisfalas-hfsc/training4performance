@@ -7,8 +7,8 @@
  *
  * Two formulas are supported:
  *
- * 1. "ratio" — the method used in the original Salamina FC training monitor
- *    workbook, where every metric is divided by the squad average of that metric:
+ * 1. "ratio" — a squad-ratio composite where every metric is divided by the
+ *    squad average of that metric:
  *
  *      load = 100 x  Σ ( w_i x  value_i / mean_i ) / Σ w_i
  *

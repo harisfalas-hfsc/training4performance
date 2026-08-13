@@ -264,7 +264,7 @@ const CHAPTERS: Chapter[] = [
     linkLabel: "Open the load model",
     steps: [
       "Open GPS Reports. The card 'Training load model' is on both the Reports and the Import tab.",
-      "Choose the formula. 'Squad-ratio composite' is the recommended one and is the same method used in the original Salamina FC training-monitor workbook.",
+      "Choose the formula. 'Squad-ratio composite' is recommended when you want one unit-free load score built from several GPS metrics.",
       "Choose the KPIs and their weights. Weight 0 means the KPI is not used. Distance, high-speed running, sprint distance, accelerations, decelerations and jumps are on by default; any club KPI found in your own upload can be added too.",
       "The load is INDIVIDUAL. Every player-session row gets its own load number, built only from that player's own values on that day — never from the squad's numbers of that day.",
       "The squad average is only the scale, not the value. Each KPI is divided by a team reference number (the average of that KPI across every player-session you have imported) so metres, counts, joules and jump counts can be added into one figure without unit problems.",
