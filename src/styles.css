@@ -386,23 +386,10 @@ textarea.control {
   content: url("/logo-t4p-dark.png");
 }
 
-/* Inline brand glyph: one stable mark whose two layers are coloured by the
-   active semantic theme. No image source is swapped when the theme changes. */
-.t4p-glyph-primary,
-.t4p-glyph-accent {
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: contain;
-  transition: background-color 150ms ease;
-}
-.t4p-glyph-primary {
-  background-color: var(--color-foreground);
-  mask-image: url("/glyph-4-primary-mask.png?v=2");
-}
-.t4p-glyph-accent {
-  background-color: var(--color-brand-blue);
-  mask-image: url("/glyph-4-accent-mask.png?v=2");
-}
+/* Inline brand glyph uses the exact logo artwork in both theme variants. */
+.t4p-glyph-dark { display: none; }
+.dark .t4p-glyph-light { display: none; }
+.dark .t4p-glyph-dark { display: block; }
 
 
 
