@@ -131,9 +131,6 @@ export function GpsExplorer() {
       })
     : kpis.map((k) => ({ key: k, name: allKpis.find((m) => m.key === k)?.label ?? k }));
 
-  const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
-    set(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
-
   const kpiNames = kpis.map((k) => allKpis.find((m) => m.key === k)?.label ?? k);
   const unit = kpis.length === 1 ? (allKpis.find((m) => m.key === kpis[0])?.unit ?? "") : "";
   const whoLabel =
