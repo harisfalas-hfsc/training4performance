@@ -26,7 +26,6 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { canWrite } from "@/lib/access";
 import { isDemoActive } from "@/lib/demo";
-import { buildDemoAccess } from "@/data/demo-seed";
 
 export const Route = createFileRoute("/_authenticated/wellness")({
   head: () => ({
@@ -417,7 +416,7 @@ function AccessTab() {
 
   const refresh = async () => {
     if (isDemoActive()) {
-      setRows(buildDemoAccess());
+      setRows([]);
       return;
     }
     if (!user?.id) return;

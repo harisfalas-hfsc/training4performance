@@ -97,37 +97,4 @@ export interface ScheduledExport {
   lastSent?: string;
 }
 
-export const DEFAULT_SCHEDULES: ScheduledExport[] = [
-  {
-    id: "sch-1",
-    templateId: "tpl-hc-weekly",
-    cadence: "Weekly (Mon)",
-    format: "PDF",
-    recipients: "head.coach@t4p.club, assistant@t4p.club",
-    from: "2026-08-03",
-    to: "2026-08-09",
-    active: true,
-    lastSent: "2026-08-10 07:30",
-  },
-  {
-    id: "sch-2",
-    templateId: "tpl-fitness-block",
-    cadence: "Monthly",
-    format: "Excel",
-    recipients: "fitness@t4p.club",
-    from: "2026-07-14",
-    to: "2026-08-10",
-    active: true,
-    lastSent: "2026-08-01 06:00",
-  },
-  {
-    id: "sch-3",
-    templateId: "tpl-medical-rtp",
-    cadence: "Match day -1",
-    format: "PDF",
-    recipients: "medical@t4p.club",
-    from: "2026-07-28",
-    to: "2026-08-10",
-    active: false,
-  },
-];
+export const DEFAULT_SCHEDULES: ScheduledExport[] = [];

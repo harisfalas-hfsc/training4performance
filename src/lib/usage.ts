@@ -39,18 +39,11 @@ export async function hydrateWorkspace(userId: string) {
     if (error) hydratedUser = null;
     return;
   }
-  const local = workspaceSnapshot();
-  const localHasData =
-    local.players.length > 0 || local.sessions.length > 0 || local.gpsHistory.length > 0 || local.manualTests.length > 0;
   if (!data) {
-    // Nothing in the cloud yet: never wipe what is already in this browser —
-    // push it up instead so the next device gets it.
-    if (localHasData) {
-      void syncWorkspace(userId);
-      return;
-    }
+    // The cloud is authoritative. An empty workspace must stay empty; never
+    // resurrect retired browser data after an account or workspace purge.
     applyWorkspaceData({
-      team: { id: `team-${userId}`, name: "First Team", club: "Your club", season: "2025/26", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "" },
+      team: { id: `team-${userId}`, name: "", club: "", season: "", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "", configured: false },
       players: [],
       sessions: [],
       gpsHistory: [],
@@ -62,14 +55,6 @@ export async function hydrateWorkspace(userId: string) {
     return;
   }
   const cloudPlayers = (data.players ?? []) as unknown as Player[];
-  const cloudEmpty =
-    (!Array.isArray(cloudPlayers) || cloudPlayers.length === 0) &&
-    !((data.sessions as unknown as Session[])?.length) &&
-    !((data.gps_history as unknown as GpsDay[])?.length);
-  if (cloudEmpty && localHasData) {
-    void syncWorkspace(userId);
-    return;
-  }
   applyWorkspaceData({
     team: data.team as unknown as Team,
     players: cloudPlayers,

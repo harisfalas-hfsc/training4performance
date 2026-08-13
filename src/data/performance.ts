@@ -195,9 +195,9 @@ export interface MedicalEvent {
 
 export const team: Team = {
   id: "team-unassigned",
-  name: "First Team",
-  club: "Your club",
-  season: "2025/26",
+  name: "",
+  club: "",
+  season: "",
   competition: "",
   ageGroup: "Senior",
   gender: "Male",
@@ -205,7 +205,7 @@ export const team: Team = {
   fitnessCoach: "",
 };
 
-export const squadName = "First Team Squad";
+export const squadName = "Squad";
 
 /* ------------------------------------------------------------------ */
 /* No seed data — every workspace starts empty                         */
@@ -294,9 +294,9 @@ export interface WorkspaceData {
   medicalEvents: MedicalEvent[];
 }
 
-// v3 intentionally starts every real account clean. Never recover old uploaded
-// reference data from the retired unscoped/v1/v2 browser stores.
-const STORAGE_KEY = "t4p.data.v3";
+// v4 permanently invalidates every earlier browser workspace. Never recover
+// retired uploaded, seeded, demo, or reference data from older stores.
+const STORAGE_KEY = "t4p.data.v4";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -385,9 +385,9 @@ function hydrate(userId: string | null, _migrateLegacy: boolean) {
   replace(medicalEvents, []);
   Object.assign(team, {
     id: userId ? `team-${userId}` : "team-unassigned",
-    name: "First Team",
-    club: "Your club",
-    season: "2025/26",
+    name: "",
+    club: "",
+    season: "",
     competition: "",
     ageGroup: "Senior",
     gender: "Male",

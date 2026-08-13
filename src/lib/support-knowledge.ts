@@ -17,16 +17,36 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
   {
     id: "overview",
     keywords: [
-      "how this platform works", "how the platform works", "how it works", "platform", "works", "work",
-      "overview", "getting started", "get started", "start", "begin", "what can i do", "features",
+      "how this platform works",
+      "how the platform works",
+      "how it works",
+      "platform",
+      "works",
+      "work",
+      "overview",
+      "getting started",
+      "get started",
+      "start",
+      "begin",
+      "what can i do",
+      "features",
     ],
     answer:
       "In short, T4P follows one line: team → players → what they do. 1) Create the club, team and season in Team & players and add your squad (or let a GPS upload create the missing names). 2) Plan the week in Calendar and build each session in Training Designer as blocks with minutes, planned RPE and drill tags. 3) After the session, upload the GPS file or type duration + RPE — both feed the same load model, so ACWR, monotony and strain are always complete. 4) Players answer the daily wellness questionnaire in the portal. 5) Analytics & reports then answers any question the same way every time: choose the report (GPS, fitness tests, training, wellness), choose who (whole squad, several players, one player), then the KPI, the dates and the chart. Wellness & alerts watches the thresholds in the background and anything triggered lands in your notifications. The full step-by-step manual is at the [platform manual](/manual).",
   },
   {
-
     id: "subscription-price",
-    keywords: ["price", "pricing", "cost", "how much", "69", "per year", "season", "fee", "expensive"],
+    keywords: [
+      "price",
+      "pricing",
+      "cost",
+      "how much",
+      "69",
+      "per year",
+      "season",
+      "fee",
+      "expensive",
+    ],
     answer:
       "T4P is €699 per season per team, billed yearly and cancellable at any time. One account manages one team with unlimited players, sessions, GPS files and reports. You can see the full breakdown on the [Pricing page](/pricing).",
   },
@@ -44,7 +64,15 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
   },
   {
     id: "read-only",
-    keywords: ["read only", "read-only", "cannot edit", "can't edit", "locked", "view only", "no access"],
+    keywords: [
+      "read only",
+      "read-only",
+      "cannot edit",
+      "can't edit",
+      "locked",
+      "view only",
+      "no access",
+    ],
     answer:
       "Read-only means your subscription is not active yet or has lapsed. You can browse every page and export your data, but saving is blocked. Activate the yearly subscription from [Manage account](/account) and full editing is unlocked immediately.",
   },
@@ -68,13 +96,31 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
   },
   {
     id: "gps-upload",
-    keywords: ["gps", "upload", "import", "catapult", "statsports", "gpexe", "polar", "csv", "excel", "file"],
+    keywords: [
+      "gps",
+      "upload",
+      "import",
+      "catapult",
+      "statsports",
+      "gpexe",
+      "polar",
+      "csv",
+      "excel",
+      "file",
+    ],
     answer:
       "Open GPS reports → upload and drag the file straight out of your GPS software — Catapult, STATSports, GPEXE, Polar or your own club layout. Columns are detected automatically, players are matched by name, and you attach the file to a planned session or let it create the activity for that date.",
   },
   {
     id: "load-model",
-    keywords: ["load", "load model", "kpi weight", "weighting", "how is load calculated", "training load"],
+    keywords: [
+      "load",
+      "load model",
+      "kpi weight",
+      "weighting",
+      "how is load calculated",
+      "training load",
+    ],
     answer:
       "Load is calculated from the KPIs you choose and the weight you give each one — distance, high-speed running, accelerations, decelerations and jumps. Each player is measured against his own reference, so the load is individual. On days with no GPS, duration × RPE (0-10) gives the load instead, and both add up on the same weekly line.",
   },
@@ -145,14 +191,16 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
       "The logbook is the scrollable season record: every completed session with its RPE and load, switchable between session view, player view and pivot summaries. It is the audit trail behind every number in analytics.",
   },
   {
-    id: "demo",
-    keywords: ["demo", "try", "sandbox", "test drive"],
-    answer:
-      "The live demo at /demo is a sandbox with one team and five players. It behaves exactly like the real platform except that nothing is saved to your account and exports are disabled.",
-  },
-  {
     id: "password",
-    keywords: ["password", "reset password", "forgot", "sign in", "login", "log in", "email change"],
+    keywords: [
+      "password",
+      "reset password",
+      "forgot",
+      "sign in",
+      "login",
+      "log in",
+      "email change",
+    ],
     answer:
       "Use 'Forgot password' on the sign-in page and a reset link is emailed to you. Sign-in is email and password only. If the email address on the account is wrong, reply here with the correct one and we will change it for you.",
   },
@@ -177,12 +225,41 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
 ];
 
 const STOP = new Set([
-  "the", "a", "an", "and", "or", "to", "of", "in", "on", "for", "is", "are", "do", "does",
-  "how", "what", "why", "can", "i", "you", "my", "me", "it", "this", "that", "with", "we",
+  "the",
+  "a",
+  "an",
+  "and",
+  "or",
+  "to",
+  "of",
+  "in",
+  "on",
+  "for",
+  "is",
+  "are",
+  "do",
+  "does",
+  "how",
+  "what",
+  "why",
+  "can",
+  "i",
+  "you",
+  "my",
+  "me",
+  "it",
+  "this",
+  "that",
+  "with",
+  "we",
 ]);
 
 function normalise(text: string) {
-  return text.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").replace(/\s+/g, " ").trim();
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
