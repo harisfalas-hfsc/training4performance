@@ -252,7 +252,9 @@ function Home() {
                 <p className="mt-3 font-display text-lg font-semibold uppercase tracking-wide">
                   {b.t}
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground"><BrandCopy>{b.d}</BrandCopy></p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <BrandCopy>{b.d}</BrandCopy>
+                </p>
               </div>
             ))}
           </div>
