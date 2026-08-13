@@ -18,7 +18,6 @@ import {
 } from "@/data/presets";
 import { LIBRARY_CATEGORIES, normalizeCategory } from "@/data/library-categories";
 import type { SessionPlanItem } from "@/data/performance";
-import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({
