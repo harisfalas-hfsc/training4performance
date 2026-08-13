@@ -157,7 +157,7 @@ function Home() {
               onClick={openDemo}
               className="inline-flex h-12 items-center justify-center rounded-full border-2 border-primary text-sm font-semibold text-primary"
             >
-              Try shared demo
+              Try demo
             </Link>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
@@ -192,7 +192,7 @@ function Home() {
                 onClick={openDemo}
                 className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-primary px-8 text-sm font-semibold text-primary"
               >
-                Try shared demo
+                Try demo
               </Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
