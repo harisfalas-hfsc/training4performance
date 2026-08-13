@@ -9,8 +9,14 @@ import { seoHead } from "@/lib/seo";
 
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" } =>
-    search["mode"] === "signup" ? { mode: "signup" } : {},
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin"; next?: string } => {
+    const out: { mode?: "signup" | "signin"; next?: string } = {};
+    if (search["mode"] === "signup") out.mode = "signup";
+    // Only same-origin relative paths are honoured as a post-login redirect.
+    const next = search["next"];
+    if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) out.next = next;
+    return out;
+  },
 
   head: () => ({
     ...seoHead({
