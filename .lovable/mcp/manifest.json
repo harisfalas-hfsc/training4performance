@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://rxmrersjivfpcjyznqyb.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "training-4-performance",
+      "version": "0.1.0",
+      "title": "TRAINING 4 PERFORMANCE"
+    },
+    "tools": [
+      {
+        "name": "get_team_overview",
+        "title": "Get team overview",
+        "description": "Summarise the signed-in coach's T4P workspace: team details, squad size, number of training sessions, GPS imports and fitness test records.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_players",
+        "title": "List players",
+        "description": "List the players in the signed-in coach's squad, optionally filtered by a name search.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Optional case-insensitive name filter.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum players to return (default 50).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_sessions",
+        "title": "List training sessions",
+        "description": "List the signed-in coach's planned or completed training sessions from the T4P calendar, newest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "from": {
+              "description": "Only sessions on/after this ISO date (YYYY-MM-DD).",
+              "type": "string"
+            },
+            "to": {
+              "description": "Only sessions on/before this ISO date (YYYY-MM-DD).",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum sessions to return (default 30).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_wellness",
+        "title": "List wellness entries",
+        "description": "List recent daily wellness questionnaire entries (sleep, fatigue, soreness, stress, mood, readiness) submitted by the signed-in coach's players.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "playerId": {
+              "description": "Optional player id to filter by.",
+              "type": "string"
+            },
+            "from": {
+              "description": "Only entries on/after this ISO date (YYYY-MM-DD).",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum entries to return (default 50).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_notifications",
+        "title": "List notifications",
+        "description": "List the signed-in user's T4P notifications (alerts, billing and account messages), newest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "unreadOnly": {
+              "description": "Return only unread notifications.",
+              "type": "boolean"
+            },
+            "limit": {
+              "description": "Maximum notifications to return (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
