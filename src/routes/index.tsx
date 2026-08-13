@@ -227,7 +227,10 @@ function Home() {
       {/* MOBILE hero — centered text */}
       <section className="border-b border-border sm:hidden">
         <div className="px-5 pb-8 pt-5 text-center">
-          <p className="text-sm text-muted-foreground">
+          <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">
+            The football performance system for S&amp;C coaches that connects everything
+          </h1>
+          <p className="mt-5 text-sm text-muted-foreground">
             <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
             brings every player record, training session, GPS report, wellness entry, test result
             and medical note into one connected workspace.
@@ -257,7 +260,10 @@ function Home() {
       <section className="relative hidden overflow-hidden border-b border-border sm:block">
         <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-14 text-center">
           <div className="mx-auto max-w-4xl">
-            <p className="mx-auto max-w-3xl text-base text-muted-foreground lg:text-lg">
+            <h1 className="mx-auto max-w-4xl font-display text-4xl font-semibold leading-tight text-foreground lg:text-5xl">
+              The football performance system for S&amp;C coaches that connects everything
+            </h1>
+            <p className="mx-auto mt-5 max-w-3xl text-base text-muted-foreground lg:text-lg">
               <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
               brings every player record, training session, GPS report, wellness entry, test result
               and medical note into one connected workspace — so you spend less time switching files
