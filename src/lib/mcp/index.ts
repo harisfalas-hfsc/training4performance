@@ -23,5 +23,5 @@ export default defineMcp({
     listSessions,
     listWellness,
     listNotifications,
-  ] as unknown as AnyToolDefinition[],
+  ] as unknown as Parameters<typeof defineMcp>[0]["tools"],
 });
