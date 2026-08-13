@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { LogOut, Shield, User } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
-import { SmartyAssistant } from "@/components/smarty-assistant";
 import { Training4Performance } from "@/components/brand-text";
 
 import { DiscoverMenu } from "@/components/discover-menu";
@@ -171,7 +170,6 @@ export function MarketingPage({
       <SiteHeader />
       <main className={cn("flex-1", className)}>{children}</main>
       <SiteFooter />
-      <SmartyAssistant />
     </div>
   );
 }

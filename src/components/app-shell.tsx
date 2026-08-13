@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { SmartyAssistant } from "@/components/smarty-assistant";
 
 
 import {
@@ -240,7 +239,6 @@ export function AppShell({
         <main className="flex-1 p-4 sm:p-5">{children}</main>
         <SiteFooter />
       </div>
-      <SmartyAssistant />
     </div>
   );
 

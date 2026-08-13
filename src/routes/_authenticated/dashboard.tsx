@@ -203,8 +203,8 @@ function Dashboard() {
             title="Who needs attention?"
             hint="Automatically derived from workload, exposure and wellness"
             right={
-              <Link to="/ai" className="text-xs font-medium text-primary hover:underline">
-                Full AI analysis
+              <Link to="/analytics" className="text-xs font-medium text-primary hover:underline">
+                Open analytics
               </Link>
             }
           />

@@ -3,7 +3,7 @@ import {
   Activity,
   BarChart3,
   BellRing,
-  BrainCircuit,
+  LifeBuoy,
   CalendarDays,
   ClipboardPen,
   BookOpen,
@@ -94,9 +94,9 @@ const features = [
     color: "#4f46e5",
   },
   {
-    icon: BrainCircuit,
-    title: "AI assistant",
-    text: "Daily observations and suggested adjustments for tomorrow's plan.",
+    icon: LifeBuoy,
+    title: "Help when you need it",
+    text: "Ask a question from your account and get an answer in the communication centre.",
     color: "#9333ea",
   },
 ];
