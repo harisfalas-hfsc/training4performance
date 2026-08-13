@@ -62,7 +62,7 @@ function AddPlayerForm({ onDone }: { onDone: () => void }) {
       onSubmit={(e) => {
         e.preventDefault();
         if (!form.firstName.trim() || !form.lastName.trim()) return;
-        addPlayer({
+        const created = addPlayer({
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
           position: form.position,
@@ -72,6 +72,9 @@ function AddPlayerForm({ onDone }: { onDone: () => void }) {
           heightCm: Number(form.heightCm) || 180,
           weightKg: Number(form.weightKg) || 75,
         });
+        // Rejected (duplicate name / shirt number, or read-only): keep the
+        // typed values on screen so the coach can correct them.
+        if (!created) return;
         onDone();
       }}
     >

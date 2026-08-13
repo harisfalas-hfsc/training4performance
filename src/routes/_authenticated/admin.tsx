@@ -78,6 +78,22 @@ function endDateLabel(months: number) {
   return d.toLocaleDateString();
 }
 
+/**
+ * Access date shown on a customer card. A date only means something while the
+ * subscription is live: once it is revoked or expired the stored season_end is
+ * history, so it is labelled instead of being presented as active access.
+ */
+function accessUntilLabel(c: { active?: boolean; status?: string | null; season_end?: string | null }) {
+  if (c.active && c.season_end) return new Date(c.season_end).toLocaleDateString();
+  if (c.status === "pending") return "awaiting activation";
+  if (!c.season_end) return "—";
+  const label = new Date(c.season_end).toLocaleDateString();
+  if (c.status === "revoked") return `revoked (was ${label})`;
+  return `ended ${label}`;
+}
+
+
+
 function AdminPage() {
   const { isAdmin, loading } = useAuth();
   const navigate = useNavigate();
@@ -506,7 +522,13 @@ function AdminPage() {
                     {c.active ? (
                       <Tag tone="ok">{c.complimentary ? "Complimentary subscriber" : "Subscriber"}</Tag>
                     ) : (
-                      <Tag tone="off">{c.status === "revoked" ? "Revoked — free user" : "Free user"}</Tag>
+                      <Tag tone="off">
+                        {c.status === "revoked"
+                          ? "Revoked — free user"
+                          : c.status === "pending"
+                            ? "Requested — free user"
+                            : "Free user"}
+                      </Tag>
                     )}
                   </div>
                 </div>
@@ -514,7 +536,9 @@ function AdminPage() {
                 <p className={`mt-2 rounded-md px-3 py-2 text-xs font-medium ${c.active ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                   {c.active
                     ? `${c.complimentary ? "Complimentary" : "Paid"} monthly subscription — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
-                    : "No subscription — read-only account. Activating below turns on the monthly subscription (€69.90 / month)."}
+                    : c.status === "pending"
+                      ? "Subscription requested — read-only until you activate it below (€69.90 / month)."
+                      : "No subscription — read-only account. Activating below turns on the monthly subscription (€69.90 / month)."}
                 </p>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
@@ -522,8 +546,11 @@ function AdminPage() {
                   <span>Sessions: {c.sessions}</span>
                   <span>GPS rows: {c.gps_rows}</span>
                   <span>Tests: {c.tests}</span>
-                  <span>Access until: {c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}</span>
-                  <span>Price: €{c.price_eur}</span>
+                  {/* Only a live subscription has an access date and a price —
+                      anything else would show stale figures from a plan that
+                      is no longer running. */}
+                  <span>Access until: {accessUntilLabel(c)}</span>
+                  <span>Price: {c.active ? `€${c.price_eur}` : "—"}</span>
                   <span>Joined: {new Date(c.created_at).toLocaleDateString()}</span>
                   <span>Last sign-in: {c.last_sign_in_at ? new Date(c.last_sign_in_at).toLocaleDateString() : "—"}</span>
                 </div>

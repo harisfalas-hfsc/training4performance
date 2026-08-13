@@ -478,9 +478,44 @@ export function nextPlayerId() {
   return `p${String(n).padStart(2, "0")}`;
 }
 
+/** Lowest shirt number that is still free in the squad. */
+function nextFreeNumber() {
+  const taken = new Set(players.map((p) => p.number));
+  let n = 1;
+  while (taken.has(n)) n += 1;
+  return n;
+}
+
+/** A squad cannot contain two identical players or two identical shirt numbers. */
+function squadConflict(
+  candidate: { firstName: string; lastName: string; number: number },
+  exceptId?: string,
+): string | null {
+  const others = players.filter((p) => p.id !== exceptId);
+  const sameName = others.find(
+    (p) =>
+      p.firstName.trim().toLowerCase() === candidate.firstName.trim().toLowerCase() &&
+      p.lastName.trim().toLowerCase() === candidate.lastName.trim().toLowerCase(),
+  );
+  if (sameName) return `${sameName.firstName} ${sameName.lastName} is already in this squad.`;
+  if (candidate.number > 0) {
+    const sameNumber = others.find((p) => p.number === candidate.number);
+    if (sameNumber)
+      return `Shirt number ${candidate.number} already belongs to ${sameNumber.firstName} ${sameNumber.lastName}.`;
+  }
+  return null;
+}
+
 export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "lastName" | "position">) {
   if (!guardDemo("Adding players to the demo squad")) return false as never;
   if (!guardWrite()) return;
+  // A blank / zero number means "give me the next free one" rather than 0.
+  const number = input.number && input.number > 0 ? input.number : nextFreeNumber();
+  const clash = squadConflict({ firstName: input.firstName, lastName: input.lastName, number });
+  if (clash) {
+    toast.error("Player not added", { description: clash });
+    return;
+  }
   const p: Player = {
     id: input.id ?? nextPlayerId(),
     firstName: input.firstName,
@@ -489,7 +524,7 @@ export function addPlayer(input: Partial<Player> & Pick<Player, "firstName" | "l
     position: input.position,
     dominantLeg: input.dominantLeg ?? "Right",
     nationality: input.nationality ?? "",
-    number: input.number ?? (players.reduce((a, x) => Math.max(a, x.number), 0) + 1),
+    number,
     heightCm: input.heightCm ?? 0,
     weightKg: input.weightKg ?? 0,
     bodyFat: input.bodyFat ?? 0,
@@ -505,7 +540,27 @@ export function updatePlayer(id: string, patch: Partial<Player>) {
   if (!guardWrite()) return;
   const i = players.findIndex((p) => p.id === id);
   if (i < 0) return;
-  players[i] = { ...players[i]!, ...patch };
+  const current = players[i]!;
+  const next = { ...current, ...patch };
+  // Only validate the identity fields the edit actually touches, so a squad
+  // that already contains a legacy duplicate stays editable.
+  const nameChanged = next.firstName !== current.firstName || next.lastName !== current.lastName;
+  const numberChanged = next.number !== current.number;
+  if (nameChanged || numberChanged) {
+    const clash = squadConflict(
+      {
+        firstName: nameChanged ? next.firstName : `__${id}`,
+        lastName: nameChanged ? next.lastName : `__${id}`,
+        number: numberChanged ? next.number : 0,
+      },
+      id,
+    );
+    if (clash) {
+      toast.error("Change not saved", { description: clash });
+      return;
+    }
+  }
+  players[i] = next;
   emit();
 }
 
