@@ -1,15 +1,16 @@
 import { cn } from "@/lib/utils";
 
 const federations = [
-  { name: "UEFA", src: "/federations/uefa.png" },
-  { name: "FIFA", src: "/federations/fifa.png" },
+  { name: "UEFA", src: "/federations/uefa.svg" },
+  { name: "UEFA Champions League", src: "/federations/champions-league.svg" },
+  { name: "FIFA", src: "/federations/fifa.svg" },
   { name: "Cyprus FA", src: "/federations/cyprus-fa.png" },
-  { name: "Hellenic FA", src: "/federations/hellenic-fa.png" },
+  { name: "Hellenic FA", src: "/federations/hellenic-fa.svg" },
   { name: "Premier League", src: "/federations/premier-league.png" },
-  { name: "Serie A", src: "/federations/serie-a.png" },
-  { name: "Bundesliga", src: "/federations/bundesliga.png" },
-  { name: "La Liga", src: "/federations/laliga.png" },
-  { name: "Ligue 1", src: "/federations/ligue-1.png" },
+  { name: "Serie A", src: "/federations/serie-a.svg" },
+  { name: "Bundesliga", src: "/federations/bundesliga.svg" },
+  { name: "La Liga", src: "/federations/laliga.svg" },
+  { name: "Ligue 1", src: "/federations/ligue-1.svg" },
   { name: "Eredivisie", src: "/federations/eredivisie.png" },
 ];
 
@@ -21,27 +22,24 @@ export function FederationTrust({ className }: { className?: string }) {
         leading football federations and leagues worldwide.
       </p>
       <div
-        className="mt-5 flex flex-nowrap items-center justify-center gap-2 overflow-x-auto sm:flex-wrap sm:gap-4 sm:overflow-visible"
+        className="mt-5 flex flex-wrap items-center justify-center gap-5 sm:gap-7"
         aria-label="Federations and leagues we are compatible with"
       >
         {federations.map((f) => (
-          <span
+          <img
             key={f.name}
+            src={f.src}
+            alt={`${f.name} logo`}
             title={f.name}
-            className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-white p-1.5 shadow-sm sm:h-14 sm:w-14"
-          >
-            <img
-              src={f.src}
-              alt={`${f.name} logo`}
-              loading="lazy"
-              className="h-full w-full object-contain"
-            />
-          </span>
+            loading="lazy"
+            className="h-10 w-10 shrink-0 object-contain sm:h-12 sm:w-12"
+          />
         ))}
       </div>
     </div>
   );
 }
+
 
 
 export function FederationTrustBlock({ className }: { className?: string }) {
