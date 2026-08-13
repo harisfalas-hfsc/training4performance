@@ -93,6 +93,7 @@ function Table({ head, rows }: { head: string[]; rows: (string | ReactNode)[][] 
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
