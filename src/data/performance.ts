@@ -307,15 +307,12 @@ export function subscribeData(fn: () => void) {
 
 function persist() {
   if (typeof window === "undefined") return;
+  const { userId } = getWorkspaceScope();
+  // Real accounts persist to the cloud only. Browser storage is reserved for
+  // the isolated demo scope and must never resurrect deleted account content.
+  if (userId !== "t4p-demo") return;
   const key = scopedStorageKey(STORAGE_KEY);
   if (!key) return;
-  // Real accounts hydrate only from the cloud. Browser storage is reserved for
-  // the isolated demo scope and must never resurrect deleted account content.
-  if (userId !== "t4p-demo") {
-    version++;
-    listeners.forEach((listener) => listener());
-    return;
-  }
   try {
     window.localStorage.setItem(
       key,
@@ -404,6 +401,13 @@ function hydrate(userId: string | null, _migrateLegacy: boolean) {
     createdAt: undefined,
   });
   if (!userId) {
+    version++;
+    listeners.forEach((listener) => listener());
+    return;
+  }
+  // Signed-in accounts start empty and are populated only by cloud hydration.
+  // Never read account data back from browser caches.
+  if (userId !== "t4p-demo") {
     version++;
     listeners.forEach((listener) => listener());
     return;
