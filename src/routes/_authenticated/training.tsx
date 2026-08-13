@@ -630,23 +630,6 @@ function TrainingPage() {
       {/* ---------- step 2 · blocks ---------- */}
       {step === 2 && (
         <>
-          <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <MetricCard
-              label="Planned duration"
-              value={plan.minutes}
-              unit="min"
-              icon={<Timer className="size-4" />}
-            />
-            <MetricCard label="Planned RPE" value={plan.plannedRpe} hint="Calculated from added items" />
-            <MetricCard label="Planned load" value={plan.load} unit="AU" hint={`${blocks.length} blocks`} />
-            <MetricCard
-              label="Gym tonnage"
-              value={plan.tonnage ? Math.round(plan.tonnage) : "—"}
-              unit={plan.tonnage ? "kg" : ""}
-              hint="Sets × reps × kg"
-            />
-          </section>
-
           <section className="mt-4 grid gap-4 xl:grid-cols-3">
             <div className="panel p-5 xl:col-span-2">
               <SectionTitle
@@ -769,6 +752,18 @@ function TrainingPage() {
                                   {it.drawing ? "Edit drawing & description" : "Draw on board"}
                                 </button>
 
+                                <button
+                                  onClick={() => {
+                                    const block = saveBlockTemplate(it.drill, [it], {
+                                      category: inferCategory([it]),
+                                      ...(it.notes ? { description: it.notes } : {}),
+                                    });
+                                    if (block) flash(`${it.drill} saved to your library`);
+                                  }}
+                                  className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                                >
+                                  Save to library
+                                </button>
                                 <button
                                   onClick={() => duplicateItem(i)}
                                   className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
@@ -908,7 +903,7 @@ function TrainingPage() {
               </div>
 
               <form
-                className="mt-4 grid gap-3 sm:grid-cols-[1fr_6rem_6rem_auto]"
+                className="mt-4 grid gap-3 sm:grid-cols-[1fr_6rem_auto]"
                 onSubmit={(e) => {
                   e.preventDefault();
                   const fd = new FormData(e.currentTarget);
@@ -918,7 +913,7 @@ function TrainingPage() {
                     drill: name.toUpperCase(),
                     purpose: gymMode ? "STRENGTH" : activeBlock,
                     durationMin: Number(fd.get("min")) || 10,
-                    rpe: Number(fd.get("rpe")) || 5,
+                    rpe: 0,
                     block: activeBlock,
                     location: gymMode ? "Gym" : "Pitch",
                     ...(gymMode ? { strength: { sets: 3, reps: 8, weightKg: 0, restSec: 90 } } : {}),
@@ -932,17 +927,23 @@ function TrainingPage() {
                 <Field label="Minutes">
                   <input name="min" type="number" className="control" />
                 </Field>
-                <Field label="Target RPE (optional)">
-                  <input name="rpe" type="number" className="control" />
-                </Field>
                 <button className="h-9 self-end rounded-md border border-border px-4 text-xs font-semibold hover:border-primary hover:text-primary">
                   Add
                 </button>
               </form>
-              <p className="mt-2 text-[0.68rem] text-muted-foreground">
-                Target RPE is only a plan. The real load comes later in step 5, from the GPS file or the RPE the
-                players report after the session — you never have to guess it up front.
-              </p>
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-border bg-surface-2 px-3 py-2 text-[0.7rem] text-muted-foreground">
+                <span>
+                  Planned so far: <span className="text-foreground">{plan.minutes} min</span>
+                </span>
+                <span>
+                  {blocks.length} block{blocks.length === 1 ? "" : "s"} · {items.length} item
+                  {items.length === 1 ? "" : "s"}
+                </span>
+                {plan.tonnage ? <span>Gym tonnage {Math.round(plan.tonnage)} kg</span> : null}
+                <span>Load is calculated after the session from GPS or the RPE the players report.</span>
+              </div>
+
 
 
               <StepActions onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Preview the session">
