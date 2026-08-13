@@ -45,8 +45,10 @@ export function AdminShell({
               {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
             </div>
           </div>
-
+          <div className="flex flex-wrap items-center gap-2">
+            {actions}
             <Link
+
               to="/dashboard"
               className="rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
             >
