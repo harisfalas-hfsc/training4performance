@@ -32,10 +32,14 @@ export function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur">
-        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-1 sm:px-5">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-1 sm:px-5">
           <DiscoverMenu platformItems={platformNav} />
 
-          <Link to="/" className="flex min-w-0 items-center justify-center" aria-label="Training 4 Performance home">
+          <Link
+            to="/"
+            className="pointer-events-auto absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+            aria-label="Training 4 Performance home"
+          >
             <img
               src="/logo-t4p.png"
               alt="Training 4 Performance logo"

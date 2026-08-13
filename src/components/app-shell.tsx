@@ -146,7 +146,7 @@ export function AppShell({
             <Link
               to="/dashboard"
               onClick={resetPlatformHistory}
-              className="flex min-w-0 items-center justify-center"
+              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               aria-label="Platform home"
             >
               <img
