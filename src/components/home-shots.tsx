@@ -402,3 +402,106 @@ export function ShotGpsImport() {
     </Frame>
   );
 }
+
+/* ---------- Drills & exercise library ---------- */
+export function ShotLibrary() {
+  const blocks = [
+    ["STRENGTH", "Lower body max strength — MD-3", "4 exercises · 45 min"],
+    ["ESD", "Aerobic power with the ball — 4v4 SSG", "4 drills · 48 min"],
+    ["SPEED", "Speed & finishing — MD-2", "3 drills · 37 min"],
+    ["MOBILITY & STABILITY", "My activation & prehab circuit", "3 exercises · 22 min"],
+  ] as const;
+  return (
+    <Frame path="t4p / drills & exercise library">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div>
+          <p className="font-display text-sm font-semibold uppercase tracking-wide">Browse blocks</p>
+          <p className="text-[0.7rem] text-muted-foreground">
+            <T4P /> library · my library
+          </p>
+        </div>
+        <span className="rounded-full border border-border px-3 py-1 text-[0.7rem] text-muted-foreground">
+          Search block…
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-1.5 border-b border-border px-4 py-2.5">
+        {["All", "Strength", "Power", "Speed", "ESD", "Mobility", "Technical"].map((c, i) => (
+          <span
+            key={c}
+            className={`rounded-full px-2.5 py-1 text-[0.65rem] font-semibold ${
+              i === 0 ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {c}
+          </span>
+        ))}
+      </div>
+      <ul className="divide-y divide-border/60">
+        {blocks.map((b) => (
+          <li key={b[1]} className="flex items-center justify-between gap-3 px-4 py-2.5">
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-semibold">{b[1]}</span>
+              <span className="text-[0.65rem] text-muted-foreground">{b[2]}</span>
+            </span>
+            <span className="flex shrink-0 items-center gap-1.5">
+              <Pill>{b[0]}</Pill>
+              <span className="rounded-md border border-primary px-2 py-1 text-[0.65rem] font-semibold text-primary">
+                Add to training
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Frame>
+  );
+}
+
+/* ---------- Wellness ---------- */
+export function ShotWellness() {
+  const rows = [
+    ["L. Andreou", "8", "7", "8", "2", "7.6", "ok"],
+    ["M. Petrou", "7", "6", "7", "3", "6.4", "ok"],
+    ["K. Georgiou", "4", "4", "5", "6", "4.1", "bad"],
+    ["A. Nicolaou", "7", "7", "6", "3", "6.6", "ok"],
+    ["S. Christou", "6", "5", "6", "4", "5.5", "warn"],
+  ] as const;
+  return (
+    <Frame path="t4p / wellness & alerts">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div>
+          <p className="font-display text-sm font-semibold uppercase tracking-wide">
+            Morning check-in
+          </p>
+          <p className="text-[0.7rem] text-muted-foreground">5 of 5 submitted · before 09:00</p>
+        </div>
+        <Pill tone="bad">1 flag</Pill>
+      </div>
+      <table className="w-full border-collapse text-left text-xs">
+        <thead>
+          <tr className="text-[0.6rem] uppercase tracking-widest text-muted-foreground">
+            {["Player", "Sleep", "Fatigue", "Mood", "Soreness", "Score"].map((h) => (
+              <th key={h} className="border-b border-border px-4 py-2 font-semibold">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r[0]}>
+              <td className="border-b border-border/60 px-4 py-2.5 font-semibold">{r[0]}</td>
+              {[1, 2, 3, 4].map((i) => (
+                <td key={i} className="border-b border-border/60 px-4 py-2.5 font-mono text-muted-foreground">
+                  {r[i]}
+                </td>
+              ))}
+              <td className="border-b border-border/60 px-4 py-2.5">
+                <Pill tone={r[6] as "ok" | "warn" | "bad"}>{r[5]}</Pill>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Frame>
+  );
+}
