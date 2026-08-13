@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 
-const federations = [
+type Fed = { name: string; src: string; wide?: boolean; darkInvert?: boolean; darkPlate?: boolean };
+
+const federations: Fed[] = [
   { name: "UEFA", src: "/federations/uefa.svg" },
   { name: "UEFA Champions League", src: "/federations/champions-league.svg", darkInvert: true },
   { name: "FIFA", src: "/federations/fifa.svg", wide: true },
