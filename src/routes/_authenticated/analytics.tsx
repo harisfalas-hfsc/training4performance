@@ -233,38 +233,8 @@ function AnalyticsPage() {
 
       {source !== "gps" ? null : (
       <>
-      <section className="panel mb-4 p-4">
-        <SectionTitle title="3. Which KPIs, drawn how?" hint={`Everything below follows these choices · dates: ${from || "start"} → ${to || "today"}`} />
 
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">KPIs</span>
-          {allMetrics.map((m) => (
-            <button
-              key={m.key}
-              onClick={() => toggleKpi(m.key)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                kpis.includes(m.key) ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {m.label}{m.unit ? ` (${m.unit})` : ""}
-            </button>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">Chart</span>
-          {CHART_KINDS.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setKind(c.id)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                kind === c.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </section>
+
 
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
