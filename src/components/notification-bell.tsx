@@ -35,11 +35,11 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
       to="/account"
       search={{ tab: "messages" }}
       aria-label={unread ? `${unread} unread messages — open communication centre` : "Open communication centre"}
-      className="relative grid size-12 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70"
+      className="relative grid size-9 shrink-0 place-items-center rounded-full text-primary transition-opacity hover:opacity-70 sm:size-10"
     >
-      <Bell className="size-6" />
+      <Bell className="size-5" />
       {unread ? (
-        <span className="absolute right-1.5 top-1.5 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[0.6rem] font-bold leading-4 text-destructive-foreground">
+        <span className="absolute right-0 top-0 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[0.6rem] font-bold leading-4 text-destructive-foreground">
           {unread > 9 ? "9+" : unread}
         </span>
       ) : null}
