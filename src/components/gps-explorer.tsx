@@ -233,7 +233,7 @@ export function GpsExplorer() {
       <section className="panel p-0">
         <div className="flex flex-wrap items-center justify-between gap-2 p-4 pb-2">
           <SectionTitle
-            title="3. The rows behind the graph"
+            title="The rows behind the graph"
             hint={`${rows.length} row(s) between ${from} and ${to} — newest first`}
           />
           <button
