@@ -11,7 +11,7 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { guardDemo, guardWrite } from "@/lib/access";
-import { subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { getWorkspaceScope, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
 
