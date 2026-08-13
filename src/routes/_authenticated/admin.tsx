@@ -100,8 +100,10 @@ function AdminPage() {
     else setStats(s.stats);
     if ("error" in t) toast.error(t.error);
     else setTeams(t.teams);
+    const tk = await listTickets({ data: { status: "all" } });
+    if (!("error" in tk)) setUnreadTickets(tk.tickets.filter((x) => x.unread_for_admin).length);
     setPending(false);
-  }, [listCustomers, getStats, listTeams, search]);
+  }, [listCustomers, getStats, listTeams, listTickets, search]);
 
 
   useEffect(() => {
