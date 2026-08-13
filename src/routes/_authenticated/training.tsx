@@ -1750,6 +1750,69 @@ function Library({
   );
 }
 
+/** Ready-made blocks: the T4P library (subscribers) plus the coach's own saved blocks. */
+function BlockPickerList({
+  hasAccess,
+  loading,
+  t4pBlocks,
+  myBlocks,
+  onAddBlock,
+}: {
+  hasAccess: boolean;
+  loading: boolean;
+  t4pBlocks: LibraryBlock[];
+  myBlocks: SavedBlock[];
+  onAddBlock: (name: string, items: SessionPlanItem[]) => void;
+}) {
+  const row = (key: string, name: string, category: string, items: SessionPlanItem[]) => (
+    <li key={key} className="flex items-center justify-between gap-2 rounded-md border border-border p-2">
+      <span className="min-w-0">
+        <span className="block truncate text-sm">{name}</span>
+        <span className="text-xs text-muted-foreground">
+          {category} · {items.length} item{items.length === 1 ? "" : "s"}
+        </span>
+      </span>
+      <button
+        type="button"
+        onClick={() => onAddBlock(name, items)}
+        className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
+        aria-label={`Add ${name}`}
+      >
+        <Plus className="size-4" />
+      </button>
+    </li>
+  );
+
+  return (
+    <>
+      <li>
+        <p className="eyebrow mb-1 text-primary">T4P library</p>
+      </li>
+      {!hasAccess ? (
+        <li className="rounded-md border border-border p-2 text-xs text-muted-foreground">
+          Ready-made blocks need an active subscription. Your own saved blocks stay below.
+        </li>
+      ) : loading ? (
+        <li className="p-2 text-xs text-muted-foreground">Loading…</li>
+      ) : t4pBlocks.length === 0 ? (
+        <li className="p-2 text-xs text-muted-foreground">No ready-made blocks yet.</li>
+      ) : (
+        t4pBlocks.map((b) => row(b.id, b.name, normalizeCategory(b.category), b.items))
+      )}
+      <li>
+        <p className="eyebrow mb-1 mt-3 text-primary">My blocks</p>
+      </li>
+      {myBlocks.length === 0 ? (
+        <li className="p-2 text-xs text-muted-foreground">
+          Build a block and press “Save block” to keep it here forever.
+        </li>
+      ) : (
+        myBlocks.map((b) => row(b.id, b.name, normalizeCategory(b.category), b.items))
+      )}
+    </>
+  );
+}
+
 function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
   const [form, setForm] = useState({
     date: today,
