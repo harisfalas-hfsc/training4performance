@@ -142,6 +142,12 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "customer.subscription.deleted":
       await markCanceled(event.data.object, env);
       break;
+    case "invoice.paid":
+      await notifyRenewalPaid(event.data.object, env);
+      break;
+    case "invoice.payment_failed":
+      await notifyPaymentFailed(event.data.object, env);
+      break;
     default:
       console.log("Unhandled payments event:", event.type);
   }
