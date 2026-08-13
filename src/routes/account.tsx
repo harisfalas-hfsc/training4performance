@@ -35,7 +35,7 @@ function Account() {
   const navigate = useNavigate();
   const subscribeFn = useServerFn(requestSubscription);
   const autoRenewFn = useServerFn(setAutoRenew);
-  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">("subscription");
+  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">(tabParam ?? "subscription");
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
