@@ -85,7 +85,7 @@ const steps: Step[] = [
   },
   {
     icon: BookMarked,
-    tone: "purple",
+    tone: "violet",
     t: "Build from the drills & exercise library",
     d: (
       <>
