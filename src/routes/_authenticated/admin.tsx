@@ -329,7 +329,7 @@ function AdminPage() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {(["customers", "teams", "support"] as const).map((t) => (
+        {(["customers", "teams", "support", "library"] as const).map((t) => (
           <Button
             key={t}
             variant={tab === t ? "default" : "outline"}
@@ -340,7 +340,9 @@ function AdminPage() {
               ? `Subscribers & users (${customers.length})`
               : t === "teams"
                 ? `Teams & squads (${teams.length})`
-                : (
+                : t === "library"
+                  ? "Drills & exercise library"
+                  : (
                   <>
                     Messages
                     {unreadTickets ? (
@@ -354,11 +356,14 @@ function AdminPage() {
         ))}
       </div>
 
+      {tab === "library" && <AdminLibrary />}
+
       {tab === "support" && (
         <AdminSupport
           customers={customers.map((c) => ({ id: c.id, email: c.email, full_name: c.full_name }))}
         />
       )}
+
 
       {tab === "teams" && (
         <div className="mt-4 space-y-3">
