@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, type ChartKind } from "@/components/charts";
 import { fullName, players } from "@/data/performance";
 import {
@@ -15,15 +15,9 @@ import {
   useTestVersion,
 } from "@/data/testing";
 
-const chip = (active: boolean) =>
-  `rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
-    active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-  }`;
-
 /** "Fitness tests" for the chosen athletes: rankings, comparison and progress. */
 export function TestsExplorer({ playerIds, from, to }: { playerIds: string[]; from: string; to: string }) {
   useTestVersion();
-  const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
   const [kind, setKind] = useState<ChartKind>("bar");
 
@@ -31,11 +25,6 @@ export function TestsExplorer({ playerIds, from, to }: { playerIds: string[]; fr
     () => TEST_CATALOG.filter((def) => testRecords.some((r) => r.testId === def.id)),
     [testRecords.length],
   );
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return q ? usedTests.filter((t) => t.name.toLowerCase().includes(q)) : usedTests;
-  }, [usedTests, query]);
-
   const active = picked.length ? picked : usedTests.slice(0, 1).map((t) => t.id);
 
   const comparison = useMemo(
