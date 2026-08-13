@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminCustomerDetail } from "@/components/admin-customer-detail";
 import { AdminSupport } from "@/components/admin-support";
+import { AdminLibrary } from "@/components/admin-library";
 import { adminListTickets } from "@/lib/support.functions";
 import { Button } from "@/components/ui/button";
 import type { Json } from "@/integrations/supabase/types";
