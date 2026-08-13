@@ -47,7 +47,9 @@ export function SiteHeader() {
 
 
           <div className="flex shrink-0 items-center gap-2">
+            {session ? <NotificationBell userId={session.user.id} /> : null}
             <ThemeToggle />
+
             <div ref={avatarRef} className="relative shrink-0">
               <button
                 onClick={() => setAvatar((v) => !v)}
