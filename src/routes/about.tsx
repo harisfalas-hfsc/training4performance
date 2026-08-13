@@ -319,20 +319,22 @@ function About() {
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             The football performance system that connects everything
           </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-foreground">
+            Built by a real football S&amp;C coach,{" "}
+            <Link
+              to="/haris-falas"
+              className="text-brand-blue underline decoration-brand-blue/40 underline-offset-4 transition-colors hover:text-brand-blue/80"
+            >
+              Haris Falas
+            </Link>
+            , for football S&amp;C coaches.
+          </p>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             <T4P /> (<Training4Performance />) is an integrated football fitness, performance and
             training management platform for strength &amp; conditioning coaches, fitness coaches
             and sports scientists. One player record sits at the centre — squad, sessions, GPS, RPE,
             wellness, testing, medical status, alerts and reports all connect to it.
           </p>
-          <div className="mx-auto mt-8 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
-            {facts.map((f) => (
-              <div key={f.k} className="panel border-brand-blue/25 bg-card/80 px-3 py-4">
-                <p className="font-display text-xl font-semibold text-brand-blue">{f.k}</p>
-                <p className="mt-1 text-xs leading-snug text-muted-foreground">{f.v}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

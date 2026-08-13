@@ -230,10 +230,7 @@ function Home() {
           <p className="page-eyebrow">
             <Training4Performance />
           </p>
-          <h1 className="mt-3 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-wide">
-            The football performance system for S&amp;C coaches that connects everything
-          </h1>
-          <p className="mt-4 text-sm text-muted-foreground">
+          <p className="mt-5 text-sm text-muted-foreground">
             <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
             brings every player record, training session, GPS report, wellness entry, test result
             and medical note into one connected workspace.
@@ -266,9 +263,6 @@ function Home() {
             <p className="page-eyebrow">
               <Training4Performance />
             </p>
-            <h1 className="mt-3 font-display text-4xl font-semibold uppercase leading-[1.05] tracking-wide text-foreground lg:text-6xl">
-              The football performance system for S&amp;C coaches that connects everything
-            </h1>
             <p className="mx-auto mt-5 max-w-3xl text-base text-muted-foreground lg:text-lg">
               <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
               brings every player record, training session, GPS report, wellness entry, test result
