@@ -108,20 +108,22 @@ function Account() {
           </p>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 grid grid-cols-3 gap-2">
           {([
-            ["subscription", "Subscription & profile"],
-            ["notifications", "Notifications"],
-            ["messages", "Communication centre"],
-          ] as const).map(([k, label]) => (
+            ["subscription", "Subscription", CreditCard],
+            ["notifications", "Notifications", Bell],
+            ["messages", "Messages", MessageSquare],
+          ] as const).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              aria-label={label}
+              className={`flex items-center justify-center gap-2 rounded-full px-2 py-2 text-xs font-semibold sm:text-sm ${
                 tab === k ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"
               }`}
             >
-              {label}
+              <Icon className="size-4 shrink-0" />
+              <span className="truncate">{label}</span>
             </button>
           ))}
         </div>
