@@ -253,7 +253,7 @@ function AdminPage() {
         </Button>
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {(["customers", "teams", "support"] as const).map((t) => (
           <Button
             key={t}
@@ -262,10 +262,19 @@ function AdminPage() {
             onClick={() => setTab(t)}
           >
             {t === "customers"
-              ? "Customers"
+              ? "Subscribers"
               : t === "teams"
-                ? `All teams & squads (${teams.length})`
-                : "Support & messages"}
+                ? `Teams & squads (${teams.length})`
+                : (
+                  <>
+                    Messages
+                    {unreadTickets ? (
+                      <span className="ml-1.5 rounded-full bg-destructive px-1.5 text-[0.65rem] font-bold text-destructive-foreground">
+                        {unreadTickets}
+                      </span>
+                    ) : null}
+                  </>
+                )}
           </Button>
         ))}
       </div>
