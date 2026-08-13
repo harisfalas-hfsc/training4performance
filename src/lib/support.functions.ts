@@ -87,6 +87,8 @@ export const setAutoRenew = createServerFn({ method: "POST" })
       .select("season_end")
       .maybeSingle();
     if (error) return { error: error.message };
+    // No subscription row: nothing was changed, so do not claim it was.
+    if (!sub) return { error: "There is no subscription on this account yet." };
     await supabaseAdmin.from("notifications").insert({
       user_id: context.userId,
       kind: data.cancel ? "warning" : "success",
