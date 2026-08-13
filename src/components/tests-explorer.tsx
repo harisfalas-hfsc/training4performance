@@ -83,43 +83,26 @@ export function TestsExplorer({ playerIds, from, to }: { playerIds: string[]; fr
   return (
     <div className="space-y-4">
       <section className="panel p-4">
-        <SectionTitle title="Which tests?" hint="Only tests that already have results are listed" />
-        <div className="control flex max-w-sm items-center gap-2">
-          <Search className="size-4 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="CMJ, 10 m sprint, Yo-Yo…"
-            className="w-full bg-transparent text-sm outline-none"
+        <SectionTitle title="3. Which tests?" hint="Only tests that already have results are listed" />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MultiSelectField
+            label="Tests"
+            values={active}
+            onChange={setPicked}
+            placeholder="Choose tests…"
+            searchPlaceholder="CMJ, 10 m sprint, Yo-Yo…"
+            emptyText="No test results yet — record them in Fitness tests."
+            options={usedTests.map((def) => ({ value: def.id, label: def.name, hint: def.unit }))}
+          />
+          <SelectField
+            label="Chart"
+            value={kind}
+            onChange={(value) => setKind(value as ChartKind)}
+            options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
           />
         </div>
-        <div className="mt-3 flex flex-wrap gap-1">
-          {filtered.map((def) => (
-            <button
-              key={def.id}
-              type="button"
-              className={chip(active.includes(def.id))}
-              onClick={() =>
-                setPicked((prev) => (prev.includes(def.id) ? prev.filter((x) => x !== def.id) : [...prev, def.id]))
-              }
-            >
-              {def.name}
-              {def.unit ? <span className="ml-1 font-normal text-muted-foreground">({def.unit})</span> : null}
-            </button>
-          ))}
-          {!filtered.length ? (
-            <p className="text-sm text-muted-foreground">No test results yet — record them in Fitness tests.</p>
-          ) : null}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">Chart</span>
-          {CHART_KINDS.map((c) => (
-            <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
-              {c.label}
-            </button>
-          ))}
-        </div>
       </section>
+
 
       <section className="grid gap-4 xl:grid-cols-2">
         <div className="panel p-4">
