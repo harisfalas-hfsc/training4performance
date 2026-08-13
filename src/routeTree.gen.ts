@@ -36,6 +36,7 @@ import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCompareRouteImport } from './routes/_authenticated/compare'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGpsRouteImport } from './routes/_authenticated/gps'
+import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticated/library'
 import { Route as AuthenticatedLogbookRouteImport } from './routes/_authenticated/logbook'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedRpeRouteImport } from './routes/_authenticated/rpe'
@@ -181,6 +182,11 @@ const AuthenticatedGpsRoute = AuthenticatedGpsRouteImport.update({
   path: '/gps',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLibraryRoute = AuthenticatedLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLogbookRoute = AuthenticatedLogbookRouteImport.update({
   id: '/logbook',
   path: '/logbook',
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof AuthenticatedCompareRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
+  '/library': typeof AuthenticatedLibraryRoute
   '/logbook': typeof AuthenticatedLogbookRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rpe': typeof AuthenticatedRpeRoute
@@ -291,6 +298,7 @@ export interface FileRoutesByTo {
   '/compare': typeof AuthenticatedCompareRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/gps': typeof AuthenticatedGpsRoute
+  '/library': typeof AuthenticatedLibraryRoute
   '/logbook': typeof AuthenticatedLogbookRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rpe': typeof AuthenticatedRpeRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/_authenticated/compare': typeof AuthenticatedCompareRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/gps': typeof AuthenticatedGpsRoute
+  '/_authenticated/library': typeof AuthenticatedLibraryRoute
   '/_authenticated/logbook': typeof AuthenticatedLogbookRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rpe': typeof AuthenticatedRpeRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/dashboard'
     | '/gps'
+    | '/library'
     | '/logbook'
     | '/reports'
     | '/rpe'
@@ -406,6 +416,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/dashboard'
     | '/gps'
+    | '/library'
     | '/logbook'
     | '/reports'
     | '/rpe'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/_authenticated/compare'
     | '/_authenticated/dashboard'
     | '/_authenticated/gps'
+    | '/_authenticated/library'
     | '/_authenticated/logbook'
     | '/_authenticated/reports'
     | '/_authenticated/rpe'
@@ -666,6 +678,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGpsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/library': {
+      id: '/_authenticated/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof AuthenticatedLibraryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/logbook': {
       id: '/_authenticated/logbook'
       path: '/logbook'
@@ -743,6 +762,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompareRoute: typeof AuthenticatedCompareRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGpsRoute: typeof AuthenticatedGpsRoute
+  AuthenticatedLibraryRoute: typeof AuthenticatedLibraryRoute
   AuthenticatedLogbookRoute: typeof AuthenticatedLogbookRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRpeRoute: typeof AuthenticatedRpeRoute
@@ -765,6 +785,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompareRoute: AuthenticatedCompareRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGpsRoute: AuthenticatedGpsRoute,
+  AuthenticatedLibraryRoute: AuthenticatedLibraryRoute,
   AuthenticatedLogbookRoute: AuthenticatedLogbookRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRpeRoute: AuthenticatedRpeRoute,

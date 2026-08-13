@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminCustomerDetail } from "@/components/admin-customer-detail";
 import { AdminSupport } from "@/components/admin-support";
+import { AdminLibrary } from "@/components/admin-library";
 import { adminListTickets } from "@/lib/support.functions";
 import { Button } from "@/components/ui/button";
 import type { Json } from "@/integrations/supabase/types";
@@ -46,7 +47,7 @@ import {
   type AdminWorkspace,
 } from "@/lib/admin.functions";
 
-type AdminSearch = { tab?: "customers" | "teams" | "support"; customer?: string };
+type AdminSearch = { tab?: "customers" | "teams" | "support" | "library"; customer?: string };
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
     const tab = search["tab"];
     const customer = search["customer"];
     return {
-      tab: tab === "teams" || tab === "support" ? tab : "customers",
+      tab: tab === "teams" || tab === "support" || tab === "library" ? tab : "customers",
       ...(typeof customer === "string" && customer ? { customer } : {}),
     };
   },
@@ -329,7 +330,7 @@ function AdminPage() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {(["customers", "teams", "support"] as const).map((t) => (
+        {(["customers", "teams", "support", "library"] as const).map((t) => (
           <Button
             key={t}
             variant={tab === t ? "default" : "outline"}
@@ -340,7 +341,9 @@ function AdminPage() {
               ? `Subscribers & users (${customers.length})`
               : t === "teams"
                 ? `Teams & squads (${teams.length})`
-                : (
+                : t === "library"
+                  ? "Drills & exercise library"
+                  : (
                   <>
                     Messages
                     {unreadTickets ? (
@@ -354,11 +357,14 @@ function AdminPage() {
         ))}
       </div>
 
+      {tab === "library" && <AdminLibrary />}
+
       {tab === "support" && (
         <AdminSupport
           customers={customers.map((c) => ({ id: c.id, email: c.email, full_name: c.full_name }))}
         />
       )}
+
 
       {tab === "teams" && (
         <div className="mt-4 space-y-3">

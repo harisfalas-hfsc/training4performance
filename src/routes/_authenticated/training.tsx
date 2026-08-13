@@ -1,6 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
+import { listLibraryBlocks, type LibraryBlock } from "@/lib/library.functions";
+import { normalizeCategory } from "@/data/library-categories";
 
 import {
   ArrowLeft,
@@ -63,7 +68,9 @@ import {
   SESSION_TYPES,
   sessionTypeOf,
   TRAINING_GROUPS,
+  savedBlocks,
   useLibraryVersion,
+  type SavedBlock,
 } from "@/data/presets";
 
 export const Route = createFileRoute("/_authenticated/training")({
@@ -93,6 +100,17 @@ export const Route = createFileRoute("/_authenticated/training")({
   }),
   component: TrainingPage,
 });
+
+/** Best-guess library section for a block the coach saves — re-filable later on /library. */
+function inferCategory(blockItems: SessionPlanItem[]): string {
+  if (blockItems.every((i) => i.strength)) return "STRENGTH";
+  const purposes = blockItems.map((i) => (i.purpose || "").toUpperCase());
+  if (purposes.some((p) => p.includes("POWER"))) return "POWER";
+  if (purposes.some((p) => p.includes("METABOLIC"))) return "ESD (ENERGY SYSTEM DEVELOPMENT)";
+  if (purposes.some((p) => p.includes("ACTIVATION") || p.includes("WARM"))) return "MOBILITY & STABILITY";
+  return "TECHNICAL / TACTICAL";
+}
+
 
 const STATUS: TrainingStatus[] = [
   "Full Training",
@@ -322,7 +340,7 @@ function TrainingPage() {
       flash("Add at least one item to this block first");
       return;
     }
-    saveBlockTemplate(b, blockItems);
+    saveBlockTemplate(b, blockItems, { category: inferCategory(blockItems) });
     flash(`${b} saved to your library`);
   };
 
@@ -935,6 +953,12 @@ function TrainingPage() {
                   },
                 });
               }}
+              onAddBlock={(blockName, blockItems) => {
+                blockItems.forEach((item) => addItem({ ...item, block: activeBlock }));
+                toast.success(`${blockName} added to ${activeBlock}`, {
+                  description: `${blockItems.length} item${blockItems.length === 1 ? "" : "s"} copied in`,
+                });
+              }}
             />
 
           </section>
@@ -1493,27 +1517,40 @@ function Library({
   activeBlock,
   blockCount,
   onAdd,
+  onAddBlock,
 }: {
   gym: boolean;
   activeBlock: string;
   blockCount: number;
   onAdd: (item: SessionPlanItem) => void;
+  onAddBlock: (blockName: string, items: SessionPlanItem[]) => void;
 }) {
   useLibraryVersion();
-  const [tab, setTab] = useState<"field" | "gym">(gym ? "gym" : "field");
+  const { hasAccess } = useAuth();
+  const [tab, setTab] = useState<"field" | "gym" | "blocks">(gym ? "gym" : "field");
   const [q, setQ] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const fetchBlocks = useServerFn(listLibraryBlocks);
 
   useEffect(() => setTab(gym ? "gym" : "field"), [gym]);
 
+  const officialBlocks = useQuery({
+    queryKey: ["library-blocks"],
+    queryFn: () => fetchBlocks(),
+    enabled: tab === "blocks" && hasAccess,
+  });
+
   const drills = allDrills().filter((d) => d.name.toLowerCase().includes(q.toLowerCase()));
   const lifts = allStrengthExercises().filter((e) => e.name.toLowerCase().includes(q.toLowerCase()));
+  const matches = q.trim().toLowerCase();
+  const t4pBlocks = (officialBlocks.data ?? []).filter((b) => b.name.toLowerCase().includes(matches));
+  const myBlocks = savedBlocks().filter((b) => b.name.toLowerCase().includes(matches));
 
   return (
     <div className="panel p-5">
       <SectionTitle
         title={`Library → ${activeBlock}`}
-        hint="Tap + to drop a drill into the selected block"
+        hint="Tap + to drop a drill, an exercise or a whole block into the selected block"
         right={
           <button
             type="button"
@@ -1527,16 +1564,16 @@ function Library({
         }
       />
 
-      <div className="mb-3 flex gap-1.5">
-        {(["field", "gym"] as const).map((t) => (
+      <div className="mb-3 grid grid-cols-3 gap-1.5">
+        {(["field", "gym", "blocks"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`h-9 flex-1 rounded-md border px-2.5 text-xs font-semibold ${
+            className={`h-9 rounded-md border px-2 text-[0.7rem] font-semibold sm:text-xs ${
               tab === t ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
             }`}
           >
-            {t === "field" ? "Training drills" : "Strength exercises"}
+            {t === "field" ? "Drills" : t === "gym" ? "Exercises" : "Blocks"}
           </button>
         ))}
       </div>
@@ -1546,7 +1583,15 @@ function Library({
       </div>
 
       <ul className="scroll-pane max-h-[28rem] space-y-1.5 overflow-y-auto pr-1">
-        {tab === "field"
+        {tab === "blocks" ? (
+          <BlockPickerList
+            hasAccess={hasAccess}
+            loading={officialBlocks.isPending && hasAccess}
+            t4pBlocks={t4pBlocks}
+            myBlocks={myBlocks}
+            onAddBlock={onAddBlock}
+          />
+        ) : tab === "field"
           ? drills.map((d) => (
               <li key={d.name} className="flex items-center justify-between gap-2 rounded-md border border-border p-2">
                 <span className="min-w-0">
@@ -1617,13 +1662,22 @@ function Library({
             })}
       </ul>
 
-      <button
-        onClick={() => setShowCustom((v) => !v)}
-        className="mt-3 h-9 w-full rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
-      >
-        {showCustom ? "Close" : `Add my own ${tab === "gym" ? "exercise" : "drill"}`}
-      </button>
-      {showCustom ? (
+      {tab === "blocks" ? (
+        <Link
+          to="/library"
+          className="mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          <Layers className="size-4" /> Open the full library
+        </Link>
+      ) : (
+        <button
+          onClick={() => setShowCustom((v) => !v)}
+          className="mt-3 h-9 w-full rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          {showCustom ? "Close" : `Add my own ${tab === "gym" ? "exercise" : "drill"}`}
+        </button>
+      )}
+      {showCustom && tab !== "blocks" ? (
         <form
           className="mt-3 grid gap-3"
           onSubmit={(e) => {
@@ -1704,6 +1758,69 @@ function Library({
         </form>
       ) : null}
     </div>
+  );
+}
+
+/** Ready-made blocks: the T4P library (subscribers) plus the coach's own saved blocks. */
+function BlockPickerList({
+  hasAccess,
+  loading,
+  t4pBlocks,
+  myBlocks,
+  onAddBlock,
+}: {
+  hasAccess: boolean;
+  loading: boolean;
+  t4pBlocks: LibraryBlock[];
+  myBlocks: SavedBlock[];
+  onAddBlock: (name: string, items: SessionPlanItem[]) => void;
+}) {
+  const row = (key: string, name: string, category: string, items: SessionPlanItem[]) => (
+    <li key={key} className="flex items-center justify-between gap-2 rounded-md border border-border p-2">
+      <span className="min-w-0">
+        <span className="block truncate text-sm">{name}</span>
+        <span className="text-xs text-muted-foreground">
+          {category} · {items.length} item{items.length === 1 ? "" : "s"}
+        </span>
+      </span>
+      <button
+        type="button"
+        onClick={() => onAddBlock(name, items)}
+        className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
+        aria-label={`Add ${name}`}
+      >
+        <Plus className="size-4" />
+      </button>
+    </li>
+  );
+
+  return (
+    <>
+      <li>
+        <p className="eyebrow mb-1 text-primary">T4P library</p>
+      </li>
+      {!hasAccess ? (
+        <li className="rounded-md border border-border p-2 text-xs text-muted-foreground">
+          Ready-made blocks need an active subscription. Your own saved blocks stay below.
+        </li>
+      ) : loading ? (
+        <li className="p-2 text-xs text-muted-foreground">Loading…</li>
+      ) : t4pBlocks.length === 0 ? (
+        <li className="p-2 text-xs text-muted-foreground">No ready-made blocks yet.</li>
+      ) : (
+        t4pBlocks.map((b) => row(b.id, b.name, normalizeCategory(b.category), b.items))
+      )}
+      <li>
+        <p className="eyebrow mb-1 mt-3 text-primary">My blocks</p>
+      </li>
+      {myBlocks.length === 0 ? (
+        <li className="p-2 text-xs text-muted-foreground">
+          Build a block and press “Save block” to keep it here forever.
+        </li>
+      ) : (
+        myBlocks.map((b) => row(b.id, b.name, normalizeCategory(b.category), b.items))
+      )}
+    </>
   );
 }
 
