@@ -55,9 +55,9 @@ type MetricKey = string;
 
 /** The three families of data every page follows: people → what about them. */
 const SOURCES = [
-  { id: "gps", label: "GPS reports" },
-  { id: "training", label: "Training & drills" },
+  { id: "gps", label: "Performance — GPS" },
   { id: "tests", label: "Fitness tests" },
+  { id: "training", label: "Training & drills" },
   { id: "wellness", label: "Wellness" },
   { id: "medical", label: "Medical & availability" },
 ] as const;
