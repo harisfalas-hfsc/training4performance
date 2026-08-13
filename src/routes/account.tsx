@@ -203,6 +203,13 @@ function Account() {
                       : `renews ${formatDate(subscription.season_end)}`}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
+                    <button
+                      onClick={openBilling}
+                      disabled={busy}
+                      className="rounded-md border border-border bg-surface-2 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                    >
+                      {busy ? "Working…" : "Manage billing & invoices"}
+                    </button>
                     {subscription.cancel_at_period_end ? (
                       <button
                         onClick={() => toggleRenew(false)}
