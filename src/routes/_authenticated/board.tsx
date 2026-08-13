@@ -39,6 +39,7 @@ function BoardPage() {
   const [sessionId, setSessionId] = useState<string>(sessions[0]?.id ?? "");
   const [itemIndex, setItemIndex] = useState<number>(-1);
   const [saved, setSaved] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
 
   const session = sessionCalendar.find((s) => s.id === sessionId);
   const plan: SessionPlanItem[] = session?.plan ?? [];
@@ -50,7 +51,7 @@ function BoardPage() {
     const json = JSON.stringify(d);
     const next: SessionPlanItem[] = [...plan];
     if (itemIndex >= 0 && next[itemIndex]) {
-      next[itemIndex] = { ...next[itemIndex]!, drawing: json };
+      next[itemIndex] = { ...next[itemIndex]!, drawing: json, notes: description };
     } else {
       next.push({
         drill: "Board drawing",
@@ -59,6 +60,7 @@ function BoardPage() {
         rpe: session.plannedRpe,
         block: session.blockNames?.[0] ?? "BLOCK 1",
         drawing: json,
+        notes: description,
       });
       setItemIndex(next.length - 1);
     }
@@ -66,6 +68,7 @@ function BoardPage() {
     setSaved(`Saved to ${session.date} · ${session.title}`);
     window.setTimeout(() => setSaved(null), 2500);
   };
+
 
   return (
     <AppShell
@@ -86,6 +89,8 @@ function BoardPage() {
               onChange={(e) => {
                 setSessionId(e.target.value);
                 setItemIndex(-1);
+                setDescription("");
+
               }}
             >
               {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
@@ -98,7 +103,15 @@ function BoardPage() {
           </label>
           <label className="block">
             <span className="eyebrow">Exercise / block</span>
-            <select className="control mt-1" value={itemIndex} onChange={(e) => setItemIndex(Number(e.target.value))}>
+            <select
+              className="control mt-1"
+              value={itemIndex}
+              onChange={(e) => {
+                const idx = Number(e.target.value);
+                setItemIndex(idx);
+                setDescription(idx >= 0 ? (plan[idx]?.notes ?? "") : "");
+              }}
+            >
               <option value={-1}>New exercise in this session</option>
               {plan.map((p, i) => (
                 <option key={i} value={i}>
@@ -122,6 +135,17 @@ function BoardPage() {
             </p>
           </div>
         </div>
+        <label className="mt-3 block">
+          <span className="eyebrow">Description — how the drill runs</span>
+          <textarea
+            rows={3}
+            className="control mt-1 h-auto py-2"
+            placeholder="Area, number of players, rules, progressions and coaching points. Saved with the drawing onto the session."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </label>
+
         {saved ? (
           <p className="mt-3 flex items-center gap-2 rounded-md border border-success/40 bg-success/10 p-2.5 text-sm text-success">
             <Link2 className="size-4" /> {saved}

@@ -762,14 +762,13 @@ function TrainingPage() {
                                 className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none"
                               />
                               <div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
-                                {!gym && !it.strength ? (
-                                  <button
-                                    onClick={() => setDrawingIndex(i)}
-                                    className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
-                                  >
-                                    {it.drawing ? "Edit drawing" : "Draw on board"}
-                                  </button>
-                                ) : null}
+                                <button
+                                  onClick={() => setDrawingIndex(i)}
+                                  className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                                >
+                                  {it.drawing ? "Edit drawing & description" : "Draw on board"}
+                                </button>
+
                                 <button
                                   onClick={() => duplicateItem(i)}
                                   className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
@@ -826,7 +825,12 @@ function TrainingPage() {
                                   value={it.durationMin}
                                   onChange={(v) => patchItem(i, { durationMin: v })}
                                 />
-                                <NumField label="RPE" value={it.rpe} onChange={(v) => patchItem(i, { rpe: v })} />
+                                <NumField
+                                  label="Target RPE (optional)"
+                                  value={it.rpe}
+                                  onChange={(v) => patchItem(i, { rpe: v })}
+                                />
+
                                 <Field label="Where">
                                   <select
                                     value={it.location ?? "Pitch"}
@@ -856,6 +860,17 @@ function TrainingPage() {
                               </div>
                             )}
                             <div className="mt-3">
+                              <Field label="Description — how the drill runs (rules, area, players, coaching points)">
+                                <textarea
+                                  rows={2}
+                                  className="control h-auto py-2"
+                                  placeholder="e.g. 30×20 m area, 5v2 rondo, two touches, defenders swap after an interception. Coaching point: body shape open to receive."
+                                  value={it.notes ?? ""}
+                                  onChange={(e) => patchItem(i, { notes: e.target.value })}
+                                />
+                              </Field>
+                            </div>
+                            <div className="mt-3">
                               <Field label="Tags (searchable in Analytics — separate with commas)">
                                 <input
                                   className="control"
@@ -873,9 +888,9 @@ function TrainingPage() {
                               </Field>
                             </div>
                             {it.drawing ? (
-
                               <p className="mt-2 text-[0.68rem] text-success">Tactics-board drawing attached</p>
                             ) : null}
+
                           </li>
                         ))}
                       </ul>
@@ -917,13 +932,18 @@ function TrainingPage() {
                 <Field label="Minutes">
                   <input name="min" type="number" className="control" />
                 </Field>
-                <Field label="RPE">
+                <Field label="Target RPE (optional)">
                   <input name="rpe" type="number" className="control" />
                 </Field>
                 <button className="h-9 self-end rounded-md border border-border px-4 text-xs font-semibold hover:border-primary hover:text-primary">
                   Add
                 </button>
               </form>
+              <p className="mt-2 text-[0.68rem] text-muted-foreground">
+                Target RPE is only a plan. The real load comes later in step 5, from the GPS file or the RPE the
+                players report after the session — you never have to guess it up front.
+              </p>
+
 
               <StepActions onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Preview the session">
                 <button
@@ -1361,6 +1381,21 @@ function TrainingPage() {
                 setDrawingIndex(null);
               }}
             />
+            <div className="panel mt-3 p-4">
+              <Field label="Description — how this drill runs (rules, area, players, coaching points)">
+                <textarea
+                  rows={4}
+                  className="control h-auto py-2"
+                  placeholder="Organisation, rules, progressions and coaching points. This prints on the session sheet next to the drawing."
+                  value={items[drawingIndex]!.notes ?? ""}
+                  onChange={(e) => patchItem(drawingIndex, { notes: e.target.value })}
+                />
+              </Field>
+              <p className="mt-2 text-[0.68rem] text-muted-foreground">
+                The description saves as you type; use “Save to drill” above to store the drawing itself.
+              </p>
+            </div>
+
           </div>
         </div>
       ) : null}
@@ -1474,6 +1509,8 @@ function SessionSheet({
                           : `${it.durationMin} min · RPE ${it.rpe} · ${it.location ?? "Pitch"} · ${it.purpose}`}
                         {it.drawing ? " · drawing attached" : ""}
                       </p>
+                      {it.notes ? <p className="mt-1 whitespace-pre-line text-xs">{it.notes}</p> : null}
+
                     </li>
                   ))}
                 </ol>

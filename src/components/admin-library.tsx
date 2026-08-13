@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { parseDrawing, TacticsBoard } from "@/components/tactics-board";
+
 import { LIBRARY_CATEGORIES, normalizeCategory } from "@/data/library-categories";
 import { allDrills, allStrengthExercises } from "@/data/presets";
 import type { SessionPlanItem } from "@/data/performance";
@@ -40,6 +42,8 @@ export function AdminLibrary() {
   const remove = useServerFn(deleteLibraryBlock);
   const [form, setForm] = useState(empty);
   const [pick, setPick] = useState("");
+  const [boardIdx, setBoardIdx] = useState<number | null>(null);
+
 
   const blocks = useQuery({ queryKey: ["library-blocks"], queryFn: () => list() });
 
@@ -167,24 +171,45 @@ export function AdminLibrary() {
 
         <ul className="space-y-1.5">
           {form.items.map((i, idx) => (
-            <li
-              key={`${i.drill}-${idx}`}
-              className="flex items-center justify-between gap-2 rounded-md border border-border p-2 text-xs"
-            >
-              <span className="min-w-0 truncate">
-                {i.drill} · {i.durationMin}′ · RPE {i.rpe}
-              </span>
-              <button
-                type="button"
-                aria-label={`Remove ${i.drill}`}
-                onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, x) => x !== idx) }))}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="size-3.5" />
-              </button>
+            <li key={`${i.drill}-${idx}`} className="space-y-1.5 rounded-md border border-border p-2 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="min-w-0 truncate">
+                  {i.drill} · {i.durationMin}′ · RPE {i.rpe}
+                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBoardIdx(idx)}
+                    className="rounded-md border border-border px-2 py-0.5 text-[0.68rem] text-muted-foreground hover:text-primary"
+                  >
+                    {i.drawing ? "Edit board" : "Board"}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${i.drill}`}
+                    onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, x) => x !== idx) }))}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+              <textarea
+                rows={2}
+                className="control h-auto py-1.5 text-xs"
+                placeholder="Description — area, players, rules, coaching points"
+                value={i.notes ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    items: f.items.map((x, k) => (k === idx ? { ...x, notes: e.target.value } : x)),
+                  }))
+                }
+              />
             </li>
           ))}
         </ul>
+
 
         <label className="flex items-center gap-2 text-xs text-muted-foreground">
           <input
@@ -264,6 +289,32 @@ export function AdminLibrary() {
           </div>
         )}
       </div>
+
+      {boardIdx !== null && form.items[boardIdx] ? (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/90 p-3">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="font-display text-lg font-semibold">Board — {form.items[boardIdx]!.drill}</p>
+              <Button type="button" variant="outline" size="sm" onClick={() => setBoardIdx(null)}>
+                Close
+              </Button>
+            </div>
+            <TacticsBoard
+              drawing={parseDrawing(form.items[boardIdx]!.drawing)}
+              saveLabel="Save to drill"
+              onSave={(d) => {
+                const idx = boardIdx;
+                setForm((f) => ({
+                  ...f,
+                  items: f.items.map((x, k) => (k === idx ? { ...x, drawing: JSON.stringify(d) } : x)),
+                }));
+                setBoardIdx(null);
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
+
   );
 }
