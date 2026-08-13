@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireOwner } from "@/lib/support.server";
+import { extractKeywords } from "@/lib/support-knowledge";
 
 export type NotificationRow = {
   id: string;
@@ -122,7 +123,7 @@ export const adminSendNotification = createServerFn({ method: "POST" })
 /** Owner replies inside a customer ticket. */
 export const adminReplyToTicket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { ticketId: string; body: string; close?: boolean }) => data)
+  .inputValidator((data: { ticketId: string; body: string; close?: boolean; learn?: boolean }) => data)
   .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
     try {
       requireOwner(context.claims);
@@ -143,6 +144,36 @@ export const adminReplyToTicket = createServerFn({ method: "POST" })
         body,
       });
       if (error) return { error: error.message };
+
+      // Self-training: remember the owner's answer against the customer's last
+      // question, so the assistant can answer it on its own next time.
+      const { data: lastUser } = await supabaseAdmin
+        .from("support_messages")
+        .select("body")
+        .eq("ticket_id", ticket.id)
+        .eq("sender_role", "user")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data.learn !== false && lastUser?.body) {
+        const question = `${ticket.subject} ${lastUser.body}`.slice(0, 1000);
+        const keywords = extractKeywords(question);
+        if (keywords.length >= 2 && body.length >= 20) {
+          const { data: existing } = await supabaseAdmin
+            .from("support_learned")
+            .select("id")
+            .eq("question", question)
+            .maybeSingle();
+          if (existing) {
+            await supabaseAdmin.from("support_learned").update({ answer: body, keywords }).eq("id", existing.id);
+          } else {
+            await supabaseAdmin
+              .from("support_learned")
+              .insert({ question, answer: body, keywords, created_by: context.userId });
+          }
+        }
+      }
+
       if (data.close) {
         await supabaseAdmin
           .from("support_tickets")

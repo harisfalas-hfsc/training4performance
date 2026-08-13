@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { findSupportAnswer, SUPPORT_FALLBACK } from "@/lib/support-knowledge";
+import { findLearnedAnswer, findSupportAnswer, SUPPORT_FALLBACK, type LearnedEntry } from "@/lib/support-knowledge";
 
 /**
  * Answers a customer's latest ticket message from the built-in answer book.
@@ -31,8 +31,28 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
     if (!last || last.sender_role !== "user") return { answered: false };
 
     const question = `${ticket.subject} ${last.body}`;
-    const entry = findSupportAnswer(question);
-    const body = entry?.answer ?? SUPPORT_FALLBACK;
+
+    // 1) Answers learned from previous conversations, 2) the built-in answer
+    // book, 3) an acknowledgement. No AI request is made in any of the three.
+    const { data: learnedRows } = await supabaseAdmin
+      .from("support_learned")
+      .select("id, question, answer, keywords")
+      .order("uses", { ascending: false })
+      .limit(500);
+    const learned = findLearnedAnswer(question, (learnedRows as LearnedEntry[]) ?? []);
+    const entry = learned ? null : findSupportAnswer(question);
+    const body = learned?.answer ?? entry?.answer ?? SUPPORT_FALLBACK;
+    if (learned) {
+      const { data: row } = await supabaseAdmin
+        .from("support_learned")
+        .select("uses")
+        .eq("id", learned.id)
+        .maybeSingle();
+      await supabaseAdmin
+        .from("support_learned")
+        .update({ uses: (row?.uses ?? 0) + 1 })
+        .eq("id", learned.id);
+    }
 
     // Do not repeat the same answer twice in a row.
     const previous = rows?.[1];

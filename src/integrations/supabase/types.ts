@@ -407,6 +407,39 @@ export type Database = {
         }
         Relationships: []
       }
+      support_learned: {
+        Row: {
+          answer: string
+          created_at: string
+          created_by: string | null
+          id: string
+          keywords: string[]
+          question: string
+          updated_at: string
+          uses: number
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          keywords?: string[]
+          question: string
+          updated_at?: string
+          uses?: number
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          keywords?: string[]
+          question?: string
+          updated_at?: string
+          uses?: number
+        }
+        Relationships: []
+      }
       support_messages: {
         Row: {
           body: string
