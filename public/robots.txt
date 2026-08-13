@@ -150,7 +150,6 @@ Disallow: /compare
 Disallow: /reports
 Disallow: /alerts
 Disallow: /calculators
-Disallow: /manual
 Disallow: /admin
 Disallow: /api/
 
