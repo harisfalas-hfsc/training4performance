@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { SectionTitle } from "@/components/perf-ui";
 import { PlayerPicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { CHART_KINDS, ChartFrame, MultiChart, type ChartKind } from "@/components/charts";
 import {
   blockDistribution,
