@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Signed-in users can read learned answers" ON public.support_learned;
