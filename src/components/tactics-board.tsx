@@ -134,29 +134,34 @@ const DIMS: Record<Orientation, { w: number; h: number }> = {
   landscape: { w: 1000, h: 680 },
 };
 
-export type PitchView = "full" | "half" | "quarter";
-export type FieldType = "football" | "futsal" | "blank";
+export type PitchView = "full" | "half";
+export type FieldType = "football" | "blank";
 
 const VIEWS: { id: PitchView; label: string }[] = [
   { id: "full", label: "Full pitch" },
   { id: "half", label: "Half pitch" },
-  { id: "quarter", label: "Quarter pitch" },
 ];
 
 const FIELDS: { id: FieldType; label: string }[] = [
   { id: "football", label: "Football 11v11" },
-  { id: "futsal", label: "Futsal / indoor" },
   { id: "blank", label: "Blank field" },
 ];
+
+/* Legacy drawings may still carry retired options; fall back to the
+   supported ones so old saved boards keep opening. */
+function normView(v: unknown): PitchView {
+  return v === "half" ? "half" : "full";
+}
+function normField(f: unknown): FieldType {
+  return f === "blank" ? "blank" : "football";
+}
 
 /** Visible area of the base pitch for the chosen view. */
 function viewBoxFor(orientation: Orientation, view: PitchView) {
   const { w, h } = DIMS[orientation];
   if (view === "full") return { x: 0, y: 0, w, h };
-  if (orientation === "portrait") {
-    return view === "half" ? { x: 0, y: 0, w, h: h / 2 } : { x: 0, y: 0, w: w / 2, h: h / 2 };
-  }
-  return view === "half" ? { x: 0, y: 0, w: w / 2, h } : { x: 0, y: 0, w: w / 2, h: h / 2 };
+  if (orientation === "portrait") return { x: 0, y: 0, w, h: h / 2 };
+  return { x: 0, y: 0, w: w / 2, h };
 }
 
 function PitchMarkings({
