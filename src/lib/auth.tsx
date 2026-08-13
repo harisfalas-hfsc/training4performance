@@ -23,6 +23,8 @@ export interface Subscription {
   season_start: string;
   season_end: string;
   price_eur: number;
+  cancel_at_period_end?: boolean;
+  canceled_at?: string | null;
 }
 
 interface AuthValue {
@@ -72,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.from("profiles").select("id,email,full_name,club_name").eq("id", uid).maybeSingle(),
       supabase
         .from("subscriptions")
-        .select("id,user_id,team_name,status,season_start,season_end,price_eur")
+        .select("id,user_id,team_name,status,season_start,season_end,price_eur,cancel_at_period_end,canceled_at")
         .eq("user_id", uid)
         .maybeSingle(),
     ]);
