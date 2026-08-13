@@ -159,7 +159,15 @@ function viewBoxFor(orientation: Orientation, view: PitchView) {
   return view === "half" ? { x: 0, y: 0, w: w / 2, h } : { x: 0, y: 0, w: w / 2, h: h / 2 };
 }
 
-function PitchMarkings({ orientation, field }: { orientation: Orientation; field: FieldType }) {
+function PitchMarkings({
+  orientation,
+  field,
+  vb,
+}: {
+  orientation: Orientation;
+  field: FieldType;
+  vb: { x: number; y: number; w: number; h: number };
+}) {
   const { w, h } = DIMS[orientation];
   const m = 26;
   const line = "var(--color-pitch-line)";
@@ -174,11 +182,17 @@ function PitchMarkings({ orientation, field }: { orientation: Orientation; field
   const spot = long * (futsal ? 0.07 : 0.1);
   const r = short * (futsal ? 0.12 : 0.16);
 
-  const el: React.ReactNode[] = [
-    <rect key="outer" x={m} y={m} width={w - m * 2} height={h - m * 2} {...common} />,
-  ];
+  /* Boundary hugs the visible area so half / quarter views read as a real
+     playing surface instead of a cropped full pitch. */
+  const boundary = (
+    <rect x={vb.x + m} y={vb.y + m} width={vb.w - m * 2} height={vb.h - m * 2} {...common} />
+  );
 
-  if (field === "blank") return <g pointerEvents="none">{el}</g>;
+  const el: React.ReactNode[] = [];
+
+  if (field === "blank") return <g pointerEvents="none">{boundary}</g>;
+
+
 
 
 
@@ -231,7 +245,14 @@ function PitchMarkings({ orientation, field }: { orientation: Orientation; field
       );
     }
   }
-  return <g pointerEvents="none">{el}</g>;
+  return (
+    <g pointerEvents="none">
+      <g clipPath="url(#t4p-pitch-clip)">{el}</g>
+      {boundary}
+    </g>
+  );
+
+
 }
 
 /* ------------------------------------------------------------------ */
@@ -779,13 +800,21 @@ export function TacticsBoard({
           </div>
         )}
 
-        {/* pitch */}
-        <div className="relative min-w-0 overflow-hidden rounded-md border border-border bg-pitch">
+        {/* pitch — the box always matches the chosen view's aspect ratio, so
+            there is never empty space beside or below the playing surface. */}
+        <div className="relative flex min-w-0 justify-center">
+          <div
+            className="relative overflow-hidden rounded-md border border-border bg-pitch"
+            style={{
+              aspectRatio: `${w} / ${h}`,
+              width: `min(100%, calc(70vh * ${w / h}))`,
+            }}
+          >
           <svg
             ref={svgRef}
             viewBox={`${vb.x} ${vb.y} ${w} ${h}`}
-            preserveAspectRatio="xMidYMid meet"
-            className="block h-auto max-h-[70vh] w-full max-w-full select-none"
+            preserveAspectRatio="none"
+            className="block h-full w-full select-none"
 
             style={{
               // Drawing tools need the gesture; otherwise let the page scroll
@@ -805,11 +834,17 @@ export function TacticsBoard({
               <pattern id="t4p-stripes" width={DIMS[orientation].w / 8} height={DIMS[orientation].h} patternUnits="userSpaceOnUse">
                 <rect width={DIMS[orientation].w / 16} height={DIMS[orientation].h} fill="#ffffff" opacity="0.045" />
               </pattern>
+              <clipPath id="t4p-pitch-clip">
+                {/* markings never spill past the touchline of the visible area */}
+                <rect x={vb.x + 26} y={vb.y + 26} width={vb.w - 52} height={vb.h - 52} />
+              </clipPath>
+
             </defs>
 
-            <rect width={DIMS[orientation].w} height={DIMS[orientation].h} fill="var(--color-pitch)" />
-            <rect width={DIMS[orientation].w} height={DIMS[orientation].h} fill="url(#t4p-stripes)" pointerEvents="none" />
-            <PitchMarkings orientation={orientation} field={field} />
+            <rect x={vb.x} y={vb.y} width={vb.w} height={vb.h} fill="var(--color-pitch)" />
+            <rect x={vb.x} y={vb.y} width={vb.w} height={vb.h} fill="url(#t4p-stripes)" pointerEvents="none" />
+            <PitchMarkings orientation={orientation} field={field} vb={vb} />
+
 
 
             {liveShapes.map((s) => (
@@ -872,7 +907,9 @@ export function TacticsBoard({
               </g>
             ))}
           </svg>
+          </div>
         </div>
+
       </div>
     </div>
   );
