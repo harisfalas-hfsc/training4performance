@@ -46,6 +46,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
 import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
+import { isDemoActive } from "@/lib/demo";
 import { Training4Performance } from "@/components/brand-text";
 
 const nav = platformNav;
@@ -96,6 +97,10 @@ export function AppShell({
   };
 
   useEffect(() => {
+    if (isDemoActive()) {
+      stopWorkspaceAutoSync();
+      return;
+    }
     if (!user?.id) {
       clearWellness();
       stopWorkspaceAutoSync();
@@ -109,6 +114,7 @@ export function AppShell({
   }, [user?.id]);
 
   useEffect(() => {
+    if (isDemoActive()) return;
     if (!user?.id) return;
     const t = window.setTimeout(() => {
       void syncUsageSnapshot({
