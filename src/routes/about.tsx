@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { MarketingPage } from "@/components/marketing";
-import { BrandCopy, T4P, SmartyAssistant, Training4Performance } from "@/components/brand-text";
+import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
@@ -150,8 +150,8 @@ const questions = [
   },
   {
     icon: Sparkles,
-    q: "Can I just ask?",
-    a: "Smarty Assistant reads your squad data and answers in plain language — reports, comparisons, workload trends and session ideas.",
+    q: "What if I get stuck?",
+    a: "Ask from your account and the answer arrives in your communication centre — usually straight away.",
     color: "indigo",
   },
 ];
@@ -680,25 +680,6 @@ function About() {
                 reference so metres, counts and joules can be combined into a single number: 100 AU
                 is an average session for an average player of your squad. That individual load then
                 drives ACWR, monotony and strain, per player.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="panel mt-6 border-brand-blue/30 bg-gradient-to-r from-brand-blue/10 to-brand-violet/10 p-6">
-          <div className="flex flex-wrap items-start gap-4">
-            <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-blue/15 text-brand-blue">
-              <Sparkles className="size-6" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="eyebrow text-brand-blue">
-                <SmartyAssistant />
-              </p>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                <SmartyAssistant /> is the AI analyst inside <T4P />. It reads your squad, sessions,
-                GPS and wellness data and answers questions like "Who ran the most this week?",
-                "Compare player A and player B", or "Give me a workload report". It can suggest
-                session adjustments, explain trends and learn your terminology over time.
               </p>
             </div>
           </div>
