@@ -84,9 +84,10 @@ function endDateLabel(months: number) {
  * history, so it is labelled instead of being presented as active access.
  */
 function accessUntilLabel(c: { active?: boolean; status?: string | null; season_end?: string | null }) {
+  if (c.active && c.season_end) return new Date(c.season_end).toLocaleDateString();
+  if (c.status === "pending") return "awaiting activation";
   if (!c.season_end) return "—";
   const label = new Date(c.season_end).toLocaleDateString();
-  if (c.active) return label;
   if (c.status === "revoked") return `revoked (was ${label})`;
   return `ended ${label}`;
 }
