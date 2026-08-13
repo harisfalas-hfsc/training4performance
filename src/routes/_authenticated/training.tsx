@@ -762,14 +762,13 @@ function TrainingPage() {
                                 className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none"
                               />
                               <div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
-                                {!gym && !it.strength ? (
-                                  <button
-                                    onClick={() => setDrawingIndex(i)}
-                                    className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
-                                  >
-                                    {it.drawing ? "Edit drawing" : "Draw on board"}
-                                  </button>
-                                ) : null}
+                                <button
+                                  onClick={() => setDrawingIndex(i)}
+                                  className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                                >
+                                  {it.drawing ? "Edit drawing & description" : "Draw on board"}
+                                </button>
+
                                 <button
                                   onClick={() => duplicateItem(i)}
                                   className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
