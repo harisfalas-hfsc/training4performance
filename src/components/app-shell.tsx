@@ -46,6 +46,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { SiteFooter } from "@/components/marketing";
 import { platformNav } from "@/lib/nav-items";
 import { resetPlatformHistory, usePlatformBack } from "@/lib/platform-history";
+import { Training4Performance } from "@/components/brand-text";
 
 const nav = platformNav;
 
