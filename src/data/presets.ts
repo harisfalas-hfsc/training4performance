@@ -6,7 +6,7 @@
 import type { SessionPlanItem } from "@/data/performance";
 import { useSyncExternalStore } from "react";
 import { guardWrite } from "@/lib/access";
-import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { getWorkspaceScope, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 /* ------------------------------------------------------------------ */
 /* Session types (PLAYER TRAINING DESCRIPTION)                         */
@@ -323,22 +323,6 @@ function load(userId: string | null, _migrateLegacy: boolean) {
   state.blockNames = [];
   state.blocks = [];
   state.sessions = [];
-  if (typeof window === "undefined" || !userId) return;
-  try {
-    const key = scopedStorageKey(KEY, userId);
-    if (!key) return;
-    const raw = window.localStorage.getItem(key);
-    if (raw) {
-      const s = JSON.parse(raw) as Partial<LibraryState>;
-      state.strength = s.strength ?? [];
-      state.drills = s.drills ?? [];
-      state.blockNames = s.blockNames ?? [];
-      state.blocks = s.blocks ?? [];
-      state.sessions = s.sessions ?? [];
-    }
-  } catch {
-    /* ignore */
-  }
   version++;
   listeners.forEach((listener) => listener());
 }
@@ -348,14 +332,6 @@ load(initialScope.userId, initialScope.migrateLegacy);
 
 function emit() {
   version++;
-  if (typeof window !== "undefined") {
-    const key = scopedStorageKey(KEY);
-    try {
-      if (key) window.localStorage.setItem(key, JSON.stringify(state));
-    } catch {
-      /* ignore */
-    }
-  }
   listeners.forEach((l) => l());
 }
 

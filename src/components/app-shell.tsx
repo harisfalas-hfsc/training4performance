@@ -102,7 +102,9 @@ export function AppShell({
       return;
     }
     const id = user.id;
-    void hydrateWorkspace(id).then(() => startWorkspaceAutoSync(id));
+    void hydrateWorkspace(id).then((hydrated) => {
+      if (hydrated) startWorkspaceAutoSync(id);
+    });
     void loadWellness(id);
   }, [user?.id]);
 

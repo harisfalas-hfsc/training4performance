@@ -22,12 +22,12 @@ let activeWorkspaceUser: string | null = null;
 /** Cloud hydration must happen once per signed-in user, never on every page change. */
 let hydratedUser: string | null = null;
 
-export async function hydrateWorkspace(userId: string) {
+export async function hydrateWorkspace(userId: string): Promise<boolean> {
   // The public demo runs in its own sandbox scope and never touches the cloud.
-  if (isDemoActive()) return;
+  if (isDemoActive()) return false;
   // Extra teams (administrator only) live locally in their own scope.
-  if (getWorkspaceScope().userId !== userId) return;
-  if (hydratedUser === userId) return;
+  if (getWorkspaceScope().userId !== userId) return false;
+  if (hydratedUser === userId) return true;
   hydratedUser = userId;
   activeWorkspaceUser = userId;
   const { data, error } = await supabase
@@ -37,7 +37,7 @@ export async function hydrateWorkspace(userId: string) {
     .maybeSingle();
   if (error || activeWorkspaceUser !== userId) {
     if (error) hydratedUser = null;
-    return;
+    return false;
   }
   if (!data) {
     // The cloud is authoritative. An empty workspace must stay empty; never
@@ -52,7 +52,8 @@ export async function hydrateWorkspace(userId: string) {
       manualTests: [],
       medicalEvents: [],
     });
-    return;
+    applyTestRecords([]);
+    return true;
   }
   const cloudPlayers = (data.players ?? []) as unknown as Player[];
   applyWorkspaceData({
@@ -66,7 +67,10 @@ export async function hydrateWorkspace(userId: string) {
     medicalEvents: data.medical_events as unknown as MedicalEvent[],
   });
   const cloudTests = (data.test_records ?? []) as unknown as TestRecord[];
-  if (Array.isArray(cloudTests) && cloudTests.length) applyTestRecords(cloudTests);
+  // An empty cloud array is authoritative too. Always replace browser state so
+  // deleted fitness tests can never survive in an old local cache.
+  applyTestRecords(Array.isArray(cloudTests) ? cloudTests : []);
+  return true;
 }
 
 /** Called on sign-out / account switch so the next user hydrates cleanly. */
@@ -166,6 +170,7 @@ let unsubscribeAuto: Array<() => void> = [];
  */
 export function startWorkspaceAutoSync(userId: string) {
   if (isDemoActive()) return;
+  if (hydratedUser !== userId) return;
   if (autoSyncUser === userId) return;
   stopWorkspaceAutoSync();
   autoSyncUser = userId;
@@ -177,8 +182,6 @@ export function startWorkspaceAutoSync(userId: string) {
     }, 800);
   };
   unsubscribeAuto = [subscribeData(schedule), subscribeTests(schedule)];
-  // Push whatever is already in this browser right away.
-  void syncWorkspace(userId);
 }
 
 export function stopWorkspaceAutoSync() {

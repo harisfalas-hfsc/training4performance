@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { getPlayer, gpsHistory, players } from "@/data/performance";
 import { guardWrite } from "@/lib/access";
-import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { getWorkspaceScope, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 /* ------------------------------------------------------------------ */
 /* Test catalogue — every KPI the fitness coach can record             */
@@ -160,7 +160,7 @@ export interface TestRecord {
 
 export const testRecords: TestRecord[] = [];
 
-const STORAGE_KEY = "t4p.tests.v3";
+const STORAGE_KEY = "t4p.tests.v4";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -171,14 +171,6 @@ export function subscribeTests(fn: () => void) {
 
 function emit() {
   version++;
-  if (typeof window !== "undefined") {
-    const key = scopedStorageKey(STORAGE_KEY);
-    try {
-      if (key) window.localStorage.setItem(key, JSON.stringify(testRecords));
-    } catch {
-      /* quota */
-    }
-  }
   listeners.forEach((l) => l());
 }
 
@@ -201,7 +193,7 @@ function seed(): TestRecord[] {
 /* Custom test builder                                                 */
 /* ------------------------------------------------------------------ */
 
-const CUSTOM_KEY = "t4p.customtests.v3";
+const CUSTOM_KEY = "t4p.customtests.v4";
 
 /** What kind of number the coach records for a custom test. */
 export type CustomTestKind = "number" | "time" | "score" | "strength";
@@ -222,27 +214,11 @@ function rebuildCatalog() {
 }
 
 function persistCustomTests() {
-  if (typeof window === "undefined") return;
-  const key = scopedStorageKey(CUSTOM_KEY);
-  try {
-    if (key) window.localStorage.setItem(key, JSON.stringify(customTests));
-  } catch {
-    /* quota */
-  }
+  // Never retain account test definitions in a browser cache.
 }
 
 function hydrateCustomTests(userId: string | null) {
   customTests.splice(0, customTests.length);
-  if (typeof window !== "undefined" && userId) {
-    try {
-      const key = scopedStorageKey(CUSTOM_KEY, userId);
-      const raw = key ? window.localStorage.getItem(key) : null;
-      const parsed = raw ? (JSON.parse(raw) as TestDef[]) : null;
-      if (Array.isArray(parsed)) customTests.push(...parsed.map((d) => ({ ...d, custom: true as const })));
-    } catch {
-      /* corrupt */
-    }
-  }
   rebuildCatalog();
 }
 
@@ -305,21 +281,6 @@ export function removeCustomTest(id: string) {
 function hydrate(userId: string | null, _migrateLegacy: boolean) {
   testRecords.splice(0, testRecords.length);
   hydrateCustomTests(userId);
-  if (typeof window === "undefined" || !userId) return;
-
-  try {
-    const key = scopedStorageKey(STORAGE_KEY, userId);
-    if (!key) return;
-    const raw = window.localStorage.getItem(key);
-    if (raw) {
-      const parsed = JSON.parse(raw) as TestRecord[];
-      if (Array.isArray(parsed)) {
-        testRecords.push(...parsed);
-      }
-    }
-  } catch {
-    /* corrupt */
-  }
   version++;
   listeners.forEach((listener) => listener());
 }

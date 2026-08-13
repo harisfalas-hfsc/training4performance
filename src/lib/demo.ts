@@ -11,6 +11,8 @@ import { applyWorkspaceData } from "@/data/performance";
 import { applyTestRecords } from "@/data/testing";
 import { clearWellness, setWellnessLocalOnly } from "@/data/wellness";
 import { applySavedBlocks } from "@/data/presets";
+import { buildDemoTests, buildDemoWellness, buildDemoWorkspace, DEMO_BLOCKS } from "@/data/demo-seed";
+import { applyLocalWellness } from "@/data/wellness";
 
 export const DEMO_SCOPE = "t4p-demo";
 const FLAG = "t4p.demo.active";
@@ -24,7 +26,7 @@ export function isDemoActive() {
   }
 }
 
-/** Opens an isolated, empty sandbox without creating example records. */
+/** Opens the same deterministic, isolated demo for every visitor. */
 export function activateDemo(_reseed = false) {
   if (typeof window === "undefined") return;
   try {
@@ -36,14 +38,11 @@ export function activateDemo(_reseed = false) {
   setDemoMode(false);
   setWriteAccess(true);
   setWorkspaceScope(DEMO_SCOPE);
-  applyWorkspaceData({
-    team: { id: "team-demo", name: "", club: "", season: "", competition: "", ageGroup: "Senior", gender: "Male", headCoach: "", fitnessCoach: "", configured: false },
-    players: [], sessions: [], gpsHistory: [], gpsBlocks: [], rpeEntries: [], manualTests: [], medicalEvents: [],
-  });
-  applyTestRecords([]);
-  applySavedBlocks([]);
+  applyWorkspaceData(buildDemoWorkspace());
+  applyTestRecords(buildDemoTests());
+  applySavedBlocks(DEMO_BLOCKS);
   setWellnessLocalOnly(true);
-  clearWellness();
+  applyLocalWellness(buildDemoWellness());
   setDemoMode(true);
 }
 

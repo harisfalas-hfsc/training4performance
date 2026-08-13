@@ -11,7 +11,7 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { guardDemo, guardWrite } from "@/lib/access";
-import { getWorkspaceScope, scopedStorageKey, subscribeWorkspaceScope } from "@/lib/workspace-scope";
+import { getWorkspaceScope, subscribeWorkspaceScope } from "@/lib/workspace-scope";
 
 export type Position = "GK" | "CB" | "FB" | "CM" | "AM" | "W" | "ST";
 
@@ -294,9 +294,28 @@ export interface WorkspaceData {
   medicalEvents: MedicalEvent[];
 }
 
-// v4 permanently invalidates every earlier browser workspace. Never recover
+// v5 permanently invalidates every earlier browser workspace. Never recover
 // retired uploaded, seeded, demo, or reference data from older stores.
-const STORAGE_KEY = "t4p.data.v4";
+const STORAGE_KEY = "t4p.data.v5";
+
+if (typeof window !== "undefined") {
+  const retiredDataPrefixes = [
+    "t4p.data.",
+    "t4p.tests.",
+    "t4p.testrecords.",
+    "t4p.customtests.",
+    "t4p.library.",
+    "t4p.loadmodel.",
+    "t4p.gpsTemplates.",
+    "t4p.teamSlots.",
+    "t4p.notifications.",
+    "t4p.alerts.",
+    "t4p.purge.",
+  ];
+  Object.keys(window.localStorage).forEach((key) => {
+    if (retiredDataPrefixes.some((prefix) => key.startsWith(prefix))) window.localStorage.removeItem(key);
+  });
+}
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -306,17 +325,7 @@ export function subscribeData(fn: () => void) {
 }
 
 function persist() {
-  if (typeof window === "undefined") return;
-  const key = scopedStorageKey(STORAGE_KEY);
-  if (!key) return;
-  try {
-    window.localStorage.setItem(
-      key,
-      JSON.stringify({ team, players, gpsHistory, gpsBlocks, rpeEntries, sessionCalendar, manualTests, medicalEvents }),
-    );
-  } catch {
-    /* quota — ignore */
-  }
+  // Account records persist to the cloud only; demo records are memory-only.
 }
 
 function emit() {
@@ -400,34 +409,6 @@ function hydrate(userId: string | null, _migrateLegacy: boolean) {
     version++;
     listeners.forEach((listener) => listener());
     return;
-  }
-  try {
-    const key = scopedStorageKey(STORAGE_KEY, userId);
-    if (!key) return;
-    const raw = window.localStorage.getItem(key);
-    if (raw) {
-
-    const s = JSON.parse(raw) as {
-      team?: Team;
-      players?: Player[];
-      gpsHistory?: GpsDay[];
-      gpsBlocks?: GpsBlockRow[];
-      rpeEntries?: RpeEntry[];
-      sessionCalendar?: Session[];
-      manualTests?: ManualTest[];
-      medicalEvents?: MedicalEvent[];
-    };
-    if (s.team) Object.assign(team, s.team);
-    if (s.players?.length) replace(players, s.players);
-    if (s.gpsHistory?.length) replace(gpsHistory, s.gpsHistory);
-    if (s.gpsBlocks?.length) replace(gpsBlocks, s.gpsBlocks);
-    if (s.rpeEntries?.length) replace(rpeEntries, s.rpeEntries);
-    if (s.sessionCalendar?.length) replace(sessionCalendar, s.sessionCalendar);
-    if (s.manualTests) replace(manualTests, s.manualTests);
-    if (s.medicalEvents) replace(medicalEvents, s.medicalEvents);
-    }
-  } catch {
-    /* corrupt — ignore */
   }
   version++;
   listeners.forEach((listener) => listener());
