@@ -14,13 +14,22 @@ import {
   type LibraryBlock,
 } from "@/lib/library.functions";
 
-const empty = {
+type BlockForm = {
+  id: string;
+  category: string;
+  name: string;
+  description: string;
+  published: boolean;
+  items: SessionPlanItem[];
+};
+
+const empty: BlockForm = {
   id: "",
   category: LIBRARY_CATEGORIES[0] ?? "STRENGTH",
   name: "",
   description: "",
   published: true,
-  items: [] as SessionPlanItem[],
+  items: [],
 };
 
 /** Owner-only editor for the ready-made T4P blocks coaches see in their library. */
