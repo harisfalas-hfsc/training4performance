@@ -7,6 +7,10 @@ import {
   CalendarDays,
   ClipboardPen,
   BookOpen,
+  BookMarked,
+  HeartPulse,
+  Timer,
+  Smartphone,
   Radar,
   ShieldCheck,
   Users,
@@ -15,7 +19,14 @@ import {
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
-import { ShotSquad, ShotCalendar, ShotTacticsBoard, ShotGpsImport } from "@/components/home-shots";
+import {
+  ShotSquad,
+  ShotCalendar,
+  ShotTacticsBoard,
+  ShotGpsImport,
+  ShotLibrary,
+  ShotWellness,
+} from "@/components/home-shots";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,6 +91,30 @@ const features = [
     title: "Training monitor logbook",
     text: "Every session row, drill splits, RPE, pivot charts and test batteries.",
     color: "#d97706",
+  },
+  {
+    icon: BookMarked,
+    title: "Drills & exercise library",
+    text: "Ready-made T4P blocks for strength, power, speed and ESD — plus every block you save.",
+    color: "#c026d3",
+  },
+  {
+    icon: HeartPulse,
+    title: "Wellness questionnaires",
+    text: "Players answer sleep, fatigue, mood, soreness and stress each morning from their phone.",
+    color: "#e11d48",
+  },
+  {
+    icon: Timer,
+    title: "Fitness testing",
+    text: "CMJ, sprints, Yo-Yo, FMS and body composition with personal bests and progression.",
+    color: "#0d9488",
+  },
+  {
+    icon: Smartphone,
+    title: "Player portal",
+    text: "Each player gets a private code to check in and follow his own load and test history.",
+    color: "#ea580c",
   },
   {
     icon: BellRing,
@@ -154,6 +189,34 @@ const showcase = [
     ],
     tags: ["Provider detection", "Player matching", "Composite load", "Manual RPE"],
     shot: <ShotGpsImport />,
+  },
+  {
+    title: "Drills & exercise library",
+    text: "A library of ready-made blocks written by T4P — strength, power, speed, energy system development, mobility, technical and recovery — plus every block you save yourself. Pick one and it lands inside the training you are designing, with all its drills, sets, reps, rest and even its tactics board drawing.",
+    points: [
+      "T4P library: professionally written blocks, organised by category",
+      "My library: save any block you build and reuse it for the rest of the season",
+      "Search by name or filter by category — no scrolling through walls of buttons",
+      "One tap adds the whole block to the session you are designing",
+      "Copy a T4P block to your library and edit it to fit your squad",
+      "Your own saved blocks always stay yours, even if the subscription ends",
+    ],
+    tags: ["Strength", "Power", "Speed", "ESD", "Save & reuse"],
+    shot: <ShotLibrary />,
+  },
+  {
+    title: "Wellness & player portal",
+    text: "Every player gets a private code and answers a short morning questionnaire from his phone — sleep, fatigue, muscle soreness, stress and mood. You open the platform and see the squad's readiness before the session starts, with a flag on anyone who dropped.",
+    points: [
+      "Five-question check-in, under 20 seconds on a phone",
+      "You choose the cut-off time and see who has not submitted",
+      "Automatic flags when a score drops against a player's own baseline",
+      "Wellness sits next to load, so a spike in ACWR and a drop in sleep show together",
+      "Players see their own load, wellness and test history — nobody else's",
+      "Compare players or the whole squad in analytics, day by day",
+    ],
+    tags: ["Morning check-in", "Readiness", "Flags", "Player portal"],
+    shot: <ShotWellness />,
   },
 ];
 

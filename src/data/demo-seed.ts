@@ -15,6 +15,7 @@ import type {
   Player,
   RpeEntry,
   Session,
+  SessionPlanItem,
   Team,
   WorkspaceData,
 } from "@/data/performance";
@@ -891,4 +892,133 @@ export function buildDemoAccess(): DemoAccessRow[] {
     active: i !== 4,
     last_login_at: i === 4 ? null : new Date(now - (i + 1) * 3600_000).toISOString(),
   }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Drills & exercise library (demo)                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Ready-made T4P blocks the demo shows in the library.
+ * In a real account these come from the cloud; in the sandbox they are static
+ * so a visitor can browse them, copy them and drop them into a session.
+ */
+export const DEMO_T4P_LIBRARY: DemoLibraryBlock[] = [
+  {
+    id: "demo-lib-1",
+    category: "STRENGTH",
+    name: "Lower body max strength — MD-3",
+    description: "Two heavy bilateral lifts plus unilateral and posterior-chain work for the mid-week gym slot.",
+    items: [
+      {
+        drill: "Back squat",
+        purpose: "Low push",
+        durationMin: 15,
+        rpe: 8,
+        strength: { sets: 4, reps: 5, intensityPct: 80, restSec: 180 },
+      },
+      {
+        drill: "Romanian deadlift (RDL)",
+        purpose: "Low pull",
+        durationMin: 12,
+        rpe: 7,
+        strength: { sets: 4, reps: 6, intensityPct: 65, restSec: 150 },
+      },
+      {
+        drill: "Bulgarian split squat",
+        purpose: "Low push",
+        durationMin: 10,
+        rpe: 6,
+        strength: { sets: 3, reps: 8, intensityPct: 40, restSec: 120 },
+      },
+      {
+        drill: "Nordic hamstring curl",
+        purpose: "Low pull",
+        durationMin: 8,
+        rpe: 6,
+        strength: { sets: 3, reps: 6, intensityPct: 0, restSec: 120 },
+      },
+    ],
+  },
+  {
+    id: "demo-lib-2",
+    category: "ESD (ENERGY SYSTEM DEVELOPMENT)",
+    name: "Aerobic power with the ball — 4v4 SSG",
+    description: "Small-sided games above the anaerobic threshold, drawn on the board so the setup takes 30 seconds.",
+    items: [
+      { drill: "Movement preparation", purpose: "WARM UP", durationMin: 12, rpe: 4 },
+      {
+        drill: "SSG 4v4 > AT",
+        purpose: "METABOLIC",
+        durationMin: 16,
+        rpe: 8,
+        tags: ["SSG", "Aerobic power"],
+        drawing: SSG_BOARD,
+      },
+      { drill: "Rondo 5v2", purpose: "METABOLIC", durationMin: 12, rpe: 6, drawing: RONDO_BOARD },
+      { drill: "Cool-down jog & stretching", purpose: "ACTIVATION", durationMin: 8, rpe: 2 },
+    ],
+  },
+  {
+    id: "demo-lib-3",
+    category: "SPEED",
+    name: "Speed & finishing — MD-2",
+    description: "Short maximal-intensity efforts finished with a shot, so the sprint has a football reason.",
+    items: [
+      { drill: "Movement preparation", purpose: "WARM UP", durationMin: 10, rpe: 4 },
+      { drill: "POWER - LINEAR SPEED", purpose: "POWER", durationMin: 12, rpe: 7 },
+      {
+        drill: "Finishing from the wide channel",
+        purpose: "POWER",
+        durationMin: 15,
+        rpe: 7,
+        tags: ["Finishing", "Sprint"],
+        drawing: FINISHING_BOARD,
+      },
+    ],
+  },
+];
+
+export interface DemoLibraryBlock {
+  id: string;
+  category: string;
+  name: string;
+  description: string;
+  items: SessionPlanItem[];
+}
+
+/** Blocks the demo coach has already saved into his own library. */
+export function buildDemoLibrary() {
+  const savedAt = new Date().toISOString();
+  return [
+    {
+      id: "demo-my-1",
+      name: "My activation & prehab circuit",
+      savedAt,
+      category: "MOBILITY & STABILITY",
+      description: "The circuit this squad runs before every pitch session.",
+      items: [
+        { drill: "MINI BANDS", purpose: "ACTIVATION", durationMin: 8, rpe: 3 },
+        { drill: "Copenhagen adduction", purpose: "Low pull", durationMin: 8, rpe: 4 },
+        { drill: "Pallof press", purpose: "Core", durationMin: 6, rpe: 4 },
+      ] as SessionPlanItem[],
+    },
+    {
+      id: "demo-my-2",
+      name: "Match-day corner routine",
+      savedAt,
+      category: "TECHNICAL / TACTICAL",
+      description: "Saved straight off the tactics board after last week's set-piece meeting.",
+      items: [
+        {
+          drill: "Attacking corner — near post",
+          purpose: "TACTICS",
+          durationMin: 12,
+          rpe: 5,
+          tags: ["Set pieces"],
+          drawing: CORNER_BOARD,
+        },
+      ] as SessionPlanItem[],
+    },
+  ];
 }
