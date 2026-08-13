@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
 import { SectionTitle, MetricCard } from "@/components/perf-ui";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, type ChartKind } from "@/components/charts";
 import {
   attendance,
@@ -10,11 +10,6 @@ import {
   drillSummary,
   type DrillCatalogItem,
 } from "@/data/explore";
-
-const chip = (active: boolean) =>
-  `rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
-    active ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-secondary"
-  }`;
 
 /**
  * "Training & drills" answers: how many sessions did this player attend, how
@@ -30,18 +25,12 @@ export function TrainingExplorer({
   from: string;
   to: string;
 }) {
-  const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
   const [kind, setKind] = useState<ChartKind>("bar");
   const [measure, setMeasure] = useState<"times" | "minutes">("times");
 
   const catalog = useMemo(() => drillCatalog(from, to), [from, to]);
   const entries = useMemo(() => drillEntries(from, to), [from, to]);
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (q ? catalog.filter((item) => item.label.toLowerCase().includes(q)) : catalog).slice(0, 40);
-  }, [catalog, query]);
-
   const chosen: DrillCatalogItem[] = catalog.filter((item) => picked.includes(item.key));
   const summaries = useMemo(
     () => chosen.map((item) => drillSummary(item, playerIds, from, to)),
