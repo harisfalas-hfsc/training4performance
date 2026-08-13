@@ -17,5 +17,11 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [getTeamOverview, listPlayers, listSessions, listWellness, listNotifications],
+  tools: [
+    getTeamOverview,
+    listPlayers,
+    listSessions,
+    listWellness,
+    listNotifications,
+  ] as unknown as AnyToolDefinition[],
 });
