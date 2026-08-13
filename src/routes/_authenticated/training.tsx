@@ -935,6 +935,12 @@ function TrainingPage() {
                   },
                 });
               }}
+              onAddBlock={(blockName, blockItems) => {
+                blockItems.forEach((item) => addItem({ ...item, block: activeBlock }));
+                toast.success(`${blockName} added to ${activeBlock}`, {
+                  description: `${blockItems.length} item${blockItems.length === 1 ? "" : "s"} copied in`,
+                });
+              }}
             />
 
           </section>
