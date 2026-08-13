@@ -201,7 +201,7 @@ function DemoPage() {
               ))}
             </ul>
             <p className="mt-4 text-xs text-muted-foreground">
-              They all work normally on a subscription — €999 for the season, one team, unlimited
+              They all work normally on a subscription — €69.90 per month, one team, unlimited
               players.
             </p>
           </div>

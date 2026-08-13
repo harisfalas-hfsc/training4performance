@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.support_message_touch() FROM PUBLIC, anon, authenticated;

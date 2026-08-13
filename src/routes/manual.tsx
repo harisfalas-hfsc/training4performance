@@ -460,6 +460,19 @@ type Problem = { q: string; a: string };
 
 const PROBLEMS: Problem[] = [
   {
+    q: "What does T4P cost and how am I billed?",
+    a: "€69.90 per month for one team, charged monthly and renewing automatically until you cancel. Every module is included and there is no per-user fee. You cancel from Account → Subscription, and access continues until the end of the month you already paid for.",
+  },
+  {
+    q: "What happens if I cancel, expire or a payment fails?",
+    a: "Nothing is deleted. The account switches to read-only: you keep viewing every player, session, GPS row, test, wellness entry, chart, analysis and report, and you can still export everything to PDF, PNG, Excel or CSV. What is blocked is adding and editing — new records, imports and changes. Subscribe again and full access comes straight back with all your history intact.",
+  },
+  {
+    q: "Where do I see payment messages or contact support?",
+    a: "Account has two areas: Notifications (payment succeeded, payment failed, welcome, renewals, announcements) and the Communication centre, where you open a ticket, describe the problem and read the replies from T4P. It is separate from the Alerts area, which is only about your players.",
+  },
+  {
+
     q: "My GPS file uploaded but some players are missing",
     a: "Their names in the file do not match the squad. Open the mapping report shown after the upload and map each unmatched name to the right player, or rename the player in Squad so the two match exactly. Re-import and the rows will attach.",
   },

@@ -3,15 +3,20 @@ import { useEffect, useState } from "react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
-import { currentSeason, useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
+import { useServerFn } from "@tanstack/react-start";
+import { AccountNotifications } from "@/components/account-notifications";
+import { AccountMessages } from "@/components/account-messages";
+import { requestSubscription, setAutoRenew } from "@/lib/support.functions";
+import { PRICE_FULL, PRICE_LABEL, formatDate } from "@/lib/pricing";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
     ...seoHead({
       path: "/account",
       title: "My account | T4P",
-      description: "Manage your T4P subscription and platform access.",
+      description: "Manage your T4P monthly subscription, notifications and support messages.",
       card: "summary",
       noindex: true,
     }),
@@ -22,7 +27,9 @@ export const Route = createFileRoute("/account")({
 function Account() {
   const { loading, session, user, profile, isAdmin, subscription, hasAccess, refresh, signOut } = useAuth();
   const navigate = useNavigate();
-  const season = currentSeason();
+  const subscribeFn = useServerFn(requestSubscription);
+  const autoRenewFn = useServerFn(setAutoRenew);
+  const [tab, setTab] = useState<"subscription" | "notifications" | "messages">("subscription");
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -61,18 +68,17 @@ function Account() {
     if (!user) return;
     setBusy(true);
     setError(null);
-    // Requests are always saved as "pending" by the database — only the owner can activate them.
-    const { error: err } = await supabase.from("subscriptions").upsert(
-      {
-        user_id: user.id,
-        team_name: clubName || profile?.club_name || "First team",
-        season_start: season.start,
-        season_end: season.end,
-        price_eur: 999,
-      },
-      { onConflict: "user_id" },
-    );
-    if (err) setError(err.message);
+    const res = await subscribeFn({ data: { teamName: clubName || profile?.club_name || "First team" } });
+    if ("error" in res) setError(res.error);
+    await refresh();
+    setBusy(false);
+  }
+
+  async function toggleRenew(cancel: boolean) {
+    setBusy(true);
+    setError(null);
+    const res = await autoRenewFn({ data: { cancel } });
+    if ("error" in res) setError(res.error);
     await refresh();
     setBusy(false);
   }
@@ -87,7 +93,7 @@ function Account() {
 
   return (
     <MarketingPage>
-      <div className="mx-auto max-w-3xl px-5 py-14">
+      <div className="mx-auto max-w-5xl px-5 py-14">
         <p className="eyebrow">My account</p>
         <h1 className="mt-2 font-display text-3xl font-semibold uppercase tracking-wide">
           {profile?.full_name || user?.email}
@@ -102,7 +108,30 @@ function Account() {
           </p>
         ) : null}
 
-        <div className="panel mt-8 p-5">
+        <div className="mt-6 flex flex-wrap gap-2">
+          {([
+            ["subscription", "Subscription & profile"],
+            ["notifications", "Notifications"],
+            ["messages", "Communication centre"],
+          ] as const).map(([k, label]) => (
+            <button
+              key={k}
+              onClick={() => setTab(k)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                tab === k ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "notifications" && user ? <div className="mt-6"><AccountNotifications userId={user.id} /></div> : null}
+        {tab === "messages" && user ? <div className="mt-6"><AccountMessages userId={user.id} /></div> : null}
+
+        {tab === "subscription" ? (
+          <>
+        <div className="panel mt-6 p-5">
           <p className="eyebrow">Profile &amp; team</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="field">
@@ -132,10 +161,10 @@ function Account() {
         </div>
 
         {isAdmin ? (
-          <div className="panel mt-8 flex flex-wrap items-center justify-between gap-3 p-5">
+          <div className="panel mt-6 flex flex-wrap items-center justify-between gap-3 p-5">
             <div>
               <p className="eyebrow"><T4P /> owner</p>
-              <p className="mt-1 text-sm text-muted-foreground">Customer access, subscriptions and platform support.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Customer access, subscriptions, tickets and platform support.</p>
             </div>
             <Link to="/admin" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
               Open admin panel
@@ -143,8 +172,7 @@ function Account() {
           </div>
         ) : null}
 
-
-        <div className="panel mt-8 p-5">
+        <div className="panel mt-6 p-5">
           <p className="eyebrow">Subscription</p>
           {hasAccess ? (
             <>
@@ -152,30 +180,56 @@ function Account() {
                 {isAdmin && !subscription ? "Owner access" : "Active"}
               </p>
               {subscription ? (
-                <p className="text-sm text-muted-foreground">
-                  {subscription.team_name} · season {subscription.season_start} → {subscription.season_end} · €
-                  {Number(subscription.price_eur).toFixed(0)}
-                </p>
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    {subscription.team_name} · {PRICE_FULL} ·{" "}
+                    {subscription.cancel_at_period_end
+                      ? `ends ${formatDate(subscription.season_end)}`
+                      : `renews ${formatDate(subscription.season_end)}`}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {subscription.cancel_at_period_end ? (
+                      <button
+                        onClick={() => toggleRenew(false)}
+                        disabled={busy}
+                        className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                      >
+                        {busy ? "Working…" : "Resume monthly renewal"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => toggleRenew(true)}
+                        disabled={busy}
+                        className="rounded-md border border-destructive/40 px-4 py-2 text-sm font-semibold text-destructive disabled:opacity-60"
+                      >
+                        {busy ? "Working…" : "Cancel subscription"}
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Cancelling stops the next payment. You keep full access until the end of the paid month, then the
+                    account becomes read-only — all your data, charts, reports and exports stay available.
+                  </p>
+                </>
               ) : null}
             </>
           ) : (
             <>
-              <p className="mt-2 text-lg font-semibold">View-only mode</p>
+              <p className="mt-2 text-lg font-semibold">Read-only mode</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                You can open the platform and browse every page, chart and screen for free. A team subscription
-                costs €999 for the {season.label} season (1 June – 31 May) and unlocks adding and editing squads,
-                training, GPS, testing and reports.
+                You can open the platform, view every record, chart and report and export everything. Adding or editing
+                data needs an active subscription — {PRICE_LABEL} per month, per team, cancel any time.
               </p>
               <button
                 onClick={activate}
                 disabled={busy}
                 className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {busy ? "Sending…" : "Subscribe — €999 / season"}
+                {busy ? "Sending…" : `Subscribe — ${PRICE_FULL}`}
               </button>
               <p className="mt-2 text-xs text-muted-foreground">
-                Online payments are coming soon — for now subscriptions are activated after invoicing. Contact
-                info@training4performance.com to get started.
+                Online card payments are being rolled out — for now the monthly subscription is activated after
+                invoicing. You will get a notification here as soon as it is live.
               </p>
             </>
           )}
@@ -188,9 +242,11 @@ function Account() {
             </Link>
           </div>
         </div>
-
+          </>
+        ) : null}
 
         {error ? <p className="mt-4 text-sm text-destructive">{error}</p> : null}
+
 
         <button
           onClick={async () => {
