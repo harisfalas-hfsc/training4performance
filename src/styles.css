@@ -386,6 +386,12 @@ textarea.control {
   content: url("/logo-t4p-dark.png");
 }
 
+/* Inline brand "4" glyph inside T4P / Training 4 Performance wordmarks */
+.dark img.t4p-glyph {
+  content: url("/glyph-4-dark.png");
+}
+
+
 
 /* ---- Manual / document printing (Download as PDF) ---------------------- */
 @media print {
