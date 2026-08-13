@@ -13,7 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
-import { T4P, Training4Performance } from "@/components/brand-text";
+import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
 import { ShotSquad, ShotCalendar, ShotTacticsBoard, ShotGpsImport } from "@/components/home-shots";
 
@@ -333,7 +333,7 @@ function Home() {
                   <h3 className="font-display text-xl font-semibold uppercase tracking-wide">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{item.text}</BrandCopy></p>
                   <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                     {item.points.map((point) => (
                       <li key={point} className="flex gap-2">
@@ -341,7 +341,7 @@ function Home() {
                           className="mt-2 size-1.5 shrink-0 rounded-full bg-primary"
                           aria-hidden
                         />
-                        {point}
+                        <BrandCopy>{point}</BrandCopy>
                       </li>
                     ))}
                   </ul>
@@ -426,7 +426,7 @@ function Home() {
                 <p className="mt-3 font-display text-lg font-semibold uppercase tracking-wide">
                   {b.t}
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground">{b.d}</p>
+                <p className="mt-2 text-sm text-muted-foreground"><BrandCopy>{b.d}</BrandCopy></p>
               </div>
             ))}
           </div>

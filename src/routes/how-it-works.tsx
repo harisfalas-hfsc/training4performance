@@ -15,7 +15,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
-import { T4P } from "@/components/brand-text";
+import { BrandCopy, T4P } from "@/components/brand-text";
 import { breadcrumbLd, jsonLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
@@ -353,7 +353,9 @@ function HowItWorks() {
                 >
                   {f.q}
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {typeof f.a === "string" ? <BrandCopy>{f.a}</BrandCopy> : f.a}
+                </p>
               </div>
             );
           })}
