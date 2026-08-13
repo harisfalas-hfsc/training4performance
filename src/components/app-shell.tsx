@@ -162,6 +162,7 @@ export function AppShell({
                   <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
                 </Button>
               ) : null}
+              <NotificationBell userId={user?.id} />
               <ThemeToggle />
               <div ref={accountRef} className="relative">
                 <Button
