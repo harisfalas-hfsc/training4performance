@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BarChart3,
+  BookMarked,
   BookOpen,
   CalendarDays,
   ClipboardPen,
@@ -81,6 +82,24 @@ const steps: Step[] = [
     tone: "green",
     t: "Work from each player record",
     d: "Open Team & Players, choose a player, then use the same record for profile, GPS history, fitness tests, training, wellness, medical history, reports and player login access.",
+  },
+  {
+    icon: BookMarked,
+    tone: "purple",
+    t: "Build from the drills & exercise library",
+    d: (
+      <>
+        You never start a session from an empty page. The library holds ready-made{" "}
+        <T4P /> blocks — strength, power, speed, energy system development, coordination, mobility,
+        technical and recovery — each one with its drills, sets, reps, rest and, where it helps, a
+        tactics board drawing. Inside the Training Designer open the{" "}
+        <strong className="text-foreground">Blocks</strong> tab, search or filter by category and
+        tap once: the whole block drops into the day you are building. Anything you design yourself
+        can be saved back with <strong className="text-foreground">Save block</strong> and reused
+        for the rest of the season, and a <T4P /> block can be copied into your own library and
+        edited to fit your squad.
+      </>
+    ),
   },
   {
     icon: CalendarDays,
@@ -189,6 +208,29 @@ const tones: Record<string, { chip: string; card: string; num: string }> = {
 
 const faq = [
   {
+    q: "What is the drills & exercise library?",
+    a: (
+      <>
+        A ready-made set of training blocks written by <T4P />, sorted by category — strength,
+        power, speed, ESD, coordination, mobility &amp; stability, reaction, technical/tactical and
+        recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the
+        whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your
+        own saved blocks live in the same place under My library.
+      </>
+    ),
+  },
+  {
+    q: "Do I keep my own blocks if my subscription ends?",
+    a: (
+      <>
+        Yes. Everything you created — sessions, players, GPS, tests and the blocks in{" "}
+        <strong className="text-foreground">My library</strong> — stays with your account in
+        read-only mode, and you can download all of it at any time. Only the ready-made <T4P />{" "}
+        templates need an active subscription.
+      </>
+    ),
+  },
+  {
     q: "Do I have to add the players before I upload GPS?",
     a: (
       <>
@@ -255,6 +297,14 @@ const faq = [
 
 /** Plain-text mirror of the FAQ above, used only for FAQPage JSON-LD. */
 const faqSchema = [
+  {
+    q: "What is the drills & exercise library?",
+    a: "A ready-made set of training blocks written by T4P, sorted by category \u2014 strength, power, speed, ESD, coordination, mobility & stability, reaction, technical/tactical and recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your own saved blocks live in the same place under My library.",
+  },
+  {
+    q: "Do I keep my own blocks if my subscription ends?",
+    a: "Yes. Everything you created \u2014 sessions, players, GPS, tests and the blocks in My library \u2014 stays with your account in read-only mode, and you can download all of it at any time. Only the ready-made T4P templates need an active subscription.",
+  },
   {
     q: "Do I have to add the players before I upload GPS?",
     a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain \u2014 position, birth date, height, weight, RPE, medical status, test results \u2014 you add manually whenever you want, and only for the fields you actually care about.",
@@ -391,6 +441,14 @@ function HowItWorks() {
               [
                 "No building the coach's report",
                 "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV.",
+              ],
+              [
+                "No printing drill cards",
+                "The library holds the blocks and their board drawings. Pick one and it is already inside the session.",
+              ],
+              [
+                "No chasing wellness by message",
+                "Players check in from their own portal before the cut-off time, and you see who is missing.",
               ],
               [
                 "No lost season history",
