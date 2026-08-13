@@ -128,8 +128,9 @@ export function AppShell({
     <div className="flex min-h-screen w-full bg-background">
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 bg-background/90 backdrop-blur">
-          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-1 sm:px-5">
-            <div className="flex shrink-0 items-center gap-2">
+          <div className="relative flex items-center justify-between px-4 py-1 sm:px-5">
+            <div className="flex shrink-0 items-center gap-0.5">
+
               <DiscoverMenu platformItems={navItems} />
               {canGoBack ? (
                 <button
@@ -146,7 +147,7 @@ export function AppShell({
             <Link
               to="/dashboard"
               onClick={resetPlatformHistory}
-              className="flex min-w-0 items-center justify-center"
+              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               aria-label="Platform home"
             >
               <img
@@ -156,7 +157,7 @@ export function AppShell({
               />
             </Link>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-0.5">
               {supportMode ? (
                 <Button size="sm" onClick={() => void returnToAdmin()}>
                   <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
