@@ -138,7 +138,7 @@ function Pricing() {
             </span>
             <p className="mt-4 font-display text-6xl font-semibold leading-none">€699</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              per season, per team — every module included · cancel any time
+              per season (365 days), per team — every module included · cancel any time
             </p>
             <ul className="mt-5 space-y-1.5 text-sm text-muted-foreground">
               <li className="flex gap-2">
