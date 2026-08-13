@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { findSupportAnswer } from "@/lib/support-knowledge";
+import { findSupportAnswer, SUPPORT_FALLBACK } from "@/lib/support-knowledge";
 
 /**
  * Answers a customer's latest ticket message from the built-in answer book.
@@ -32,19 +32,21 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
 
     const question = `${ticket.subject} ${last.body}`;
     const entry = findSupportAnswer(question);
-    if (!entry) return { answered: false };
+    const body = entry?.answer ?? SUPPORT_FALLBACK;
 
     // Do not repeat the same answer twice in a row.
     const previous = rows?.[1];
-    if (previous && previous.sender_role !== "user" && previous.body === entry.answer) {
+    if (previous && previous.sender_role !== "user" && previous.body === body) {
       return { answered: false };
     }
+
 
     const { error } = await supabaseAdmin.from("support_messages").insert({
       ticket_id: ticket.id,
       sender_id: ticket.user_id,
       sender_role: "auto",
-      body: entry.answer,
+      body,
+
     });
     if (error) return { answered: false };
 
@@ -58,7 +60,7 @@ export const autoAnswerTicket = createServerFn({ method: "POST" })
       user_id: ticket.user_id,
       kind: "message",
       title: "New reply from T4P support",
-      body: entry.answer,
+      body,
     });
 
     return { answered: true };
