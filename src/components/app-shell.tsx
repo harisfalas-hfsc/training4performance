@@ -128,8 +128,9 @@ export function AppShell({
     <div className="flex min-h-screen w-full bg-background">
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 bg-background/90 backdrop-blur">
-          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-1 sm:px-5">
-            <div className="flex shrink-0 items-center gap-2">
+          <div className="relative flex items-center justify-between px-4 py-1 sm:px-5">
+            <div className="flex shrink-0 items-center gap-0.5">
+
               <DiscoverMenu platformItems={navItems} />
               {canGoBack ? (
                 <button
