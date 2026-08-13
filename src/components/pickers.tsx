@@ -59,7 +59,7 @@ export function MultiSelectField({
   options: Option[];
   placeholder?: string;
   searchPlaceholder?: string;
-  max?: number;
+  max?: number | undefined;
   className?: string;
   emptyText?: string;
   footer?: ReactNode;
