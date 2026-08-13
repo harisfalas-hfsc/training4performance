@@ -1644,13 +1644,22 @@ function Library({
             })}
       </ul>
 
-      <button
-        onClick={() => setShowCustom((v) => !v)}
-        className="mt-3 h-9 w-full rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
-      >
-        {showCustom ? "Close" : `Add my own ${tab === "gym" ? "exercise" : "drill"}`}
-      </button>
-      {showCustom ? (
+      {tab === "blocks" ? (
+        <Link
+          to="/library"
+          className="mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          <Layers className="size-4" /> Open the full library
+        </Link>
+      ) : (
+        <button
+          onClick={() => setShowCustom((v) => !v)}
+          className="mt-3 h-9 w-full rounded-md border border-border px-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          {showCustom ? "Close" : `Add my own ${tab === "gym" ? "exercise" : "drill"}`}
+        </button>
+      )}
+      {showCustom && tab !== "blocks" ? (
         <form
           className="mt-3 grid gap-3"
           onSubmit={(e) => {
