@@ -160,7 +160,7 @@ export interface TestRecord {
 
 export const testRecords: TestRecord[] = [];
 
-const STORAGE_KEY = "t4p.tests.v3";
+const STORAGE_KEY = "t4p.tests.v4";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -201,7 +201,7 @@ function seed(): TestRecord[] {
 /* Custom test builder                                                 */
 /* ------------------------------------------------------------------ */
 
-const CUSTOM_KEY = "t4p.customtests.v3";
+const CUSTOM_KEY = "t4p.customtests.v4";
 
 /** What kind of number the coach records for a custom test. */
 export type CustomTestKind = "number" | "time" | "score" | "strength";
@@ -233,7 +233,7 @@ function persistCustomTests() {
 
 function hydrateCustomTests(userId: string | null) {
   customTests.splice(0, customTests.length);
-  if (typeof window !== "undefined" && userId) {
+  if (typeof window !== "undefined" && userId === "t4p-demo") {
     try {
       const key = scopedStorageKey(CUSTOM_KEY, userId);
       const raw = key ? window.localStorage.getItem(key) : null;
@@ -305,7 +305,11 @@ export function removeCustomTest(id: string) {
 function hydrate(userId: string | null, _migrateLegacy: boolean) {
   testRecords.splice(0, testRecords.length);
   hydrateCustomTests(userId);
-  if (typeof window === "undefined" || !userId) return;
+  if (typeof window === "undefined" || userId !== "t4p-demo") {
+    version++;
+    listeners.forEach((listener) => listener());
+    return;
+  }
 
   try {
     const key = scopedStorageKey(STORAGE_KEY, userId);

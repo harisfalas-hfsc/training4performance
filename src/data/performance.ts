@@ -294,9 +294,9 @@ export interface WorkspaceData {
   medicalEvents: MedicalEvent[];
 }
 
-// v4 permanently invalidates every earlier browser workspace. Never recover
+// v5 permanently invalidates every earlier browser workspace. Never recover
 // retired uploaded, seeded, demo, or reference data from older stores.
-const STORAGE_KEY = "t4p.data.v4";
+const STORAGE_KEY = "t4p.data.v5";
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -309,6 +309,13 @@ function persist() {
   if (typeof window === "undefined") return;
   const key = scopedStorageKey(STORAGE_KEY);
   if (!key) return;
+  // Real accounts hydrate only from the cloud. Browser storage is reserved for
+  // the isolated demo scope and must never resurrect deleted account content.
+  if (userId !== "t4p-demo") {
+    version++;
+    listeners.forEach((listener) => listener());
+    return;
+  }
   try {
     window.localStorage.setItem(
       key,

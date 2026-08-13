@@ -66,7 +66,9 @@ export async function hydrateWorkspace(userId: string) {
     medicalEvents: data.medical_events as unknown as MedicalEvent[],
   });
   const cloudTests = (data.test_records ?? []) as unknown as TestRecord[];
-  if (Array.isArray(cloudTests) && cloudTests.length) applyTestRecords(cloudTests);
+  // An empty cloud array is authoritative too. Always replace browser state so
+  // deleted fitness tests can never survive in an old local cache.
+  applyTestRecords(Array.isArray(cloudTests) ? cloudTests : []);
 }
 
 /** Called on sign-out / account switch so the next user hydrates cleanly. */

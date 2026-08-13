@@ -165,8 +165,6 @@ export async function loadWellness(coachId: string) {
 }
 
 export function clearWellness() {
-  // The demo keeps its seeded answers in memory; signing state must not wipe it.
-  if (localOnly) return;
   activeCoach = null;
   wellnessEntries.splice(0, wellnessEntries.length);
   emit();

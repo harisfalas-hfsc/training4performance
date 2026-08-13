@@ -26,7 +26,7 @@ export function buildDemoSessions(): Session[] {
     durationMin: [40, 60, 85, 80, 65, 45, 95][index] ?? 60,
     objective: index === 6 ? "Competitive match" : "Prepare the squad for match day",
     plannedRpe: [3, 6, 7, 7, 5, 3, 9][index] ?? 5,
-    actualRpe: [3, 6, 7, 6, 5, 3, 8][index],
+    actualRpe: [3, 6, 7, 6, 5, 3, 8][index] ?? 5,
     drills: ["Activation", index === 6 ? "Match" : "Football conditioning"],
     blockNames: ["ACTIVATION & WARM UP", "MAIN BLOCK", "FOOTBALL", "COOL DOWN"],
     plan: [
