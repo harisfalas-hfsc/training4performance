@@ -15,6 +15,16 @@ export type KnowledgeEntry = {
 
 export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
   {
+    id: "overview",
+    keywords: [
+      "how this platform works", "how the platform works", "how it works", "platform", "works", "work",
+      "overview", "getting started", "get started", "start", "begin", "what can i do", "features",
+    ],
+    answer:
+      "In short, T4P follows one line: team → players → what they do. 1) Create the club, team and season in Team & players and add your squad (or let a GPS upload create the missing names). 2) Plan the week in Calendar and build each session in Training Designer as blocks with minutes, planned RPE and drill tags. 3) After the session, upload the GPS file or type duration + RPE — both feed the same load model, so ACWR, monotony and strain are always complete. 4) Players answer the daily wellness questionnaire in the portal. 5) Analytics & reports then answers any question the same way every time: choose the report (GPS, fitness tests, training, wellness), choose who (whole squad, several players, one player), then the KPI, the dates and the chart. Wellness & alerts watches the thresholds in the background and anything triggered lands in your notifications. The full step-by-step manual is at /manual.",
+  },
+  {
+
     id: "subscription-price",
     keywords: ["price", "pricing", "cost", "how much", "69", "per month", "fee", "expensive"],
     answer:
