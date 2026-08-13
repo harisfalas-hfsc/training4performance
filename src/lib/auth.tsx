@@ -104,8 +104,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthValue>(() => {
     const notExpired =
       !subscription?.season_end || new Date(`${subscription.season_end}T23:59:59Z`).getTime() > Date.now();
+    // `past_due` is a failed renewal that the card issuer may still retry —
+    // keep full access during the paid season instead of locking instantly.
     const active =
-      (subscription?.status === "active" || subscription?.status === "trial") && notExpired;
+      (subscription?.status === "active" ||
+        subscription?.status === "trial" ||
+        subscription?.status === "past_due") &&
+      notExpired;
     return {
       loading,
       session,
