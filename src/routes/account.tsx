@@ -77,6 +77,21 @@ function Account() {
     setBusy(false);
   }
 
+  async function openBilling() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await portalFn({
+        data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
+      });
+      if ("error" in res) setError(res.error);
+      else window.open(res.url, "_blank", "noopener");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not open billing");
+    }
+    setBusy(false);
+  }
+
   async function toggleRenew(cancel: boolean) {
     setBusy(true);
     setError(null);
