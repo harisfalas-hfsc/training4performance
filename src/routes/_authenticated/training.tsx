@@ -1499,27 +1499,40 @@ function Library({
   activeBlock,
   blockCount,
   onAdd,
+  onAddBlock,
 }: {
   gym: boolean;
   activeBlock: string;
   blockCount: number;
   onAdd: (item: SessionPlanItem) => void;
+  onAddBlock: (blockName: string, items: SessionPlanItem[]) => void;
 }) {
   useLibraryVersion();
-  const [tab, setTab] = useState<"field" | "gym">(gym ? "gym" : "field");
+  const { hasAccess } = useAuth();
+  const [tab, setTab] = useState<"field" | "gym" | "blocks">(gym ? "gym" : "field");
   const [q, setQ] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const fetchBlocks = useServerFn(listLibraryBlocks);
 
   useEffect(() => setTab(gym ? "gym" : "field"), [gym]);
 
+  const officialBlocks = useQuery({
+    queryKey: ["library-blocks"],
+    queryFn: () => fetchBlocks(),
+    enabled: tab === "blocks" && hasAccess,
+  });
+
   const drills = allDrills().filter((d) => d.name.toLowerCase().includes(q.toLowerCase()));
   const lifts = allStrengthExercises().filter((e) => e.name.toLowerCase().includes(q.toLowerCase()));
+  const matches = q.trim().toLowerCase();
+  const t4pBlocks = (officialBlocks.data ?? []).filter((b) => b.name.toLowerCase().includes(matches));
+  const myBlocks = savedBlocks().filter((b) => b.name.toLowerCase().includes(matches));
 
   return (
     <div className="panel p-5">
       <SectionTitle
         title={`Library → ${activeBlock}`}
-        hint="Tap + to drop a drill into the selected block"
+        hint="Tap + to drop a drill, an exercise or a whole block into the selected block"
         right={
           <button
             type="button"
@@ -1533,16 +1546,16 @@ function Library({
         }
       />
 
-      <div className="mb-3 flex gap-1.5">
-        {(["field", "gym"] as const).map((t) => (
+      <div className="mb-3 grid grid-cols-3 gap-1.5">
+        {(["field", "gym", "blocks"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`h-9 flex-1 rounded-md border px-2.5 text-xs font-semibold ${
+            className={`h-9 rounded-md border px-2 text-[0.7rem] font-semibold sm:text-xs ${
               tab === t ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"
             }`}
           >
-            {t === "field" ? "Training drills" : "Strength exercises"}
+            {t === "field" ? "Drills" : t === "gym" ? "Exercises" : "Blocks"}
           </button>
         ))}
       </div>
@@ -1552,7 +1565,15 @@ function Library({
       </div>
 
       <ul className="scroll-pane max-h-[28rem] space-y-1.5 overflow-y-auto pr-1">
-        {tab === "field"
+        {tab === "blocks" ? (
+          <BlockPickerList
+            hasAccess={hasAccess}
+            loading={officialBlocks.isPending && hasAccess}
+            t4pBlocks={t4pBlocks}
+            myBlocks={myBlocks}
+            onAddBlock={onAddBlock}
+          />
+        ) : tab === "field"
           ? drills.map((d) => (
               <li key={d.name} className="flex items-center justify-between gap-2 rounded-md border border-border p-2">
                 <span className="min-w-0">
