@@ -422,21 +422,33 @@ export const savedBlocks = () => state.blocks;
 export const savedSessions = () => state.sessions;
 
 /** Save a block (its drills/exercises) so it can be reused in any other training. */
-export function saveBlockTemplate(name: string, items: SessionPlanItem[]) {
+export function saveBlockTemplate(
+  name: string,
+  items: SessionPlanItem[],
+  meta?: { category?: string; description?: string },
+) {
   if (!guardWrite()) return;
   const block: SavedBlock = {
     id: newId(),
     name: name.trim() || "Saved block",
     savedAt: new Date().toISOString(),
     items: items.map((i) => ({ ...i })),
+    ...(meta?.category ? { category: meta.category } : {}),
+    ...(meta?.description ? { description: meta.description } : {}),
   };
   state.blocks.unshift(block);
   emit();
   return block;
 }
 
-export function removeSavedBlock(id: string) {
+/** Rename / re-file a block already in the coach's own library. */
+export function updateSavedBlock(id: string, patch: Partial<Omit<SavedBlock, "id" | "savedAt">>) {
   if (!guardWrite()) return;
+  state.blocks = state.blocks.map((b) => (b.id === id ? { ...b, ...patch } : b));
+  emit();
+}
+
+export function removeSavedBlock(id: string) {
   state.blocks = state.blocks.filter((b) => b.id !== id);
   emit();
 }
