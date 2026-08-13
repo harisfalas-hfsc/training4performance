@@ -44,8 +44,18 @@ import {
   type AdminWorkspace,
 } from "@/lib/admin.functions";
 
+type AdminSearch = { tab: "customers" | "teams" | "support"; customer?: string };
+
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
+  validateSearch: (search: Record<string, unknown>): AdminSearch => {
+    const tab = search["tab"];
+    const customer = search["customer"];
+    return {
+      tab: tab === "teams" || tab === "support" ? tab : "customers",
+      ...(typeof customer === "string" && customer ? { customer } : {}),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Admin panel | T4P" },
@@ -75,7 +85,9 @@ function AdminPage() {
   const deleteCustomer = useServerFn(adminDeleteCustomer);
   const impersonate = useServerFn(adminImpersonate);
 
-  const [tab, setTab] = useState<"customers" | "teams" | "support">("customers");
+  const { tab, customer: customerParam } = Route.useSearch();
+  const [audience, setAudience] = useState<"all" | "subscribers" | "users">("all");
+  const setTab = (t: AdminSearch["tab"]) => void navigate({ to: "/admin", search: { tab: t } });
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [teams, setTeams] = useState<AdminTeam[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -107,6 +119,31 @@ function AdminPage() {
     setPending(false);
   }, [listCustomers, getStats, listTeams, listTickets, search]);
 
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!customerParam) {
+      setSelectedCustomer(null);
+      setWorkspace(null);
+      return;
+    }
+    const found = customers.find((c) => c.id === customerParam);
+    if (!found) return;
+    setSelectedCustomer(found);
+    void (async () => {
+      const result = await getWorkspace({ data: { userId: found.id } });
+      if (cancelled) return;
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      setWorkspace(result.workspace);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerParam, customers]);
 
   useEffect(() => {
     if (isAdmin) void reload();
@@ -173,16 +210,9 @@ function AdminPage() {
     void navigate({ to: "/dashboard" });
   }
 
-  async function openCustomer(customer: AdminCustomer) {
-    setPending(true);
-    const result = await getWorkspace({ data: { userId: customer.id } });
-    setPending(false);
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
-    }
-    setSelectedCustomer(customer);
-    setWorkspace(result.workspace);
+  /** Opening a customer is a navigation, so the browser back button stays inside the panel. */
+  function openCustomer(customer: AdminCustomer) {
+    void navigate({ to: "/admin", search: { tab: "customers", customer: customer.id } });
   }
 
   async function saveCustomerWorkspace(teamData: Json, playerData: Json) {
@@ -197,14 +227,23 @@ function AdminPage() {
     }
   }
 
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+    else void navigate({ to: "/admin", search: { tab: "customers" } });
+  };
+
   if (selectedCustomer && workspace) {
     return (
-      <AdminShell title="Customer workspace" subtitle={`${selectedCustomer.full_name || selectedCustomer.email} · owner support view`}>
+      <AdminShell
+        title="Customer workspace"
+        subtitle={`${selectedCustomer.full_name || selectedCustomer.email} · owner support view`}
+        onBack={goBack}
+      >
         <AdminCustomerDetail
           customer={selectedCustomer}
           workspace={workspace}
           busy={busy}
-          onBack={() => { setSelectedCustomer(null); setWorkspace(null); }}
+          onBack={goBack}
           onSave={saveCustomerWorkspace}
           onSignIn={() => void signInAs(selectedCustomer)}
         />
@@ -216,6 +255,7 @@ function AdminPage() {
     <AdminShell
       title="Admin panel"
       subtitle="Customers, access, revenue and workspace usage"
+      {...(tab === "customers" ? {} : { onBack: goBack })}
       actions={
         <Button
           variant="outline"
