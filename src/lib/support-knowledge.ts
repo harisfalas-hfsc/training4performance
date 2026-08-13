@@ -21,38 +21,38 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
       "overview", "getting started", "get started", "start", "begin", "what can i do", "features",
     ],
     answer:
-      "In short, T4P follows one line: team → players → what they do. 1) Create the club, team and season in Team & players and add your squad (or let a GPS upload create the missing names). 2) Plan the week in Calendar and build each session in Training Designer as blocks with minutes, planned RPE and drill tags. 3) After the session, upload the GPS file or type duration + RPE — both feed the same load model, so ACWR, monotony and strain are always complete. 4) Players answer the daily wellness questionnaire in the portal. 5) Analytics & reports then answers any question the same way every time: choose the report (GPS, fitness tests, training, wellness), choose who (whole squad, several players, one player), then the KPI, the dates and the chart. Wellness & alerts watches the thresholds in the background and anything triggered lands in your notifications. The full step-by-step manual is at /manual.",
+      "In short, T4P follows one line: team → players → what they do. 1) Create the club, team and season in Team & players and add your squad (or let a GPS upload create the missing names). 2) Plan the week in Calendar and build each session in Training Designer as blocks with minutes, planned RPE and drill tags. 3) After the session, upload the GPS file or type duration + RPE — both feed the same load model, so ACWR, monotony and strain are always complete. 4) Players answer the daily wellness questionnaire in the portal. 5) Analytics & reports then answers any question the same way every time: choose the report (GPS, fitness tests, training, wellness), choose who (whole squad, several players, one player), then the KPI, the dates and the chart. Wellness & alerts watches the thresholds in the background and anything triggered lands in your notifications. The full step-by-step manual is at the [platform manual](/manual).",
   },
   {
 
     id: "subscription-price",
     keywords: ["price", "pricing", "cost", "how much", "69", "per month", "fee", "expensive"],
     answer:
-      "T4P is €69.90 per month per team, billed monthly and cancellable at any time. One account manages one team with unlimited players, sessions, GPS files and reports. You can see the full breakdown on the Pricing page.",
+      "T4P is €69.90 per month per team, billed monthly and cancellable at any time. One account manages one team with unlimited players, sessions, GPS files and reports. You can see the full breakdown on the [Pricing page](/pricing).",
   },
   {
     id: "cancel",
     keywords: ["cancel", "stop", "unsubscribe", "renew", "renewal", "expire", "expired"],
     answer:
-      "Open Account → Subscription and switch automatic renewal off. You keep full access until the end of the month you already paid for. After that the workspace becomes read-only: nothing is deleted, you can still open every page, read every report and export your data, and editing returns the moment you subscribe again.",
+      "Open [Manage account](/account) and switch automatic renewal off. You keep full access until the end of the month you already paid for. After that the workspace becomes read-only: nothing is deleted, you can still open every page, read every report and export your data, and editing returns the moment you subscribe again.",
   },
   {
     id: "payment-failed",
     keywords: ["payment", "invoice", "receipt", "billing", "card", "failed", "charge"],
     answer:
-      "Every billing event appears in your notifications and in Account → Subscription. If a payment failed, the account stays read-only until it is settled; reply here with the date of the attempt and we will check it against the record on our side.",
+      "Every billing event appears in your notifications and in [Manage account](/account). If a payment failed, the account stays read-only until it is settled; reply here with the date of the attempt and we will check it against the record on our side.",
   },
   {
     id: "read-only",
     keywords: ["read only", "read-only", "cannot edit", "can't edit", "locked", "view only", "no access"],
     answer:
-      "Read-only means your subscription is not active yet or has lapsed. You can browse every page and export your data, but saving is blocked. Activate the monthly subscription from Account → Subscription and full editing is unlocked immediately.",
+      "Read-only means your subscription is not active yet or has lapsed. You can browse every page and export your data, but saving is blocked. Activate the monthly subscription from [Manage account](/account) and full editing is unlocked immediately.",
   },
   {
     id: "team-create",
     keywords: ["create team", "new team", "second team", "another team", "team limit"],
     answer:
-      "Go to Team & players and name the club, the team and the season. There is one team per account — that keeps the data, the load model and the reports unambiguous. If you need a second team, use a second account.",
+      "Go to [Team & players](/team) and name the club, the team and the season. There is one team per account — that keeps the data, the load model and the reports unambiguous. If you need a second team, use a second account.",
   },
   {
     id: "delete-data",
@@ -166,7 +166,7 @@ export const SUPPORT_KNOWLEDGE: KnowledgeEntry[] = [
     id: "manual",
     keywords: ["manual", "guide", "documentation", "how to use", "tutorial", "help"],
     answer:
-      "The platform manual is public and covers every section chapter by chapter, with a step-by-step walkthrough from creating the team to reading the reports. You can open it at /manual at any time.",
+      "The platform manual is public and covers every section chapter by chapter, with a step-by-step walkthrough from creating the team to reading the reports. You can open it at the [platform manual](/manual) at any time.",
   },
   {
     id: "privacy",
@@ -218,7 +218,7 @@ export function findSupportAnswer(question: string): KnowledgeEntry | null {
 }
 
 export const SUPPORT_FALLBACK =
-  "Thanks for the message — it has been logged and a person from T4P will come back to you here. In the meantime the platform manual covers every section step by step at /manual.";
+  "Thanks for the message — it has been logged and a person from T4P will come back to you here. In the meantime the platform manual covers every section step by step at the [platform manual](/manual).";
 
 /* ------------------------------------------------------------------ */
 /* Self-training layer                                                 */
