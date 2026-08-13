@@ -44,8 +44,13 @@ function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (session) void navigate({ to: "/dashboard", replace: true });
-  }, [session, navigate]);
+    if (!session) return;
+    if (next) {
+      window.location.replace(next);
+      return;
+    }
+    void navigate({ to: "/dashboard", replace: true });
+  }, [session, navigate, next]);
 
   async function forgotPassword() {
     setError(null);
