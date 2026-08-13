@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { MessageSquare, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { autoAnswerTicket } from "@/lib/support-auto.functions";
 
 type Ticket = {
   id: string;
@@ -64,6 +65,15 @@ export function AccountMessages({ userId }: { userId: string }) {
     if (openId) void loadMessages(openId);
   }, [openId, loadMessages]);
 
+  /** Instant answer from the built-in answer book, when the question is covered. */
+  async function autoReply(ticketId: string) {
+    try {
+      await autoAnswerTicket({ data: { ticketId } });
+    } catch {
+      /* an unanswered question simply waits for a human reply */
+    }
+  }
+
   async function createTicket() {
     if (!subject.trim() || !firstMessage.trim()) {
       setError("Add a subject and a message.");
@@ -88,6 +98,7 @@ export function AccountMessages({ userId }: { userId: string }) {
       body: firstMessage.trim().slice(0, 4000),
     });
     if (mErr) setError(mErr.message);
+    else await autoReply(data.id);
     setSubject("");
     setFirstMessage("");
     setComposing(false);
@@ -106,6 +117,7 @@ export function AccountMessages({ userId }: { userId: string }) {
       body: reply.trim().slice(0, 4000),
     });
     if (err) setError(err.message);
+    else await autoReply(openId);
     setReply("");
     setBusy(false);
     await loadMessages(openId);
@@ -202,10 +214,10 @@ export function AccountMessages({ userId }: { userId: string }) {
                 {messages.map((m) => (
                   <div
                     key={m.id}
-                    className={`rounded-md px-3 py-2 text-sm ${m.sender_role === "admin" ? "bg-primary/10" : "bg-surface-2"}`}
+                    className={`rounded-md px-3 py-2 text-sm ${m.sender_role === "user" ? "bg-surface-2" : "bg-primary/10"}`}
                   >
                     <p className="text-xs font-semibold text-muted-foreground">
-                      {m.sender_role === "admin" ? "T4P support" : "You"} · {when(m.created_at)}
+                      {m.sender_role === "user" ? "You" : "T4P support"} · {when(m.created_at)}
                     </p>
                     <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
                   </div>
