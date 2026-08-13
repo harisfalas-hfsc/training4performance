@@ -5,7 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard, SectionTitle } from "@/components/perf-ui";
 import { Button } from "@/components/ui/button";
 import { CHART_KINDS, ChartFrame, HBar, MultiChart, MultiLine, SERIES_COLORS, type ChartKind } from "@/components/charts";
-import { DateRangePicker, PlayerPicker, type Scope } from "@/components/selectors";
+import { DateRangePicker, type Scope } from "@/components/selectors";
+import { MultiSelectField, SelectField } from "@/components/pickers";
 import { TrainingExplorer } from "@/components/training-explorer";
 import { TestsExplorer } from "@/components/tests-explorer";
 import { WellnessExplorer } from "@/components/wellness-explorer";
@@ -62,6 +63,9 @@ const SOURCES = [
 ] as const;
 type SourceId = (typeof SOURCES)[number]["id"];
 
+/** Who the report is about — plain language, one drop-down. */
+type WhoMode = "total" | "average" | "multiple" | "single";
+
 const daysBetween = (from: string, to: string) =>
   Math.max(7, Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000) || 28);
 
@@ -73,6 +77,7 @@ function AnalyticsPage() {
   const [kind, setKind] = useState<ChartKind>("bar");
   const [devKey, setDevKey] = useState<MetricKey>("hsr");
   const [scope, setScope] = useState<Scope>("team");
+  const [who, setWho] = useState<WhoMode>("total");
   const [selected, setSelected] = useState<string[]>([]);
   const [compareKpi, setCompareKpi] = useState<MetricKey>("distance");
   const availableDates = useMemo(() => [...new Set(gpsHistory.map((row) => row.date))].sort(), [gpsHistory.length]);
