@@ -214,7 +214,7 @@ export function findSupportAnswer(question: string): KnowledgeEntry | null {
     }
   }
 
-  return bestScore >= 2 ? best : null;
+  return bestScore >= 1 ? best : null;
 }
 
 export const SUPPORT_FALLBACK =
