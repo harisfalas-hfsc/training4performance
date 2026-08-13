@@ -105,7 +105,7 @@ function BoardPage() {
       next[itemIndex] = {
         ...next[itemIndex]!,
         ...(drawingJson ? { drawing: drawingJson } : {}),
-        notes: description || next[itemIndex]!.notes,
+        notes: description || next[itemIndex]!.notes || "",
         ...(name.trim() ? { drill: name.trim().toUpperCase() } : {}),
       };
     } else {
