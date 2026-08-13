@@ -35,6 +35,20 @@ export const requestSubscription = createServerFn({ method: "POST" })
   .handler(async ({ context, data }): Promise<{ ok: true } | { error: string }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const now = new Date();
+    // Never downgrade a subscription that is already running (double click,
+    // stale tab, or a request sent right after the owner activated it).
+    const { data: current } = await supabaseAdmin
+      .from("subscriptions")
+      .select("status,season_end")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (
+      current &&
+      (current.status === "active" || current.status === "trial") &&
+      (!current.season_end || new Date(`${current.season_end}T23:59:59Z`).getTime() > now.getTime())
+    ) {
+      return { ok: true };
+    }
     const end = new Date(now.getTime());
     end.setMonth(end.getMonth() + 1);
     const { error } = await supabaseAdmin.from("subscriptions").upsert(
@@ -73,6 +87,8 @@ export const setAutoRenew = createServerFn({ method: "POST" })
       .select("season_end")
       .maybeSingle();
     if (error) return { error: error.message };
+    // No subscription row: nothing was changed, so do not claim it was.
+    if (!sub) return { error: "There is no subscription on this account yet." };
     await supabaseAdmin.from("notifications").insert({
       user_id: context.userId,
       kind: data.cancel ? "warning" : "success",

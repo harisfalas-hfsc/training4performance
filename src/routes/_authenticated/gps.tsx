@@ -255,12 +255,21 @@ function GpsPage() {
       setFileError(`Unsupported file type. Accepted: ${ACCEPTED_EXTENSIONS.join(", ")}`);
       return;
     }
+    if (!file.size) {
+      setFileError("That file is empty — export it again from your GPS software.");
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setFileError("That file is larger than 20 MB. Export a single session or split it before importing.");
+      return;
+    }
     setFileError(null);
     setImported(null);
     setUploading(true);
     setProgress(15);
     try {
       const p = await parseGpsFile(file);
+      if (!p.rows.length) throw new Error("The file has column names but no data rows.");
       setProgress(70);
       const saved = findTemplate(p.headers);
       const map = saved ? saved.mapping : buildMapping(p.headers);
