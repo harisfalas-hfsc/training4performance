@@ -15,6 +15,7 @@ import type {
   Player,
   RpeEntry,
   Session,
+  SessionPlanItem,
   Team,
   WorkspaceData,
 } from "@/data/performance";
