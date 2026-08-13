@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { findSupportAnswer } from "@/lib/support-knowledge";
+import { findSupportAnswer, SUPPORT_FALLBACK } from "@/lib/support-knowledge";
 
 /**
  * Answers a customer's latest ticket message from the built-in answer book.
