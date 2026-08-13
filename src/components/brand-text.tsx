@@ -3,22 +3,18 @@ import { cn } from "@/lib/utils";
 
 /**
  * The "4" in T4P / Training 4 Performance is rendered as the brand mark.
- * It inherits the surrounding font size (1em). The two parts of the mark are
- * CSS masks coloured from semantic theme tokens, so changing theme updates
- * the glyph immediately without swapping or caching a different image.
+ * It inherits the surrounding font size (1em) and uses the exact supplied
+ * artwork. Both variants stay mounted so theme changes swap instantly.
  */
 export function Glyph4({ className }: { className?: string }) {
   return (
     <span
       role="img"
       aria-label="4"
-      className={cn(
-        "t4p-glyph relative inline-block h-[1.05em] w-[1.05em] shrink-0 align-[-0.16em]",
-        className,
-      )}
+      className={cn("t4p-glyph relative inline-block h-[1.05em] w-[1.05em] shrink-0 align-[-0.16em]", className)}
     >
-      <span aria-hidden="true" className="t4p-glyph-primary absolute inset-0" />
-      <span aria-hidden="true" className="t4p-glyph-accent absolute inset-0" />
+      <img aria-hidden="true" src="/glyph-4.png?v=3" alt="" className="t4p-glyph-light absolute inset-0 size-full object-contain" />
+      <img aria-hidden="true" src="/glyph-4-dark.png?v=3" alt="" className="t4p-glyph-dark absolute inset-0 size-full object-contain" />
     </span>
   );
 }
