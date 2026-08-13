@@ -386,14 +386,22 @@ textarea.control {
   content: url("/logo-t4p-dark.png");
 }
 
-/* Inline brand "4" glyph inside T4P / Training 4 Performance wordmarks.
-   Explicitly toggle two assets: browser image `content` replacement is not
-   dependable during a live class-based theme change. */
-.dark .t4p-glyph-light {
-  display: none;
+/* Inline brand glyph: one stable mark whose two layers are coloured by the
+   active semantic theme. No image source is swapped when the theme changes. */
+.t4p-glyph-primary,
+.t4p-glyph-accent {
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  transition: background-color 150ms ease;
 }
-.dark .t4p-glyph-dark {
-  display: block;
+.t4p-glyph-primary {
+  background-color: var(--color-foreground);
+  mask-image: url("/glyph-4-primary-mask.png");
+}
+.t4p-glyph-accent {
+  background-color: var(--color-brand-blue);
+  mask-image: url("/glyph-4-accent-mask.png");
 }
 
 
