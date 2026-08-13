@@ -753,6 +753,18 @@ function TrainingPage() {
                                 </button>
 
                                 <button
+                                  onClick={() => {
+                                    const block = saveBlockTemplate(it.drill, [it], {
+                                      category: inferCategory([it]),
+                                      ...(it.notes ? { description: it.notes } : {}),
+                                    });
+                                    if (block) flash(`${it.drill} saved to your library`);
+                                  }}
+                                  className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
+                                >
+                                  Save to library
+                                </button>
+                                <button
                                   onClick={() => duplicateItem(i)}
                                   className="h-7 rounded-md border border-border px-2 text-[0.68rem] text-muted-foreground hover:text-primary"
                                 >
