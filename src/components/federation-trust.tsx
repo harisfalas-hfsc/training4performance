@@ -2,16 +2,16 @@ import { cn } from "@/lib/utils";
 
 const federations = [
   { name: "UEFA", src: "/federations/uefa.svg" },
-  { name: "UEFA Champions League", src: "/federations/champions-league.svg" },
+  { name: "UEFA Champions League", src: "/federations/champions-league.svg", darkInvert: true },
   { name: "FIFA", src: "/federations/fifa.svg", wide: true },
   { name: "Cyprus FA", src: "/federations/cyprus-fa.png" },
   { name: "Hellenic FA", src: "/federations/hellenic-fa.svg" },
-  { name: "Premier League", src: "/federations/premier-league.png" },
+  { name: "Premier League", src: "/federations/premier-league.png", darkInvert: true },
   { name: "Serie A", src: "/federations/serie-a.svg" },
-  { name: "Bundesliga", src: "/federations/bundesliga.svg", wide: true },
-  { name: "La Liga", src: "/federations/laliga.svg", wide: true },
-  { name: "Ligue 1", src: "/federations/ligue-1.svg" },
-  { name: "Eredivisie", src: "/federations/eredivisie.png", wide: true },
+  { name: "Bundesliga", src: "/federations/bundesliga.svg", wide: true, darkInvert: true },
+  { name: "La Liga", src: "/federations/laliga.svg", wide: true, darkInvert: true },
+  { name: "Ligue 1", src: "/federations/ligue-1.svg", darkInvert: true },
+  { name: "Eredivisie", src: "/federations/eredivisie.png", wide: true, darkInvert: true },
 ];
 
 export function FederationTrust({ className }: { className?: string }) {
@@ -37,8 +37,14 @@ export function FederationTrust({ className }: { className?: string }) {
               f.wide
                 ? "h-4 max-w-[30px] sm:h-6 sm:max-w-[72px] md:h-7 md:max-w-[92px]"
                 : "h-6 max-w-[22px] sm:h-9 sm:max-w-[42px] md:h-11 md:max-w-[52px]",
+              f.darkInvert && "dark:brightness-0 dark:invert",
             )}
           />
+        ))}
+      </div>
+    </div>
+  );
+
         ))}
       </div>
     </div>
