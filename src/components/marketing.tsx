@@ -5,6 +5,8 @@ import { useAuth } from "@/lib/auth";
 import { Training4Performance } from "@/components/brand-text";
 
 import { DiscoverMenu } from "@/components/discover-menu";
+import { NotificationBell } from "@/components/notification-bell";
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import { platformNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
@@ -47,7 +49,9 @@ export function SiteHeader() {
 
 
           <div className="flex shrink-0 items-center gap-2">
+            {session ? <NotificationBell userId={session.user.id} /> : null}
             <ThemeToggle />
+
             <div ref={avatarRef} className="relative shrink-0">
               <button
                 onClick={() => setAvatar((v) => !v)}

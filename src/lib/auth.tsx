@@ -5,7 +5,7 @@ import { isAdminEmail } from "@/lib/admin";
 import { setWriteAccess } from "@/lib/access";
 import { setWorkspaceScope } from "@/lib/workspace-scope";
 import { resetWorkspaceHydration } from "@/lib/usage";
-import { isDemoActive } from "@/lib/demo";
+import { isDemoActive, leaveDemoSilently } from "@/lib/demo";
 import { activeScopeFor } from "@/lib/teams";
 
 export interface Profile {
@@ -61,7 +61,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async (uid: string | undefined, email?: string | null) => {
     // The public demo owns the workspace scope while it is running.
-    const demo = isDemoActive();
+    let demo = isDemoActive();
+    // A signed-in account never inherits the public demo sandbox.
+    if (uid && demo) {
+      leaveDemoSilently();
+      demo = false;
+    }
     if (!uid) {
       if (!demo) setWorkspaceScope(null);
       setProfile(null);
