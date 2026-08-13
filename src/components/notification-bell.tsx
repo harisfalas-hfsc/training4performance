@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bell } from "lucide-react";
+import { Bell, CheckCheck, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +23,7 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
       .select("id, kind, title, body, read_at, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(100);
     setNotes((data as Note[]) ?? []);
   }, [userId]);
 
@@ -73,24 +73,35 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
         ) : null}
       </Button>
       {open ? (
-        <div className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-md border border-border bg-popover shadow-panel sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-80">
-          <div className="flex items-center justify-between border-b border-border px-3 py-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notifications</p>
+        <div className="fixed inset-x-3 top-16 z-50 flex max-h-[calc(100dvh-5rem)] flex-col overflow-hidden rounded-md border border-border bg-popover shadow-panel sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:max-h-[min(36rem,calc(100dvh-5rem))] sm:w-96">
+          <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold">Notifications</p>
+              <p className="text-xs text-muted-foreground">Messages, billing and account updates</p>
+            </div>
             {unread ? (
-              <button onClick={() => void markAllRead()} className="text-xs font-semibold text-primary">
-                Mark all read
-              </button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => void markAllRead()} className="h-8 gap-1.5 px-2 text-xs text-primary">
+                <CheckCheck className="size-4" /> Mark all read
+              </Button>
             ) : null}
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {notes.length === 0 ? (
               <p className="px-3 py-6 text-center text-sm text-muted-foreground">Nothing yet.</p>
             ) : (
               notes.map((n) => (
-                <div key={n.id} className={`border-b border-border px-3 py-2 ${n.read_at ? "" : "bg-primary/5"}`}>
-                  <p className="text-sm font-semibold">{n.title}</p>
-                  {n.body ? <p className="mt-0.5 text-xs text-muted-foreground">{n.body}</p> : null}
-                  <p className="mt-1 text-[0.65rem] text-muted-foreground">{when(n.created_at)}</p>
+                <div key={n.id} className={`border-b border-border px-4 py-3 ${n.read_at ? "" : "bg-primary/5"}`}>
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                      {n.kind === "message" ? <MessageSquare className="size-4" /> : <Bell className="size-4" />}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold leading-5">{n.title}</p>
+                      {n.body ? <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-5 text-foreground">{n.body}</p> : null}
+                      <p className="mt-1.5 text-xs text-muted-foreground">{when(n.created_at)}</p>
+                    </div>
+                    {!n.read_at ? <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" aria-label="Unread" /> : null}
+                  </div>
                 </div>
               ))
             )}
@@ -99,9 +110,9 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
             to="/account"
             search={{ tab: "messages" }}
             onClick={() => setOpen(false)}
-            className="block px-3 py-2.5 text-sm font-semibold text-primary hover:bg-accent"
+            className="flex shrink-0 items-center justify-center gap-2 border-t border-border px-4 py-3 text-sm font-semibold text-primary hover:bg-accent"
           >
-            Open communication centre
+            <MessageSquare className="size-4" /> Open Communication Centre
           </Link>
         </div>
       ) : null}
