@@ -20,6 +20,7 @@ import {
 
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
+import { FederationTrustBlock } from "@/components/federation-trust";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
