@@ -94,35 +94,30 @@ export function WellnessExplorer({ playerIds, from, to }: { playerIds: string[];
   return (
     <div className="space-y-4">
       <section className="panel p-4">
-        <SectionTitle title="Which wellness KPIs?" hint="Daily questionnaire answers — 1 to 5, higher is better" />
-        <div className="flex flex-wrap gap-1">
-          {WELLNESS_KPIS.map((k) => (
-            <button
-              key={k.key}
-              type="button"
-              className={chip(active.includes(k.key))}
-              onClick={() =>
-                setKpis((prev) => (prev.includes(k.key) ? prev.filter((x) => x !== k.key) : [...prev, k.key]))
-              }
-            >
-              {k.label} <span className="font-normal text-muted-foreground">({k.unit})</span>
-            </button>
-          ))}
+        <SectionTitle title="3. Which wellness KPIs?" hint="Daily questionnaire answers — 1 to 5, higher is better" />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MultiSelectField
+            label="Wellness KPIs"
+            values={active}
+            onChange={setKpis}
+            placeholder="Choose KPIs…"
+            searchPlaceholder="Sleep, fatigue, soreness…"
+            options={WELLNESS_KPIS.map((k) => ({ value: k.key, label: k.label, hint: k.unit }))}
+          />
+          <SelectField
+            label="Chart"
+            value={kind}
+            onChange={(value) => setKind(value as ChartKind)}
+            options={CHART_KINDS.map((c) => ({ value: c.id, label: c.label }))}
+          />
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1">
-          <span className="eyebrow w-full sm:w-auto">Chart</span>
-          {CHART_KINDS.map((c) => (
-            <button key={c.id} type="button" className={chip(kind === c.id)} onClick={() => setKind(c.id)}>
-              {c.label}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="mt-3 text-xs text-muted-foreground">
           {responses
             ? `${responses} questionnaire responses in the selected dates.`
             : "No wellness answers in these dates yet — players fill it in from their portal, or you can enter it in Wellness & alerts."}
         </p>
       </section>
+
 
       <section className="grid gap-4 xl:grid-cols-2">
         <div className="panel p-4">
