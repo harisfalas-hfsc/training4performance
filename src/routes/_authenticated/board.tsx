@@ -39,6 +39,7 @@ function BoardPage() {
   const [sessionId, setSessionId] = useState<string>(sessions[0]?.id ?? "");
   const [itemIndex, setItemIndex] = useState<number>(-1);
   const [saved, setSaved] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
 
   const session = sessionCalendar.find((s) => s.id === sessionId);
   const plan: SessionPlanItem[] = session?.plan ?? [];
@@ -50,7 +51,7 @@ function BoardPage() {
     const json = JSON.stringify(d);
     const next: SessionPlanItem[] = [...plan];
     if (itemIndex >= 0 && next[itemIndex]) {
-      next[itemIndex] = { ...next[itemIndex]!, drawing: json };
+      next[itemIndex] = { ...next[itemIndex]!, drawing: json, notes: description };
     } else {
       next.push({
         drill: "Board drawing",
@@ -59,6 +60,7 @@ function BoardPage() {
         rpe: session.plannedRpe,
         block: session.blockNames?.[0] ?? "BLOCK 1",
         drawing: json,
+        notes: description,
       });
       setItemIndex(next.length - 1);
     }
@@ -66,6 +68,7 @@ function BoardPage() {
     setSaved(`Saved to ${session.date} · ${session.title}`);
     window.setTimeout(() => setSaved(null), 2500);
   };
+
 
   return (
     <AppShell
