@@ -158,7 +158,7 @@ export function AppShell({
               />
               <Training4Performance
                 uppercase
-                className="hidden sm:inline-flex items-center gap-1.5 text-sm"
+                className="hidden sm:inline-flex items-center gap-2 text-2xl"
               />
             </Link>
 
