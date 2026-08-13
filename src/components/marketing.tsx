@@ -28,6 +28,15 @@ export function SiteHeader() {
   }, []);
 
   const initials = (profile?.full_name || session?.user?.email || "?").slice(0, 1).toUpperCase();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isHome) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <>
@@ -37,6 +46,7 @@ export function SiteHeader() {
 
           <Link
             to="/"
+            onClick={handleLogoClick}
             className="pointer-events-auto absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
             aria-label="Training 4 Performance home"
           >
