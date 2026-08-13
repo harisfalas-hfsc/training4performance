@@ -62,7 +62,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, subscription, user } = useAuth();
+  const { profile, subscription, user, isAdmin } = useAuth();
   const clubLabel = profile?.club_name || subscription?.team_name || `${team.club} · ${team.name}`;
   const { canGoBack, goBack } = usePlatformBack();
   const [supportMode, setSupportMode] = useState(false);
