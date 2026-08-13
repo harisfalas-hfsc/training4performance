@@ -147,7 +147,12 @@ export function AppShell({
 
             <Link
               to="/dashboard"
-              onClick={resetPlatformHistory}
+              onClick={() => {
+                resetPlatformHistory();
+                if (pathname === "/dashboard") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               aria-label="Platform home"
             >
