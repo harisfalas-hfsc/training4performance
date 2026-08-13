@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { listLibraryBlocks, type LibraryBlock } from "@/lib/library.functions";
+import { type LibraryBlock } from "@/lib/library.functions";
+import { useOfficialLibrary } from "@/lib/use-library-blocks";
 import { normalizeCategory } from "@/data/library-categories";
 
 import {
@@ -1526,24 +1527,19 @@ function Library({
   onAddBlock: (blockName: string, items: SessionPlanItem[]) => void;
 }) {
   useLibraryVersion();
-  const { hasAccess } = useAuth();
   const [tab, setTab] = useState<"field" | "gym" | "blocks">(gym ? "gym" : "field");
   const [q, setQ] = useState("");
   const [showCustom, setShowCustom] = useState(false);
-  const fetchBlocks = useServerFn(listLibraryBlocks);
 
   useEffect(() => setTab(gym ? "gym" : "field"), [gym]);
 
-  const officialBlocks = useQuery({
-    queryKey: ["library-blocks"],
-    queryFn: () => fetchBlocks(),
-    enabled: tab === "blocks" && hasAccess,
-  });
+  const officialBlocks = useOfficialLibrary(tab === "blocks");
+  const hasAccess = !officialBlocks.locked;
 
   const drills = allDrills().filter((d) => d.name.toLowerCase().includes(q.toLowerCase()));
   const lifts = allStrengthExercises().filter((e) => e.name.toLowerCase().includes(q.toLowerCase()));
   const matches = q.trim().toLowerCase();
-  const t4pBlocks = (officialBlocks.data ?? []).filter((b) => b.name.toLowerCase().includes(matches));
+  const t4pBlocks = officialBlocks.blocks.filter((b) => b.name.toLowerCase().includes(matches));
   const myBlocks = savedBlocks().filter((b) => b.name.toLowerCase().includes(matches));
 
   return (
@@ -1586,7 +1582,7 @@ function Library({
         {tab === "blocks" ? (
           <BlockPickerList
             hasAccess={hasAccess}
-            loading={officialBlocks.isPending && hasAccess}
+            loading={officialBlocks.loading}
             t4pBlocks={t4pBlocks}
             myBlocks={myBlocks}
             onAddBlock={onAddBlock}
