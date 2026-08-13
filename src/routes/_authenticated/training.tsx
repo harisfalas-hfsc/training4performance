@@ -932,13 +932,18 @@ function TrainingPage() {
                 <Field label="Minutes">
                   <input name="min" type="number" className="control" />
                 </Field>
-                <Field label="RPE">
+                <Field label="Target RPE (optional)">
                   <input name="rpe" type="number" className="control" />
                 </Field>
                 <button className="h-9 self-end rounded-md border border-border px-4 text-xs font-semibold hover:border-primary hover:text-primary">
                   Add
                 </button>
               </form>
+              <p className="mt-2 text-[0.68rem] text-muted-foreground">
+                Target RPE is only a plan. The real load comes later in step 5, from the GPS file or the RPE the
+                players report after the session — you never have to guess it up front.
+              </p>
+
 
               <StepActions onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Preview the session">
                 <button
