@@ -22,7 +22,7 @@ export function FederationTrust({ className }: { className?: string }) {
         leading football federations and leagues worldwide.
       </p>
       <div
-        className="mx-auto mt-5 flex w-full max-w-4xl flex-wrap items-center justify-center gap-x-4 gap-y-4 sm:flex-nowrap sm:gap-x-3 md:gap-x-5"
+        className="mx-auto mt-5 flex w-full max-w-4xl flex-nowrap items-center justify-center gap-x-1.5 sm:gap-x-3 md:gap-x-5"
         aria-label="Federations and leagues we are compatible with"
       >
         {federations.map((f) => (
@@ -35,8 +35,8 @@ export function FederationTrust({ className }: { className?: string }) {
             className={cn(
               "w-auto shrink object-contain",
               f.wide
-                ? "h-5 max-w-[64px] sm:h-6 sm:max-w-[72px] md:h-7 md:max-w-[92px]"
-                : "h-8 max-w-[40px] sm:h-9 sm:max-w-[42px] md:h-11 md:max-w-[52px]",
+                ? "h-4 max-w-[30px] sm:h-6 sm:max-w-[72px] md:h-7 md:max-w-[92px]"
+                : "h-6 max-w-[22px] sm:h-9 sm:max-w-[42px] md:h-11 md:max-w-[52px]",
             )}
           />
         ))}
