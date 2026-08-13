@@ -290,6 +290,9 @@ export interface SavedBlock {
   name: string;
   savedAt: string;
   items: SessionPlanItem[];
+  /** Library section (STRENGTH, POWER, ESD…). */
+  category?: string;
+  description?: string;
 }
 
 /** A saved training: type, block names and the full plan, reusable on any date. */
