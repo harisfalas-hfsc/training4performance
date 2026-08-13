@@ -191,6 +191,15 @@ export function AppShell({
                     >
                       My account
                     </Link>
+                    {isAdmin ? (
+                      <Link
+                        to="/admin"
+                        onClick={() => setAccountOpen(false)}
+                        className="flex items-center gap-2 border-t border-border px-3 py-2.5 text-sm font-medium text-primary hover:bg-accent"
+                      >
+                        <Shield className="size-4" /> Admin panel
+                      </Link>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
