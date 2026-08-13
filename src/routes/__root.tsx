@@ -160,6 +160,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         // Apply the saved colour theme before first paint.
         children: `(function(){try{if(localStorage.getItem('t4p.theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
       },
+      {
+        // Purge every retired account-data cache before application modules run.
+        // Account records are cloud-authoritative; the shared demo is memory-only.
+        children: `(function(){try{var p=['t4p.data.','t4p.tests.','t4p.testrecords.','t4p.customtests.','t4p.library.','t4p.loadmodel.','t4p.gpsTemplates.','t4p.teamSlots.','t4p.notifications.','t4p.alerts.','t4p.purge.'];Object.keys(localStorage).forEach(function(k){if(p.some(function(x){return k.indexOf(x)===0;})){localStorage.removeItem(k);}});}catch(e){}})();`,
+      },
 
 
 
