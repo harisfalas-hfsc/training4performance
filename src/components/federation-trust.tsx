@@ -44,12 +44,8 @@ export function FederationTrust({ className }: { className?: string }) {
       </div>
     </div>
   );
-
-        ))}
-      </div>
-    </div>
-  );
 }
+
 
 
 
