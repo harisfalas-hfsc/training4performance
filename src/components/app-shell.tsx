@@ -156,7 +156,7 @@ export function AppShell({
               />
             </Link>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-0.5">
               {supportMode ? (
                 <Button size="sm" onClick={() => void returnToAdmin()}>
                   <Shield className="size-3.5" /> <span className="hidden sm:inline">Return to admin</span>
