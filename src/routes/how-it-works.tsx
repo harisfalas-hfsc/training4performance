@@ -476,7 +476,7 @@ function HowItWorks() {
                 Every workflow is written down, step by step
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                Inside the platform, <T4P /> ships with a full colour-coded user manual: 15 numbered
+                Inside the platform, <T4P /> ships with a full colour-coded user manual: 16 numbered
                 chapters from an empty squad to daily decisions, a chapter explaining exactly how
                 the individual training load and ACWR are calculated, a search box and a
                 troubleshooting section. It is also downloadable as a PDF, exactly as it appears on

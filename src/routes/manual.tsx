@@ -3,6 +3,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import {
   Activity,
   BarChart3,
+  BookMarked,
   BellRing,
   BookOpen,
   CalendarDays,
