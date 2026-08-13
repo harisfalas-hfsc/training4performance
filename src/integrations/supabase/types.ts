@@ -408,11 +408,14 @@ export type Database = {
           canceled_at: string | null
           complimentary: boolean
           created_at: string
+          environment: string
           id: string
           price_eur: number
           season_end: string
           season_start: string
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           team_name: string
           updated_at: string
           user_id: string
@@ -423,11 +426,14 @@ export type Database = {
           canceled_at?: string | null
           complimentary?: boolean
           created_at?: string
+          environment?: string
           id?: string
           price_eur?: number
           season_end?: string
           season_start?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           team_name?: string
           updated_at?: string
           user_id: string
@@ -438,11 +444,14 @@ export type Database = {
           canceled_at?: string | null
           complimentary?: boolean
           created_at?: string
+          environment?: string
           id?: string
           price_eur?: number
           season_end?: string
           season_start?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           team_name?: string
           updated_at?: string
           user_id?: string
