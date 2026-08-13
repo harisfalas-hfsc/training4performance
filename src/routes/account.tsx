@@ -262,17 +262,43 @@ function Account() {
                 You can open the platform, view every record, chart and report and export everything. Adding or editing
                 data needs an active subscription — {PRICE_LABEL} per season, per team, cancel any time.
               </p>
-              <button
-                onClick={activate}
-                disabled={busy}
-                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-              >
-                {busy ? "Sending…" : `Subscribe — ${PRICE_FULL}`}
-              </button>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Online card payments are being rolled out — for now the yearly subscription is activated after
-                invoicing. You will get a notification as soon as it is live.
-              </p>
+              {paymentsConfigured() ? (
+                <>
+                  <button
+                    onClick={() => setCheckoutOpen((v) => !v)}
+                    className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  >
+                    {checkoutOpen ? "Close payment form" : `Subscribe — ${PRICE_FULL}`}
+                  </button>
+                  {checkoutOpen ? (
+                    <div className="mt-4 overflow-hidden rounded-md border border-border">
+                      <PaymentTestModeBanner />
+                      <StripeEmbeddedCheckout
+                        priceId={SEASON_PRICE_ID}
+                        teamName={clubName || profile?.club_name || "First team"}
+                        returnUrl={`${window.location.origin}/account?checkout=success`}
+                      />
+                    </div>
+                  ) : null}
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Secure card payment. Your season starts the moment the payment is confirmed and renews every 365
+                    days until you cancel.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={activate}
+                    disabled={busy}
+                    className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                  >
+                    {busy ? "Sending…" : `Subscribe — ${PRICE_FULL}`}
+                  </button>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Card payments are being switched on — for now the yearly subscription is activated after invoicing.
+                  </p>
+                </>
+              )}
             </>
           )}
           <div>
