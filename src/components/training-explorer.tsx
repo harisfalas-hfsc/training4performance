@@ -7,8 +7,11 @@ import {
   blockMinutes,
   drillCatalog,
   drillEntries,
+  drillGpsStats,
   drillSummary,
+  DRILL_GPS_METRICS,
   type DrillCatalogItem,
+  type DrillGpsMetric,
 } from "@/data/explore";
 
 /**
@@ -28,6 +31,7 @@ export function TrainingExplorer({
   const [picked, setPicked] = useState<string[]>([]);
   const [kind, setKind] = useState<ChartKind>("bar");
   const [measure, setMeasure] = useState<"times" | "minutes">("times");
+  const [metric, setMetric] = useState<DrillGpsMetric>("avgLoad");
 
   const catalog = useMemo(() => drillCatalog(from, to), [from, to]);
   const entries = useMemo(() => drillEntries(from, to), [from, to]);
@@ -35,6 +39,17 @@ export function TrainingExplorer({
   const summaries = useMemo(
     () => chosen.map((item) => drillSummary(item, playerIds, from, to)),
     [chosen.map((c) => c.key).join(","), playerIds.join(","), from, to],
+  );
+
+  const soloId = playerIds.length === 1 ? playerIds[0] : undefined;
+  const gpsStats = useMemo(
+    () => drillGpsStats(from, to, soloId, catalog),
+    [catalog, from, to, soloId],
+  );
+  const metricMeta = DRILL_GPS_METRICS.find((m) => m.key === metric);
+  const ranked = useMemo(
+    () => [...gpsStats].sort((a, b) => (b[metric] as number) - (a[metric] as number)),
+    [gpsStats, metric],
   );
 
   const rows = useMemo(() => attendance(playerIds, from, to), [playerIds.join(","), from, to]);
