@@ -160,6 +160,9 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-5 py-8 sm:py-10">
         <FederationTrust />
 
+        <DesktopDownloads className="mt-8" />
+
+
         <div className="mt-8 flex flex-col items-center gap-4 text-center sm:mt-10">
           <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
             <Training4Performance />
