@@ -50,8 +50,8 @@ const brings: [string, string][] = [
   ["🩺", "Medical information"],
   ["📈", "Performance analytics"],
   ["🚨", "Alerts"],
-  ["🤖", "AI-supported observations"],
 ];
+
 
 const inside: { e: string; t: string; d: string; c: string }[] = [
   {
