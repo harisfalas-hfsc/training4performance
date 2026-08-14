@@ -206,16 +206,17 @@ function About() {
             Instead of managing your team through different Excel files, GPS reports, forms and
             notes, <T4P /> brings everything into one connected workspace.
           </p>
-          <ul className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+          <ul className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3 lg:grid-cols-3">
             {brings.map(([e, b]) => (
-              <li key={b} className="flex items-center gap-2 text-sm font-semibold">
-                <span aria-hidden className="text-base">
+              <li key={b} className="flex min-w-0 items-center gap-2.5 bg-card px-3 py-3">
+                <span aria-hidden className="shrink-0 text-base">
                   {e}
                 </span>
-                {b}
+                <span className="min-w-0 truncate text-sm font-semibold">{b}</span>
               </li>
             ))}
           </ul>
+
 
           <p className="mt-6 font-display text-base font-semibold uppercase tracking-wide text-brand-green">
             Spend less time managing information. Spend more time coaching.
