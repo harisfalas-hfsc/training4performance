@@ -200,7 +200,7 @@ function FAQ() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
-        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+        <div className="mx-auto max-w-7xl px-5 py-14 text-center">
           <p className="page-eyebrow">Frequently asked questions</p>
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Everything you want to know about <T4P />
@@ -212,7 +212,7 @@ function FAQ() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-4xl px-5 py-10">
+      <div className="mx-auto max-w-5xl px-5 py-10">
         <div className="space-y-3">
           {allFaq.map((item, i) => (
             <FAQItem

@@ -202,7 +202,7 @@ function HowItWorks() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
-        <div className="mx-auto max-w-5xl px-5 py-14 text-center">
+        <div className="mx-auto max-w-7xl px-5 py-14 text-center">
           <p className="page-eyebrow">How it works</p>
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Create → import → review → decide → report
@@ -215,7 +215,7 @@ function HowItWorks() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-5 py-10">
+      <div className="mx-auto max-w-7xl px-5 py-10">
         <ol className="space-y-4">
           {steps.map((s, i) => {
             const tone = tones[s.tone]!;

@@ -359,7 +359,7 @@ function About() {
           <p className="mt-4 max-w-4xl text-sm leading-relaxed text-muted-foreground">
             <T4P /> was created by <strong className="text-foreground">Haris Falas</strong> — sports
             scientist and strength &amp; conditioning coach — from daily work inside professional
-            football clubs. €999 per season, per team, every module included.
+            football clubs. €699 per season, per team, every module included.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
