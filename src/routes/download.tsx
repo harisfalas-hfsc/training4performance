@@ -46,17 +46,23 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 function DownloadPage() {
   return (
     <MarketingPage>
-      <div className="mx-auto max-w-7xl px-5 py-12">
-        <h1 className="font-display text-3xl font-semibold uppercase tracking-wide sm:text-4xl">
-          Download &amp; install
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          <T4P /> runs in your browser, and also as a desktop app for Windows and macOS. The desktop
-          app works offline — your data stays on the machine and syncs back to the cloud as soon as
-          you are online again.
-        </p>
+      <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
+        <div className="mx-auto max-w-7xl px-5 py-14 text-center">
+          <p className="page-eyebrow">Desktop app</p>
+          <h1 className="mt-3 font-display text-2xl font-semibold uppercase tracking-wide sm:text-4xl">
+            Download &amp; install
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <T4P /> runs in your browser, and also as a desktop app for Windows and macOS. The
+            desktop app works offline — your data stays on the machine and syncs back to the cloud
+            as soon as you are online again.
+          </p>
+          <DesktopDownloads className="mt-8" />
+        </div>
+      </section>
 
-        <DesktopDownloads className="mt-8 items-start sm:items-start" />
+      <div className="mx-auto max-w-7xl px-5 py-10">
+
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <section className="rounded-2xl border border-border bg-card p-6">
