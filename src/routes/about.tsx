@@ -128,16 +128,16 @@ const inside: { e: string; t: string; d: string; c: string }[] = [
   },
 ];
 
-const chain = [
-  "👤 Player profile",
-  "📅 Training session",
-  "📡 GPS data",
-  "❤️ Wellness",
-  "📊 Training load",
-  "🚨 Alerts",
-  "🤖 AI observations",
-  "🎯 Coaching decision",
+const chain: [string, string][] = [
+  ["👤", "Player profile"],
+  ["📅", "Training session"],
+  ["📡", "GPS data"],
+  ["❤️", "Wellness"],
+  ["📊", "Training load"],
+  ["🚨", "Alerts"],
+  ["🎯", "Coaching decision"],
 ];
+
 
 const levels = [
   ["Level 1", "Collect data"],
