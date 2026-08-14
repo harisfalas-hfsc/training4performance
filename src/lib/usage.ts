@@ -141,18 +141,20 @@ export async function syncUsageSnapshot(input: {
 }
 
 /** Removes the coach's synced workspace + usage snapshot from the cloud. */
-export async function clearRemoteWorkspace(userId: string) {
-  try {
-    await Promise.all([
-      supabase.from("workspace_data").delete().eq("user_id", userId),
-      supabase
-        .from("usage_snapshots")
-        .update({ players: 0, sessions: 0, gps_rows: 0, tests: 0, player_names: [], updated_at: new Date().toISOString() })
-        .eq("user_id", userId),
-    ]);
-  } catch {
-    /* best effort */
-  }
+export async function clearRemoteWorkspace(userId: string): Promise<boolean> {
+  // Stop pending writes before deleting. Otherwise an already-scheduled save can
+  // recreate the workspace immediately after the delete finishes.
+  stopWorkspaceAutoSync();
+  activeWorkspaceUser = null;
+  hydratedUser = null;
+  const [workspaceResult, usageResult] = await Promise.all([
+    supabase.from("workspace_data").delete().eq("user_id", userId),
+    supabase
+      .from("usage_snapshots")
+      .update({ club_name: null, team_name: null, players: 0, sessions: 0, gps_rows: 0, tests: 0, player_names: [], updated_at: new Date().toISOString() })
+      .eq("user_id", userId),
+  ]);
+  return !workspaceResult.error && !usageResult.error;
 }
 
 /* ------------------------------------------------------------------ */
