@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { registerOfflineSupport } from "@/lib/offline";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -284,6 +285,7 @@ function RootShell({ children }: { children: ReactNode }) {
     Object.keys(window.localStorage).forEach((key) => {
       if (retiredDataPrefixes.some((prefix) => key.startsWith(prefix))) window.localStorage.removeItem(key);
     });
+    registerOfflineSupport();
   }, []);
 
   return (
