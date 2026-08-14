@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 export const DOWNLOADS = {
-  mac: "/__l5e/assets-v1/616d6a24-792d-4370-acbb-3cde2b8fa610/T4P-Installer-macOS.dmg",
-  windows: "/__l5e/assets-v1/72fbae55-9780-4178-be0b-11cf8cf65ade/T4P-Setup-Windows.exe",
+  mac: "/__l5e/assets-v1/f07c38ae-b7c1-4f7b-b7b8-fff033d1edd3/T4P-Installer-macOS.dmg",
+  windows: "/__l5e/assets-v1/99f11145-85a0-4989-b8c4-53fd4a672d1d/T4P-Setup-Windows.exe",
 };
 
 /** Apple brand mark — official monochrome glyph on a light chip. */
