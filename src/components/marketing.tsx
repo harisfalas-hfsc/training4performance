@@ -8,6 +8,7 @@ import { DiscoverMenu } from "@/components/discover-menu";
 import { NotificationBell } from "@/components/notification-bell";
 
 import { FederationTrust } from "@/components/federation-trust";
+import { DesktopDownloads } from "@/components/desktop-downloads";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { platformNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
