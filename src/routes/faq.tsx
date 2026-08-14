@@ -213,22 +213,7 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const faq: FAQItem[] = faqText.map((item) => ({
-  q: <BrandCopy>{item.q}</BrandCopy>,
-  a: <BrandCopy>{item.a}</BrandCopy>,
-}));
-
-const stopDoing: FAQItem[] = stopDoingText.map((item) => ({
-  q: <BrandCopy>{item.q}</BrandCopy>,
-  a: <BrandCopy>{item.a}</BrandCopy>,
-}));
-
-const allFaq = [...faq, ...stopDoing].map((item, i) => ({
-  ...item,
-  tone: toneKeys[i % toneKeys.length]!,
-}));
-
-const faqSchema = [...faqText, ...stopDoingText];
+const faqSchema = SECTIONS.flatMap((s) => s.items);
 
 function FAQItem({
   item,
