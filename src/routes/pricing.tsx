@@ -117,7 +117,7 @@ function Pricing() {
   return (
     <MarketingPage>
       <section className="border-b border-border bg-gradient-to-br from-brand-indigo/10 via-background to-brand-cyan/10">
-        <div className="mx-auto max-w-6xl px-5 py-14 text-center">
+        <div className="mx-auto max-w-7xl px-5 py-14 text-center">
           <p className="page-eyebrow">Pricing</p>
           <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
             Everything included, one season, one team
@@ -130,7 +130,7 @@ function Pricing() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-5 py-10">
+      <div className="mx-auto max-w-7xl px-5 py-10">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           <div className="panel relative overflow-hidden border-brand-indigo/35 bg-gradient-to-br from-brand-indigo/10 to-brand-pink/10 p-6">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-indigo/15 px-3 py-1 text-xs font-semibold text-brand-indigo">
@@ -169,9 +169,9 @@ function Pricing() {
 
           <div className="panel border-brand-green/25 p-6">
             <p className="eyebrow text-brand-green">Everything included</p>
-            <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+            <ul className="mt-4 grid gap-x-6 gap-y-2 text-sm text-muted-foreground sm:grid-cols-2">
               {included.map((i) => (
-                <li key={i} className="flex gap-2 rounded-md bg-surface-2 px-3 py-2">
+                <li key={i} className="flex gap-2">
                   <Check className="mt-0.5 size-4 shrink-0 text-brand-green" />
                   {i}
                 </li>
@@ -180,12 +180,10 @@ function Pricing() {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid gap-x-10 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
           {notes.map((n) => (
-            <div key={n.t} className={`panel ${n.tone} p-5`}>
-              <p
-                className={`font-display text-base font-semibold uppercase tracking-wide ${n.label}`}
-              >
+            <div key={n.t}>
+              <p className={`font-display text-sm font-semibold uppercase tracking-wide ${n.label}`}>
                 {n.t}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{n.d}</BrandCopy></p>
@@ -193,6 +191,7 @@ function Pricing() {
           ))}
         </div>
       </div>
+
     </MarketingPage>
   );
 }
