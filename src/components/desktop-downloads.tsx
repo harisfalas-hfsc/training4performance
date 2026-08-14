@@ -1,11 +1,8 @@
 import { cn } from "@/lib/utils";
 
-const BASE =
-  "https://rxmrersjivfpcjyznqyb.supabase.co/storage/v1/object/public/downloads";
-
 export const DOWNLOADS = {
-  mac: `${BASE}/T4P-macOS.zip`,
-  windows: `${BASE}/T4P-Windows.zip`,
+  mac: "/__l5e/assets-v1/2e0c04ba-ef1f-4cee-8589-f1848a29e69a/T4P-macOS.zip",
+  windows: "/__l5e/assets-v1/d76be498-8b24-49fc-91b3-0243929f9c57/T4P-Windows.zip",
 };
 
 function AppleGlyph(props: React.SVGProps<SVGSVGElement>) {
