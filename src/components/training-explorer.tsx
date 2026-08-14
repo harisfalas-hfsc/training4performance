@@ -7,8 +7,11 @@ import {
   blockMinutes,
   drillCatalog,
   drillEntries,
+  drillGpsStats,
   drillSummary,
+  DRILL_GPS_METRICS,
   type DrillCatalogItem,
+  type DrillGpsMetric,
 } from "@/data/explore";
 
 /**
@@ -28,6 +31,7 @@ export function TrainingExplorer({
   const [picked, setPicked] = useState<string[]>([]);
   const [kind, setKind] = useState<ChartKind>("bar");
   const [measure, setMeasure] = useState<"times" | "minutes">("times");
+  const [metric, setMetric] = useState<DrillGpsMetric>("avgLoad");
 
   const catalog = useMemo(() => drillCatalog(from, to), [from, to]);
   const entries = useMemo(() => drillEntries(from, to), [from, to]);
@@ -35,6 +39,17 @@ export function TrainingExplorer({
   const summaries = useMemo(
     () => chosen.map((item) => drillSummary(item, playerIds, from, to)),
     [chosen.map((c) => c.key).join(","), playerIds.join(","), from, to],
+  );
+
+  const soloId = playerIds.length === 1 ? playerIds[0] : undefined;
+  const gpsStats = useMemo(
+    () => drillGpsStats(from, to, soloId, catalog),
+    [catalog, from, to, soloId],
+  );
+  const metricMeta = DRILL_GPS_METRICS.find((m) => m.key === metric);
+  const ranked = useMemo(
+    () => [...gpsStats].sort((a, b) => (b[metric] as number) - (a[metric] as number)),
+    [gpsStats, metric],
   );
 
   const rows = useMemo(() => attendance(playerIds, from, to), [playerIds.join(","), from, to]);
@@ -135,9 +150,12 @@ export function TrainingExplorer({
           </section>
 
           <section className="panel p-4">
-            <SectionTitle title="Selected drills — summary" hint="Times, minutes and average RPE in the chosen dates" />
+            <SectionTitle
+              title="Selected drills — summary"
+              hint="Times, minutes, RPE and the GPS recorded on those days"
+            />
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[36rem] text-sm">
+              <table className="w-full min-w-[52rem] text-sm">
                 <thead className="text-left text-xs uppercase text-muted-foreground">
                   <tr>
                     <th className="py-2">Drill / tag</th>
@@ -146,22 +164,43 @@ export function TrainingExplorer({
                     <th className="text-right">Avg min</th>
                     <th className="text-right">Avg RPE</th>
                     <th className="text-right">Days used</th>
+                    <th className="text-right">Avg load</th>
+                    <th className="text-right">Avg dist</th>
+                    <th className="text-right">m/min</th>
+                    <th className="text-right">Avg HSR</th>
+                    <th className="text-right">Peak speed</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {summaries.map((s) => (
-                    <tr key={s.label} className="border-t border-border">
-                      <td className="py-1.5">{s.label}</td>
-                      <td className="text-right tabular-nums">{s.times}</td>
-                      <td className="text-right tabular-nums">{s.minutes}</td>
-                      <td className="text-right tabular-nums">{s.avgMinutes}</td>
-                      <td className="text-right tabular-nums">{s.avgRpe || "—"}</td>
-                      <td className="text-right tabular-nums">{s.dates.length}</td>
-                    </tr>
-                  ))}
+                  {summaries.map((s) => {
+                    const g = gpsStats.find((x) => x.label === s.label);
+                    return (
+                      <tr key={s.label} className="border-t border-border">
+                        <td className="py-1.5">{s.label}</td>
+                        <td className="text-right tabular-nums">{s.times}</td>
+                        <td className="text-right tabular-nums">{s.minutes}</td>
+                        <td className="text-right tabular-nums">{s.avgMinutes}</td>
+                        <td className="text-right tabular-nums">{s.avgRpe || "—"}</td>
+                        <td className="text-right tabular-nums">{s.dates.length}</td>
+                        <td className="text-right tabular-nums">{g?.withGps ? g.avgLoad : "—"}</td>
+                        <td className="text-right tabular-nums">
+                          {g?.withGps ? g.avgDistance.toLocaleString() : "—"}
+                        </td>
+                        <td className="text-right tabular-nums">{g?.withGps ? g.distancePerMin : "—"}</td>
+                        <td className="text-right tabular-nums">
+                          {g?.withGps ? g.avgHsr.toLocaleString() : "—"}
+                        </td>
+                        <td className="text-right tabular-nums">{g?.peakMaxSpeed || "—"}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              GPS is recorded per session and split across the blocks of the day, then shared out to each drill by
+              its minutes. Peak speed is the highest speed recorded on the days that drill was done.
+            </p>
           </section>
         </>
       ) : (
@@ -169,6 +208,83 @@ export function TrainingExplorer({
           Pick one or more drills or tags above to compare them (for example Rondo 5v2 vs passing drill).
         </p>
       )}
+
+      <section className="panel p-4">
+        <SectionTitle
+          title="Which drill was the hardest?"
+          hint="Every tagged drill in the range, ranked by the GPS metric you choose"
+          right={
+            <span className="text-xs text-muted-foreground">
+              {playerIds.length === 1 ? "One athlete" : "Squad average"}
+            </span>
+          }
+        />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <SelectField
+            label="Rank by"
+            value={metric}
+            onChange={(value) => setMetric(value as DrillGpsMetric)}
+            options={DRILL_GPS_METRICS.map((m) => ({ value: m.key, label: m.label }))}
+          />
+        </div>
+        {ranked.length ? (
+          <>
+            <div className="mt-3">
+              <ChartFrame title={`Drills ranked by ${metricMeta?.label ?? metric}`}>
+                <HBar
+                  data={ranked.slice(0, 15).map((row) => ({ name: row.label, value: row[metric] as number }))}
+                  dataKey="value"
+                  labelKey="name"
+                  height={Math.max(220, Math.min(ranked.length, 15) * 26)}
+                />
+              </ChartFrame>
+            </div>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[46rem] text-sm">
+                <thead className="text-left text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="py-2">#</th>
+                    <th>Drill / tag</th>
+                    <th className="text-right">{metricMeta?.label ?? metric}</th>
+                    <th className="text-right">Times</th>
+                    <th className="text-right">With GPS</th>
+                    <th className="text-right">Avg min</th>
+                    <th className="text-right">Peak speed</th>
+                    <th className="text-right">Best speed day</th>
+                    <th className="text-right">Last done</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ranked.slice(0, 25).map((row, i) => (
+                    <tr key={row.key} className="border-t border-border">
+                      <td className="py-1.5 tabular-nums text-muted-foreground">{i + 1}</td>
+                      <td>
+                        {row.label}
+                        <span className="ml-2 text-xs text-muted-foreground">{row.kind}</span>
+                      </td>
+                      <td className="text-right font-semibold tabular-nums">
+                        {(row[metric] as number).toLocaleString()}
+                      </td>
+                      <td className="text-right tabular-nums">{row.times}</td>
+                      <td className="text-right tabular-nums">{row.withGps}</td>
+                      <td className="text-right tabular-nums">{row.avgMinutes}</td>
+                      <td className="text-right tabular-nums">{row.peakMaxSpeed || "—"}</td>
+                      <td className="text-right tabular-nums">{row.peakSpeedDate || "—"}</td>
+                      <td className="text-right tabular-nums">{row.dates.at(-1) ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Nothing tagged in this date range yet — tag your drills in the Training Designer and upload GPS to see
+            this ranking.
+          </p>
+        )}
+      </section>
+
 
       <section className="grid gap-4 xl:grid-cols-2">
         <div className="panel p-4">
