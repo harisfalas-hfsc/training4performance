@@ -68,41 +68,18 @@ const toneMap: Record<string, { border: string; text: string; chip: string }> = 
 
 const toneKeys = ["blue", "green", "violet", "cyan", "amber", "indigo", "pink", "teal", "red"];
 
-const faq: FAQItem[] = [
+const faqText = [
   {
     q: "What is the drills & exercise library?",
-    a: (
-      <>
-        A ready-made set of training blocks written by <T4P />, sorted by category — strength, power,
-        speed, ESD, coordination, mobility &amp; stability, reaction, technical/tactical and recovery.
-        Open Library, or the Blocks tab inside the Training Designer, and one tap adds the whole block
-        to the session with its drills, sets, reps, rest and tactics board drawing. Your own saved
-        blocks live in the same place under My library.
-      </>
-    ),
+    a: "A ready-made set of training blocks written by T4P, sorted by category — strength, power, speed, ESD, coordination, mobility & stability, reaction, technical/tactical and recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your own saved blocks live in the same place under My library.",
   },
   {
     q: "Do I keep my own blocks if my subscription ends?",
-    a: (
-      <>
-        Yes. Everything you created — sessions, players, GPS, tests and the blocks in{" "}
-        <strong className="text-foreground">My library</strong> — stays with your account in
-        read-only mode, and you can download all of it at any time. Only the ready-made <T4P />{" "}
-        templates need an active subscription.
-      </>
-    ),
+    a: "Yes. Everything you created — sessions, players, GPS, tests and the blocks in My library — stays with your account in read-only mode, and you can download all of it at any time. Only the ready-made T4P templates need an active subscription.",
   },
   {
     q: "Do I have to add the players before I upload GPS?",
-    a: (
-      <>
-        No. The two orders are equally valid. Upload the file first and <T4P /> creates every
-        detected player for you; or build the squad first and the file matches the names it finds.
-        Anything the GPS export does not contain — position, birth date, height, weight, RPE, medical
-        status, test results — you add manually whenever you want, and only for the fields you
-        actually care about.
-      </>
-    ),
+    a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain — position, birth date, height, weight, RPE, medical status, test results — you add manually whenever you want, and only for the fields you actually care about.",
   },
   {
     q: "How much typing does this really save?",
@@ -113,21 +90,12 @@ const faq: FAQItem[] = [
     a: "€699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
   },
   {
-    q: (
-      <>
-        Do I need a GPS system to use <T4P />?
-      </>
-    ),
+    q: "Do I need a GPS system to use T4P?",
     a: "No — and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
   },
   {
     q: "Which GPS providers are supported?",
-    a: (
-      <>
-        Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system
-        can be mapped column by column with the <T4P /> template — including your own club KPIs.
-      </>
-    ),
+    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template — including your own club KPIs.",
   },
   {
     q: "Can I change the ACWR formula?",
@@ -143,12 +111,7 @@ const faq: FAQItem[] = [
   },
   {
     q: "Is there a manual?",
-    a: (
-      <>
-        Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a
-        search box, troubleshooting and a one-click PDF download of the whole document.
-      </>
-    ),
+    a: "Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a search box, troubleshooting and a one-click PDF download of the whole document.",
   },
   {
     q: "Is my data protected?",
@@ -156,56 +119,33 @@ const faq: FAQItem[] = [
   },
 ];
 
-const stopDoing: FAQItem[] = [
-  {
-    q: "Do I have to re-type player names?",
-    a: "No. The squad is built from your GPS file, or once by hand. Every screen reuses the same player record.",
-  },
-  {
-    q: "Do I have to copy data between files?",
-    a: "No. Import once, or rate the session once. Charts, tables, ACWR and reports update themselves.",
-  },
-  {
-    q: "Do I need manual formulas for load or ACWR?",
-    a: "No. Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives.",
-  },
-  {
-    q: "Do I have to scan every player manually?",
-    a: "No. Thresholds watch workload, wellness and availability and tell you who needs attention.",
-  },
-  {
-    q: "Do I have to build the head coach's report myself?",
-    a: "No. Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV.",
-  },
-  {
-    q: "Do I need printed drill cards?",
-    a: "No. The library holds the blocks and their board drawings. Pick one and it is already inside the session.",
-  },
-  {
-    q: "Do I have to chase wellness by message?",
-    a: "No. Players check in from their own portal before the cut-off time, and you see who is missing.",
-  },
-  {
-    q: "Can I lose the season history?",
-    a: "No. Every session, file, test, injury and rating stays in one place until you delete it.",
-  },
+const stopDoingText = [
+  { q: "Do I have to re-type player names?", a: "No. The squad is built from your GPS file, or once by hand. Every screen reuses the same player record." },
+  { q: "Do I have to copy data between files?", a: "No. Import once, or rate the session once. Charts, tables, ACWR and reports update themselves." },
+  { q: "Do I need manual formulas for load or ACWR?", a: "No. Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives." },
+  { q: "Do I have to scan every player manually?", a: "No. Thresholds watch workload, wellness and availability and tell you who needs attention." },
+  { q: "Do I have to build the head coach's report myself?", a: "No. Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV." },
+  { q: "Do I need printed drill cards?", a: "No. The library holds the blocks and their board drawings. Pick one and it is already inside the session." },
+  { q: "Do I have to chase wellness by message?", a: "No. Players check in from their own portal before the cut-off time, and you see who is missing." },
+  { q: "Can I lose the season history?", a: "No. Every session, file, test, injury and rating stays in one place until you delete it." },
 ];
+
+const faq: FAQItem[] = faqText.map((item) => ({
+  q: <BrandCopy>{item.q}</BrandCopy>,
+  a: <BrandCopy>{item.a}</BrandCopy>,
+}));
+
+const stopDoing: FAQItem[] = stopDoingText.map((item) => ({
+  q: <BrandCopy>{item.q}</BrandCopy>,
+  a: <BrandCopy>{item.a}</BrandCopy>,
+}));
 
 const allFaq = [...faq, ...stopDoing].map((item, i) => ({
   ...item,
   tone: toneKeys[i % toneKeys.length]!,
 }));
 
-const faqSchema = [
-  ...faq.map((item) => ({
-    q: typeof item.q === "string" ? item.q : "T4P FAQ item",
-    a: typeof item.a === "string" ? item.a : "See the T4P FAQ page for the full answer.",
-  })),
-  ...stopDoing.map((item) => ({
-    q: typeof item.q === "string" ? item.q : "T4P FAQ item",
-    a: typeof item.a === "string" ? item.a : "See the T4P FAQ page for the full answer.",
-  })),
-];
+const faqSchema = [...faqText, ...stopDoingText];
 
 function FAQItem({
   item,
@@ -217,7 +157,6 @@ function FAQItem({
   onToggle: () => void;
 }) {
   const t = toneMap[item.tone]!;
-  const qText = typeof item.q === "string" ? item.q : "FAQ item";
 
   return (
     <div className={cn("panel overflow-hidden", t.border)}>
@@ -248,9 +187,7 @@ function FAQItem({
       </button>
       {open ? (
         <div className="border-t border-border px-5 pb-5 pt-4">
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {typeof item.a === "string" ? <BrandCopy>{item.a}</BrandCopy> : item.a}
-          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{item.a}</p>
         </div>
       ) : null}
     </div>
