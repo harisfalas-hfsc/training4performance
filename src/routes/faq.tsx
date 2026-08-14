@@ -114,10 +114,19 @@ const faqText = [
     a: "Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a search box, troubleshooting and a one-click PDF download of the whole document.",
   },
   {
+    q: "Is there a desktop version I can install?",
+    a: "Yes. T4P installs like any normal program: a setup wizard on Windows (T4P-Setup-Windows.exe) and a drag-to-Applications disk image on macOS (T4P-Installer-macOS.dmg). Both are on the Download page, linked from the footer, with step-by-step instructions. The app carries the T4P icon and appears in the Start Menu, taskbar or Dock.",
+  },
+  {
+    q: "Does T4P work without an internet connection?",
+    a: "Yes — the desktop app and the website both keep working offline. Everything already in your workspace stays readable and editable with no connection, and anything you change offline is stored on the machine and pushed to the cloud automatically the moment you are back online. You only need a connection for the very first sign-in.",
+  },
+  {
     q: "Is my data protected?",
     a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
   },
 ];
+
 
 const stopDoingText = [
   { q: "Do I have to re-type player names?", a: "No. The squad is built from your GPS file, or once by hand. Every screen reuses the same player record." },
