@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { DesktopDownloads } from "@/components/desktop-downloads";
