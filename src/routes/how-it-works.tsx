@@ -7,6 +7,8 @@ import {
   CalendarDays,
   ClipboardPen,
   Gauge,
+  MonitorDown,
+
   HeartPulse,
   Radar,
   Shield,
@@ -322,6 +324,50 @@ function HowItWorks() {
             </div>
           </div>
         </div>
+
+        <div className="panel mt-12 overflow-hidden border-brand-blue/35 bg-gradient-to-br from-brand-blue/10 via-background to-brand-cyan/10 p-6">
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-blue/15 text-brand-blue">
+              <MonitorDown className="size-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow text-brand-blue">Desktop &amp; offline</p>
+              <h2 className="mt-1 font-display text-2xl font-semibold uppercase tracking-wide">
+                Install it on the laptop — and keep working with no connection
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                <T4P /> is a website and a desktop program at the same time. Windows gets a setup
+                wizard with shortcuts and an uninstaller, macOS gets a drag-to-Applications disk
+                image, and both keep working on the pitch, in the gym or on the bus with no internet
+                at all.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {[
+                  ["01", "Real installers", "T4P-Setup-Windows.exe and T4P-Installer-macOS.dmg, with the T4P icon."],
+                  ["02", "Works offline", "Everything already in your workspace stays readable and editable."],
+                  ["03", "Syncs by itself", "Offline edits are queued and pushed the moment you are back online."],
+                ].map(([n, t, d]) => (
+                  <div key={n} className="rounded-xl border border-brand-blue/30 bg-card p-3">
+                    <p className="font-display text-xs font-bold text-brand-blue">{n}</p>
+                    <p className="mt-0.5 font-display text-sm font-semibold uppercase tracking-wide">
+                      {t}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{d}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5">
+                <Link
+                  to="/download"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
+                >
+                  Download &amp; install <ArrowRight className="size-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
 
         <div className="panel mt-12 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-cyan/10 p-6 text-center">
           <p className="font-display text-xl font-semibold uppercase tracking-wide">

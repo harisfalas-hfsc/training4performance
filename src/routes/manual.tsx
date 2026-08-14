@@ -402,7 +402,33 @@ const CHAPTERS: Chapter[] = [
       "Use it as the audit trail behind every number in analytics.",
     ],
   },
+  {
+    id: "desktop",
+    n: 16,
+    title: "Install the desktop app and work offline",
+    why: "The pitch, the gym and the team bus rarely have a stable connection. T4P installs as a normal desktop program and keeps working with no internet at all.",
+    icon: Download,
+    color: "#0052B4",
+    to: "/download",
+    linkLabel: "Open the download page",
+    steps: [
+      "Open the Download page from the footer of the public site (Download → macOS or Windows).",
+      "WINDOWS: run T4P-Setup-Windows.exe. The wizard installs the app and creates a Start Menu and Desktop shortcut. On first launch Windows may show 'Windows protected your PC' — click More info → Run anyway, because the app is not code-signed yet.",
+      "macOS: open T4P-Installer-macOS.dmg and drag T4P onto the Applications folder inside the window. The first time, right-click T4P → Open → Open, because the app is not notarised yet.",
+      "Sign in once with an internet connection. From then on the app opens straight into your workspace.",
+      "Prefer no install? Open T4P in your browser and use 'Install app' from the address bar — the website itself works offline in exactly the same way.",
+      "OFFLINE: everything already in your workspace — team, players, sessions, GPS rows, RPE, wellness, medical and test results — stays readable and editable with no connection.",
+      "Anything you change offline is stored on the machine and pushed to the cloud automatically the moment the connection comes back. Nothing is lost and nothing has to be re-typed.",
+      "Uninstall any time: Windows → Settings → Apps → Training 4 Performance → Uninstall. macOS → drag T4P from Applications to the Bin.",
+    ],
+    tips: [
+      "The installed app carries the T4P icon and behaves like any other program — Dock, Start Menu, taskbar.",
+      "Updating: download the newest installer and run it over the old version. Your data lives in your account, not inside the app folder.",
+      "The desktop app and the browser show the same workspace, because both sync to the same account.",
+    ],
+  },
 ];
+
 
 type WalkStep = { shot: ManualShotKey; title: string; text: string };
 
