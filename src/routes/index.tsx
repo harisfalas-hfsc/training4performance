@@ -136,35 +136,33 @@ function Home() {
   const openDemo = () => activateDemo(true);
   return (
     <MarketingPage>
-      {/* MOBILE hero — centered text */}
-      <section className="border-b border-border sm:hidden">
-        <div className="px-5 pb-8 pt-5 text-center">
-          <h1 className="font-display text-3xl font-semibold uppercase leading-tight tracking-wide text-foreground">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-brand-green/14 via-background to-brand-blue/16">
+        <div className="relative mx-auto max-w-7xl px-5 py-16 text-center">
+          <p className="page-eyebrow">Training 4 Performance</p>
+          <h1 className="mx-auto mt-3 max-w-4xl font-display text-4xl font-semibold uppercase leading-tight tracking-wide text-foreground lg:text-5xl">
             The football performance system for S&amp;C coaches that connects everything
           </h1>
-          <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground">
             <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
             brings every player record, training session, GPS report, wellness entry, test result
             and medical note into one connected workspace — planned load next to actual load, and
             every number tied back to the player who produced it.
           </p>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            Import GPS from any provider, design sessions in blocks with a tactics board, collect
-            morning wellness from the players&rsquo; phones, track testing through the season and
-            let the alerts tell you who is spiking before it becomes an injury.
+          <p className="mt-4 font-display text-sm font-semibold uppercase tracking-wide text-brand-blue">
+            Your players · Your data · Your decisions · One connected system
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-sm font-semibold text-primary-foreground"
             >
               Get started <ArrowRight className="size-4" />
             </Link>
             <Link
               to="/dashboard"
               onClick={openDemo}
-              className="inline-flex h-12 items-center justify-center rounded-full border-2 border-primary text-sm font-semibold text-primary"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-primary px-8 text-sm font-semibold text-primary"
             >
               Try demo
             </Link>
@@ -172,48 +170,6 @@ function Home() {
           <p className="mt-4 text-xs text-muted-foreground">
             €699 per season, per team · cancel any time
           </p>
-        </div>
-      </section>
-
-      {/* DESKTOP HERO — clean text */}
-      <section className="relative hidden overflow-hidden border-b border-border sm:block">
-        <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-14 text-center">
-          <div className="mx-auto max-w-4xl">
-            <h1 className="mx-auto max-w-4xl font-display text-4xl font-semibold uppercase leading-tight tracking-wide text-foreground lg:text-5xl">
-              The football performance system for S&amp;C coaches that connects everything
-            </h1>
-            <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
-              brings every player record, training session, GPS report, wellness entry, test result
-              and medical note into one connected workspace — planned load next to actual load, and
-              every number tied back to the player who produced it.
-            </p>
-            <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              Import GPS from any provider, design sessions in blocks with a tactics board, collect
-              morning wellness from the players&rsquo; phones, follow fitness testing through the
-              season and let the alerts tell you who is spiking before it becomes an injury — so you
-              spend less time switching files and more time coaching.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link
-                to="/auth"
-                search={{ mode: "signup" }}
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-sm font-semibold text-primary-foreground"
-              >
-                Get started <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                to="/dashboard"
-                onClick={openDemo}
-                className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-primary px-8 text-sm font-semibold text-primary"
-              >
-                Try demo
-              </Link>
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              €699 per season, per team · cancel any time
-            </p>
-          </div>
         </div>
       </section>
 
