@@ -179,14 +179,20 @@ function Home() {
       <section className="relative hidden overflow-hidden border-b border-border sm:block">
         <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-14 text-center">
           <div className="mx-auto max-w-4xl">
-            <h1 className="mx-auto max-w-4xl font-display text-4xl font-semibold leading-tight text-foreground lg:text-5xl">
+            <h1 className="mx-auto max-w-4xl font-display text-4xl font-semibold uppercase leading-tight tracking-wide text-foreground lg:text-5xl">
               The football performance system for S&amp;C coaches that connects everything
             </h1>
-            <p className="mx-auto mt-5 max-w-3xl text-base text-muted-foreground lg:text-lg">
+            <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-muted-foreground">
               <T4P /> is the daily companion for strength &amp; conditioning coaches in football. It
               brings every player record, training session, GPS report, wellness entry, test result
-              and medical note into one connected workspace — so you spend less time switching files
-              and more time coaching.
+              and medical note into one connected workspace — planned load next to actual load, and
+              every number tied back to the player who produced it.
+            </p>
+            <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-muted-foreground">
+              Import GPS from any provider, design sessions in blocks with a tactics board, collect
+              morning wellness from the players&rsquo; phones, follow fitness testing through the
+              season and let the alerts tell you who is spiking before it becomes an injury — so you
+              spend less time switching files and more time coaching.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
