@@ -241,80 +241,14 @@ function HowItWorks() {
           })}
         </ol>
 
-        <h2 className="mt-14 font-display text-2xl font-semibold uppercase tracking-wide">
-          Questions
-        </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {faq.map((f, i) => {
-            const tone = Object.values(tones)[i % 9]!;
-            return (
-              <div key={i} className={`panel ${tone.card} p-5`}>
-                <p
-                  className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}
-                >
-                  {f.q}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {typeof f.a === "string" ? <BrandCopy>{f.a}</BrandCopy> : f.a}
-                </p>
-              </div>
-            );
-          })}
+        <div className="mt-8 text-center">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-blue hover:underline"
+          >
+            Read the frequently asked questions <ArrowRight className="size-4" />
+          </Link>
         </div>
-
-        <section className="mt-14">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            What you stop doing on day one
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            The job of a strength &amp; conditioning coach is the performance of the players — not
-            data entry. <T4P /> takes the admin off your desk so the only thing left for you is the
-            decision.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              [
-                "No re-typing names",
-                "The squad is built from your GPS file, or once by hand. Every screen reuses the same player record.",
-              ],
-              [
-                "No copying between files",
-                "Import once, or rate the session once. Charts, tables, ACWR and reports update themselves.",
-              ],
-              [
-                "No manual formulas",
-                "Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives.",
-              ],
-              [
-                "No scanning 27 players",
-                "Thresholds watch workload, wellness and availability and tell you who needs attention.",
-              ],
-              [
-                "No building the coach's report",
-                "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV.",
-              ],
-              [
-                "No printing drill cards",
-                "The library holds the blocks and their board drawings. Pick one and it is already inside the session.",
-              ],
-              [
-                "No chasing wellness by message",
-                "Players check in from their own portal before the cut-off time, and you see who is missing.",
-              ],
-              [
-                "No lost season history",
-                "Every session, file, test, injury and rating stays in one place until you delete it.",
-              ],
-            ].map(([t, d]) => (
-              <div key={t} className="panel border-brand-green/25 p-5">
-                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">
-                  {t}
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
-              </div>
-            ))}
-          </div>
-        </section>
 
         <div className="panel mt-14 overflow-hidden border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-blue/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
