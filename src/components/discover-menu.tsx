@@ -12,6 +12,7 @@ export const publicLinks = [
   { to: "/about", label: "About" },
   { to: "/how-it-works", label: "How it works" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/faq", label: "FAQ" },
   { to: "/manual", label: "Platform manual" },
 ] as const;
 
