@@ -62,15 +62,12 @@ function DownloadPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-5 py-10">
-
-
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold">Windows</h2>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section className="panel border-brand-blue/30 p-6">
+            <h2 className="font-display text-lg font-semibold uppercase tracking-wide">Windows</h2>
             <ol className="mt-5 space-y-5">
               <Step n={1} title="Download the installer">
-                Click the Windows button above. You get{" "}
-                <strong>T4P-Setup-Windows.exe</strong>.
+                Click the Windows button above. You get <strong>T4P-Setup-Windows.exe</strong>.
               </Step>
               <Step n={2} title="Run the setup">
                 Double-click it and follow the wizard (Welcome → Install). It installs T4P and
@@ -87,12 +84,12 @@ function DownloadPage() {
             </ol>
           </section>
 
-          <section className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold">macOS</h2>
+          <section className="panel border-brand-green/30 p-6">
+            <h2 className="font-display text-lg font-semibold uppercase tracking-wide">macOS</h2>
             <ol className="mt-5 space-y-5">
               <Step n={1} title="Download the disk image">
-                Click the macOS button above to get{" "}
-                <strong>T4P-Installer-macOS.dmg</strong> (Apple Silicon: M1–M4).
+                Click the macOS button above to get <strong>T4P-Installer-macOS.dmg</strong> (Apple
+                Silicon: M1–M4).
               </Step>
               <Step n={2} title="Open it and drag to Applications">
                 Double-click the DMG, then drag <strong>T4P</strong> onto the{" "}
@@ -111,14 +108,15 @@ function DownloadPage() {
           </section>
         </div>
 
-        <section className="mt-6 rounded-2xl border border-border bg-card p-6">
-          <h2 className="font-display text-lg font-semibold">Good to know</h2>
+        <section className="panel mt-6 border-brand-amber/30 bg-gradient-to-br from-brand-amber/8 via-background to-brand-blue/8 p-6">
+          <h2 className="font-display text-lg font-semibold uppercase tracking-wide">
+            Good to know
+          </h2>
           <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground [&_strong]:text-foreground">
             <li>
               <strong>Proper installers.</strong> Windows gets a setup wizard with shortcuts and an
               uninstaller; macOS gets a drag-to-Applications disk image.
             </li>
-
             <li>
               <strong>Sign in once.</strong> After your first sign-in with an internet connection,
               the app keeps working offline with your existing data.
@@ -128,8 +126,8 @@ function DownloadPage() {
               stored locally and pushed to the cloud automatically when you are back online.
             </li>
             <li>
-              <strong>Updating.</strong> Download the newest ZIP and replace the old folder or app.
-              Your data is not stored inside the folder, so nothing is lost.
+              <strong>Updating.</strong> Download the newest installer and run it over the old
+              version. Your data lives in your account, not inside the app, so nothing is lost.
             </li>
             <li>
               <strong>Prefer no install?</strong> Open T4P in your browser and use “Install app”
@@ -137,7 +135,17 @@ function DownloadPage() {
             </li>
           </ul>
         </section>
+
+        <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm font-semibold">
+          <Link to="/manual" className="text-brand-blue hover:underline">
+            Read chapter 16 in the manual
+          </Link>
+          <Link to="/faq" className="text-brand-blue hover:underline">
+            Frequently asked questions
+          </Link>
+        </div>
       </div>
     </MarketingPage>
   );
 }
+
