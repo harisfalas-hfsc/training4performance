@@ -22,9 +22,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { AppShell } from "@/components/app-shell";
 import { MarketingPage } from "@/components/marketing";
-import { useAuth } from "@/lib/auth";
 import { BrandCopy, T4P } from "@/components/brand-text";
 import { MANUAL_SHOTS, type ManualShotKey } from "@/components/manual-examples";
 
