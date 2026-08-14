@@ -33,7 +33,7 @@ import {
 } from "@/data/performance";
 import { testRecords, useTestVersion } from "@/data/testing";
 import { downloadSheetXlsx, downloadWorkspaceZip, workspaceSheets } from "@/lib/workspace-export";
-import { clearRemoteWorkspace } from "@/lib/usage";
+import { clearRemoteWorkspace, startWorkspaceAutoSync } from "@/lib/usage";
 import { useAuth } from "@/lib/auth";
 import {
   PRIMARY_SLOT,
@@ -327,11 +327,16 @@ function TeamPage() {
               <Button
                 variant="outline"
                 className="mt-3 gap-2"
-                onClick={() => {
+                onClick={async () => {
                   if (!window.confirm("Delete every record of this team? This cannot be undone.")) return;
                   if (clearWorkspaceRecords()) {
-                    if (user?.id) void clearRemoteWorkspace(user.id);
-                    toast.success("All records deleted");
+                    const removed = user?.id ? await clearRemoteWorkspace(user.id) : true;
+                    if (!removed) {
+                      toast.error("Cloud deletion failed — please try again");
+                      return;
+                    }
+                    if (user?.id) startWorkspaceAutoSync(user.id);
+                    toast.success("All records permanently deleted");
                   }
                 }}
               >
@@ -356,9 +361,14 @@ function TeamPage() {
                   variant="destructive"
                   className="w-full gap-2 sm:w-auto"
                   disabled={confirm !== "DELETE"}
-                  onClick={() => {
+                  onClick={async () => {
                     if (deleteTeamAndData()) {
-                      if (user?.id) void clearRemoteWorkspace(user.id);
+                      const removed = user?.id ? await clearRemoteWorkspace(user.id) : true;
+                      if (!removed) {
+                        toast.error("Cloud deletion failed — please try again");
+                        return;
+                      }
+                      if (user?.id) startWorkspaceAutoSync(user.id);
                       setForm({
                         club: "",
                         name: "",
