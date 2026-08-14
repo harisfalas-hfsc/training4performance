@@ -1,21 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Activity,
-  BarChart3,
-  BellRing,
-  LifeBuoy,
-  CalendarDays,
-  ClipboardPen,
-  BookOpen,
-  BookMarked,
-  HeartPulse,
-  Timer,
-  Smartphone,
-  Radar,
-  ShieldCheck,
-  Users,
-  ArrowRight,
-} from "lucide-react";
+import { Activity, BarChart3, ShieldCheck, ArrowRight } from "lucide-react";
+
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
