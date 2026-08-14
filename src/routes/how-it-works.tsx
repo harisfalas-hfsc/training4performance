@@ -204,9 +204,19 @@ function HowItWorks() {
       <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
         <div className="mx-auto max-w-7xl px-5 py-14 text-center">
           <p className="page-eyebrow">How it works</p>
-          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">
-            Create → import → review → decide → report
+          <h1 className="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-display text-2xl font-semibold uppercase tracking-wide sm:text-4xl">
+            {["Create", "import", "review", "decide", "report"].map((w, i) => (
+              <span key={w} className="flex items-center gap-x-2">
+                {i > 0 ? (
+                  <span className="text-brand-blue" aria-hidden>
+                    →
+                  </span>
+                ) : null}
+                {w}
+              </span>
+            ))}
           </h1>
+
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             <T4P /> follows the real order of work in a performance department. You build the team
             once, then every session, GPS file and test result attaches to the same player record —

@@ -50,8 +50,8 @@ const brings: [string, string][] = [
   ["🩺", "Medical information"],
   ["📈", "Performance analytics"],
   ["🚨", "Alerts"],
-  ["🤖", "AI-supported observations"],
 ];
+
 
 const inside: { e: string; t: string; d: string; c: string }[] = [
   {
@@ -128,16 +128,16 @@ const inside: { e: string; t: string; d: string; c: string }[] = [
   },
 ];
 
-const chain = [
-  "👤 Player profile",
-  "📅 Training session",
-  "📡 GPS data",
-  "❤️ Wellness",
-  "📊 Training load",
-  "🚨 Alerts",
-  "🤖 AI observations",
-  "🎯 Coaching decision",
+const chain: [string, string][] = [
+  ["👤", "Player profile"],
+  ["📅", "Training session"],
+  ["📡", "GPS data"],
+  ["❤️", "Wellness"],
+  ["📊", "Training load"],
+  ["🚨", "Alerts"],
+  ["🎯", "Coaching decision"],
 ];
+
 
 const levels = [
   ["Level 1", "Collect data"],
@@ -206,16 +206,18 @@ function About() {
             Instead of managing your team through different Excel files, GPS reports, forms and
             notes, <T4P /> brings everything into one connected workspace.
           </p>
-          <ul className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+          <ul className="mt-6 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
             {brings.map(([e, b]) => (
-              <li key={b} className="flex items-center gap-2 text-sm font-semibold">
-                <span aria-hidden className="text-base">
+              <li key={b} className="flex min-w-0 items-center gap-2.5 bg-card px-4 py-3">
+                <span aria-hidden className="shrink-0 text-base">
                   {e}
                 </span>
-                {b}
+                <span className="min-w-0 text-sm font-semibold">{b}</span>
               </li>
             ))}
           </ul>
+
+
 
           <p className="mt-6 font-display text-base font-semibold uppercase tracking-wide text-brand-green">
             Spend less time managing information. Spend more time coaching.
@@ -283,18 +285,24 @@ function About() {
             Instead of looking at ten different pieces of information separately, you see the player
             as one complete performance profile.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold">
-            {chain.map((c, i) => (
-              <span key={c} className="flex items-center gap-3">
-                <span>{c}</span>
+          <ol className="mt-6 grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2">
+            {chain.map(([e, c], i) => (
+              <li key={c} className="flex min-w-0 items-center gap-3 text-sm font-semibold">
+                <span className="flex min-w-0 items-center gap-2">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-cyan/10 text-base sm:size-7 sm:text-sm">
+                    {e}
+                  </span>
+                  <span className="min-w-0">{c}</span>
+                </span>
                 {i < chain.length - 1 ? (
-                  <span className="text-brand-cyan" aria-hidden>
+                  <span className="hidden text-brand-cyan sm:inline" aria-hidden>
                     →
                   </span>
                 ) : null}
-              </span>
+              </li>
             ))}
-          </div>
+          </ol>
+
 
         </Card>
 
