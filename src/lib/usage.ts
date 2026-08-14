@@ -17,6 +17,13 @@ import type { Json } from "@/integrations/supabase/types";
 import { canWrite } from "@/lib/access";
 import { getWorkspaceScope } from "@/lib/workspace-scope";
 import { isDemoActive } from "@/lib/demo";
+import {
+  clearOfflineWorkspace,
+  hasOfflinePending,
+  isOnline,
+  readOfflineWorkspace,
+  writeOfflineWorkspace,
+} from "@/lib/offline-cache";
 
 let activeWorkspaceUser: string | null = null;
 /** Cloud hydration must happen once per signed-in user, never on every page change. */
@@ -30,13 +37,33 @@ export async function hydrateWorkspace(userId: string): Promise<boolean> {
   if (hydratedUser === userId) return true;
   hydratedUser = userId;
   activeWorkspaceUser = userId;
+  const cached = readOfflineWorkspace(userId);
+  // No connection, or local edits still waiting to be pushed: the browser copy
+  // is authoritative until the cloud has accepted them.
+  if (cached && (!isOnline() || cached.pending)) {
+    applyWorkspaceData(cached.workspace);
+    applyTestRecords(cached.tests ?? []);
+    if (!isOnline()) return true;
+  } else if (!isOnline()) {
+    return true;
+  }
   const { data, error } = await supabase
     .from("workspace_data")
     .select("team,players,sessions,gps_history,gps_blocks,rpe_entries,manual_tests,medical_events,test_records")
     .eq("user_id", userId)
     .maybeSingle();
   if (error || activeWorkspaceUser !== userId) {
-    if (error) hydratedUser = null;
+    if (error) {
+      hydratedUser = null;
+      // Offline / unreachable cloud: fall back to the local copy instead of
+      // showing an empty platform.
+      if (cached) {
+        applyWorkspaceData(cached.workspace);
+        applyTestRecords(cached.tests ?? []);
+        hydratedUser = userId;
+        return true;
+      }
+    }
     return false;
   }
   if (!data) {
@@ -53,6 +80,7 @@ export async function hydrateWorkspace(userId: string): Promise<boolean> {
       medicalEvents: [],
     });
     applyTestRecords([]);
+    writeOfflineWorkspace(userId, workspaceSnapshot(), [], false);
     return true;
   }
   const cloudPlayers = (data.players ?? []) as unknown as Player[];
@@ -70,6 +98,7 @@ export async function hydrateWorkspace(userId: string): Promise<boolean> {
   // An empty cloud array is authoritative too. Always replace browser state so
   // deleted fitness tests can never survive in an old local cache.
   applyTestRecords(Array.isArray(cloudTests) ? cloudTests : []);
+  writeOfflineWorkspace(userId, workspaceSnapshot(), testRecordsSnapshot(), false);
   return true;
 }
 
@@ -85,8 +114,13 @@ export async function syncWorkspace(userId: string) {
   const scope = getWorkspaceScope();
   if (!canWrite() || scope.userId !== userId) return;
   const data = workspaceSnapshot();
+  const tests = testRecordsSnapshot();
+  // Always keep the local copy current, so a reload with no connection still
+  // shows everything the coach has entered.
+  writeOfflineWorkspace(userId, data, tests, true);
+  if (!isOnline()) return;
   const toJson = (value: unknown) => JSON.parse(JSON.stringify(value)) as Json;
-  await supabase.from("workspace_data").upsert(
+  const { error: pushError } = await supabase.from("workspace_data").upsert(
     {
       user_id: userId,
       team: toJson(data.team),
@@ -97,10 +131,12 @@ export async function syncWorkspace(userId: string) {
       rpe_entries: toJson(data.rpeEntries),
       manual_tests: toJson(data.manualTests),
       medical_events: toJson(data.medicalEvents),
-      test_records: toJson(testRecordsSnapshot()),
+      test_records: toJson(tests),
     },
     { onConflict: "user_id" },
   );
+  // Cleanly synced — nothing is waiting for the connection any more.
+  if (!pushError) writeOfflineWorkspace(userId, data, tests, false);
 }
 
 /**
@@ -142,6 +178,7 @@ export async function syncUsageSnapshot(input: {
 
 /** Removes the coach's synced workspace + usage snapshot from the cloud. */
 export async function clearRemoteWorkspace(userId: string): Promise<boolean> {
+  clearOfflineWorkspace(userId);
   // Stop pending writes before deleting. Otherwise an already-scheduled save can
   // recreate the workspace immediately after the delete finishes.
   stopWorkspaceAutoSync();
@@ -183,7 +220,18 @@ export function startWorkspaceAutoSync(userId: string) {
       if (autoSyncUser) void syncWorkspace(autoSyncUser);
     }, 800);
   };
-  unsubscribeAuto = [subscribeData(schedule), subscribeTests(schedule)];
+  const onReconnect = () => {
+    if (autoSyncUser !== userId) return;
+    if (hasOfflinePending(userId)) void syncWorkspace(userId);
+  };
+  window.addEventListener("online", onReconnect);
+  unsubscribeAuto = [
+    subscribeData(schedule),
+    subscribeTests(schedule),
+    () => window.removeEventListener("online", onReconnect),
+  ];
+  // Push anything captured while the connection was down.
+  if (isOnline() && hasOfflinePending(userId)) void syncWorkspace(userId);
 }
 
 export function stopWorkspaceAutoSync() {
