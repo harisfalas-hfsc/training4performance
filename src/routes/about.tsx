@@ -292,7 +292,7 @@ function About() {
                   <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-cyan/10 text-base sm:size-7 sm:text-sm">
                     {e}
                   </span>
-                  <span className="truncate">{c}</span>
+                  <span className="min-w-0">{c}</span>
                 </span>
                 {i < chain.length - 1 ? (
                   <span className="hidden text-brand-cyan sm:inline" aria-hidden>
