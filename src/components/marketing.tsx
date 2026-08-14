@@ -165,6 +165,21 @@ export function SiteFooter() {
             <Training4Performance />
           </p>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <Link to="/about" className="hover:text-foreground">
+              About
+            </Link>
+            <Link to="/how-it-works" className="hover:text-foreground">
+              How it works
+            </Link>
+            <Link to="/pricing" className="hover:text-foreground">
+              Pricing
+            </Link>
+            <Link to="/faq" className="hover:text-foreground">
+              FAQ
+            </Link>
+            <Link to="/manual" className="hover:text-foreground">
+              Manual
+            </Link>
             <Link to="/terms" className="hover:text-foreground">
               Terms &amp; Conditions
             </Link>
@@ -173,9 +188,6 @@ export function SiteFooter() {
             </Link>
             <Link to="/disclaimer" className="hover:text-foreground">
               Disclaimer
-            </Link>
-            <Link to="/manual" className="hover:text-foreground">
-              Manual
             </Link>
           </nav>
         </div>

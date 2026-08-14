@@ -16,8 +16,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
-import { BrandCopy, T4P } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead, webPageLd } from "@/lib/seo";
+import { T4P } from "@/components/brand-text";
+import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -45,15 +45,6 @@ export const Route = createFileRoute("/how-it-works")({
         { name: "Home", path: "/" },
         { name: "How it works", path: "/how-it-works" },
       ]),
-      jsonLd({
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqSchema.map((item) => ({
-          "@type": "Question",
-          name: item.q,
-          acceptedAnswer: { "@type": "Answer", text: item.a },
-        })),
-      }),
     ],
   }),
   component: HowItWorks,
@@ -206,146 +197,6 @@ const tones: Record<string, { chip: string; card: string; num: string }> = {
   },
 };
 
-const faq = [
-  {
-    q: "What is the drills & exercise library?",
-    a: (
-      <>
-        A ready-made set of training blocks written by <T4P />, sorted by category — strength,
-        power, speed, ESD, coordination, mobility &amp; stability, reaction, technical/tactical and
-        recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the
-        whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your
-        own saved blocks live in the same place under My library.
-      </>
-    ),
-  },
-  {
-    q: "Do I keep my own blocks if my subscription ends?",
-    a: (
-      <>
-        Yes. Everything you created — sessions, players, GPS, tests and the blocks in{" "}
-        <strong className="text-foreground">My library</strong> — stays with your account in
-        read-only mode, and you can download all of it at any time. Only the ready-made <T4P />{" "}
-        templates need an active subscription.
-      </>
-    ),
-  },
-  {
-    q: "Do I have to add the players before I upload GPS?",
-    a: (
-      <>
-        No. The two orders are equally valid. Upload the file first and <T4P /> creates every
-        detected player for you; or build the squad first and the file matches the names it finds.
-        Anything the GPS export does not contain — position, birth date, height, weight, RPE,
-        medical status, test results — you add manually whenever you want, and only for the fields
-        you actually care about.
-      </>
-    ),
-  },
-  {
-    q: "How much typing does this really save?",
-    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
-  },
-  {
-    q: "What does the subscription cost and what does it cover?",
-    a: "€699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
-  },
-  {
-    q: (
-      <>
-        Do I need a GPS system to use <T4P />?
-      </>
-    ),
-    a: "No — and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
-  },
-
-  {
-    q: "Which GPS providers are supported?",
-    a: (
-      <>
-        Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system
-        can be mapped column by column with the <T4P /> template — including your own club KPIs.
-      </>
-    ),
-  },
-  {
-    q: "Can I change the ACWR formula?",
-    a: "Yes. You pick the KPIs and their weights, so the composite load — and therefore ACWR — reflects your own methodology rather than a fixed formula.",
-  },
-  {
-    q: "Can I edit or delete data after saving?",
-    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
-  },
-  {
-    q: "Can I browse before I subscribe?",
-    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
-  },
-  {
-    q: "Is there a manual?",
-    a: (
-      <>
-        Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a
-        search box, troubleshooting and a one-click PDF download of the whole document.
-      </>
-    ),
-  },
-  {
-    q: "Is my data protected?",
-    a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
-  },
-];
-
-/** Plain-text mirror of the FAQ above, used only for FAQPage JSON-LD. */
-const faqSchema = [
-  {
-    q: "What is the drills & exercise library?",
-    a: "A ready-made set of training blocks written by T4P, sorted by category \u2014 strength, power, speed, ESD, coordination, mobility & stability, reaction, technical/tactical and recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your own saved blocks live in the same place under My library.",
-  },
-  {
-    q: "Do I keep my own blocks if my subscription ends?",
-    a: "Yes. Everything you created \u2014 sessions, players, GPS, tests and the blocks in My library \u2014 stays with your account in read-only mode, and you can download all of it at any time. Only the ready-made T4P templates need an active subscription.",
-  },
-  {
-    q: "Do I have to add the players before I upload GPS?",
-    a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain \u2014 position, birth date, height, weight, RPE, medical status, test results \u2014 you add manually whenever you want, and only for the fields you actually care about.",
-  },
-  {
-    q: "How much typing does this really save?",
-    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
-  },
-  {
-    q: "What does the subscription cost and what does it cover?",
-    a: "\u20ac699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
-  },
-  {
-    q: "Do I need a GPS system to use T4P?",
-    a: "No \u2014 and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
-  },
-  {
-    q: "Which GPS providers are supported?",
-    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template \u2014 including your own club KPIs.",
-  },
-  {
-    q: "Can I change the ACWR formula?",
-    a: "Yes. You pick the KPIs and their weights, so the composite load \u2014 and therefore the acute to chronic workload ratio \u2014 reflects your own methodology rather than a fixed formula.",
-  },
-  {
-    q: "Can I edit or delete data after saving?",
-    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
-  },
-  {
-    q: "Can I browse before I subscribe?",
-    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
-  },
-  {
-    q: "Is there a manual?",
-    a: "Yes \u2014 a full illustrated user manual lives inside the platform, with numbered chapters, a search box, troubleshooting and a one-click PDF download of the whole document.",
-  },
-  {
-    q: "Is my data protected?",
-    a: "Each account is fully isolated \u2014 you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
-  },
-];
 
 function HowItWorks() {
   return (
@@ -390,80 +241,14 @@ function HowItWorks() {
           })}
         </ol>
 
-        <h2 className="mt-14 font-display text-2xl font-semibold uppercase tracking-wide">
-          Questions
-        </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {faq.map((f, i) => {
-            const tone = Object.values(tones)[i % 9]!;
-            return (
-              <div key={i} className={`panel ${tone.card} p-5`}>
-                <p
-                  className={`font-display text-base font-semibold uppercase tracking-wide ${tone.num}`}
-                >
-                  {f.q}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {typeof f.a === "string" ? <BrandCopy>{f.a}</BrandCopy> : f.a}
-                </p>
-              </div>
-            );
-          })}
+        <div className="mt-8 text-center">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-blue hover:underline"
+          >
+            Read the frequently asked questions <ArrowRight className="size-4" />
+          </Link>
         </div>
-
-        <section className="mt-14">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            What you stop doing on day one
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            The job of a strength &amp; conditioning coach is the performance of the players — not
-            data entry. <T4P /> takes the admin off your desk so the only thing left for you is the
-            decision.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              [
-                "No re-typing names",
-                "The squad is built from your GPS file, or once by hand. Every screen reuses the same player record.",
-              ],
-              [
-                "No copying between files",
-                "Import once, or rate the session once. Charts, tables, ACWR and reports update themselves.",
-              ],
-              [
-                "No manual formulas",
-                "Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives.",
-              ],
-              [
-                "No scanning 27 players",
-                "Thresholds watch workload, wellness and availability and tell you who needs attention.",
-              ],
-              [
-                "No building the coach's report",
-                "Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV.",
-              ],
-              [
-                "No printing drill cards",
-                "The library holds the blocks and their board drawings. Pick one and it is already inside the session.",
-              ],
-              [
-                "No chasing wellness by message",
-                "Players check in from their own portal before the cut-off time, and you see who is missing.",
-              ],
-              [
-                "No lost season history",
-                "Every session, file, test, injury and rating stays in one place until you delete it.",
-              ],
-            ].map(([t, d]) => (
-              <div key={t} className="panel border-brand-green/25 p-5">
-                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">
-                  {t}
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
-              </div>
-            ))}
-          </div>
-        </section>
 
         <div className="panel mt-14 overflow-hidden border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-blue/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
