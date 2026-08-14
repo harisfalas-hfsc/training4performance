@@ -212,7 +212,7 @@ function FAQ() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-5xl px-5 py-10">
+      <div className="mx-auto max-w-7xl px-5 py-10">
         <div className="space-y-3">
           {allFaq.map((item, i) => (
             <FAQItem
