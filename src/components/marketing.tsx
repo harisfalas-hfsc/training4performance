@@ -8,6 +8,7 @@ import { DiscoverMenu } from "@/components/discover-menu";
 import { NotificationBell } from "@/components/notification-bell";
 
 import { FederationTrust } from "@/components/federation-trust";
+import { DesktopDownloads } from "@/components/desktop-downloads";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { platformNav } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
@@ -159,6 +160,9 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-surface-2/40">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:py-10">
         <FederationTrust />
+
+        <DesktopDownloads className="mt-8" />
+
 
         <div className="mt-8 flex flex-col items-center gap-4 text-center sm:mt-10">
           <p className="font-display text-xs uppercase tracking-[0.35em] text-muted-foreground">
