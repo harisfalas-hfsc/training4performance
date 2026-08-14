@@ -424,7 +424,8 @@ function Home() {
 
           <div className="mt-14 text-center">
             <Link
-              to="/demo"
+              to="/dashboard"
+              onClick={openDemo}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground"
             >
               Open the live demo <ArrowRight className="size-4" />
