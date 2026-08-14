@@ -66,8 +66,6 @@ const toneMap: Record<string, { border: string; text: string; chip: string }> = 
   red: { border: "border-brand-red/25", text: "text-brand-red", chip: "bg-brand-red/10" },
 };
 
-const toneKeys = ["blue", "green", "violet", "cyan", "amber", "indigo", "pink", "teal", "red"];
-
 type Section = {
   id: string;
   label: string;
@@ -263,7 +261,7 @@ function FAQItem({
 }
 
 function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openId, setOpenId] = useState<string | null>("plans-0");
 
   return (
     <MarketingPage>
