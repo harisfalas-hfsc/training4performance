@@ -45,15 +45,6 @@ export const Route = createFileRoute("/how-it-works")({
         { name: "Home", path: "/" },
         { name: "How it works", path: "/how-it-works" },
       ]),
-      jsonLd({
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqSchema.map((item) => ({
-          "@type": "Question",
-          name: item.q,
-          acceptedAnswer: { "@type": "Answer", text: item.a },
-        })),
-      }),
     ],
   }),
   component: HowItWorks,
