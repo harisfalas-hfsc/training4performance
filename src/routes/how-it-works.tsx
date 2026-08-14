@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BarChart3,
-  BookMarked,
   BookOpen,
   CalendarDays,
   ClipboardPen,
@@ -16,8 +15,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { MarketingPage } from "@/components/marketing";
-import { BrandCopy, T4P } from "@/components/brand-text";
-import { breadcrumbLd, jsonLd, seoHead, webPageLd } from "@/lib/seo";
+import { T4P } from "@/components/brand-text";
+import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
