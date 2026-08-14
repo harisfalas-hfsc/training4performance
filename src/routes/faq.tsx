@@ -281,15 +281,77 @@ function FAQ() {
       </section>
 
       <div className="mx-auto max-w-7xl px-5 py-10">
-        <div className="space-y-3">
-          {allFaq.map((item, i) => (
-            <FAQItem
-              key={i}
-              item={item}
-              open={openIndex === i}
-              onToggle={() => setOpenIndex(openIndex === i ? null : i)}
-            />
-          ))}
+        <nav className="mb-10 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {SECTIONS.map((s) => {
+            const t = toneMap[s.tone]!;
+            return (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl border bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel",
+                  t.border,
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-8 shrink-0 place-items-center rounded-lg font-display text-xs font-bold",
+                    t.chip,
+                    t.text,
+                  )}
+                >
+                  {s.label}
+                </span>
+                <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">{s.title}</span>
+              </a>
+            );
+          })}
+        </nav>
+
+        <div className="space-y-12">
+          {SECTIONS.map((s) => {
+            const t = toneMap[s.tone]!;
+            return (
+              <section key={s.id} id={s.id} className="scroll-mt-28">
+                <div className="mb-4 flex items-start gap-4">
+                  <span
+                    className={cn(
+                      "grid size-11 shrink-0 place-items-center rounded-2xl font-display text-sm font-bold",
+                      t.chip,
+                      t.text,
+                    )}
+                  >
+                    {s.label}
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+                      <BrandCopy>{s.title}</BrandCopy>
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      <BrandCopy>{s.intro}</BrandCopy>
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {s.items.map((item, i) => {
+                    const key = `${s.id}-${i}`;
+                    return (
+                      <FAQItem
+                        key={key}
+                        item={{
+                          q: <BrandCopy>{item.q}</BrandCopy>,
+                          a: <BrandCopy>{item.a}</BrandCopy>,
+                          tone: s.tone,
+                        }}
+                        open={openId === key}
+                        onToggle={() => setOpenId(openId === key ? null : key)}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </div>
 
         <div className="panel mt-12 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-cyan/10 p-6 text-center">
