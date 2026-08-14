@@ -62,28 +62,21 @@ function DownloadPage() {
           <section className="rounded-2xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold">Windows</h2>
             <ol className="mt-5 space-y-5">
-              <Step n={1} title="Download the ZIP">
-                Click the Windows button above. The file <strong>T4P-Windows.zip</strong> lands in
-                your Downloads folder.
+              <Step n={1} title="Download the installer">
+                Click the Windows button above. You get{" "}
+                <strong>T4P-Setup-Windows.exe</strong>.
               </Step>
-              <Step n={2} title="Extract the folder">
-                Right-click the ZIP → <strong>Extract All…</strong> → choose a permanent place, for
-                example <code>C:\Program Files\T4P</code> or your Documents folder. Do not run the
-                app from inside the ZIP.
+              <Step n={2} title="Run the setup">
+                Double-click it and follow the wizard (Welcome → Install). It installs T4P and
+                creates a Start Menu and Desktop shortcut automatically.
               </Step>
-              <Step n={3} title="Open T4P.exe">
-                Inside the extracted folder, double-click <strong>T4P.exe</strong>. The other files
-                next to it are the app engine — leave them where they are.
-              </Step>
-              <Step n={4} title="Allow it on first launch">
+              <Step n={3} title="Allow it on first launch">
                 Windows may show “Windows protected your PC”. Click <strong>More info</strong> →{" "}
-                <strong>Run anyway</strong>. This appears only because the app is not code-signed
-                yet; it is safe.
+                <strong>Run anyway</strong> — this only appears because the app is not code-signed
+                yet.
               </Step>
-              <Step n={5} title="Pin it for easy access">
-                Right-click <strong>T4P.exe</strong> → <strong>Send to</strong> →{" "}
-                <strong>Desktop (create shortcut)</strong>, or right-click the running icon in the
-                taskbar → <strong>Pin to taskbar</strong>.
+              <Step n={4} title="Uninstall any time">
+                Settings → Apps → <strong>Training 4 Performance</strong> → Uninstall.
               </Step>
             </ol>
           </section>
@@ -91,20 +84,22 @@ function DownloadPage() {
           <section className="rounded-2xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold">macOS</h2>
             <ol className="mt-5 space-y-5">
-              <Step n={1} title="Download the ZIP">
-                Click the macOS button above. Safari usually unzips it automatically.
+              <Step n={1} title="Download the disk image">
+                Click the macOS button above to get{" "}
+                <strong>T4P-Installer-macOS.dmg</strong> (Apple Silicon: M1–M4).
               </Step>
-              <Step n={2} title="Move T4P to Applications">
-                Drag <strong>T4P.app</strong> into your <strong>Applications</strong> folder.
+              <Step n={2} title="Open it and drag to Applications">
+                Double-click the DMG, then drag <strong>T4P</strong> onto the{" "}
+                <strong>Applications</strong> shortcut inside the window.
               </Step>
               <Step n={3} title="Open it the first time">
-                Right-click (or Control-click) <strong>T4P.app</strong> → <strong>Open</strong> →{" "}
-                <strong>Open</strong> again in the dialog. This is only needed once, because the app
-                is not notarised yet.
+                Right-click (or Control-click) <strong>T4P</strong> in Applications →{" "}
+                <strong>Open</strong> → <strong>Open</strong> again. Only needed once, because the
+                app is not notarised yet.
               </Step>
               <Step n={4} title="Keep it in the Dock">
-                While T4P is running, right-click its Dock icon →{" "}
-                <strong>Options</strong> → <strong>Keep in Dock</strong>.
+                While T4P is running, right-click its Dock icon → <strong>Options</strong> →{" "}
+                <strong>Keep in Dock</strong>.
               </Step>
             </ol>
           </section>
@@ -114,9 +109,10 @@ function DownloadPage() {
           <h2 className="font-display text-lg font-semibold">Good to know</h2>
           <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground [&_strong]:text-foreground">
             <li>
-              <strong>There is no installer wizard.</strong> The ZIP is the app itself — extract it
-              once and open it. Nothing is written to your system registry.
+              <strong>Proper installers.</strong> Windows gets a setup wizard with shortcuts and an
+              uninstaller; macOS gets a drag-to-Applications disk image.
             </li>
+
             <li>
               <strong>Sign in once.</strong> After your first sign-in with an internet connection,
               the app keeps working offline with your existing data.
