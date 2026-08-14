@@ -7,11 +7,11 @@ import {
   Check,
   ClipboardList,
   Clock,
+  Compass,
   Gauge,
   HeartPulse,
   PencilLine,
   Radar,
-  Compass,
   Satellite,
   ShieldCheck,
   Sparkles,
@@ -21,6 +21,7 @@ import {
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { breadcrumbLd, seoHead, webPageLd } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -57,51 +58,60 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
-const tone: Record<string, { card: string; chip: string; text: string }> = {
+const tone: Record<string, { card: string; chip: string; text: string; border: string }> = {
   blue: {
     card: "border-brand-blue/30",
     chip: "bg-brand-blue/12 text-brand-blue",
     text: "text-brand-blue",
+    border: "border-brand-blue/25",
   },
   green: {
     card: "border-brand-green/30",
     chip: "bg-brand-green/12 text-brand-green",
     text: "text-brand-green",
+    border: "border-brand-green/25",
   },
   cyan: {
     card: "border-brand-cyan/30",
     chip: "bg-brand-cyan/12 text-brand-cyan",
     text: "text-brand-cyan",
+    border: "border-brand-cyan/25",
   },
   pink: {
     card: "border-brand-pink/30",
     chip: "bg-brand-pink/12 text-brand-pink",
     text: "text-brand-pink",
+    border: "border-brand-pink/25",
   },
   red: {
     card: "border-brand-red/30",
     chip: "bg-brand-red/12 text-brand-red",
     text: "text-brand-red",
+    border: "border-brand-red/25",
   },
   violet: {
     card: "border-brand-violet/30",
     chip: "bg-brand-violet/12 text-brand-violet",
     text: "text-brand-violet",
+    border: "border-brand-violet/25",
   },
   amber: {
     card: "border-brand-amber/30",
     chip: "bg-brand-amber/12 text-brand-amber",
     text: "text-brand-amber",
+    border: "border-brand-amber/25",
   },
   indigo: {
     card: "border-brand-indigo/30",
     chip: "bg-brand-indigo/12 text-brand-indigo",
     text: "text-brand-indigo",
+    border: "border-brand-indigo/25",
   },
   teal: {
     card: "border-brand-teal/30",
     chip: "bg-brand-teal/12 text-brand-teal",
     text: "text-brand-teal",
+    border: "border-brand-teal/25",
   },
 };
 
@@ -204,13 +214,6 @@ const includes = [
   },
 ];
 
-const facts = [
-  { k: "€699", v: "per season, per team" },
-  { k: "Unlimited", v: "players and staff users" },
-  { k: "No GPS?", v: "the full system still works" },
-  { k: "GDPR", v: "European infrastructure" },
-];
-
 /** The two equally complete ways of feeding the platform. */
 const routes = [
   {
@@ -310,6 +313,73 @@ const week = [
   },
 ];
 
+const noTyping = [
+  ["No re-typing names", "The squad is created from your GPS file, or entered once. Every screen reuses the same player record."],
+  ["No four spreadsheets", "Availability, plan, GPS, RPE, wellness, tests and medical live in one connected record."],
+  ["No manual formulas", "Load, acute, chronic, ACWR, monotony and strain are computed per player the moment data arrives."],
+  ["No morning scanning", "Thresholds watch workload, wellness and availability and name the players who need attention."],
+  ["No report night", "Pick the template and the dates, press export: PDF, PNG, Excel or CSV, ready for the head coach."],
+  ["No lost history", "Every session, file, rating, test and injury stays in one place for the whole season."],
+];
+
+const steps = [
+  {
+    n: "01",
+    t: "Who",
+    d: "The whole team, the squad average, one player or several — from a searchable picker, never a wall of fifty buttons.",
+    c: "blue",
+  },
+  {
+    n: "02",
+    t: "What",
+    d: "GPS reports · Training & drills · Fitness tests · Wellness · Medical & availability. Every data family the platform holds.",
+    c: "cyan",
+  },
+  {
+    n: "03",
+    t: "How to see it",
+    d: "The KPIs you care about, the dates you choose, and line, bar, area, pie or radar. Exported as PNG, PDF, Excel or CSV.",
+    c: "violet",
+  },
+];
+
+function SectionCard({
+  children,
+  className,
+  border,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  border?: string;
+}) {
+  return (
+    <section
+      className={cn(
+        "panel overflow-hidden p-5 sm:p-6",
+        border ?? "border-border",
+        className
+      )}
+    >
+      {children}
+    </section>
+  );
+}
+
+function SectionTitle({
+  children,
+  hint,
+}: {
+  children: React.ReactNode;
+  hint?: React.ReactNode;
+}) {
+  return (
+    <div className="mb-5">
+      <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">{children}</h2>
+      {hint ? <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">{hint}</p> : null}
+    </div>
+  );
+}
+
 function About() {
   return (
     <MarketingPage>
@@ -338,101 +408,85 @@ function About() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-5 py-12">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div
-            className="panel overflow-hidden border-brand-red/35 p-6"
-            style={{ borderLeftWidth: 5 }}
-          >
-            <p className="eyebrow text-brand-red">The problem</p>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Every performance department knows it: the information exists, but it lives in
-              separate places. Availability in one file, the training plan in another, GPS exports
-              in a third, wellness in a form, testing in a spreadsheet and medical status in
-              someone's head. By the time it is all put together, the decision has already been
-              made.
-            </p>
+      <div className="mx-auto max-w-5xl px-5 py-12">
+        {/* Problem / answer */}
+        <SectionCard border="border-brand-red/30">
+          <div className="grid gap-8 md:grid-cols-2">
+            <div>
+              <p className="eyebrow text-brand-red">The problem</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Every performance department knows it: the information exists, but it lives in
+                separate places. Availability in one file, the training plan in another, GPS exports
+                in a third, wellness in a form, testing in a spreadsheet and medical status in
+                someone's head. By the time it is all put together, the decision has already been
+                made.
+              </p>
+            </div>
+            <div>
+              <p className="eyebrow text-brand-green">The answer</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <T4P /> keeps a single source of truth. What the coach sees on the dashboard, what the
+                fitness staff analyse in the reports and what is recorded in the player passport are
+                always the same data — so you always know who you have, what you did, how they
+                responded, and what to do tomorrow.
+              </p>
+            </div>
           </div>
-          <div
-            className="panel overflow-hidden border-brand-green/35 p-6"
-            style={{ borderLeftWidth: 5 }}
-          >
-            <p className="eyebrow text-brand-green">The answer</p>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              <T4P /> keeps a single source of truth. What the coach sees on the dashboard, what the
-              fitness staff analyse in the reports and what is recorded in the player passport are
-              always the same data — so you always know who you have, what you did, how they
-              responded, and what to do tomorrow.
-            </p>
-          </div>
-        </div>
+        </SectionCard>
 
-        <h2 className="mt-16 font-display text-2xl font-semibold uppercase tracking-wide">
-          The questions it answers
-        </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {questions.map((q) => {
-            const Icon = q.icon;
-            return (
-              <div
-                key={q.q}
-                className={`panel ${tone[q.color]!.card} p-5 transition-transform hover:-translate-y-0.5`}
-              >
-                <div
-                  className={`grid size-11 place-items-center rounded-2xl ${tone[q.color]!.chip}`}
-                >
-                  <Icon className="size-5" />
+        {/* Questions it answers */}
+        <SectionCard className="mt-6" border="border-brand-blue/25">
+          <SectionTitle
+            hint="Every screen in T4P is designed around the same eight questions a fitness coach asks himself before, during and after the week."
+          >
+            The questions it answers
+          </SectionTitle>
+          <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+            {questions.map((q) => {
+              const Icon = q.icon;
+              const t = tone[q.color]!;
+              return (
+                <div key={q.q} className="flex gap-3">
+                  <span className={cn("grid size-9 shrink-0 place-items-center rounded-xl", t.chip)}>
+                    <Icon className="size-4" />
+                  </span>
+                  <div>
+                    <p className="font-display text-sm font-semibold uppercase tracking-wide">{q.q}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground"><BrandCopy>{q.a}</BrandCopy></p>
+                  </div>
                 </div>
-                <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">
-                  {q.q}
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{q.a}</BrandCopy></p>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </SectionCard>
 
-        <section className="mt-16">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+        {/* Two ways to work */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle
+            hint="A GPS system is a luxury, not a requirement. T4P was built so that a coach with nothing but a stopwatch and his players' feedback gets the same monitoring, graphs and reports as a department with twenty vests. Only the resolution of the data changes — never the workflow."
+          >
             Two ways to work — both complete
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            A GPS system is a luxury, not a requirement. <T4P /> was built so that a coach with
-            nothing but a stopwatch and his players' feedback gets the same monitoring, the same
-            graphs and the same reports as a department with twenty vests. Only the resolution of
-            the data changes — never the workflow.
-          </p>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          </SectionTitle>
+          <div className="grid gap-6 md:grid-cols-2">
             {routes.map((r) => {
               const Icon = r.icon;
               const t = tone[r.color]!;
               return (
-                <div
-                  key={r.eyebrow}
-                  className={`panel ${t.card} p-6`}
-                  style={{ borderTopWidth: 4 }}
-                >
+                <div key={r.eyebrow} className={cn("border-t pt-4", t.border)}>
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`grid size-11 shrink-0 place-items-center rounded-2xl ${t.chip}`}
-                    >
-                      <Icon className="size-5" />
+                    <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl", t.chip)}>
+                      <Icon className="size-4" />
                     </span>
                     <div>
-                      <p className={`eyebrow ${t.text}`}>{r.eyebrow}</p>
-                      <p className="font-display text-base font-semibold uppercase tracking-wide">
-                        {r.title}
-                      </p>
+                      <p className={cn("eyebrow", t.text)}>{r.eyebrow}</p>
+                      <p className="font-display text-sm font-semibold uppercase tracking-wide">{r.title}</p>
                     </div>
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{r.body}</BrandCopy></p>
-                  <ul className="mt-4 space-y-2">
+                  <ul className="mt-3 space-y-1.5">
                     {r.points.map((p) => (
-                      <li
-                        key={p}
-                        className="flex gap-2 text-sm leading-relaxed text-muted-foreground"
-                      >
-                        <Check className={`mt-0.5 size-4 shrink-0 ${t.text}`} aria-hidden />
+                      <li key={p} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
+                        <Check className={cn("mt-0.5 size-4 shrink-0", t.text)} aria-hidden />
                         <span><BrandCopy>{p}</BrandCopy></span>
                       </li>
                     ))}
@@ -441,199 +495,136 @@ function About() {
               );
             })}
           </div>
-          <p className="mt-4 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
-            <strong className="text-foreground">And you can mix the two on the same day.</strong> If
-            the pitch session was tracked but the gym block was not, rate the gym block manually —{" "}
+          <p className="mt-6 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
+            <strong className="text-foreground">And you can mix the two on the same day.</strong>{" "}
+            If the pitch session was tracked but the gym block was not, rate the gym block manually —{" "}
             <T4P /> adds GPS load and manual load into one daily total per player, and never counts
             the same block twice.
           </p>
-        </section>
+        </SectionCard>
 
-        <section className="mt-16">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+        {/* Start in any order */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle
+            hint="There is no long setup and no data-entry weekend. There is one team, and two equally correct ways to begin. Whichever you choose, you never type the same name twice."
+          >
             Start in any order — the platform fills itself in
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            There is no long setup and no data-entry weekend. There is one team, and two equally
-            correct ways to begin. Whichever you choose, you never type the same name twice.
-          </p>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="panel border-brand-blue/30 p-6" style={{ borderTopWidth: 4 }}>
+          </SectionTitle>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="border-t border-brand-blue/25 pt-4">
               <p className="eyebrow text-brand-blue">Option A</p>
-              <p className="font-display text-base font-semibold uppercase tracking-wide">
-                Add the players first
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Enter the squad once — a name is enough to start. Position, shirt number, birth
-                date, height, weight and availability can be filled in later, whenever you actually
-                need them. Every GPS file you upload afterwards is matched to those players
-                automatically.
+              <p className="font-display text-sm font-semibold uppercase tracking-wide">Add the players first</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Enter the squad once — a name is enough to start. Position, shirt number, birth date,
+                height, weight and availability can be filled in later, whenever you actually need them.
+                Every GPS file you upload afterwards is matched to those players automatically.
               </p>
             </div>
-            <div className="panel border-brand-cyan/30 p-6" style={{ borderTopWidth: 4 }}>
+            <div className="border-t border-brand-cyan/25 pt-4">
               <p className="eyebrow text-brand-cyan">Option B</p>
-              <p className="font-display text-base font-semibold uppercase tracking-wide">
-                Upload the GPS file first
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Drop in your export before the squad exists. <T4P /> reads the names, shows you
-                exactly who is missing, and creates the whole squad in one click. The session, the
-                KPIs and the load are saved in the same step — the squad is a by-product of the work
-                you already did.
+              <p className="font-display text-sm font-semibold uppercase tracking-wide">Upload the GPS file first</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Drop in your export before the squad exists. <T4P /> reads the names, shows you exactly
+                who is missing, and creates the whole squad in one click. The session, the KPIs and the
+                load are saved in the same step — the squad is a by-product of the work you already did.
               </p>
             </div>
           </div>
-          <p className="mt-4 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-6 rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-muted-foreground">
             <strong className="text-foreground">
               And whatever the GPS cannot give you, you add by hand — freely.
             </strong>{" "}
-            A GPS unit does not know how hard the gym block felt, what the player weighs, when he
-            was injured or how he slept. So RPE, body composition, tests, wellness, medical status
-            and any club metric can be entered manually at any moment, for one player or for the
-            whole squad. Teams with no GPS at all simply use that route for everything — and get the
-            identical load, ACWR, alerts, charts and reports.
+            A GPS unit does not know how hard the gym block felt, what the player weighs, when he was
+            injured or how he slept. So RPE, body composition, tests, wellness, medical status and any
+            club metric can be entered manually at any moment, for one player or for the whole squad.
+            Teams with no GPS at all simply use that route for everything — and get the identical load,
+            ACWR, alerts, charts and reports.
           </p>
-        </section>
+        </SectionCard>
 
-        <section className="mt-16">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+        {/* One way of asking questions */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle
+            hint="There is no menu to learn. Every analysis screen in T4P — and every player record — asks you the same two questions in the same order, then draws the answer."
+          >
             One way of asking questions — everywhere
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            There is no menu to learn. Every analysis screen in <T4P /> — and every player record —
-            asks you the same two questions in the same order, then draws the answer.
-          </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {[
-              {
-                n: "01",
-                t: "Who",
-                d: "The whole team, the squad average, one player or several — from a searchable picker, never a wall of fifty buttons.",
-                c: "blue",
-              },
-              {
-                n: "02",
-                t: "What",
-                d: "GPS reports · Training & drills · Fitness tests · Wellness · Medical & availability. Every data family the platform holds.",
-                c: "cyan",
-              },
-              {
-                n: "03",
-                t: "How to see it",
-                d: "The KPIs you care about, the dates you choose, and line, bar, area, pie or radar. Exported as PNG, PDF, Excel or CSV.",
-                c: "violet",
-              },
-            ].map((x) => (
-              <div key={x.n} className={`panel ${tone[x.c]!.card} p-5`}>
-                <span
-                  className={`grid size-9 place-items-center rounded-xl ${tone[x.c]!.chip} font-display text-xs font-bold`}
-                >
-                  {x.n}
-                </span>
-                <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">
-                  {x.t}
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{x.d}</p>
-              </div>
-            ))}
-          </div>
-          <div className="panel mt-4 border-brand-teal/30 bg-gradient-to-r from-brand-teal/8 to-brand-blue/8 p-5">
-            <div className="flex flex-wrap items-start gap-4">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-teal/15 text-brand-teal">
-                <Compass className="size-5" />
-              </span>
-              <p className="min-w-0 flex-1 text-sm leading-relaxed text-muted-foreground">
-                Because drills are tagged, the same two questions answer things a spreadsheet never
-                could: how many times did we run{" "}
-                <strong className="text-foreground">Rondo 5v2</strong> this season, for how many
-                minutes, which players were exposed to it, and how does it compare with the passing
-                drill — or how many strength sessions this one player actually attended.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-16">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            Less typing. More coaching.
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            The reason this platform exists is simple: a strength &amp; conditioning coach should
-            spend his day on the performance of the players, not on writing, organising and
-            re-typing. Everything below stops on the day you start.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              [
-                "No re-typing names",
-                "The squad is created from your GPS file, or entered once. Every screen reuses the same player record.",
-              ],
-              [
-                "No four spreadsheets",
-                "Availability, plan, GPS, RPE, wellness, tests and medical live in one connected record.",
-              ],
-              [
-                "No manual formulas",
-                "Load, acute, chronic, ACWR, monotony and strain are computed per player the moment data arrives.",
-              ],
-              [
-                "No morning scanning",
-                "Thresholds watch workload, wellness and availability and name the players who need attention.",
-              ],
-              [
-                "No report night",
-                "Pick the template and the dates, press export: PDF, PNG, Excel or CSV, ready for the head coach.",
-              ],
-              [
-                "No lost history",
-                "Every session, file, rating, test and injury stays in one place for the whole season.",
-              ],
-            ].map(([t, d]) => (
-              <div key={t} className="panel border-brand-green/25 p-5">
-                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">
-                  {t}
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{d}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-16">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            Why a fitness coach needs it
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Not because it produces more numbers. Because it gives you back the two things the job
-            never leaves you: time, and the confidence to defend a decision.
-          </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {benefits.map((b) => {
-              const Icon = b.icon;
-              const t = tone[b.color]!;
+          </SectionTitle>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {steps.map((x) => {
+              const t = tone[x.c]!;
               return (
-                <div
-                  key={b.t}
-                  className={`panel ${t.card} p-5 transition-transform hover:-translate-y-0.5`}
-                >
-                  <div className={`grid size-11 place-items-center rounded-2xl ${t.chip}`}>
-                    <Icon className="size-5" />
+                <div key={x.n} className="flex gap-3">
+                  <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg font-display text-xs font-bold", t.chip)}>
+                    {x.n}
+                  </span>
+                  <div>
+                    <p className="font-display text-sm font-semibold uppercase tracking-wide">{x.t}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{x.d}</p>
                   </div>
-                  <p className="mt-3 font-display text-base font-semibold uppercase tracking-wide">
-                    {b.t}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{b.d}</BrandCopy></p>
                 </div>
               );
             })}
           </div>
-        </section>
+          <div className="mt-6 flex flex-wrap items-start gap-4 rounded-xl border border-brand-teal/20 bg-brand-teal/6 p-4">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-teal/12 text-brand-teal">
+              <Compass className="size-4" />
+            </span>
+            <p className="min-w-0 flex-1 text-sm leading-relaxed text-muted-foreground">
+              Because drills are tagged, the same two questions answer things a spreadsheet never could:
+              how many times did we run <strong className="text-foreground">Rondo 5v2</strong> this season,
+              for how many minutes, which players were exposed to it, and how does it compare with the
+              passing drill — or how many strength sessions this one player actually attended.
+            </p>
+          </div>
+        </SectionCard>
 
-        <section className="mt-16">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            A week inside the platform
-          </h2>
-          <ol className="mt-6 space-y-3 border-l-2 border-brand-blue/25 pl-5">
+        {/* Less typing. More coaching. */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle
+            hint="The reason this platform exists is simple: a strength & conditioning coach should spend his day on the performance of the players, not on writing, organising and re-typing. Everything below stops on the day you start."
+          >
+            Less typing. More coaching.
+          </SectionTitle>
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+            {noTyping.map(([t, d]) => (
+              <div key={t}>
+                <p className="font-display text-sm font-semibold uppercase tracking-wide text-brand-green">{t}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+
+        {/* Why a fitness coach needs it */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle
+            hint="Not because it produces more numbers. Because it gives you back the two things the job never leaves you: time, and the confidence to defend a decision."
+          >
+            Why a fitness coach needs it
+          </SectionTitle>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {benefits.map((b) => {
+              const Icon = b.icon;
+              const t = tone[b.color]!;
+              return (
+                <div key={b.t} className="flex gap-3">
+                  <span className={cn("grid size-9 shrink-0 place-items-center rounded-xl", t.chip)}>
+                    <Icon className="size-4" />
+                  </span>
+                  <div>
+                    <p className="font-display text-sm font-semibold uppercase tracking-wide">{b.t}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground"><BrandCopy>{b.d}</BrandCopy></p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
+
+        {/* A week inside the platform */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle>A week inside the platform</SectionTitle>
+          <ol className="space-y-3 border-l-2 border-brand-blue/25 pl-5">
             {week.map((w) => (
               <li key={w.d} className="relative">
                 <span
@@ -646,29 +637,31 @@ function About() {
               </li>
             ))}
           </ol>
-        </section>
+        </SectionCard>
 
-        <h2 className="mt-16 font-display text-2xl font-semibold uppercase tracking-wide">
-          What it includes
-        </h2>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {includes.map((i, idx) => (
-            <div key={i.t} className={`panel ${tone[i.color]!.card} p-5`}>
-              <div className="flex items-center gap-3">
-                <span
-                  className={`grid size-8 shrink-0 place-items-center rounded-lg ${tone[i.color]!.chip} font-display text-xs font-bold`}
-                >
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <p className="font-display text-sm font-semibold uppercase tracking-wide">{i.t}</p>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{i.d}</p>
-            </div>
-          ))}
-        </div>
+        {/* What it includes */}
+        <SectionCard className="mt-6" border="border-border">
+          <SectionTitle>What it includes</SectionTitle>
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+            {includes.map((i, idx) => {
+              const t = tone[i.color]!;
+              return (
+                <div key={i.t} className="flex gap-3">
+                  <span className={cn("grid size-7 shrink-0 place-items-center rounded-lg font-display text-xs font-bold", t.chip)}>
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <p className="font-display text-sm font-semibold uppercase tracking-wide">{i.t}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{i.d}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
 
-
-        <div className="panel mt-16 border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-cyan/10 p-6">
+        {/* Individual training load */}
+        <div className="panel mt-6 overflow-hidden border-brand-amber/35 bg-gradient-to-br from-brand-amber/10 via-background to-brand-cyan/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
             <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-amber/15 text-brand-amber">
               <Gauge className="size-6" />
@@ -676,19 +669,19 @@ function About() {
             <div className="min-w-0 flex-1">
               <p className="eyebrow text-brand-amber">Individual training load</p>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                Most GPS exports contain no training-load column. <T4P /> builds one for every
-                player individually from his own session values, using the KPIs and weights you
-                choose — distance, high-speed running, sprints, accelerations, decelerations, jumps
-                or any club KPI in your own file. Each metric is only divided by a fixed team
-                reference so metres, counts and joules can be combined into a single number: 100 AU
-                is an average session for an average player of your squad. That individual load then
-                drives ACWR, monotony and strain, per player.
+                Most GPS exports contain no training-load column. <T4P /> builds one for every player
+                individually from his own session values, using the KPIs and weights you choose — distance,
+                high-speed running, sprints, accelerations, decelerations, jumps or any club KPI in your
+                own file. Each metric is only divided by a fixed team reference so metres, counts and joules
+                can be combined into a single number: 100 AU is an average session for an average player of
+                your squad. That individual load then drives ACWR, monotony and strain, per player.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="panel mt-6 border-brand-teal/30 bg-gradient-to-r from-brand-teal/10 to-brand-green/10 p-6">
+        {/* Learn it in an hour */}
+        <div className="panel mt-6 overflow-hidden border-brand-teal/30 bg-gradient-to-r from-brand-teal/10 to-brand-green/10 p-6">
           <div className="flex flex-wrap items-start gap-4">
             <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-teal/15 text-brand-teal">
               <BookOpen className="size-6" />
@@ -696,10 +689,9 @@ function About() {
             <div className="min-w-0 flex-1">
               <p className="eyebrow text-brand-teal">Learn it in an hour</p>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                A complete, colour-coded user manual lives inside the platform: numbered chapters
-                for every workflow, a search box, troubleshooting for the problems coaches actually
-                hit, and a one-click PDF download of the whole document exactly as it appears on
-                screen.
+                A complete, colour-coded user manual lives inside the platform: numbered chapters for every
+                workflow, a search box, troubleshooting for the problems coaches actually hit, and a one-click
+                PDF download of the whole document exactly as it appears on screen.
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
@@ -719,14 +711,14 @@ function About() {
           </div>
         </div>
 
-        <div className="panel mt-16 border-brand-indigo/35 bg-gradient-to-r from-brand-indigo/12 to-brand-pink/12 p-6">
+        {/* Who created it */}
+        <div className="panel mt-6 overflow-hidden border-brand-indigo/35 bg-gradient-to-r from-brand-indigo/12 to-brand-pink/12 p-6">
           <p className="eyebrow text-brand-indigo">Who created it</p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             <T4P /> was created by <strong className="text-foreground">Haris Falas</strong> — sports
-            scientist, fitness coach and strength &amp; conditioning coach — from more than a decade
-            of daily work inside professional football clubs. Every table, metric and workflow in{" "}
-            <T4P /> comes from a real logbook that was used with a real squad, not from a product
-            specification.
+            scientist, fitness coach and strength &amp; conditioning coach — from more than a decade of
+            daily work inside professional football clubs. Every table, metric and workflow in{" "}
+            <T4P /> comes from a real logbook that was used with a real squad, not from a product specification.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
