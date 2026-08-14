@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as HarisFalasRouteImport } from './routes/haris-falas'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -80,6 +81,11 @@ const AuthRoute = AuthRouteImport.update({
 const DisclaimerRoute = DisclaimerRouteImport.update({
   id: '/disclaimer',
   path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -323,6 +330,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -369,6 +377,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/haris-falas': typeof HarisFalasRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -415,6 +424,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/disclaimer'
+    | '/download'
     | '/faq'
     | '/haris-falas'
     | '/how-it-works'
@@ -459,6 +469,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/disclaimer'
+    | '/download'
     | '/faq'
     | '/haris-falas'
     | '/how-it-works'
@@ -504,6 +515,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/disclaimer'
+    | '/download'
     | '/faq'
     | '/haris-falas'
     | '/how-it-works'
@@ -550,6 +562,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   DisclaimerRoute: typeof DisclaimerRoute
+  DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
   HarisFalasRoute: typeof HarisFalasRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -611,6 +624,13 @@ declare module '@tanstack/react-router' {
       path: '/disclaimer'
       fullPath: '/disclaimer'
       preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -931,6 +951,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   DisclaimerRoute: DisclaimerRoute,
+  DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,
   HarisFalasRoute: HarisFalasRoute,
   HowItWorksRoute: HowItWorksRoute,
