@@ -66,95 +66,152 @@ const toneMap: Record<string, { border: string; text: string; chip: string }> = 
   red: { border: "border-brand-red/25", text: "text-brand-red", chip: "bg-brand-red/10" },
 };
 
-const toneKeys = ["blue", "green", "violet", "cyan", "amber", "indigo", "pink", "teal", "red"];
+type Section = {
+  id: string;
+  label: string;
+  title: string;
+  intro: string;
+  tone: string;
+  items: { q: string; a: string }[];
+};
 
-const faqText = [
+const SECTIONS: Section[] = [
   {
-    q: "What is the drills & exercise library?",
-    a: "A ready-made set of training blocks written by T4P, sorted by category — strength, power, speed, ESD, coordination, mobility & stability, reaction, technical/tactical and recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your own saved blocks live in the same place under My library.",
+    id: "plans",
+    label: "01",
+    title: "Subscription, pricing & access",
+    intro: "What it costs, what is included and what happens to your work if you stop.",
+    tone: "blue",
+    items: [
+      {
+        q: "What does the subscription cost and what does it cover?",
+        a: "€699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
+      },
+      {
+        q: "Can I browse before I subscribe?",
+        a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
+      },
+      {
+        q: "Do I keep my own work if my subscription ends?",
+        a: "Yes. Everything you created — sessions, players, GPS, tests and the blocks in My library — stays with your account in read-only mode, and you can download all of it at any time. Only the ready-made T4P templates need an active subscription.",
+      },
+      {
+        q: "Do I need a GPS system to subscribe?",
+        a: "No — and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
+      },
+    ],
   },
   {
-    q: "Do I keep my own blocks if my subscription ends?",
-    a: "Yes. Everything you created — sessions, players, GPS, tests and the blocks in My library — stays with your account in read-only mode, and you can download all of it at any time. Only the ready-made T4P templates need an active subscription.",
+    id: "setup",
+    label: "02",
+    title: "Getting started — squad, GPS & data entry",
+    intro: "The first week: building the squad, importing files and what you have to type.",
+    tone: "green",
+    items: [
+      {
+        q: "Do I have to add the players before I upload GPS?",
+        a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain — position, birth date, height, weight, RPE, medical status, test results — you add manually whenever you want, and only for the fields you actually care about.",
+      },
+      {
+        q: "Which GPS providers are supported?",
+        a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template — including your own club KPIs.",
+      },
+      {
+        q: "Do I have to re-type player names?",
+        a: "No. The squad is built from your GPS file, or once by hand. Every screen reuses the same player record.",
+      },
+      {
+        q: "Do I have to copy data between files?",
+        a: "No. Import once, or rate the session once. Charts, tables, ACWR and reports update themselves.",
+      },
+      {
+        q: "How much typing does this really save?",
+        a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
+      },
+    ],
   },
   {
-    q: "Do I have to add the players before I upload GPS?",
-    a: "No. The two orders are equally valid. Upload the file first and T4P creates every detected player for you; or build the squad first and the file matches the names it finds. Anything the GPS export does not contain — position, birth date, height, weight, RPE, medical status, test results — you add manually whenever you want, and only for the fields you actually care about.",
+    id: "daily",
+    label: "03",
+    title: "Daily use — training, load & monitoring",
+    intro: "How the platform is used week to week once the squad is in.",
+    tone: "violet",
+    items: [
+      {
+        q: "What is the drills & exercise library?",
+        a: "A ready-made set of training blocks written by T4P, sorted by category — strength, power, speed, ESD, coordination, mobility & stability, reaction, technical/tactical and recovery. Open Library, or the Blocks tab inside the Training Designer, and one tap adds the whole block to the session with its drills, sets, reps, rest and tactics board drawing. Your own saved blocks live in the same place under My library.",
+      },
+      {
+        q: "Do I need printed drill cards?",
+        a: "No. The library holds the blocks and their board drawings. Pick one and it is already inside the session.",
+      },
+      {
+        q: "Can I change the ACWR formula?",
+        a: "Yes. You pick the KPIs and their weights, so the composite load — and therefore ACWR — reflects your own methodology rather than a fixed formula.",
+      },
+      {
+        q: "Do I need manual formulas for load or ACWR?",
+        a: "No. Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives.",
+      },
+      {
+        q: "Do I have to scan every player manually?",
+        a: "No. Thresholds watch workload, wellness and availability and tell you who needs attention.",
+      },
+      {
+        q: "Do I have to chase wellness by message?",
+        a: "No. Players check in from their own portal before the cut-off time, and you see who is missing.",
+      },
+      {
+        q: "Do I have to build the head coach's report myself?",
+        a: "No. Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV.",
+      },
+    ],
   },
   {
-    q: "How much typing does this really save?",
-    a: "One entry, everywhere. A name, a duration, a rating or a test result is typed once and the squad list, calendar, player record, load model, ACWR, alerts, charts and PDF reports all update themselves. There is no second spreadsheet to keep in sync and nothing to copy across after training.",
+    id: "apps",
+    label: "04",
+    title: "Apps, offline use & the manual",
+    intro: "Installing T4P on your machine and using it with no connection.",
+    tone: "cyan",
+    items: [
+      {
+        q: "Is there a desktop version I can install?",
+        a: "Yes. T4P installs like any normal program: a setup wizard on Windows (T4P-Setup-Windows.exe) and a drag-to-Applications disk image on macOS (T4P-Installer-macOS.dmg). Both are on the Download page, linked from the footer, with step-by-step instructions. The app carries the T4P icon and appears in the Start Menu, taskbar or Dock.",
+      },
+      {
+        q: "Does T4P work without an internet connection?",
+        a: "Yes — the desktop app and the website both keep working offline. Everything already in your workspace stays readable and editable with no connection, and anything you change offline is stored on the machine and pushed to the cloud automatically the moment you are back online. You only need a connection for the very first sign-in.",
+      },
+      {
+        q: "Is there a manual?",
+        a: "Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a search box, troubleshooting and a one-click PDF download of the whole document.",
+      },
+    ],
   },
   {
-    q: "What does the subscription cost and what does it cover?",
-    a: "€699 per season for one team, cancel any time. Every module is included and there is no per-user fee.",
-  },
-  {
-    q: "Do I need a GPS system to use T4P?",
-    a: "No — and this is not a limitation. Record the session, its duration and a 0-10 RPE after training and T4P produces session load (RPE x minutes), acute and chronic load, ACWR, monotony and strain, plus the same wellness, testing, alerts and PDF reports. GPS simply adds resolution to a system that already works without it.",
-  },
-  {
-    q: "Which GPS providers are supported?",
-    a: "Catapult, STATSports, GPEXE and Polar exports are detected automatically. Any other system can be mapped column by column with the T4P template — including your own club KPIs.",
-  },
-  {
-    q: "Can I change the ACWR formula?",
-    a: "Yes. You pick the KPIs and their weights, so the composite load — and therefore ACWR — reflects your own methodology rather than a fixed formula.",
-  },
-  {
-    q: "Can I edit or delete data after saving?",
-    a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
-  },
-  {
-    q: "Can I browse before I subscribe?",
-    a: "Yes. Any account can sign in and look at every screen of the platform. A subscription unlocks creating and editing your own data.",
-  },
-  {
-    q: "Is there a manual?",
-    a: "Yes — a full illustrated user manual lives inside the platform, with numbered chapters, a search box, troubleshooting and a one-click PDF download of the whole document.",
-  },
-  {
-    q: "Is there a desktop version I can install?",
-    a: "Yes. T4P installs like any normal program: a setup wizard on Windows (T4P-Setup-Windows.exe) and a drag-to-Applications disk image on macOS (T4P-Installer-macOS.dmg). Both are on the Download page, linked from the footer, with step-by-step instructions. The app carries the T4P icon and appears in the Start Menu, taskbar or Dock.",
-  },
-  {
-    q: "Does T4P work without an internet connection?",
-    a: "Yes — the desktop app and the website both keep working offline. Everything already in your workspace stays readable and editable with no connection, and anything you change offline is stored on the machine and pushed to the cloud automatically the moment you are back online. You only need a connection for the very first sign-in.",
-  },
-  {
-    q: "Is my data protected?",
-    a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
+    id: "data",
+    label: "05",
+    title: "Your data, privacy & control",
+    intro: "Who owns the data, what can be changed and what is never lost.",
+    tone: "amber",
+    items: [
+      {
+        q: "Is my data protected?",
+        a: "Each account is fully isolated — you only ever see your own team. Data is stored on European infrastructure and processed under GDPR.",
+      },
+      {
+        q: "Can I edit or delete data after saving?",
+        a: "Yes. Players, training days, plan parts, GPS rows, RPE values and test results can all be edited or removed, and you can wipe or delete the team and start again.",
+      },
+      {
+        q: "Can I lose the season history?",
+        a: "No. Every session, file, test, injury and rating stays in one place until you delete it.",
+      },
+    ],
   },
 ];
 
-
-const stopDoingText = [
-  { q: "Do I have to re-type player names?", a: "No. The squad is built from your GPS file, or once by hand. Every screen reuses the same player record." },
-  { q: "Do I have to copy data between files?", a: "No. Import once, or rate the session once. Charts, tables, ACWR and reports update themselves." },
-  { q: "Do I need manual formulas for load or ACWR?", a: "No. Load, acute vs chronic, ACWR, monotony and strain are calculated per player as the data arrives." },
-  { q: "Do I have to scan every player manually?", a: "No. Thresholds watch workload, wellness and availability and tell you who needs attention." },
-  { q: "Do I have to build the head coach's report myself?", a: "No. Pick the template, pick the dates, press export. PDF, PNG, Excel or CSV." },
-  { q: "Do I need printed drill cards?", a: "No. The library holds the blocks and their board drawings. Pick one and it is already inside the session." },
-  { q: "Do I have to chase wellness by message?", a: "No. Players check in from their own portal before the cut-off time, and you see who is missing." },
-  { q: "Can I lose the season history?", a: "No. Every session, file, test, injury and rating stays in one place until you delete it." },
-];
-
-const faq: FAQItem[] = faqText.map((item) => ({
-  q: <BrandCopy>{item.q}</BrandCopy>,
-  a: <BrandCopy>{item.a}</BrandCopy>,
-}));
-
-const stopDoing: FAQItem[] = stopDoingText.map((item) => ({
-  q: <BrandCopy>{item.q}</BrandCopy>,
-  a: <BrandCopy>{item.a}</BrandCopy>,
-}));
-
-const allFaq = [...faq, ...stopDoing].map((item, i) => ({
-  ...item,
-  tone: toneKeys[i % toneKeys.length]!,
-}));
-
-const faqSchema = [...faqText, ...stopDoingText];
+const faqSchema = SECTIONS.flatMap((s) => s.items);
 
 function FAQItem({
   item,
@@ -204,7 +261,7 @@ function FAQItem({
 }
 
 function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openId, setOpenId] = useState<string | null>("plans-0");
 
   return (
     <MarketingPage>
@@ -222,15 +279,77 @@ function FAQ() {
       </section>
 
       <div className="mx-auto max-w-7xl px-5 py-10">
-        <div className="space-y-3">
-          {allFaq.map((item, i) => (
-            <FAQItem
-              key={i}
-              item={item}
-              open={openIndex === i}
-              onToggle={() => setOpenIndex(openIndex === i ? null : i)}
-            />
-          ))}
+        <nav className="mb-10 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {SECTIONS.map((s) => {
+            const t = toneMap[s.tone]!;
+            return (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl border bg-card px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-panel",
+                  t.border,
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-8 shrink-0 place-items-center rounded-lg font-display text-xs font-bold",
+                    t.chip,
+                    t.text,
+                  )}
+                >
+                  {s.label}
+                </span>
+                <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">{s.title}</span>
+              </a>
+            );
+          })}
+        </nav>
+
+        <div className="space-y-12">
+          {SECTIONS.map((s) => {
+            const t = toneMap[s.tone]!;
+            return (
+              <section key={s.id} id={s.id} className="scroll-mt-28">
+                <div className="mb-4 flex items-start gap-4">
+                  <span
+                    className={cn(
+                      "grid size-11 shrink-0 place-items-center rounded-2xl font-display text-sm font-bold",
+                      t.chip,
+                      t.text,
+                    )}
+                  >
+                    {s.label}
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="font-display text-2xl font-semibold uppercase tracking-wide">
+                      <BrandCopy>{s.title}</BrandCopy>
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      <BrandCopy>{s.intro}</BrandCopy>
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {s.items.map((item, i) => {
+                    const key = `${s.id}-${i}`;
+                    return (
+                      <FAQItem
+                        key={key}
+                        item={{
+                          q: <BrandCopy>{item.q}</BrandCopy>,
+                          a: <BrandCopy>{item.a}</BrandCopy>,
+                          tone: s.tone,
+                        }}
+                        open={openId === key}
+                        onToggle={() => setOpenId(openId === key ? null : key)}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </div>
 
         <div className="panel mt-12 border-brand-indigo/30 bg-gradient-to-r from-brand-indigo/10 to-brand-cyan/10 p-6 text-center">
