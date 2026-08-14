@@ -850,13 +850,17 @@ function ManualShell({
 }) {
   return (
     <MarketingPage>
-      <div className="mx-auto max-w-7xl px-4 py-14 text-center sm:px-5">
-        <p className="page-eyebrow">Platform manual</p>
-        <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">{title}</h1>
-        {subtitle ? <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p> : null}
-        {actions ? <div className="mt-4 flex flex-wrap justify-center gap-2">{actions}</div> : null}
-      </div>
-      <div className="p-4 sm:p-5">{children}</div>
+      <section className="border-b border-border bg-gradient-to-br from-brand-blue/8 via-background to-brand-green/8">
+        <div className="mx-auto max-w-7xl px-5 py-14 text-center">
+          <p className="page-eyebrow">Platform manual</p>
+          <h1 className="mt-3 font-display text-4xl font-semibold uppercase tracking-wide">{title}</h1>
+          {subtitle ? (
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
+          ) : null}
+          {actions ? <div className="mt-5 flex flex-wrap justify-center gap-2">{actions}</div> : null}
+        </div>
+      </section>
+      <div className="mx-auto max-w-7xl px-5 py-10">{children}</div>
     </MarketingPage>
   );
 }
