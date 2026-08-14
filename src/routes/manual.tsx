@@ -824,14 +824,6 @@ function ManualShell({
   actions?: ReactNode;
   children: ReactNode;
 }) {
-  const { session } = useAuth();
-  if (session) {
-    return (
-      <AppShell title={title} subtitle={subtitle} actions={actions}>
-        {children}
-      </AppShell>
-    );
-  }
   return (
     <MarketingPage>
       <div className="mx-auto max-w-7xl px-4 py-14 text-center sm:px-5">
