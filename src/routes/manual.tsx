@@ -22,9 +22,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { AppShell } from "@/components/app-shell";
 import { MarketingPage } from "@/components/marketing";
-import { useAuth } from "@/lib/auth";
 import { BrandCopy, T4P } from "@/components/brand-text";
 import { MANUAL_SHOTS, type ManualShotKey } from "@/components/manual-examples";
 
@@ -824,14 +822,6 @@ function ManualShell({
   actions?: ReactNode;
   children: ReactNode;
 }) {
-  const { session } = useAuth();
-  if (session) {
-    return (
-      <AppShell title={title} subtitle={subtitle} actions={actions}>
-        {children}
-      </AppShell>
-    );
-  }
   return (
     <MarketingPage>
       <div className="mx-auto max-w-7xl px-4 py-14 text-center sm:px-5">
