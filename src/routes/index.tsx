@@ -138,7 +138,7 @@ function Home() {
     <MarketingPage>
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-brand-green/14 via-background to-brand-blue/16">
         <div className="relative mx-auto max-w-7xl px-5 py-16 text-center">
-          <p className="page-eyebrow">Training 4 Performance</p>
+          <p className="page-eyebrow">THE ULTIMATE S&C COACHES ASSISTANT</p>
           <h1 className="mx-auto mt-3 max-w-4xl font-display text-4xl font-semibold uppercase leading-tight tracking-wide text-foreground lg:text-5xl">
             The football performance system for S&amp;C coaches that connects everything
           </h1>
