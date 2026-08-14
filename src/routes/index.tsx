@@ -19,6 +19,7 @@ import {
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
+import { activateDemo } from "@/lib/demo";
 import {
   ShotSquad,
   ShotCalendar,
@@ -166,7 +167,7 @@ const showcase = [
     title: "Tactics board",
     text: "Draw the session on a real pitch with players, cones, poles, hurdles, balls and runs — then save the drawing straight onto the training block, so the coach opens the drill and sees exactly how it is set up.",
     points: [
-      "Full, half or quarter pitch · football, futsal or blank",
+      "Full or half pitch · football 11v11 or blank field",
       "Portrait or landscape, and it scales to phone, tablet or desktop",
       "Cones, poles, hurdles, balls, zones and run arrows",
       "Freehand pen, arrows, text labels and an eraser",
@@ -222,6 +223,7 @@ const showcase = [
 
 
 function Home() {
+  const openDemo = () => activateDemo(true);
   return (
     <MarketingPage>
       {/* MOBILE hero — centered text */}
@@ -244,10 +246,11 @@ function Home() {
               Get started <ArrowRight className="size-4" />
             </Link>
             <Link
-              to="/how-it-works"
+              to="/dashboard"
+              onClick={openDemo}
               className="inline-flex h-12 items-center justify-center rounded-full border-2 border-primary text-sm font-semibold text-primary"
             >
-              See how it works
+              Try demo
             </Link>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
@@ -278,10 +281,11 @@ function Home() {
                 Get started <ArrowRight className="size-4" />
               </Link>
               <Link
-                to="/how-it-works"
+                to="/dashboard"
+                onClick={openDemo}
                 className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-primary px-8 text-sm font-semibold text-primary"
               >
-                See how it works
+                Try demo
               </Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
