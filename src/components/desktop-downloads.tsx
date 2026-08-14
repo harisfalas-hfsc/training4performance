@@ -51,6 +51,13 @@ export function DesktopDownloads({ className }: { className?: string }) {
           Windows
         </a>
       </div>
+      <Link
+        to="/download"
+        className="text-xs font-medium text-brand-blue underline-offset-4 hover:underline"
+      >
+        How to install (Windows &amp; macOS)
+      </Link>
     </div>
   );
 }
+
