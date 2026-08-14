@@ -33,7 +33,7 @@ export function FederationTrust({ className }: { className?: string }) {
             src={f.src}
             alt={`${f.name} logo`}
             title={f.name}
-            loading="lazy"
+            loading="eager" decoding="sync" fetchPriority="high"
             className={cn(
               "w-auto shrink object-contain",
               f.wide

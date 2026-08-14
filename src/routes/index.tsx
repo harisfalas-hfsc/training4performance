@@ -1,21 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Activity,
-  BarChart3,
-  BellRing,
-  LifeBuoy,
-  CalendarDays,
-  ClipboardPen,
-  BookOpen,
-  BookMarked,
-  HeartPulse,
-  Timer,
-  Smartphone,
-  Radar,
-  ShieldCheck,
-  Users,
-  ArrowRight,
-} from "lucide-react";
+import { Activity, BarChart3, ShieldCheck, ArrowRight } from "lucide-react";
+
 import { MarketingPage } from "@/components/marketing";
 import { BrandCopy, T4P, Training4Performance } from "@/components/brand-text";
 import { seoHead, webPageLd, SOFTWARE_ID, TOPIC_ENTITIES } from "@/lib/seo";
@@ -61,81 +46,6 @@ export const Route = createFileRoute("/")({
 
   component: Home,
 });
-
-const features = [
-  {
-    icon: Users,
-    title: "Squad management",
-    text: "Availability, positions, status and player passports in one place.",
-    color: "#2563eb",
-  },
-  {
-    icon: CalendarDays,
-    title: "Training calendar",
-    text: "MD-cycle planning, drills, durations, planned vs actual RPE.",
-    color: "#059669",
-  },
-  {
-    icon: ClipboardPen,
-    title: "Tactics board",
-    text: "Draw sessions on a real pitch: players, equipment, runs and zones.",
-    color: "#7c3aed",
-  },
-  {
-    icon: Radar,
-    title: "GPS import",
-    text: "Catapult, STATSports, GPEXE, Polar or your own template — with mapping reports.",
-    color: "#0891b2",
-  },
-  {
-    icon: BookOpen,
-    title: "Training monitor logbook",
-    text: "Every session row, drill splits, RPE, pivot charts and test batteries.",
-    color: "#d97706",
-  },
-  {
-    icon: BookMarked,
-    title: "Drills & exercise library",
-    text: "Ready-made T4P blocks for strength, power, speed and ESD — plus every block you save.",
-    color: "#c026d3",
-  },
-  {
-    icon: HeartPulse,
-    title: "Wellness questionnaires",
-    text: "Players answer sleep, fatigue, mood, soreness and stress each morning from their phone.",
-    color: "#e11d48",
-  },
-  {
-    icon: Timer,
-    title: "Fitness testing",
-    text: "CMJ, sprints, Yo-Yo, FMS and body composition with personal bests and progression.",
-    color: "#0d9488",
-  },
-  {
-    icon: Smartphone,
-    title: "Player portal",
-    text: "Each player gets a private code to check in and follow his own load and test history.",
-    color: "#ea580c",
-  },
-  {
-    icon: BellRing,
-    title: "Automated alerts",
-    text: "ACWR spikes, load jumps, wellness drops and availability risks.",
-    color: "#dc2626",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics",
-    text: "Composite load, acute:chronic, monotony, strain and squad benchmarks.",
-    color: "#4f46e5",
-  },
-  {
-    icon: LifeBuoy,
-    title: "Help when you need it",
-    text: "Ask a question from your account and get an answer in the communication centre.",
-    color: "#9333ea",
-  },
-];
 
 const showcase = [
   {
@@ -431,28 +341,6 @@ function Home() {
               Open the live demo <ArrowRight className="size-4" />
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Capabilities */}
-      <section className="mx-auto max-w-7xl px-5 py-10">
-        <p className="eyebrow text-center">Capabilities</p>
-        <h2 className="mt-3 text-center font-display text-2xl font-semibold uppercase tracking-wide">
-          What's inside
-        </h2>
-        <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className="flex flex-col items-center bg-background p-5 text-center transition-colors hover:bg-surface-2/60"
-            >
-              <f.icon className="size-5" style={{ color: f.color }} />
-              <p className="mt-4 font-display text-base font-semibold uppercase tracking-wide">
-                {f.title}
-              </p>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{f.text}</p>
-            </div>
-          ))}
         </div>
       </section>
 

@@ -206,19 +206,17 @@ function About() {
             Instead of managing your team through different Excel files, GPS reports, forms and
             notes, <T4P /> brings everything into one connected workspace.
           </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <ul className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
             {brings.map(([e, b]) => (
-              <div
-                key={b}
-                className="flex items-center gap-2.5 rounded-xl border border-brand-blue/20 bg-brand-blue/6 px-3 py-2.5 text-sm font-semibold"
-              >
+              <li key={b} className="flex items-center gap-2 text-sm font-semibold">
                 <span aria-hidden className="text-base">
                   {e}
                 </span>
-                <span className="min-w-0">{b}</span>
-              </div>
+                {b}
+              </li>
             ))}
-          </div>
+          </ul>
+
           <p className="mt-6 font-display text-base font-semibold uppercase tracking-wide text-brand-green">
             Spend less time managing information. Spend more time coaching.
           </p>
@@ -285,12 +283,10 @@ function About() {
             Instead of looking at ten different pieces of information separately, you see the player
             as one complete performance profile.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2">
+          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold">
             {chain.map((c, i) => (
-              <span key={c} className="flex items-center gap-2">
-                <span className="rounded-lg border border-brand-cyan/25 bg-brand-cyan/8 px-3 py-2 text-xs font-semibold">
-                  {c}
-                </span>
+              <span key={c} className="flex items-center gap-3">
+                <span>{c}</span>
                 {i < chain.length - 1 ? (
                   <span className="text-brand-cyan" aria-hidden>
                     →
@@ -299,6 +295,7 @@ function About() {
               </span>
             ))}
           </div>
+
         </Card>
 
         {/* Levels + time */}
