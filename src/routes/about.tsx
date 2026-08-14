@@ -283,18 +283,24 @@ function About() {
             Instead of looking at ten different pieces of information separately, you see the player
             as one complete performance profile.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold">
-            {chain.map((c, i) => (
-              <span key={c} className="flex items-center gap-3">
-                <span>{c}</span>
+          <ol className="mt-6 grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2">
+            {chain.map(([e, c], i) => (
+              <li key={c} className="flex min-w-0 items-center gap-3 text-sm font-semibold">
+                <span className="flex min-w-0 items-center gap-2">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-cyan/10 text-base sm:size-7 sm:text-sm">
+                    {e}
+                  </span>
+                  <span className="truncate">{c}</span>
+                </span>
                 {i < chain.length - 1 ? (
-                  <span className="text-brand-cyan" aria-hidden>
+                  <span className="hidden text-brand-cyan sm:inline" aria-hidden>
                     →
                   </span>
                 ) : null}
-              </span>
+              </li>
             ))}
-          </div>
+          </ol>
+
 
         </Card>
 
