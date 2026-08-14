@@ -283,12 +283,10 @@ function About() {
             Instead of looking at ten different pieces of information separately, you see the player
             as one complete performance profile.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2">
+          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold">
             {chain.map((c, i) => (
-              <span key={c} className="flex items-center gap-2">
-                <span className="rounded-lg border border-brand-cyan/25 bg-brand-cyan/8 px-3 py-2 text-xs font-semibold">
-                  {c}
-                </span>
+              <span key={c} className="flex items-center gap-3">
+                <span>{c}</span>
                 {i < chain.length - 1 ? (
                   <span className="text-brand-cyan" aria-hidden>
                     →
@@ -297,6 +295,7 @@ function About() {
               </span>
             ))}
           </div>
+
         </Card>
 
         {/* Levels + time */}
