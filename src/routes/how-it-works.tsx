@@ -7,6 +7,8 @@ import {
   CalendarDays,
   ClipboardPen,
   Gauge,
+  MonitorDown,
+
   HeartPulse,
   Radar,
   Shield,
