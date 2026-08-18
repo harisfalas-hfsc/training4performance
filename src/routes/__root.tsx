@@ -314,10 +314,14 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RoleProvider>
+          {/* Downloads the member's world for offline use, and shows the offline strip. */}
+          <OfflineBootstrap />
+          <OfflineStatus />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </RoleProvider>
       </AuthProvider>
     </QueryClientProvider>
+
   );
 }
