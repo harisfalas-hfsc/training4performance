@@ -7,6 +7,8 @@ import { setWorkspaceScope } from "@/lib/workspace-scope";
 import { resetWorkspaceHydration } from "@/lib/usage";
 import { isDemoActive } from "@/lib/demo";
 import { activeScopeFor } from "@/lib/teams";
+import { browserOnline, offlineFirst } from "@/lib/offline-db";
+import { cachedSession, clearOfflineSignIn, offlineSignInUser, rememberSession } from "@/lib/offline-auth";
 
 export interface Profile {
   id: string;
@@ -35,6 +37,8 @@ interface AuthValue {
   isAdmin: boolean;
   subscription: Subscription | null;
   hasAccess: boolean;
+  /** True when the app is running on a session restored from this device. */
+  offlineSession: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -159,15 +163,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       subscription,
       hasAccess: Boolean(session) && (isAdmin || active),
+      offlineSession,
       refresh: () => load(session?.user?.id, session?.user?.email),
       signOut: async () => {
         resetWorkspaceHydration();
         setWorkspaceScope(null);
+        // The saved copy of this account's data stays on the device so the
+        // coach can sign in again offline; only the live session is dropped.
+        clearOfflineSignIn();
+        setOfflineSession(false);
+        setSession(null);
         if (typeof window !== "undefined") window.sessionStorage.removeItem("t4p.adminSession");
         await supabase.auth.signOut();
       },
     };
-  }, [loading, session, profile, isAdmin, subscription, load]);
+  }, [loading, session, profile, isAdmin, subscription, offlineSession, load]);
 
   useEffect(() => {
     // Browsing is always allowed; writing needs an active subscription.
