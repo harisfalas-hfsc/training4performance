@@ -7,6 +7,8 @@ import { setWorkspaceScope } from "@/lib/workspace-scope";
 import { resetWorkspaceHydration } from "@/lib/usage";
 import { isDemoActive } from "@/lib/demo";
 import { activeScopeFor } from "@/lib/teams";
+import { browserOnline, offlineFirst } from "@/lib/offline-db";
+import { cachedSession, clearOfflineSignIn, offlineSignInUser, rememberSession } from "@/lib/offline-auth";
 
 export interface Profile {
   id: string;
@@ -35,6 +37,8 @@ interface AuthValue {
   isAdmin: boolean;
   subscription: Subscription | null;
   hasAccess: boolean;
+  /** True when the app is running on a session restored from this device. */
+  offlineSession: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -58,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [offlineSession, setOfflineSession] = useState(false);
 
   const load = useCallback(async (uid: string | undefined, email?: string | null) => {
     // The public demo owns the workspace scope while it is running.
@@ -72,31 +77,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (!demo) setWorkspaceScope(activeScopeFor(uid), isAdminEmail(email));
-    const [{ data: prof }, { data: sub }] = await Promise.all([
-      supabase.from("profiles").select("id,email,full_name,club_name").eq("id", uid).maybeSingle(),
-      supabase
-        .from("subscriptions")
-        .select("id,user_id,team_name,status,season_start,season_end,price_eur,cancel_at_period_end,canceled_at")
-        .eq("user_id", uid)
-        .maybeSingle(),
+    // Both reads go through the offline store: online they refresh the saved
+    // copy, offline they return the copy already on this device.
+    const [prof, sub] = await Promise.all([
+      offlineFirst<Profile | null>(
+        "profile",
+        async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("id,email,full_name,club_name")
+            .eq("id", uid)
+            .maybeSingle();
+          if (error) throw new Error(error.message);
+          return (data as Profile) ?? null;
+        },
+        uid,
+      ).catch(() => null),
+      offlineFirst<Subscription | null>(
+        "subscription",
+        async () => {
+          const { data, error } = await supabase
+            .from("subscriptions")
+            .select("id,user_id,team_name,status,season_start,season_end,price_eur,cancel_at_period_end,canceled_at")
+            .eq("user_id", uid)
+            .maybeSingle();
+          if (error) throw new Error(error.message);
+          return (data as Subscription) ?? null;
+        },
+        uid,
+      ).catch(() => null),
     ]);
-    setProfile((prof as Profile) ?? null);
+    setProfile(prof ?? null);
     setIsAdmin(isAdminEmail(email));
-    setSubscription((sub as Subscription) ?? null);
+    setSubscription(sub ?? null);
   }, []);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (s) {
+        setOfflineSession(false);
+        clearOfflineSignIn();
+        rememberSession(s);
+      }
       setSession(s);
       void load(s?.user?.id, s?.user?.email);
     });
     void supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      await load(data.session?.user?.id, data.session?.user?.email);
+      let active = data.session;
+      if (active) {
+        rememberSession(active);
+      } else if (!browserOnline()) {
+        // No connection: accept the copy of the last session kept on this
+        // device, either because the tab was reopened or because the coach
+        // signed in offline with their stored verifier.
+        const cached = cachedSession();
+        const approved = offlineSignInUser();
+        if (cached && (approved === cached.user.id || approved === null)) {
+          active = { user: cached.user, access_token: cached.access_token ?? "" } as unknown as Session;
+          setOfflineSession(true);
+        }
+      }
+      setSession(active);
+      await load(active?.user?.id, active?.user?.email);
       setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
   }, [load]);
+
 
   const value = useMemo<AuthValue>(() => {
     const notExpired =
@@ -116,15 +163,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       subscription,
       hasAccess: Boolean(session) && (isAdmin || active),
+      offlineSession,
       refresh: () => load(session?.user?.id, session?.user?.email),
       signOut: async () => {
         resetWorkspaceHydration();
         setWorkspaceScope(null);
+        // The saved copy of this account's data stays on the device so the
+        // coach can sign in again offline; only the live session is dropped.
+        clearOfflineSignIn();
+        setOfflineSession(false);
+        setSession(null);
         if (typeof window !== "undefined") window.sessionStorage.removeItem("t4p.adminSession");
         await supabase.auth.signOut();
       },
     };
-  }, [loading, session, profile, isAdmin, subscription, load]);
+  }, [loading, session, profile, isAdmin, subscription, offlineSession, load]);
 
   useEffect(() => {
     // Browsing is always allowed; writing needs an active subscription.

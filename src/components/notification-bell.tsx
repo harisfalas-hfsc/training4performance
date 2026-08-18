@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { offlineFirst } from "@/lib/offline-db";
 
 /**
  * Permanent bell next to the avatar. It never opens a dropdown — pressing it
@@ -16,12 +17,20 @@ export function NotificationBell({ userId }: { userId?: string | undefined }) {
       setUnread(0);
       return;
     }
-    const { count } = await supabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .is("read_at", null);
-    setUnread(count ?? 0);
+    const count = await offlineFirst<number>(
+      "notifications-unread",
+      async () => {
+        const { count: c, error } = await supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .is("read_at", null);
+        if (error) throw new Error(error.message);
+        return c ?? 0;
+      },
+      userId,
+    ).catch(() => 0);
+    setUnread(count);
   }, [userId]);
 
   useEffect(() => {

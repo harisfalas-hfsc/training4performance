@@ -5,6 +5,14 @@ import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import {
+  cachedSession,
+  hasDeviceCredentialFor,
+  markOfflineSignIn,
+  rememberDeviceLogin,
+  verifyDeviceLogin,
+} from "@/lib/offline-auth";
+import { useOnlineStatus } from "@/lib/use-online";
 import { seoHead } from "@/lib/seo";
 
 
@@ -42,6 +50,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const online = useOnlineStatus();
 
   useEffect(() => {
     if (!session) return;
@@ -54,6 +63,10 @@ function AuthPage() {
 
   async function forgotPassword() {
     setError(null);
+    if (!online) {
+      setError("Resetting a password needs an internet connection.");
+      return;
+    }
     setNotice(null);
     if (!email) {
       setError("Enter your email above first, then press “Forgot password”.");
@@ -73,6 +86,23 @@ function AuthPage() {
     setError(null);
     setNotice(null);
     try {
+      if (!online) {
+        // Offline sign-in: the typed password is checked against the PBKDF2
+        // verifier stored on this device when the coach last signed in here.
+        if (isSignup) throw new Error("Creating an account needs an internet connection.");
+        const cached = cachedSession();
+        const ok = await verifyDeviceLogin(email, password);
+        if (!ok || !cached) {
+          throw new Error(
+            hasDeviceCredentialFor(email)
+              ? "That password does not match the one saved on this device."
+              : "You're offline and this device has no saved sign-in for that email. Connect once and it will be stored here.",
+          );
+        }
+        markOfflineSignIn(cached.user.id);
+        window.location.reload();
+        return;
+      }
       if (isSignup) {
         const { data, error: err } = await supabase.auth.signUp({
           email,
@@ -87,6 +117,8 @@ function AuthPage() {
       } else {
         const { error: err } = await supabase.auth.signInWithPassword({ email, password });
         if (err) throw err;
+        // Remember this device so the same credentials work with no internet.
+        await rememberDeviceLogin(email, password);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -111,6 +143,12 @@ function AuthPage() {
               </>
             )}
         </p>
+        {!online ? (
+          <p className="mt-4 rounded-md border border-border bg-amber-500/10 px-3 py-2 text-xs">
+            You're offline. You can sign in with the email and password you last used on this device and browse
+            everything saved here — new accounts and password resets need a connection.
+          </p>
+        ) : null}
         <form onSubmit={submit} className="mt-6 space-y-3">
 
           {isSignup ? (

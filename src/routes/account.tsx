@@ -4,6 +4,9 @@ import { Bell, Download, Trash2 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
+import { forgetDeviceCredentials } from "@/lib/offline-auth";
+import { clearUserCache } from "@/lib/offline-db";
+import { guardOnline } from "@/lib/use-online";
 import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
@@ -55,6 +58,7 @@ function Account() {
   }, [profile?.full_name, profile?.club_name, subscription?.team_name]);
 
   async function saveProfile() {
+    if (!guardOnline()) return;
     if (!user) return;
     setSaving(true);
     setSaved(false);
@@ -73,6 +77,7 @@ function Account() {
   }
 
   async function activate() {
+    if (!guardOnline()) return;
     if (!user) return;
     setBusy(true);
     setError(null);
@@ -83,6 +88,7 @@ function Account() {
   }
 
   async function openBilling() {
+    if (!guardOnline()) return;
     setBusy(true);
     setError(null);
     try {
@@ -325,6 +331,27 @@ function Account() {
             <Download className="size-4" /> {exporting ? "Preparing…" : "Download all my data (.zip)"}
           </button>
         </div>
+
+        <div className="panel mt-6 p-5">
+          <p className="eyebrow">This device — offline copy</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            While you are online, <T4P /> quietly stores a copy of your workspace on this device — squad, sessions,
+            GPS, tests, wellness, library, notifications and support — so the whole platform keeps working with no
+            internet. Your password is never stored; only a one-way verifier that lets you sign in offline on this
+            device.
+          </p>
+          <button
+            onClick={async () => {
+              forgetDeviceCredentials();
+              if (user?.id) await clearUserCache(user.id);
+              window.alert("Offline sign-in and the saved copy have been removed from this device.");
+            }}
+            className="mt-3 inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-semibold"
+          >
+            Clear saved offline data on this device
+          </button>
+        </div>
+
 
         <div className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-5">
           <p className="eyebrow text-destructive">Delete my account</p>

@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { isDemoMode } from "@/lib/access";
 import { useAuth } from "@/lib/auth";
 import { listLibraryBlocks, type LibraryBlock } from "@/lib/library.functions";
+import { offlineFirst } from "@/lib/offline-db";
 
 const demoBlocks: LibraryBlock[] = [];
 
@@ -13,13 +14,15 @@ const demoBlocks: LibraryBlock[] = [];
  * can browse and reuse them exactly like a subscriber.
  */
 export function useOfficialLibrary(enabled = true) {
-  const { hasAccess } = useAuth();
+  const { hasAccess, user } = useAuth();
   const demo = isDemoMode();
   const fetchBlocks = useServerFn(listLibraryBlocks);
 
   const query = useQuery({
     queryKey: ["library-blocks"],
-    queryFn: () => fetchBlocks(),
+    // Offline the coach keeps the whole library that was saved on this device.
+    queryFn: () => offlineFirst<LibraryBlock[]>("library", () => fetchBlocks(), user?.id),
+    networkMode: "always" as const,
     enabled: enabled && !demo && hasAccess,
   });
 
