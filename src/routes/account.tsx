@@ -6,6 +6,7 @@ import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
 import { forgetDeviceCredentials } from "@/lib/offline-auth";
 import { clearUserCache } from "@/lib/offline-db";
+import { guardOnline } from "@/lib/use-online";
 import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
@@ -57,6 +58,7 @@ function Account() {
   }, [profile?.full_name, profile?.club_name, subscription?.team_name]);
 
   async function saveProfile() {
+    if (!guardOnline()) return;
     if (!user) return;
     setSaving(true);
     setSaved(false);
@@ -75,6 +77,7 @@ function Account() {
   }
 
   async function activate() {
+    if (!guardOnline()) return;
     if (!user) return;
     setBusy(true);
     setError(null);
@@ -85,6 +88,7 @@ function Account() {
   }
 
   async function openBilling() {
+    if (!guardOnline()) return;
     setBusy(true);
     setError(null);
     try {
