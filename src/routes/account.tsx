@@ -326,6 +326,27 @@ function Account() {
           </button>
         </div>
 
+        <div className="panel mt-6 p-5">
+          <p className="eyebrow">This device — offline copy</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            While you are online, <T4P /> quietly stores a copy of your workspace on this device — squad, sessions,
+            GPS, tests, wellness, library, notifications and support — so the whole platform keeps working with no
+            internet. Your password is never stored; only a one-way verifier that lets you sign in offline on this
+            device.
+          </p>
+          <button
+            onClick={async () => {
+              forgetDeviceCredentials();
+              if (user?.id) await clearUserCache(user.id);
+              window.alert("Offline sign-in and the saved copy have been removed from this device.");
+            }}
+            className="mt-3 inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-semibold"
+          >
+            Clear saved offline data on this device
+          </button>
+        </div>
+
+
         <div className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-5">
           <p className="eyebrow text-destructive">Delete my account</p>
           <p className="mt-1 text-sm text-muted-foreground">
