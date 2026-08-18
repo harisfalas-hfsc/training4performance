@@ -6,6 +6,8 @@ import { SectionTitle } from "@/components/perf-ui";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { canWrite } from "@/lib/access";
+import { offlineFirst } from "@/lib/offline-db";
+import { guardOnline } from "@/lib/use-online";
 import { DEFAULT_REPORTS, revokePlayerAccess, savePlayerAccess, type PortalReports } from "@/lib/portal.functions";
 
 const SECTIONS = [
@@ -48,12 +50,28 @@ export function PlayerAccessCard({ playerId, playerName }: { playerId: string; p
 
   const load = async () => {
     if (!user?.id) return;
-    const { data } = await supabase
-      .from("player_access")
-      .select("id,code,email,active,last_login_at,reports,password_hash")
-      .eq("coach_id", user.id)
-      .eq("player_id", playerId)
-      .maybeSingle();
+    const data = await offlineFirst<{
+      id: string;
+      code: string;
+      email: string | null;
+      active: boolean;
+      last_login_at: string | null;
+      reports: unknown;
+      password_hash: string | null;
+    } | null>(
+      `player-access:${playerId}`,
+      async () => {
+        const { data: row, error } = await supabase
+          .from("player_access")
+          .select("id,code,email,active,last_login_at,reports,password_hash")
+          .eq("coach_id", user.id)
+          .eq("player_id", playerId)
+          .maybeSingle();
+        if (error) throw new Error(error.message);
+        return row;
+      },
+      user.id,
+    ).catch(() => null);
     if (!data) {
       setRow(null);
       return;
@@ -77,6 +95,7 @@ export function PlayerAccessCard({ playerId, playerName }: { playerId: string; p
   }, [user?.id, playerId]);
 
   const submit = async (patch?: Partial<{ active: boolean; reports: PortalReports }>) => {
+    if (!guardOnline()) return;
     if (!canWrite()) {
       toast.error("A team subscription is needed to manage player logins.");
       return;
