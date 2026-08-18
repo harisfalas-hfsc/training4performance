@@ -85,7 +85,7 @@ export function SupportCentre({ userId }: { userId: string }) {
     if (typeof navigator !== "undefined" && navigator.onLine === false) return;
     await supabase.from("support_tickets").update({ unread_for_user: false }).eq("id", ticketId);
     setTickets((t) => t.map((x) => (x.id === ticketId ? { ...x, unread_for_user: false } : x)));
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     void loadTickets();
