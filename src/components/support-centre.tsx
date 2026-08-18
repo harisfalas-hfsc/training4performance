@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MessageSquare, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { offlineFirst } from "@/lib/offline-db";
+import { guardOnline } from "@/lib/use-online";
 import { autoAnswerTicket } from "@/lib/support-auto.functions";
 import { RichText } from "@/components/rich-text";
 
@@ -49,21 +51,38 @@ export function SupportCentre({ userId }: { userId: string }) {
   const [selected, setSelected] = useState<string[]>([]);
 
   const loadTickets = useCallback(async () => {
-    const { data } = await supabase
-      .from("support_tickets")
-      .select("id, subject, topic, status, last_message_at, unread_for_user")
-      .eq("user_id", userId)
-      .order("last_message_at", { ascending: false });
-    setTickets((data as Ticket[]) ?? []);
+    const data = await offlineFirst<Ticket[]>(
+      "support",
+      async () => {
+        const { data: rows, error } = await supabase
+          .from("support_tickets")
+          .select("id, subject, topic, status, last_message_at, unread_for_user")
+          .eq("user_id", userId)
+          .order("last_message_at", { ascending: false });
+        if (error) throw new Error(error.message);
+        return (rows as Ticket[]) ?? [];
+      },
+      userId,
+    ).catch(() => [] as Ticket[]);
+    setTickets(data);
   }, [userId]);
 
   const loadMessages = useCallback(async (ticketId: string) => {
-    const { data } = await supabase
-      .from("support_messages")
-      .select("id, sender_role, body, created_at")
-      .eq("ticket_id", ticketId)
-      .order("created_at", { ascending: true });
-    setMessages((data as Message[]) ?? []);
+    const data = await offlineFirst<Message[]>(
+      `support:${ticketId}`,
+      async () => {
+        const { data: rows, error } = await supabase
+          .from("support_messages")
+          .select("id, sender_role, body, created_at")
+          .eq("ticket_id", ticketId)
+          .order("created_at", { ascending: true });
+        if (error) throw new Error(error.message);
+        return (rows as Message[]) ?? [];
+      },
+      userId,
+    ).catch(() => [] as Message[]);
+    setMessages(data);
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return;
     await supabase.from("support_tickets").update({ unread_for_user: false }).eq("id", ticketId);
     setTickets((t) => t.map((x) => (x.id === ticketId ? { ...x, unread_for_user: false } : x)));
   }, []);
@@ -124,6 +143,7 @@ export function SupportCentre({ userId }: { userId: string }) {
   }
 
   async function createTicket() {
+    if (!guardOnline()) return;
     if (!subject.trim() || !firstMessage.trim()) {
       setError("Add a subject and a message.");
       return;
@@ -157,6 +177,7 @@ export function SupportCentre({ userId }: { userId: string }) {
   }
 
   async function sendReply() {
+    if (!guardOnline()) return;
     if (!openId || !reply.trim()) return;
     setBusy(true);
     const { error: err } = await supabase.from("support_messages").insert({

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Bell, CheckCircle2, Info, Mail, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { offlineFirst } from "@/lib/offline-db";
+import { OFFLINE_EMPTY_MESSAGE, useOnlineStatus } from "@/lib/use-online";
 import { RichText } from "@/components/rich-text";
 
 type Row = {
@@ -33,15 +35,28 @@ export function AccountNotifications({ userId }: { userId: string }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [noCopy, setNoCopy] = useState(false);
+  const online = useOnlineStatus();
 
   const load = useCallback(async () => {
-    const { data } = await supabase
-      .from("notifications")
-      .select("id, kind, title, body, read_at, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(200);
-    setRows((data as Row[]) ?? []);
+    const data = await offlineFirst<Row[]>(
+      "notifications",
+      async () => {
+        const { data: rowsData, error } = await supabase
+          .from("notifications")
+          .select("id, kind, title, body, read_at, created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(200);
+        if (error) throw new Error(error.message);
+        return (rowsData as Row[]) ?? [];
+      },
+      userId,
+    ).catch(() => {
+      setNoCopy(true);
+      return [] as Row[];
+    });
+    setRows(data);
     setSelected([]);
     setLoading(false);
   }, [userId]);

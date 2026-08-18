@@ -9,6 +9,7 @@
 
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { offlineFirst } from "@/lib/offline-db";
 import { setWellnessToday, today } from "@/data/performance";
 
 export interface WellnessEntry {
@@ -153,14 +154,23 @@ export function applyLocalWellness(entries: WellnessEntry[]) {
 export async function loadWellness(coachId: string) {
   if (localOnly) return;
   activeCoach = coachId;
-  const { data, error } = await supabase
-    .from("player_wellness")
-    .select("id,player_id,entry_date,sleep_hours,sleep,fatigue,soreness,stress,mood,hydration,readiness,note,source")
-    .eq("coach_id", coachId)
-    .order("entry_date", { ascending: false })
-    .limit(5000);
-  if (error || activeCoach !== coachId) return;
-  wellnessEntries.splice(0, wellnessEntries.length, ...(data ?? []).map((r) => rowToEntry(r as Row)));
+  // Offline this returns the answers already saved on this device.
+  const data = await offlineFirst<Row[]>(
+    "wellness",
+    async () => {
+      const { data: rows, error } = await supabase
+        .from("player_wellness")
+        .select("id,player_id,entry_date,sleep_hours,sleep,fatigue,soreness,stress,mood,hydration,readiness,note,source")
+        .eq("coach_id", coachId)
+        .order("entry_date", { ascending: false })
+        .limit(5000);
+      if (error) throw new Error(error.message);
+      return (rows ?? []) as Row[];
+    },
+    coachId,
+  ).catch(() => null);
+  if (!data || activeCoach !== coachId) return;
+  wellnessEntries.splice(0, wellnessEntries.length, ...data.map((r) => rowToEntry(r)));
   emit();
 }
 
