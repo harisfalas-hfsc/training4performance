@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 /** The single wording used everywhere an action needs the internet. */
 export const OFFLINE_MESSAGE =
-  "You're offline — you can view everything saved on this device. Creating new items needs an internet connection.";
+  "You're offline — everything saved on this device stays usable and your edits sync automatically when you reconnect. Payments, sign-ups and emails need a connection.";
 
 /** The single wording used when a page has nothing saved on this device yet. */
 export const OFFLINE_EMPTY_MESSAGE =
