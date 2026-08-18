@@ -4,6 +4,8 @@ import { Bell, Download, Trash2 } from "lucide-react";
 import { MarketingPage } from "@/components/marketing";
 import { T4P } from "@/components/brand-text";
 import { supabase } from "@/integrations/supabase/client";
+import { forgetDeviceCredentials } from "@/lib/offline-auth";
+import { clearUserCache } from "@/lib/offline-db";
 import { useAuth } from "@/lib/auth";
 import { seoHead } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
