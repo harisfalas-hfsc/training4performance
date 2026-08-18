@@ -38,6 +38,34 @@ async function unregisterAppWorkers() {
   );
 }
 
+let waitingRegistration: ServiceWorkerRegistration | null = null;
+const waitingListeners = new Set<() => void>();
+
+function announceWaiting(registration: ServiceWorkerRegistration) {
+  waitingRegistration = registration;
+  waitingListeners.forEach((fn) => fn());
+}
+
+/** Fires when a newer app version is installed and waiting to take over. */
+export function onWaitingWorker(fn: () => void) {
+  waitingListeners.add(fn);
+  if (waitingRegistration) fn();
+  return () => {
+    waitingListeners.delete(fn);
+  };
+}
+
+/** Applies the waiting version and reloads. */
+export function activateWaitingWorker() {
+  const waiting = waitingRegistration?.waiting;
+  if (!waiting) {
+    window.location.reload();
+    return;
+  }
+  waiting.postMessage({ type: "SKIP_WAITING" });
+  navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload(), { once: true });
+}
+
 export function registerOfflineSupport() {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
   if (isRefusedContext()) {
@@ -45,8 +73,25 @@ export function registerOfflineSupport() {
     return;
   }
   window.addEventListener("load", () => {
-    void navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {
-      /* offline support is best-effort */
-    });
+    void navigator.serviceWorker
+      .register("/sw.js", { scope: "/" })
+      .then((registration) => {
+        if (registration.waiting) announceWaiting(registration);
+        registration.addEventListener("updatefound", () => {
+          const installing = registration.installing;
+          if (!installing) return;
+          installing.addEventListener("statechange", () => {
+            if (installing.state === "installed" && navigator.serviceWorker.controller) {
+              announceWaiting(registration);
+            }
+          });
+        });
+        // Look for a newer build every 30 minutes while the app stays open.
+        window.setInterval(() => void registration.update(), 30 * 60 * 1000);
+      })
+      .catch(() => {
+        /* offline support is best-effort */
+      });
   });
 }
+
