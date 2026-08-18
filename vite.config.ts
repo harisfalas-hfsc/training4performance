@@ -26,6 +26,11 @@ export default defineConfig({
         manifest: false,
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+          // The app shell document, so any route opened offline (even one never
+          // visited) boots and lets the client router render the page.
+          additionalManifestEntries: [{ url: "/", revision: `${Date.now()}` }],
+          navigateFallback: "/",
+          cleanupOutdatedCaches: true,
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
           runtimeCaching: [
             {
@@ -35,6 +40,20 @@ export default defineConfig({
                 cacheName: "t4p-pages",
                 networkTimeoutSeconds: 5,
                 expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              },
+            },
+            {
+              urlPattern: ({ url }) => url.origin === "https://fonts.googleapis.com",
+              handler: "StaleWhileRevalidate",
+              options: { cacheName: "t4p-font-css" },
+            },
+            {
+              urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com",
+              handler: "CacheFirst",
+              options: {
+                cacheName: "t4p-fonts",
+                expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
             {

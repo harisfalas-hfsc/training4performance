@@ -423,3 +423,10 @@ textarea.control {
     content: "";
   }
 }
+
+
+/* Native feel: no browser pull-to-refresh / rubber-band inside the app. */
+html,
+body {
+  overscroll-behavior-y: contain;
+}
