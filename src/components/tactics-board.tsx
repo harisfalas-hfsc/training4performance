@@ -448,6 +448,7 @@ export function TacticsBoard({
   drawing: initialDrawing,
   onSave,
   saveLabel = "Save drawing",
+  onAutoSave,
   fullscreen: fullscreenProp,
   onFullscreenChange,
 }: {
@@ -455,6 +456,8 @@ export function TacticsBoard({
   drawing?: BoardDrawing | null;
   onSave?: (drawing: BoardDrawing) => void;
   saveLabel?: string;
+  /** Called silently (debounced) on every change, so work is never lost. */
+  onAutoSave?: (drawing: BoardDrawing) => void;
   /** Optional controlled full-screen state (the board manages its own when omitted). */
   fullscreen?: boolean;
   onFullscreenChange?: (value: boolean) => void;
