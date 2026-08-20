@@ -658,10 +658,24 @@ export function TacticsBoard({
     [shapes, drawing.current?.points.length, drawing.current?.id],
   );
 
-  return (
-    <div className="panel overflow-hidden">
+  const board = (
+    <div
+      className={cn(
+        "panel overflow-hidden",
+        fullscreen && "flex h-full min-h-0 flex-col rounded-none border-0 shadow-none",
+      )}
+    >
       {/* toolbar */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-surface-2 p-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border bg-surface-2 p-2">
+        <ToolButton
+          active={fullscreen}
+          label={fullscreen ? "Exit full screen (Esc)" : "Full-screen board"}
+          onClick={() => setFullscreen(!fullscreen)}
+        >
+          {fullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+        </ToolButton>
+        <span className="mx-1 h-6 w-px bg-border" />
+
         <ToolButton
           active={panel === "players"}
           label="Players"
