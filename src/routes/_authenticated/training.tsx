@@ -1377,6 +1377,7 @@ function TrainingPage() {
             <TacticsBoard
               drawing={parseDrawing(items[drawingIndex]!.drawing)}
               saveLabel="Save to drill"
+              onAutoSave={(d) => patchItem(drawingIndex, { drawing: JSON.stringify(d) })}
               onSave={(d) => {
                 patchItem(drawingIndex, { drawing: JSON.stringify(d) });
                 setDrawingIndex(null);
