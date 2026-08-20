@@ -448,11 +448,16 @@ export function TacticsBoard({
   drawing: initialDrawing,
   onSave,
   saveLabel = "Save drawing",
+  fullscreen: fullscreenProp,
+  onFullscreenChange,
 }: {
   initialTokens?: BoardToken[];
   drawing?: BoardDrawing | null;
   onSave?: (drawing: BoardDrawing) => void;
   saveLabel?: string;
+  /** Optional controlled full-screen state (the board manages its own when omitted). */
+  fullscreen?: boolean;
+  onFullscreenChange?: (value: boolean) => void;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [orientation, setOrientation] = useState<Orientation>(initialDrawing?.orientation ?? "portrait");
@@ -467,9 +472,38 @@ export function TacticsBoard({
   const [drawColor, setDrawColor] = useState(DRAW_COLORS[0]!);
   const [teamColor, setTeamColor] = useState<string>(TEAM_COLORS[0]!.value);
   const [nextNumber, setNextNumber] = useState(1);
+  const [ownFullscreen, setOwnFullscreen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dragId = useRef<string | null>(null);
   const drawing = useRef<BoardShape | null>(null);
   const [, force] = useState(0);
+
+  const fullscreen = fullscreenProp ?? ownFullscreen;
+  const setFullscreen = useCallback(
+    (value: boolean) => {
+      if (fullscreenProp === undefined) setOwnFullscreen(value);
+      onFullscreenChange?.(value);
+    },
+    [fullscreenProp, onFullscreenChange],
+  );
+
+  useEffect(() => setMounted(true), []);
+
+  /* lock the page behind the overlay and allow Esc to leave */
+  useEffect(() => {
+    if (!fullscreen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen, setFullscreen]);
+
 
   const vb = viewBoxFor(orientation, view);
   const w = vb.w;
