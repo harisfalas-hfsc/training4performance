@@ -863,13 +863,14 @@ export function TacticsBoard({
 
         {/* pitch — the box always matches the chosen view's aspect ratio, so
             there is never empty space beside or below the playing surface. */}
-        <div className="relative flex min-w-0 justify-center">
+        <div className={cn("relative flex min-w-0 justify-center", fullscreen && "h-full min-h-0 items-center")}>
           <div
             className="relative overflow-hidden rounded-md border border-border bg-pitch"
-            style={{
-              aspectRatio: `${w} / ${h}`,
-              width: `min(100%, calc(70vh * ${w / h}))`,
-            }}
+            style={
+              fullscreen
+                ? { aspectRatio: `${w} / ${h}`, height: "100%", maxWidth: "100%", width: "auto" }
+                : { aspectRatio: `${w} / ${h}`, width: `min(100%, calc(70vh * ${w / h}))` }
+            }
           >
           <svg
             ref={svgRef}
