@@ -182,6 +182,7 @@ function BoardPage() {
         key={`${sessionId}-${itemIndex}`}
         drawing={drawing}
         onSave={captureDrawing}
+        onAutoSave={(d) => setDrawingJson(JSON.stringify(d))}
         saveLabel="Use this drawing"
       />
 
