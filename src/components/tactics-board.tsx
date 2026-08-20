@@ -1,5 +1,6 @@
 import type * as React from "react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowUpRight,
   Circle as CircleIcon,
@@ -8,6 +9,8 @@ import {
   RefreshCw,
   Download,
   Eraser,
+  Maximize2,
+  Minimize2,
   MousePointer2,
   Minus,
   Pencil,
@@ -20,6 +23,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 
 /* ------------------------------------------------------------------ */
 /* types                                                               */
