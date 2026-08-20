@@ -807,7 +807,12 @@ export function TacticsBoard({
       </div>
 
 
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-3 p-3 lg:grid-cols-[170px_minmax(0,1fr)]">
+      <div
+        className={cn(
+          "grid grid-cols-[minmax(0,1fr)] gap-3 p-3 lg:grid-cols-[170px_minmax(0,1fr)]",
+          fullscreen && "min-h-0 flex-1 overflow-auto",
+        )}
+      >
         {/* palette */}
         {panel && (
           <div className="min-w-0 rounded-md border border-border bg-surface-2 p-2">
