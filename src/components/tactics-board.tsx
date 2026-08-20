@@ -504,6 +504,20 @@ export function TacticsBoard({
     };
   }, [fullscreen, setFullscreen]);
 
+  /* silent ongoing capture — nothing is lost while working, in or out of focus mode */
+  const autoSaveRef = useRef(onAutoSave);
+  autoSaveRef.current = onAutoSave;
+  useEffect(() => {
+    if (!autoSaveRef.current) return;
+    const id = window.setTimeout(
+      () => autoSaveRef.current?.({ tokens, shapes, orientation, view, field }),
+      600,
+    );
+    return () => window.clearTimeout(id);
+  }, [tokens, shapes, orientation, view, field]);
+
+
+
 
   const vb = viewBoxFor(orientation, view);
   const w = vb.w;
