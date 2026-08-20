@@ -1,5 +1,6 @@
 import type * as React from "react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowUpRight,
   Circle as CircleIcon,
@@ -8,6 +9,8 @@ import {
   RefreshCw,
   Download,
   Eraser,
+  Maximize2,
+  Minimize2,
   MousePointer2,
   Minus,
   Pencil,
@@ -20,6 +23,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 
 /* ------------------------------------------------------------------ */
 /* types                                                               */
@@ -444,11 +448,19 @@ export function TacticsBoard({
   drawing: initialDrawing,
   onSave,
   saveLabel = "Save drawing",
+  onAutoSave,
+  fullscreen: fullscreenProp,
+  onFullscreenChange,
 }: {
   initialTokens?: BoardToken[];
   drawing?: BoardDrawing | null;
   onSave?: (drawing: BoardDrawing) => void;
   saveLabel?: string;
+  /** Called silently (debounced) on every change, so work is never lost. */
+  onAutoSave?: (drawing: BoardDrawing) => void;
+  /** Optional controlled full-screen state (the board manages its own when omitted). */
+  fullscreen?: boolean;
+  onFullscreenChange?: (value: boolean) => void;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [orientation, setOrientation] = useState<Orientation>(initialDrawing?.orientation ?? "portrait");
@@ -463,9 +475,52 @@ export function TacticsBoard({
   const [drawColor, setDrawColor] = useState(DRAW_COLORS[0]!);
   const [teamColor, setTeamColor] = useState<string>(TEAM_COLORS[0]!.value);
   const [nextNumber, setNextNumber] = useState(1);
+  const [ownFullscreen, setOwnFullscreen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dragId = useRef<string | null>(null);
   const drawing = useRef<BoardShape | null>(null);
   const [, force] = useState(0);
+
+  const fullscreen = fullscreenProp ?? ownFullscreen;
+  const setFullscreen = useCallback(
+    (value: boolean) => {
+      if (fullscreenProp === undefined) setOwnFullscreen(value);
+      onFullscreenChange?.(value);
+    },
+    [fullscreenProp, onFullscreenChange],
+  );
+
+  useEffect(() => setMounted(true), []);
+
+  /* lock the page behind the overlay and allow Esc to leave */
+  useEffect(() => {
+    if (!fullscreen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen, setFullscreen]);
+
+  /* silent ongoing capture — nothing is lost while working, in or out of focus mode */
+  const autoSaveRef = useRef(onAutoSave);
+  autoSaveRef.current = onAutoSave;
+  useEffect(() => {
+    if (!autoSaveRef.current) return;
+    const id = window.setTimeout(
+      () => autoSaveRef.current?.({ tokens, shapes, orientation, view, field }),
+      600,
+    );
+    return () => window.clearTimeout(id);
+  }, [tokens, shapes, orientation, view, field]);
+
+
+
 
   const vb = viewBoxFor(orientation, view);
   const w = vb.w;
@@ -620,10 +675,24 @@ export function TacticsBoard({
     [shapes, drawing.current?.points.length, drawing.current?.id],
   );
 
-  return (
-    <div className="panel overflow-hidden">
+  const board = (
+    <div
+      className={cn(
+        "panel overflow-hidden",
+        fullscreen && "flex h-full min-h-0 flex-col rounded-none border-0 shadow-none",
+      )}
+    >
       {/* toolbar */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-surface-2 p-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border bg-surface-2 p-2">
+        <ToolButton
+          active={fullscreen}
+          label={fullscreen ? "Exit full screen (Esc)" : "Full-screen board"}
+          onClick={() => setFullscreen(!fullscreen)}
+        >
+          {fullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+        </ToolButton>
+        <span className="mx-1 h-6 w-px bg-border" />
+
         <ToolButton
           active={panel === "players"}
           label="Players"
@@ -755,7 +824,12 @@ export function TacticsBoard({
       </div>
 
 
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-3 p-3 lg:grid-cols-[170px_minmax(0,1fr)]">
+      <div
+        className={cn(
+          "grid grid-cols-[minmax(0,1fr)] gap-3 p-3 lg:grid-cols-[170px_minmax(0,1fr)]",
+          fullscreen && "min-h-0 flex-1 overflow-auto",
+        )}
+      >
         {/* palette */}
         {panel && (
           <div className="min-w-0 rounded-md border border-border bg-surface-2 p-2">
@@ -806,13 +880,14 @@ export function TacticsBoard({
 
         {/* pitch — the box always matches the chosen view's aspect ratio, so
             there is never empty space beside or below the playing surface. */}
-        <div className="relative flex min-w-0 justify-center">
+        <div className={cn("relative flex min-w-0 justify-center", fullscreen && "h-full min-h-0 items-center")}>
           <div
             className="relative overflow-hidden rounded-md border border-border bg-pitch"
-            style={{
-              aspectRatio: `${w} / ${h}`,
-              width: `min(100%, calc(70vh * ${w / h}))`,
-            }}
+            style={
+              fullscreen
+                ? { aspectRatio: `${w} / ${h}`, height: "100%", maxWidth: "100%", width: "auto" }
+                : { aspectRatio: `${w} / ${h}`, width: `min(100%, calc(70vh * ${w / h}))` }
+            }
           >
           <svg
             ref={svgRef}
@@ -917,7 +992,17 @@ export function TacticsBoard({
       </div>
     </div>
   );
+
+  if (fullscreen && mounted) {
+    return createPortal(
+      <div className="fixed inset-0 z-[100] flex flex-col bg-background">{board}</div>,
+      document.body,
+    );
+  }
+
+  return board;
 }
+
 
 function ToolButton({
   children,
