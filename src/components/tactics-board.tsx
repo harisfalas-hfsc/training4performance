@@ -975,7 +975,17 @@ export function TacticsBoard({
       </div>
     </div>
   );
+
+  if (fullscreen && mounted) {
+    return createPortal(
+      <div className="fixed inset-0 z-[100] flex flex-col bg-background">{board}</div>,
+      document.body,
+    );
+  }
+
+  return board;
 }
+
 
 function ToolButton({
   children,
