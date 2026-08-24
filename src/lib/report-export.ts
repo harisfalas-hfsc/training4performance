@@ -260,8 +260,7 @@ export async function exportReportPdf(p: ReportPayload) {
       doc.setFillColor(...brand);
       doc.rect(pad, y - 11, W - pad * 2, rowH, "F");
       doc.setFont("helvetica", "bold").setFontSize(7.5).setTextColor(255, 255, 255);
-      p.columns.forEach((c, i) => doc.text(String(c).slice(0, 22), pad + 5 + i * colW, y);
-      );
+      p.columns.forEach((c, i) => doc.text(String(c).slice(0, 22), pad + 5 + i * colW, y));
       y += rowH + 4;
     };
     tableHead();
