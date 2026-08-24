@@ -309,6 +309,43 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
     const { userId } = context as { userId: string };
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      // Cancel any live Stripe subscription before the record disappears, so the
+      // customer's card is never charged again after the account is removed.
+      const { data: subs } = await supabaseAdmin
+        .from("subscriptions")
+        .select("stripe_subscription_id, environment, status, team_name")
+        .eq("user_id", userId);
+
+      for (const sub of subs ?? []) {
+        const stripeId = sub.stripe_subscription_id;
+        if (!stripeId || sub.status === "canceled") continue;
+        const env = sub.environment === "live" ? "live" : "sandbox";
+        try {
+          const { createStripeClient } = await import("@/lib/stripe.server");
+          await createStripeClient(env).subscriptions.cancel(stripeId);
+        } catch (err) {
+          const reason = err instanceof Error ? err.message : String(err);
+          console.error(`[deleteMyAccount] Stripe cancellation failed for ${stripeId}:`, reason);
+          // Flag it for the admin so it can be cancelled manually in Stripe.
+          try {
+            const { data: admins } = await supabaseAdmin
+              .from("user_roles")
+              .select("user_id")
+              .eq("role", "admin");
+            const rows = (admins ?? []).map((a) => ({
+              user_id: a.user_id,
+              kind: "billing",
+              title: "Stripe cancellation failed on account deletion",
+              body: `Subscription ${stripeId} (${env}, team "${sub.team_name}") for deleted user ${userId} could not be cancelled automatically: ${reason}. Cancel it manually in Stripe.`,
+            }));
+            if (rows.length) await supabaseAdmin.from("notifications").insert(rows);
+          } catch (flagErr) {
+            console.error("[deleteMyAccount] Could not flag the failure for the admin:", flagErr);
+          }
+        }
+      }
+
       await supabaseAdmin.from("workspace_data").delete().eq("user_id", userId);
       await supabaseAdmin.from("usage_snapshots").delete().eq("user_id", userId);
       await supabaseAdmin.from("player_wellness").delete().eq("coach_id", userId);
