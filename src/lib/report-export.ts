@@ -420,9 +420,8 @@ export function exportReport(format: string, payload: ReportPayload) {
       exportReportPng(payload);
       return "PNG image downloaded.";
     default:
-      return exportReportPdf(payload)
-        ? "PDF sheet opened — use your browser's print dialog to save it."
-        : "Pop-up blocked, printable HTML downloaded instead.";
+      void exportReportPdf(payload);
+      return "PDF file downloaded.";
   }
 }
 
