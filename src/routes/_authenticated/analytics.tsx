@@ -411,10 +411,10 @@ function AnalyticsPage() {
                    const playerRows = rangeRows.filter((row) => row.playerId === id);
                    const total = (key: string) => playerRows.reduce((sum, row) => sum + gpsValue(row, key), 0);
                    const rpes = playerRows.filter((row) => row.rpe > 0).map((row) => row.rpe);
-                   const acute = playerRows.reduce((sum, row) => sum + row.rpe * row.minutes, 0);
-                   const chronicDays = Math.max(28, window);
-                   const chronicRows = gpsHistory.filter((row) => row.playerId === id && row.date <= to && row.date >= new Date(new Date(`${to}T12:00:00`).getTime() - (chronicDays - 1) * 86_400_000).toISOString().slice(0, 10));
-                   const chronic = chronicRows.reduce((sum, row) => sum + row.rpe * row.minutes, 0) / (chronicDays / window);
+                  const acute = playerRows.reduce((sum, row) => sum + gpsRowLoad(row), 0);
+                  const chronicDays = Math.max(28, window);
+                  const chronicRows = gpsHistory.filter((row) => row.playerId === id && row.date <= to && row.date >= new Date(new Date(`${to}T12:00:00`).getTime() - (chronicDays - 1) * 86_400_000).toISOString().slice(0, 10));
+                  const chronic = chronicRows.reduce((sum, row) => sum + gpsRowLoad(row), 0) / (chronicDays / window);
 
                   return (
                     <tr key={id} className="border-b border-border/60">

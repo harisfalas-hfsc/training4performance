@@ -305,10 +305,8 @@ if (typeof window !== "undefined") {
     "t4p.testrecords.",
     "t4p.customtests.",
     "t4p.library.",
-    "t4p.loadmodel.",
     "t4p.gpsTemplates.",
     "t4p.teamSlots.",
-    "t4p.notifications.",
     "t4p.alerts.",
     "t4p.purge.",
   ];

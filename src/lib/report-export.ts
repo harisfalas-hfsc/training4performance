@@ -147,7 +147,7 @@ ${p.medical?.length ? `<h2>Medical &amp; availability</h2><ul>${p.medical.map((m
 
 
 /** Opens a print-ready sheet; the browser's print dialog saves it as PDF. */
-export function exportReportPdf(p: ReportPayload) {
+export function printReportSheet(p: ReportPayload) {
   const w = window.open("", "_blank");
   if (!w) {
     // Popup blocked — fall back to downloading the printable HTML file.
@@ -159,6 +159,160 @@ export function exportReportPdf(p: ReportPayload) {
   w.focus();
   setTimeout(() => w.print(), 400);
   return true;
+}
+
+const hex = (h: string): [number, number, number] => [
+  parseInt(h.slice(1, 3), 16),
+  parseInt(h.slice(3, 5), 16),
+  parseInt(h.slice(5, 7), 16),
+];
+
+/** Generates and downloads a real PDF file in one click. */
+export async function exportReportPdf(p: ReportPayload) {
+  let jsPDFCtor: typeof import("jspdf").jsPDF;
+  try {
+    ({ jsPDF: jsPDFCtor } = await import("jspdf"));
+  } catch {
+    return printReportSheet(p);
+  }
+  try {
+    const doc = new jsPDFCtor({ orientation: "landscape", unit: "pt", format: "a4" });
+    const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
+    const pad = 34;
+    const brand = hex(BRAND);
+    let y = 0;
+
+    const header = () => {
+      doc.setFillColor(...brand);
+      doc.rect(0, 0, W, 6, "F");
+      doc.roundedRect(pad, 20, 34, 34, 5, 5, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold").setFontSize(12);
+      doc.text("T4P", pad + 6, 42);
+      doc.setTextColor(17, 17, 17);
+      doc.setFontSize(16);
+      doc.text(`${p.club} — ${p.title}`, pad + 46, 38);
+      doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(85, 85, 85);
+      doc.text(p.subtitle, pad + 46, 52);
+      y = 76;
+    };
+
+    const footer = () => {
+      doc.setDrawColor(230, 230, 230);
+      doc.line(pad, H - 32, W - pad, H - 32);
+      doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(136, 136, 136);
+      doc.text("Training 4 Performance · training4performance.com", pad, H - 18);
+      doc.text(`Generated ${stamp()}`, W - pad, H - 18, { align: "right" });
+    };
+
+    const newPage = () => {
+      footer();
+      doc.addPage();
+      header();
+    };
+
+    const ensure = (need: number) => {
+      if (y + need > H - 50) newPage();
+    };
+
+    header();
+
+    // Headline cards
+    const cardW = 150;
+    const cardH = 46;
+    let cx = pad;
+    p.headline.forEach((h) => {
+      if (cx + cardW > W - pad) {
+        cx = pad;
+        y += cardH + 8;
+        ensure(cardH);
+      }
+      doc.setDrawColor(226, 226, 226);
+      doc.roundedRect(cx, y, cardW, cardH, 4, 4, "S");
+      doc.setFillColor(...brand);
+      doc.rect(cx, y, cardW, 3, "F");
+      doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(102, 102, 102);
+      doc.text(String(h.label).toUpperCase(), cx + 8, y + 18);
+      doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(17, 17, 17);
+      doc.text(String(h.value), cx + 8, y + 36);
+      cx += cardW + 8;
+    });
+    if (p.headline.length) y += cardH + 22;
+
+    const sectionTitle = (label: string) => {
+      ensure(30);
+      doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...brand);
+      doc.text(label.toUpperCase(), pad, y);
+      y += 6;
+      doc.setDrawColor(230, 230, 230);
+      doc.line(pad, y, W - pad, y);
+      y += 14;
+    };
+
+    // Player summary table
+    sectionTitle("Player summary");
+    const colCount = Math.max(p.columns.length, 1);
+    const colW = (W - pad * 2) / colCount;
+    const rowH = 16;
+
+    const tableHead = () => {
+      doc.setFillColor(...brand);
+      doc.rect(pad, y - 11, W - pad * 2, rowH, "F");
+      doc.setFont("helvetica", "bold").setFontSize(7.5).setTextColor(255, 255, 255);
+      p.columns.forEach((c, i) => doc.text(String(c).slice(0, 22), pad + 5 + i * colW, y));
+      y += rowH + 4;
+    };
+    tableHead();
+
+    doc.setFont("helvetica", "normal").setFontSize(8);
+    if (!p.rows.length) {
+      doc.setTextColor(120, 120, 120);
+      doc.text("No records in the selected range", pad + 5, y);
+      y += rowH;
+    }
+    p.rows.forEach((r, ri) => {
+      if (y + rowH > H - 50) {
+        newPage();
+        tableHead();
+        doc.setFont("helvetica", "normal").setFontSize(8);
+      }
+      if (ri % 2 === 1) {
+        doc.setFillColor(250, 250, 250);
+        doc.rect(pad, y - 11, W - pad * 2, rowH, "F");
+      }
+      doc.setTextColor(17, 17, 17);
+      r.forEach((c, i) => doc.text(String(c).slice(0, 24), pad + 5 + i * colW, y));
+      y += rowH;
+    });
+    y += 16;
+
+    const bullets = (items: string[]) => {
+      doc.setFont("helvetica", "normal").setFontSize(8.5).setTextColor(51, 51, 51);
+      items.forEach((item) => {
+        const lines = doc.splitTextToSize(`• ${item}`, W - pad * 2 - 10) as string[];
+        ensure(lines.length * 12);
+        doc.text(lines, pad + 4, y);
+        y += lines.length * 12 + 3;
+      });
+      y += 10;
+    };
+
+    if (p.medical?.length) {
+      sectionTitle("Medical & availability");
+      bullets(p.medical);
+    }
+    if (p.observations.length) {
+      sectionTitle("Key observations");
+      bullets(p.observations);
+    }
+
+    footer();
+    saveBlob(doc.output("blob"), `${baseName(p)}.pdf`);
+    return true;
+  } catch {
+    return printReportSheet(p);
+  }
 }
 
 /** Draws the report onto a canvas and downloads a real PNG. */
@@ -266,9 +420,8 @@ export function exportReport(format: string, payload: ReportPayload) {
       exportReportPng(payload);
       return "PNG image downloaded.";
     default:
-      return exportReportPdf(payload)
-        ? "PDF sheet opened — use your browser's print dialog to save it."
-        : "Pop-up blocked, printable HTML downloaded instead.";
+      void exportReportPdf(payload);
+      return "PDF file downloaded.";
   }
 }
 
