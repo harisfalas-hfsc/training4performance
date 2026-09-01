@@ -265,6 +265,20 @@ function TrainingPage() {
   const [drawingIndex, setDrawingIndex] = useState<number | null>(() => search.board ?? null);
   const [renaming, setRenaming] = useState<string | null>(null);
 
+  // The workspace hydrates after the first render, so the session for today (or
+  // for the requested date) may not exist yet when this page mounts. Without
+  // this the designer keeps showing the "new session" form and a second,
+  // duplicate session is created for a day that already has one.
+  useEffect(() => {
+    if (selectedId) return;
+    const found =
+      sessionCalendar.find((s) => s.date === search.date) ?? sessionCalendar.find((s) => s.date === today);
+    if (found) setSelectedId(found.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, search.date, sessionCalendar.length]);
+
+
+
   useEffect(() => {
     if (!session) return;
     setItems(session.plan ?? []);
@@ -1872,6 +1886,13 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
       className="grid gap-4 rounded-md border border-border bg-card p-5 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
+        // Never create a second identical session for a day that already has
+        // one — reopen it instead, so nothing is duplicated or lost.
+        const existing = sessionCalendar.find((s) => s.date === form.date && s.type === form.type);
+        if (existing) {
+          onDone(existing.id);
+          return;
+        }
         const s = addSession({
           date: form.date,
           label: form.label,

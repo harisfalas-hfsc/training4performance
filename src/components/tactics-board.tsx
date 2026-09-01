@@ -518,6 +518,9 @@ export function TacticsBoard({
       return;
     }
     if (!autoSaveRef.current) return;
+    // An empty board is not a drawing: never flag a drill as "drawing attached"
+    // when nothing has actually been placed or drawn.
+    if (!tokens.length && !shapes.length && !initialDrawing) return;
     const id = window.setTimeout(
       () => autoSaveRef.current?.({ tokens, shapes, orientation, view, field }),
       600,
