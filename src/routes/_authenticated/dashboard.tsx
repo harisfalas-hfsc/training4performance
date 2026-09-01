@@ -16,6 +16,7 @@ import {
   squadStats,
   squadTrend,
   today,
+  useDataVersion,
   wellnessScore,
 } from "@/data/performance";
 
@@ -39,6 +40,9 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  // Insights must redraw when the workspace finishes hydrating, exactly like
+  // every other platform page — otherwise it stays on the empty first render.
+  useDataVersion();
   const av = squadAvailability();
   const metrics = squadMetrics();
   const hsrStats = squadStats((m) => m.hsr7);
