@@ -247,12 +247,15 @@ function BoardPage() {
                   onChange={(e) => {
                     const idx = Number(e.target.value);
                     setItemIndex(idx);
+                    // Load the selected exercise's own drawing, not the previous capture.
+                    setDrawingJson("");
                     if (idx >= 0) {
                       const it = plan[idx];
                       setDescription(it?.notes ?? "");
                       if (it?.drill) setName(it.drill);
                     }
                   }}
+
                 >
                   <option value={-1}>New exercise</option>
                   {plan.map((p, i) => (
