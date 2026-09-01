@@ -193,7 +193,14 @@ function seed(): TestRecord[] {
 /* Custom test builder                                                 */
 /* ------------------------------------------------------------------ */
 
-const CUSTOM_KEY = "t4p.customtests.v4";
+let customTestUser: string | null = null;
+
+/** Coach-defined test definitions are kept per account; the demo is never persisted. */
+function customTestKey(userId: string | null) {
+  if (typeof window === "undefined") return null;
+  if (!userId || userId === "t4p-demo") return null;
+  return `t4p.ctests.v5.${userId}`;
+}
 
 /** What kind of number the coach records for a custom test. */
 export type CustomTestKind = "number" | "time" | "score" | "strength";
@@ -214,13 +221,31 @@ function rebuildCatalog() {
 }
 
 function persistCustomTests() {
-  // Never retain account test definitions in a browser cache.
+  const key = customTestKey(customTestUser);
+  if (!key) return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(customTests));
+  } catch {
+    /* storage unavailable */
+  }
 }
 
 function hydrateCustomTests(userId: string | null) {
+  customTestUser = userId;
   customTests.splice(0, customTests.length);
+  const key = customTestKey(userId);
+  if (key) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      const parsed = raw ? (JSON.parse(raw) as TestDef[]) : [];
+      if (Array.isArray(parsed)) customTests.push(...parsed.filter((t) => t && t.id && t.name));
+    } catch {
+      /* corrupt entry — start clean */
+    }
+  }
   rebuildCatalog();
 }
+
 
 const slug = (s: string) =>
   s

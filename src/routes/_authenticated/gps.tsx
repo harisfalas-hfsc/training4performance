@@ -347,16 +347,22 @@ function GpsPage() {
       ),
     );
 
-  /** Create squad members straight from the file, so a coach never types the names twice. */
-  const createMissingPlayers = () => {
-    if (!unmatchedNames.length) return;
+  /** Adds every unmatched name to the squad and returns raw name → new player id. */
+  const addMissingToSquad = (names: string[]) => {
     const created: Record<string, string> = {};
-    for (const raw of unmatchedNames) {
+    for (const raw of names) {
       const parts = raw.trim().split(/[\s,]+/).filter(Boolean);
       const last = parts.length > 1 ? parts.slice(1).join(" ") : "";
       const player = addPlayer({ firstName: parts[0] ?? raw, lastName: last, position: "CM" });
-      if (player) created[raw.toLowerCase()] = player.id;
+      if (player) created[raw.trim().toLowerCase()] = player.id;
     }
+    return created;
+  };
+
+  /** Create squad members straight from the file, so a coach never types the names twice. */
+  const createMissingPlayers = () => {
+    if (!unmatchedNames.length) return;
+    const created = addMissingToSquad(unmatchedNames);
 
     const count = Object.keys(created).length;
     if (!count) {
@@ -384,8 +390,33 @@ function GpsPage() {
   };
 
   const runImport = () => {
-    const ok = athleteRows.filter((r) => r.matchedId && r.confidence >= 0.95);
+    // Never drop rows silently: names that are not in the squad yet are added now.
+    let created: Record<string, string> = {};
+    if (unmatchedNames.length) {
+      created = addMissingToSquad(unmatchedNames);
+      const count = Object.keys(created).length;
+      if (count) {
+        setRows((prev) =>
+          prev.map((r) =>
+            !r.matchedId && created[r.raw.trim().toLowerCase()]
+              ? { ...r, matchedId: created[r.raw.trim().toLowerCase()]!, confidence: 1 }
+              : r,
+          ),
+        );
+        toast.success(`${count} new player(s) added to your squad from the file`);
+      } else {
+        toast.error("Some names in the file are not in your squad and could not be added — their rows were skipped.");
+      }
+    }
+    const ok = athleteRows
+      .map((r) =>
+        !r.matchedId && created[r.raw.trim().toLowerCase()]
+          ? { ...r, matchedId: created[r.raw.trim().toLowerCase()]!, confidence: 1 }
+          : r,
+      )
+      .filter((r) => r.matchedId && r.confidence >= 0.95);
     if (!ok.length) return;
+
     // No calendar entry for this day: create an empty session so the load has an anchor.
     // It can be opened and designed later in the Training Designer.
     let target = session;

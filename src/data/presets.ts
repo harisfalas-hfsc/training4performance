@@ -279,8 +279,6 @@ export const LIFT_PATTERNS: LiftPattern[] = [
 /* Custom (user) library, persisted locally                            */
 /* ------------------------------------------------------------------ */
 
-const KEY = "t4p.library.v3";
-
 /** A saved block: the block name plus every drill/exercise inside it. */
 export interface SavedBlock {
   id: string;
@@ -316,13 +314,57 @@ interface LibraryState {
 const state: LibraryState = { strength: [], drills: [], blockNames: [], blocks: [], sessions: [] };
 const listeners = new Set<() => void>();
 let version = 0;
+let activeUser: string | null = null;
+
+/** Personal library is kept per account. The demo sandbox is never persisted. */
+function storageKey(userId: string | null) {
+  if (typeof window === "undefined") return null;
+  if (!userId || userId === "t4p-demo") return null;
+  return `t4p.lib.v4.${userId}`;
+}
+
+function persist() {
+  const key = storageKey(activeUser);
+  if (!key) return;
+  try {
+    window.localStorage.setItem(
+      key,
+      JSON.stringify({
+        strength: state.strength,
+        drills: state.drills,
+        blockNames: state.blockNames,
+        blocks: state.blocks,
+        sessions: state.sessions,
+      }),
+    );
+  } catch {
+    /* storage full or unavailable */
+  }
+}
 
 function load(userId: string | null, _migrateLegacy: boolean) {
+  activeUser = userId;
   state.strength = [];
   state.drills = [];
   state.blockNames = [];
   state.blocks = [];
   state.sessions = [];
+  const key = storageKey(userId);
+  if (key) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<LibraryState>;
+        state.strength = Array.isArray(parsed.strength) ? parsed.strength : [];
+        state.drills = Array.isArray(parsed.drills) ? parsed.drills : [];
+        state.blockNames = Array.isArray(parsed.blockNames) ? parsed.blockNames : [];
+        state.blocks = Array.isArray(parsed.blocks) ? parsed.blocks : [];
+        state.sessions = Array.isArray(parsed.sessions) ? parsed.sessions : [];
+      }
+    } catch {
+      /* corrupt entry — start clean */
+    }
+  }
   version++;
   listeners.forEach((listener) => listener());
 }
@@ -331,9 +373,11 @@ const initialScope = getWorkspaceScope();
 load(initialScope.userId, initialScope.migrateLegacy);
 
 function emit() {
+  persist();
   version++;
   listeners.forEach((l) => l());
 }
+
 
 export function useLibraryVersion() {
   return useSyncExternalStore(

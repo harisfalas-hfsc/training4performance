@@ -229,7 +229,9 @@ function BoardPage() {
                     setSessionId(e.target.value);
                     setItemIndex(-1);
                     setBlockName("");
+                    setDrawingJson("");
                   }}
+
                 >
                   {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
                   {sessions.map((s) => (
@@ -247,12 +249,15 @@ function BoardPage() {
                   onChange={(e) => {
                     const idx = Number(e.target.value);
                     setItemIndex(idx);
+                    // Load the selected exercise's own drawing, not the previous capture.
+                    setDrawingJson("");
                     if (idx >= 0) {
                       const it = plan[idx];
                       setDescription(it?.notes ?? "");
                       if (it?.drill) setName(it.drill);
                     }
                   }}
+
                 >
                   <option value={-1}>New exercise</option>
                   {plan.map((p, i) => (

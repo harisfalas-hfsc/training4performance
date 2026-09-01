@@ -118,6 +118,17 @@ export async function parseGpsFile(file: File): Promise<ParsedFile> {
   if (!sheetName) throw new Error("The file has no readable sheet.");
   const sheet = wb.Sheets[sheetName]!;
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "", raw: false });
+  // Formatted output turns real dates into locale strings (8/25/26), which is
+  // ambiguous. Keep the underlying Date objects so dates never get swapped.
+  const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "", raw: true });
+  rows.forEach((row, i) => {
+    const rawRow = rawRows[i];
+    if (!rawRow) return;
+    for (const key of Object.keys(row)) {
+      const rawValue = rawRow[key];
+      if (rawValue instanceof Date && !isNaN(rawValue.getTime())) row[key] = rawValue;
+    }
+  });
   const headerRow = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1, blankrows: false })[0] ?? [];
   const headers = headerRow.map((h) => String(h ?? "").trim()).filter(Boolean);
   if (!headers.length) throw new Error("No header row found — the first row must contain the column names.");
@@ -130,22 +141,34 @@ export const toNumber = (v: unknown): number => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const localIso = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
 /** Normalise whatever date format the export used into YYYY-MM-DD. */
 export function toIsoDate(v: unknown): string | null {
   if (!v) return null;
-  if (v instanceof Date && !isNaN(v.getTime())) return v.toISOString().slice(0, 10);
+  if (v instanceof Date && !isNaN(v.getTime())) return localIso(v);
   const s = String(v).trim();
   const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
   if (iso) return s.slice(0, 10);
   const dmy = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/.exec(s);
   if (dmy) {
-    const [, d, m, y] = dmy;
+    const [, a, b, y] = dmy;
+    let day = Number(a);
+    let month = Number(b);
+    // A value above 12 can only be the day, so US-style m/d/y is detected safely.
+    if (month > 12 && day <= 12) {
+      const swap = day;
+      day = month;
+      month = swap;
+    }
     const yyyy = y!.length === 2 ? `20${y}` : y!;
-    return `${yyyy}-${m!.padStart(2, "0")}-${d!.padStart(2, "0")}`;
+    return `${yyyy}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
   const parsed = new Date(s);
-  return isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+  return isNaN(parsed.getTime()) ? null : localIso(parsed);
 }
+
 
 /* ---------- saved coach templates ---------- */
 

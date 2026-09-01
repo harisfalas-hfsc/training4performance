@@ -167,7 +167,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         // Purge every retired account-data cache before application modules run.
         // Account records are cloud-authoritative; the shared demo is memory-only.
-        children: `(function(){try{var p=['t4p.data.','t4p.tests.','t4p.testrecords.','t4p.customtests.','t4p.library.','t4p.loadmodel.','t4p.gpsTemplates.','t4p.teamSlots.','t4p.notifications.','t4p.alerts.','t4p.purge.'];Object.keys(localStorage).forEach(function(k){if(p.some(function(x){return k.indexOf(x)===0;})){localStorage.removeItem(k);}});}catch(e){}})();`,
+        children: `(function(){try{var p=['t4p.data.','t4p.tests.','t4p.testrecords.','t4p.customtests.','t4p.library.','t4p.gpsTemplates.','t4p.alerts.','t4p.purge.'];Object.keys(localStorage).forEach(function(k){if(p.some(function(x){return k.indexOf(x)===0;})){localStorage.removeItem(k);}});}catch(e){}})();`,
       },
 
 
@@ -282,8 +282,7 @@ function RootShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const retiredDataPrefixes = [
       "t4p.data.", "t4p.tests.", "t4p.testrecords.", "t4p.customtests.",
-      "t4p.library.", "t4p.loadmodel.", "t4p.gpsTemplates.", "t4p.teamSlots.",
-      "t4p.notifications.", "t4p.alerts.", "t4p.purge.",
+      "t4p.library.", "t4p.gpsTemplates.", "t4p.alerts.", "t4p.purge.",
     ];
     Object.keys(window.localStorage).forEach((key) => {
       if (retiredDataPrefixes.some((prefix) => key.startsWith(prefix))) window.localStorage.removeItem(key);

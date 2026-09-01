@@ -306,7 +306,6 @@ if (typeof window !== "undefined") {
     "t4p.customtests.",
     "t4p.library.",
     "t4p.gpsTemplates.",
-    "t4p.teamSlots.",
     "t4p.alerts.",
     "t4p.purge.",
   ];
