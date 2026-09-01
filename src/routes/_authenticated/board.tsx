@@ -229,7 +229,9 @@ function BoardPage() {
                     setSessionId(e.target.value);
                     setItemIndex(-1);
                     setBlockName("");
+                    setDrawingJson("");
                   }}
+
                 >
                   {sessions.length === 0 ? <option value="">No sessions yet — create one on the calendar</option> : null}
                   {sessions.map((s) => (
