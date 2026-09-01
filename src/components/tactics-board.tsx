@@ -510,7 +510,13 @@ export function TacticsBoard({
   /* silent ongoing capture — nothing is lost while working, in or out of focus mode */
   const autoSaveRef = useRef(onAutoSave);
   autoSaveRef.current = onAutoSave;
+  const autoSaveArmed = useRef(false);
   useEffect(() => {
+    // Never fire on mount: an empty first capture would overwrite a saved drawing.
+    if (!autoSaveArmed.current) {
+      autoSaveArmed.current = true;
+      return;
+    }
     if (!autoSaveRef.current) return;
     const id = window.setTimeout(
       () => autoSaveRef.current?.({ tokens, shapes, orientation, view, field }),
