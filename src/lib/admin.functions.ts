@@ -336,14 +336,7 @@ export const adminSaveCustomerWorkspace = createServerFn({ method: "POST" })
   });
 
 
-/**
- * Grants (or extends) platform access for N months.
- *
- * mode:
- *  - "extend"     → N months are ADDED on top of the access the customer
- *                   already has (default when the subscription is still live).
- *  - "from_today" → access is reset to exactly N months from today.
- */
+/** Grants platform access for exactly N months from today. */
 export const adminGrantAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
@@ -352,7 +345,6 @@ export const adminGrantAccess = createServerFn({ method: "POST" })
       months: number;
       complimentary?: boolean;
       note?: string;
-      mode?: "extend" | "from_today";
     }) => data,
   )
   .handler(async ({ context, data }): Promise<{ ok: true; until: string } | { error: string }> => {
@@ -369,10 +361,8 @@ export const adminGrantAccess = createServerFn({ method: "POST" })
         .maybeSingle();
 
       const now = new Date();
-      const stillRunning = Boolean(existing?.season_end && new Date(existing.season_end).getTime() > now.getTime());
-      const base = data.mode !== "from_today" && stillRunning ? new Date(existing!.season_end as string) : now;
-      const until = new Date(base);
-      until.setMonth(until.getMonth() + months);
+      const until = new Date(now);
+      until.setUTCMonth(until.getUTCMonth() + months);
 
       const untilDate = until.toISOString().slice(0, 10);
 

@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Ban,
   CheckCircle2,
-  Gift,
   Loader2,
   LogIn,
   RefreshCw,
@@ -73,21 +72,10 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 
-/**
- * The date a grant would end, exactly as the server will compute it: months are
- * added to the current access when "Add to current" is chosen and that access
- * is still running, otherwise they start from today.
- */
-function grantPreview(
-  c: { active?: boolean; season_end?: string | null },
-  months: number,
-  mode: "from_today" | "extend",
-) {
-  const now = new Date();
-  const running = Boolean(c.active && c.season_end && new Date(c.season_end).getTime() > now.getTime());
-  const base = mode === "extend" && running ? new Date(c.season_end as string) : now;
-  const d = new Date(base);
-  d.setMonth(d.getMonth() + months);
+/** The exact end date for a new grant: the selected months from today. */
+function grantPreview(months: number) {
+  const d = new Date();
+  d.setUTCMonth(d.getUTCMonth() + months);
   return d.toLocaleDateString();
 }
 
@@ -134,7 +122,7 @@ function AdminPage() {
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState(true);
   const [months, setMonths] = useState<Record<string, number>>({});
-  const [grantMode, setGrantMode] = useState<Record<string, "from_today" | "extend">>({});
+  const [grantType, setGrantType] = useState<Record<string, "paid" | "complimentary">>({});
 
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openTeam, setOpenTeam] = useState<string | null>(null);
@@ -234,11 +222,11 @@ function AdminPage() {
   async function grant(
     c: AdminCustomer,
     monthCount: number,
-    mode: "from_today" | "extend",
-    complimentary: boolean,
+    type: "paid" | "complimentary",
   ) {
     setBusy(true);
-    const r = await grantAccess({ data: { userId: c.id, months: monthCount, mode, complimentary } });
+    const complimentary = type === "complimentary";
+    const r = await grantAccess({ data: { userId: c.id, months: monthCount, complimentary } });
     setBusy(false);
     if ("error" in r) toast.error(r.error);
     else
@@ -529,7 +517,7 @@ function AdminPage() {
         ) : (
           visibleCustomers.map((c) => {
             const m = months[c.id] ?? 12;
-            const mode = grantMode[c.id] ?? (c.active ? "extend" : "from_today");
+            const type = grantType[c.id] ?? (c.complimentary ? "complimentary" : "paid");
 
             return (
               <article key={c.id} className="panel overflow-hidden">
@@ -580,7 +568,7 @@ function AdminPage() {
 
                 <p className={`mt-2 rounded-md px-3 py-2 text-xs font-medium ${c.active ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                   {c.active
-                    ? `${c.complimentary ? "Complimentary" : "Paid"} yearly subscription — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
+                    ? `${c.complimentary ? "Complimentary" : "Paid"} access — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
                     : c.status === "pending"
                       ? "Subscription requested — read-only until you activate it below (€699 / season)."
                       : "No subscription — read-only account. Activating below turns on the yearly subscription (€699 / season)."}
@@ -601,14 +589,23 @@ function AdminPage() {
                 </div>
 
                 <div className="mt-3 rounded-md border border-border p-3">
-                  <p className="text-xs font-semibold">Access control</p>
-                  <p className="mt-1 text-[0.7rem] leading-relaxed text-muted-foreground">
-                    Pick how long the access should last, then choose <strong>Paid</strong> (normal €699 subscription)
-                    or <strong>Complimentary</strong> (free access, €0 — for trials, friends, partners). Use{" "}
-                    <strong>Start from today</strong> to set the end date exactly, or <strong>Add to current</strong> to
-                    put the months on top of the access they already have.
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-semibold">Give access</p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
+                    <label className="grid gap-1 text-xs font-medium">
+                      Access type
+                      <select
+                        value={type}
+                        onChange={(e) =>
+                          setGrantType((s) => ({ ...s, [c.id]: e.target.value as "paid" | "complimentary" }))
+                        }
+                        className="h-9 rounded-md border border-border bg-background px-2 text-xs"
+                      >
+                        <option value="paid">Paid access</option>
+                        <option value="complimentary">Complimentary access</option>
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-xs font-medium">
+                      Duration
                     <select
                       value={m}
                       onChange={(e) => setMonths((s) => ({ ...s, [c.id]: Number(e.target.value) }))}
@@ -621,36 +618,17 @@ function AdminPage() {
                         </option>
                       ))}
                     </select>
-                    <select
-                      value={mode}
-                      onChange={(e) =>
-                        setGrantMode((s) => ({ ...s, [c.id]: e.target.value as "from_today" | "extend" }))
-                      }
-                      className="h-9 rounded-md border border-border bg-background px-2 text-xs"
-                      aria-label="How the months are applied"
-                    >
-                      <option value="from_today">Start from today</option>
-                      <option value="extend">Add to current access</option>
-                    </select>
-                    <span className="text-[0.7rem] text-muted-foreground">
-                      → ends {grantPreview(c, m, mode)}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    </label>
                     <Action
                       disabled={busy}
-                      onClick={() => void grant(c, m, mode, false)}
+                      onClick={() => void grant(c, m, type)}
                     >
-                      <CheckCircle2 className="size-3.5" />{" "}
-                      {c.active ? `Paid subscription — ${m} month${m > 1 ? "s" : ""}` : "Activate paid subscription"}
-                    </Action>
-                    <Action
-                      disabled={busy}
-                      onClick={() => void grant(c, m, mode, true)}
-                    >
-                      <Gift className="size-3.5" /> Complimentary — {m} month{m > 1 ? "s" : ""}
+                      <CheckCircle2 className="size-3.5" /> Submit
                     </Action>
                   </div>
+                  <p className="mt-2 text-[0.7rem] text-muted-foreground">
+                    {type === "paid" ? "Paid" : "Complimentary"} access for {m} month{m > 1 ? "s" : ""}, from today until {grantPreview(m)}.
+                  </p>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
