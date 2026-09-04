@@ -80,6 +80,25 @@ function endDateLabel(months: number) {
 }
 
 /**
+ * The date a grant would end, exactly as the server will compute it: months are
+ * added to the current access when "Add to current" is chosen and that access
+ * is still running, otherwise they start from today.
+ */
+function grantPreview(
+  c: { active?: boolean; season_end?: string | null },
+  months: number,
+  mode: "from_today" | "extend",
+) {
+  const now = new Date();
+  const running = Boolean(c.active && c.season_end && new Date(c.season_end).getTime() > now.getTime());
+  const base = mode === "extend" && running ? new Date(c.season_end as string) : now;
+  const d = new Date(base);
+  d.setMonth(d.getMonth() + months);
+  return d.toLocaleDateString();
+}
+
+
+/**
  * Access date shown on a customer card. A date only means something while the
  * subscription is live: once it is revoked or expired the stored season_end is
  * history, so it is labelled instead of being presented as active access.
