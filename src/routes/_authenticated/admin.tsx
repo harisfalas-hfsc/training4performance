@@ -233,6 +233,28 @@ function AdminPage() {
     await reload();
   }
 
+  /**
+   * Grants access and reports the real end date returned by the server, so the
+   * confirmation can never disagree with what was actually stored.
+   */
+  async function grant(
+    c: AdminCustomer,
+    monthCount: number,
+    mode: "from_today" | "extend",
+    complimentary: boolean,
+  ) {
+    setBusy(true);
+    const r = await grantAccess({ data: { userId: c.id, months: monthCount, mode, complimentary } });
+    setBusy(false);
+    if ("error" in r) toast.error(r.error);
+    else
+      toast.success(
+        `${complimentary ? "Complimentary" : "Paid"} subscription active until ${new Date(r.until).toLocaleDateString()}.`,
+      );
+    await reload();
+  }
+
+
   async function signInAs(c: AdminCustomer) {
     setBusy(true);
     const r = await impersonate({ data: { userId: c.id } });
