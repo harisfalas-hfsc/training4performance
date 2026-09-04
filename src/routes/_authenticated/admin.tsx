@@ -561,41 +561,61 @@ function AdminPage() {
                   <span>Last sign-in: {c.last_sign_in_at ? new Date(c.last_sign_in_at).toLocaleDateString() : "—"}</span>
                 </div>
 
+                <div className="mt-3 rounded-md border border-border p-3">
+                  <p className="text-xs font-semibold">Access control</p>
+                  <p className="mt-1 text-[0.7rem] leading-relaxed text-muted-foreground">
+                    Pick how long the access should last, then choose <strong>Paid</strong> (normal €699 subscription)
+                    or <strong>Complimentary</strong> (free access, €0 — for trials, friends, partners). Use{" "}
+                    <strong>Start from today</strong> to set the end date exactly, or <strong>Add to current</strong> to
+                    put the months on top of the access they already have.
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <select
+                      value={m}
+                      onChange={(e) => setMonths((s) => ({ ...s, [c.id]: Number(e.target.value) }))}
+                      className="h-9 rounded-md border border-border bg-background px-2 text-xs"
+                      aria-label="Access duration"
+                    >
+                      {ACCESS_MONTH_OPTIONS.map((v) => (
+                        <option key={v} value={v}>
+                          {v} month{v > 1 ? "s" : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={mode}
+                      onChange={(e) =>
+                        setGrantMode((s) => ({ ...s, [c.id]: e.target.value as "from_today" | "extend" }))
+                      }
+                      className="h-9 rounded-md border border-border bg-background px-2 text-xs"
+                      aria-label="How the months are applied"
+                    >
+                      <option value="from_today">Start from today</option>
+                      <option value="extend">Add to current access</option>
+                    </select>
+                    <span className="text-[0.7rem] text-muted-foreground">
+                      → ends {grantPreview(c, m, mode)}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Action
+                      disabled={busy}
+                      onClick={() => void grant(c, m, mode, false)}
+                    >
+                      <CheckCircle2 className="size-3.5" />{" "}
+                      {c.active ? `Paid subscription — ${m} month${m > 1 ? "s" : ""}` : "Activate paid subscription"}
+                    </Action>
+                    <Action
+                      disabled={busy}
+                      onClick={() => void grant(c, m, mode, true)}
+                    >
+                      <Gift className="size-3.5" /> Complimentary — {m} month{m > 1 ? "s" : ""}
+                    </Action>
+                  </div>
+                </div>
+
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <select
-                    value={m}
-                    onChange={(e) => setMonths((s) => ({ ...s, [c.id]: Number(e.target.value) }))}
-                    className="h-9 rounded-md border border-border bg-background px-2 text-xs"
-                    aria-label="Access duration"
-                  >
-                    {ACCESS_MONTH_OPTIONS.map((v) => (
-                      <option key={v} value={v}>
-                        {v} month{v > 1 ? "s" : ""}
-                      </option>
-                    ))}
-                  </select>
-                  <Action
-                    disabled={busy}
-                    onClick={() =>
-                      act(
-                        () => grantAccess({ data: { userId: c.id, months: m } }),
-                        `Paid subscription active until ${endDateLabel(m)}.`,
-                      )
-                    }
-                  >
-                    <CheckCircle2 className="size-3.5" /> {c.active ? "Extend subscription" : "Activate paid subscription"}
-                  </Action>
-                  <Action
-                    disabled={busy}
-                    onClick={() =>
-                      act(
-                        () => grantAccess({ data: { userId: c.id, months: m, complimentary: true } }),
-                        `Complimentary subscription active until ${endDateLabel(m)}.`,
-                      )
-                    }
-                  >
-                    <Gift className="size-3.5" /> Complimentary
-                  </Action>
+
                   <Action
                     disabled={busy || !c.active}
                     onClick={() => act(() => revokeAccess({ data: { userId: c.id } }), "Subscription revoked — the account is now a free, read-only user.")}
