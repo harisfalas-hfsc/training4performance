@@ -72,12 +72,6 @@ export const Route = createFileRoute("/_authenticated/admin")({
   }),
 });
 
-/** Human date for the end of an access grant of N months from today. */
-function endDateLabel(months: number) {
-  const d = new Date();
-  d.setMonth(d.getMonth() + months);
-  return d.toLocaleDateString();
-}
 
 /**
  * The date a grant would end, exactly as the server will compute it: months are
