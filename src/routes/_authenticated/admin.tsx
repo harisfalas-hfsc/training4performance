@@ -492,6 +492,8 @@ function AdminPage() {
         ) : (
           visibleCustomers.map((c) => {
             const m = months[c.id] ?? 12;
+            const mode = grantMode[c.id] ?? (c.active ? "extend" : "from_today");
+
             return (
               <article key={c.id} className="panel overflow-hidden">
                 <button
