@@ -121,6 +121,8 @@ function AdminPage() {
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState(true);
   const [months, setMonths] = useState<Record<string, number>>({});
+  const [grantMode, setGrantMode] = useState<Record<string, "from_today" | "extend">>({});
+
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openTeam, setOpenTeam] = useState<string | null>(null);
   const [unreadTickets, setUnreadTickets] = useState(0);
