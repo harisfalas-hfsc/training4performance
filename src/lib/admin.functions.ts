@@ -368,10 +368,11 @@ export const adminGrantAccess = createServerFn({ method: "POST" })
 
       const patch = {
         status: "active",
+        season_start: now.toISOString().slice(0, 10),
         season_end: untilDate,
         complimentary: Boolean(data.complimentary),
         admin_note: data.note ?? null,
-        price_eur: data.complimentary ? 0 : (existing?.price_eur ?? 699),
+        price_eur: data.complimentary ? 0 : 699,
         updated_at: new Date().toISOString(),
       };
 
@@ -382,7 +383,6 @@ export const adminGrantAccess = createServerFn({ method: "POST" })
         const { error } = await supabaseAdmin.from("subscriptions").insert({
           user_id: data.userId,
           team_name: "First team",
-          season_start: now.toISOString().slice(0, 10),
           ...patch,
         });
         if (error) return { error: error.message };

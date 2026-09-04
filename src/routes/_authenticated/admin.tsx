@@ -571,7 +571,7 @@ function AdminPage() {
                     ? `${c.complimentary ? "Complimentary" : "Paid"} access — active until ${c.season_end ? new Date(c.season_end).toLocaleDateString() : "—"}`
                     : c.status === "pending"
                       ? "Subscription requested — read-only until you activate it below (€699 / season)."
-                      : "No subscription — read-only account. Activating below turns on the yearly subscription (€699 / season)."}
+                      : "No access — read-only account. Use the form below to grant paid or complimentary access."}
                 </p>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
