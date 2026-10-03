@@ -66,8 +66,24 @@ function writeJson(key: string, value: unknown) {
 /* Session                                                             */
 /* ------------------------------------------------------------------ */
 
+const SIGNED_OUT_KEY = "t4p.offline.signedOut";
+
+/** Set on explicit sign-out so a reopened tab offline is not silently signed back in. */
+export function markSignedOut() {
+  writeJson(SIGNED_OUT_KEY, true);
+}
+
+export function isSignedOut(): boolean {
+  return readJson<boolean>(SIGNED_OUT_KEY) === true;
+}
+
+function clearSignedOut() {
+  ls()?.removeItem(SIGNED_OUT_KEY);
+}
+
 export function rememberSession(session: Session | null) {
   if (!session?.user?.id) return;
+  clearSignedOut();
   writeJson(SESSION_KEY, {
     user: session.user,
     access_token: session.access_token,
@@ -164,6 +180,7 @@ export function hasDeviceCredentialFor(email: string) {
 const OFFLINE_SIGNIN = "t4p.offline.signedIn";
 
 export function markOfflineSignIn(userId: string) {
+  clearSignedOut();
   try {
     window.sessionStorage.setItem(OFFLINE_SIGNIN, userId);
   } catch {

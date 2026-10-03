@@ -8,7 +8,7 @@ import { resetWorkspaceHydration } from "@/lib/usage";
 import { isDemoActive } from "@/lib/demo";
 import { activeScopeFor } from "@/lib/teams";
 import { browserOnline, offlineFirst } from "@/lib/offline-db";
-import { cachedSession, clearOfflineSignIn, offlineSignInUser, rememberSession } from "@/lib/offline-auth";
+import { cachedSession, clearOfflineSignIn, isSignedOut, markSignedOut, offlineSignInUser, rememberSession } from "@/lib/offline-auth";
 
 export interface Profile {
   id: string;
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // signed in offline with their stored verifier.
         const cached = cachedSession();
         const approved = offlineSignInUser();
-        if (cached && (approved === cached.user.id || approved === null)) {
+        if (cached && (approved === cached.user.id || (approved === null && !isSignedOut()))) {
           active = { user: cached.user, access_token: cached.access_token ?? "" } as unknown as Session;
           setOfflineSession(true);
         }
@@ -171,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // The saved copy of this account's data stays on the device so the
         // coach can sign in again offline; only the live session is dropped.
         clearOfflineSignIn();
+        markSignedOut();
         setOfflineSession(false);
         setSession(null);
         if (typeof window !== "undefined") window.sessionStorage.removeItem("t4p.adminSession");
