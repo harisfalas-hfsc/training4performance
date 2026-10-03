@@ -390,10 +390,17 @@ function GpsPage() {
   };
 
   const runImport = () => {
-    // Never drop rows silently: names that are not in the squad yet are added now.
+    // Names not in the squad are only added after the coach explicitly confirms.
     let created: Record<string, string> = {};
     if (unmatchedNames.length) {
-      created = addMissingToSquad(unmatchedNames);
+      const shown = unmatchedNames.slice(0, 8).join(", ") + (unmatchedNames.length > 8 ? ", …" : "");
+      const addThem =
+        typeof window !== "undefined" &&
+        window.confirm(
+          `${unmatchedNames.length} name(s) in this file are not in your squad:\n${shown}\n\nOK = add them as new players and import.\nCancel = import only the players already matched (unmatched rows are skipped).`,
+        );
+      if (addThem) created = addMissingToSquad(unmatchedNames);
+      else toast.info(`${unmatchedNames.length} unmatched row(s) skipped`);
       const count = Object.keys(created).length;
       if (count) {
         setRows((prev) =>
@@ -404,7 +411,7 @@ function GpsPage() {
           ),
         );
         toast.success(`${count} new player(s) added to your squad from the file`);
-      } else {
+      } else if (addThem) {
         toast.error("Some names in the file are not in your squad and could not be added — their rows were skipped.");
       }
     }

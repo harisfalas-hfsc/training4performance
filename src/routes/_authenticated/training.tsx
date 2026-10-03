@@ -1886,9 +1886,17 @@ function NewSessionForm({ onDone }: { onDone: (id: string) => void }) {
       className="grid gap-4 rounded-md border border-border bg-card p-5 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
-        // Never create a second identical session for a day that already has
-        // one — reopen it instead, so nothing is duplicated or lost.
-        const existing = sessionCalendar.find((s) => s.date === form.date && s.type === form.type);
+        // Only an identical session (same day, type, group, label and objective)
+        // is reopened; a distinct one (e.g. a PM session) is created normally.
+        const objective = form.objective || `${form.type} session`;
+        const existing = sessionCalendar.find(
+          (s) =>
+            s.date === form.date &&
+            s.type === form.type &&
+            (s.group ?? "") === (form.group ?? "") &&
+            (s.label ?? "") === (form.label ?? "") &&
+            (s.objective ?? "") === objective,
+        );
         if (existing) {
           onDone(existing.id);
           return;
